@@ -1582,6 +1582,8 @@
   hyphens: auto;
   flex: 1;
   min-height: 0;
+  max-width: calc(52ch + 12px);
+  padding-inline: 6px;
   overflow-y: auto;
   padding-bottom: 32px;
   scrollbar-width: none;

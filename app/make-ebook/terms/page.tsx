@@ -1,6 +1,12 @@
 "use client";
 
 import { Header } from "@/components/Header";
+import {
+  PRO_LIFETIME_PRICE,
+  PRO_MONTHLY_PRICE,
+  PRO_REFUND_DAYS,
+  PRO_TRIAL_DAYS,
+} from "@/lib/billing/plan";
 
 export default function MakeEbookTermsPage() {
   return (
@@ -59,8 +65,8 @@ export default function MakeEbookTermsPage() {
                 2. Description of Service
               </h2>
               <p className="text-gray-700 mb-4">
-                makeebook is a free online tool that allows users to create,
-                edit, and export eBooks. The Service provides:
+                makeebook is an online tool that allows users to create, edit,
+                and export eBooks. The Service provides:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>Rich text editing capabilities</li>
@@ -68,11 +74,75 @@ export default function MakeEbookTermsPage() {
                 <li>eBook export functionality</li>
                 <li>User account management</li>
               </ul>
+              <p className="text-gray-700 mb-4">
+                Those features are free. The Service also offers a paid tier,
+                Pro, which adds Book Mind, rewrites, pre-flight checks and sync
+                across devices. Section 3 sets out the terms that apply to Pro.
+              </p>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                3. User Accounts
+                3. Pro, Trials and Renewals
+              </h2>
+              <p className="text-gray-700 mb-4">
+                Pro is an optional paid tier. These terms apply if you start it.
+              </p>
+              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                <li>
+                  <strong>Free trial.</strong> A Pro subscription begins with a{" "}
+                  {PRO_TRIAL_DAYS} day free trial. You are not charged during
+                  the trial.
+                </li>
+                <li>
+                  <strong>Automatic renewal.</strong> When the trial ends, your
+                  card is charged {PRO_MONTHLY_PRICE} and Pro then renews
+                  automatically at {PRO_MONTHLY_PRICE} a month until you cancel.
+                  We email you three days before the first charge.
+                </li>
+                <li>
+                  <strong>How to cancel.</strong> Cancel at any time from the
+                  account menu in the app, under Manage Billing, which opens
+                  your Stripe billing portal. Cancelling during the trial means
+                  you are never charged. Cancelling after that stops the next
+                  renewal, and Pro stays active until the end of the period you
+                  have already paid for.
+                </li>
+                <li>
+                  <strong>Refunds.</strong> If Pro is not for you, contact us
+                  within {PRO_REFUND_DAYS} days of a charge and we will refund
+                  it in full.
+                </li>
+                <li>
+                  <strong>Consumer cancellation rights.</strong> If you are a
+                  consumer in the UK or EU you normally have 14 days to change
+                  your mind about a digital service. By starting Pro you ask us
+                  to begin supplying it immediately and you accept that you lose
+                  that 14 day right once supply has begun. The {PRO_REFUND_DAYS}{" "}
+                  day refund above is more generous and applies either way.
+                  Nothing in these terms affects your statutory rights.
+                </li>
+                <li>
+                  <strong>Lifetime licence.</strong> A Lifetime licence is a
+                  single payment of {PRO_LIFETIME_PRICE}. It does not renew and
+                  there is nothing to cancel.
+                </li>
+                <li>
+                  <strong>Price changes.</strong> We may change Pro pricing. If
+                  you are subscribed we will tell you by email at least 30 days
+                  before a change affects you, and you may cancel before it
+                  does. A Lifetime licence is never charged again.
+                </li>
+                <li>
+                  <strong>Payments.</strong> Payments are taken by Stripe. We do
+                  not see or store your card details.
+                </li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                4. User Accounts
               </h2>
               <p className="text-gray-700 mb-4">
                 To use certain features of the Service, you must create an
@@ -90,7 +160,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                4. User Content
+                5. User Content
               </h2>
               <p className="text-gray-700 mb-4">
                 You retain ownership of all content you create using the
@@ -111,7 +181,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                5. Prohibited Uses
+                6. Prohibited Uses
               </h2>
               <p className="text-gray-700 mb-4">
                 You may not use the Service to:
@@ -132,7 +202,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                6. Data Protection and Privacy
+                7. Data Protection and Privacy
               </h2>
               <p className="text-gray-700 mb-4">
                 Your privacy is important to us. Our collection and use of
@@ -150,7 +220,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                7. Service Availability
+                8. Service Availability
               </h2>
               <p className="text-gray-700 mb-4">
                 We strive to maintain the availability of the Service but do not
@@ -161,7 +231,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                8. Limitation of Liability
+                9. Limitation of Liability
               </h2>
               <p className="text-gray-700 mb-4">
                 To the fullest extent permitted by law, makeebook shall not be
@@ -172,7 +242,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                9. Termination
+                10. Termination
               </h2>
               <p className="text-gray-700 mb-4">
                 We may terminate or suspend your account at any time for
@@ -183,7 +253,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                10. Governing Law
+                11. Governing Law
               </h2>
               <p className="text-gray-700 mb-4">
                 These Terms of Service are governed by the laws of England and
@@ -194,7 +264,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                11. Changes to Terms
+                12. Changes to Terms
               </h2>
               <p className="text-gray-700 mb-4">
                 We reserve the right to modify these Terms of Service at any
@@ -206,7 +276,7 @@ export default function MakeEbookTermsPage() {
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                12. Contact Information
+                13. Contact Information
               </h2>
               <p className="text-gray-700 mb-4">
                 If you have any questions about these Terms of Service, please

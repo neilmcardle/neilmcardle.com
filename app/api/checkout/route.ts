@@ -6,6 +6,7 @@ import { createServerClient } from "@supabase/ssr";
 import { CookieOptions } from "@supabase/ssr";
 import { getUserById, updateUser } from "@/lib/db/users";
 import { checkOrigin } from "@/lib/auth/checkOrigin";
+import { PRO_TRIAL_DAYS } from "@/lib/billing/plan";
 
 export async function POST(req: NextRequest) {
   const originError = checkOrigin(req);
@@ -23,9 +24,7 @@ export async function POST(req: NextRequest) {
     try {
       const body = await req.json();
       if (body?.period === "yearly") period = "yearly";
-    } catch {
-      // No body or invalid JSON — fall through with monthly.
-    }
+    } catch {}
 
     const priceId =
       period === "yearly"
@@ -97,9 +96,7 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-    } catch {
-      // No authenticated user; proceed.
-    }
+    } catch {}
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -122,10 +119,9 @@ export async function POST(req: NextRequest) {
       sessionParams.customer = existingCustomerId;
     }
 
-    const trialDays = Number(process.env.STRIPE_PRO_TRIAL_DAYS ?? "7");
-    if (trialDays > 0) {
+    if (PRO_TRIAL_DAYS > 0) {
       sessionParams.subscription_data = {
-        trial_period_days: trialDays,
+        trial_period_days: PRO_TRIAL_DAYS,
       };
     }
 

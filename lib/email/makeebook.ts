@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { PRO_TRIAL_DAYS } from "@/lib/billing/plan";
 
 type SendArgs = {
   to: string;
@@ -22,6 +23,21 @@ function getResend() {
 
 function getFrom(): string | null {
   return process.env.MAKEEBOOK_EMAIL_FROM ?? null;
+}
+
+function getPostalAddress(): string | null {
+  const value = process.env.MAKEEBOOK_POSTAL_ADDRESS?.trim();
+  return value ? value : null;
+}
+
+function getUnsubscribeAddress(): string | null {
+  const explicit = process.env.MAKEEBOOK_UNSUBSCRIBE_EMAIL?.trim();
+  if (explicit) return explicit;
+  const from = getFrom();
+  if (!from) return null;
+  const angled = from.match(/<([^>]+)>/);
+  const address = (angled ? angled[1] : from).trim();
+  return address.includes("@") ? address : null;
 }
 
 function fmtDate(d: Date): string {
@@ -99,7 +115,9 @@ export async function sendAbandonedCheckout({
 }: AbandonedCheckoutArgs) {
   const resend = getResend();
   const from = getFrom();
-  if (!resend || !from) {
+  const postalAddress = getPostalAddress();
+  const unsubscribe = getUnsubscribeAddress();
+  if (!resend || !from || !postalAddress || !unsubscribe) {
     console.warn(
       "[makeebook-email] skipping abandoned-checkout: missing config",
     );
@@ -110,14 +128,22 @@ export async function sendAbandonedCheckout({
     from,
     to,
     subject: "Did you mean to start your makeebook trial?",
+    headers: {
+      "List-Unsubscribe": `<mailto:${unsubscribe}?subject=unsubscribe>`,
+    },
     text: [
-      "You started a 7-day Pro trial but didn't quite finish. No charge, no problem.",
+      `You started a ${PRO_TRIAL_DAYS}-day Pro trial but didn't quite finish. No charge, no problem.`,
       "",
       "If something blocked you, hit reply and let me know.",
       "",
       `Otherwise, here's the link to pick up where you left off: ${resumeUrl}`,
       "",
       "Neil",
+      "",
+      "--",
+      `You are getting this because you started a makeebook Pro trial with this address. It is the only email of its kind I will send you. To opt out of messages like it, reply with "unsubscribe" or write to ${unsubscribe}, and I will remove you.`,
+      "",
+      postalAddress,
     ].join("\n"),
   });
 }

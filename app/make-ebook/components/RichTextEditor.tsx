@@ -1871,6 +1871,10 @@ export default function RichTextEditor({
           }}
           contentEditable={!disabled}
           suppressContentEditableWarning
+          onScroll={(e) => {
+            if (e.currentTarget.scrollLeft !== 0)
+              e.currentTarget.scrollLeft = 0;
+          }}
           onContextMenu={handleContextMenu}
           onKeyDown={(e) => {
             if (e.key === "k" && (e.metaKey || e.ctrlKey)) {

@@ -43,10 +43,12 @@ export default function CookieConsent() {
       className="fixed bottom-2 left-2 right-2 sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-md z-[200] bg-white border border-[var(--rule)] rounded-lg shadow-2xl p-3 sm:p-5"
     >
       <h2 className="hidden sm:block text-sm font-semibold text-[var(--ink-deep)] mb-2">
-        Cookie preferences
+        Advertising cookies
       </h2>
       <p className="text-[12px] sm:text-sm text-[var(--clay-muted)] leading-snug sm:leading-relaxed">
-        This site uses cookies to make the app work and to collect analytics.{" "}
+        makeebook works without these. We would like to set Google advertising
+        cookies so we can tell which ads bring writers here. Nothing loads
+        unless you accept.{" "}
         <Link
           href="/privacy"
           className="underline text-[var(--ink-deep)] hover:text-[var(--clay-muted)]"

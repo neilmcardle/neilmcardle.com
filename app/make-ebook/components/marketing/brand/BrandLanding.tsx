@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { PRO_LIFETIME_TERMS, PRO_RENEWAL_TERMS } from "@/lib/billing/plan";
 import { useState } from "react";
 import { track } from "@vercel/analytics";
 import dynamic from "next/dynamic";
@@ -74,6 +75,7 @@ const PLANS = [
     cta: "Start free",
     primary: false,
     checkout: undefined,
+    terms: "Free forever. No card, and nothing renews.",
   },
   {
     name: "Pro",
@@ -87,6 +89,7 @@ const PLANS = [
     cta: "Start with Pro",
     primary: true,
     checkout: { endpoint: "/api/checkout", tier: "pro" },
+    terms: PRO_RENEWAL_TERMS,
   },
   {
     name: "Lifetime",
@@ -99,6 +102,7 @@ const PLANS = [
     cta: "Buy Lifetime",
     primary: false,
     checkout: { endpoint: "/api/checkout-lifetime", tier: "lifetime" },
+    terms: PRO_LIFETIME_TERMS,
   },
 ];
 
@@ -548,12 +552,17 @@ export default function BrandLanding({
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
-                  <PlanButton
-                    label={plan.cta}
-                    primary={plan.primary}
-                    checkout={plan.checkout}
-                    onStartWriting={onStartWriting}
-                  />
+                  <div className={landing.planFoot}>
+                    {plan.terms && (
+                      <p className={landing.planTerms}>{plan.terms}</p>
+                    )}
+                    <PlanButton
+                      label={plan.cta}
+                      primary={plan.primary}
+                      checkout={plan.checkout}
+                      onStartWriting={onStartWriting}
+                    />
+                  </div>
                 </div>
               ))}
             </div>

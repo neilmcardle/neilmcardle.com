@@ -81,6 +81,17 @@ export default function MakeEbookPrivacyPage() {
                   <strong>Optional Information:</strong> Username or display
                   name if provided
                 </li>
+                <li>
+                  <strong>Book Mind Requests:</strong> The question you ask, the
+                  chapters or selection your request needs, and any notes you
+                  have saved to Book Mind&rsquo;s memory. See section 5.2.
+                </li>
+                <li>
+                  <strong>Payment Information:</strong> If you subscribe, your
+                  billing details are collected and held by Stripe. We receive a
+                  customer reference, your subscription status and the country
+                  you gave for tax, never your card number.
+                </li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -144,6 +155,10 @@ export default function MakeEbookPrivacyPage() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                 5. Data Sharing and Recipients
               </h2>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                5.1 Who receives your data
+              </h3>
               <p className="text-gray-700 mb-4">
                 We share your personal data only in the following circumstances:
               </p>
@@ -151,6 +166,20 @@ export default function MakeEbookPrivacyPage() {
                 <li>
                   <strong>Service Providers:</strong> Supabase (database
                   hosting), Vercel (application hosting and analytics)
+                </li>
+                <li>
+                  <strong>AI Providers (Pro, and only when you ask):</strong>{" "}
+                  Anthropic PBC, which runs Book Mind. If Anthropic is
+                  unavailable, that single request may instead go to xAI or
+                  OpenAI. See section 5.2.
+                </li>
+                <li>
+                  <strong>Payments:</strong> Stripe, Inc., for subscriptions,
+                  one-off purchases and billing management
+                </li>
+                <li>
+                  <strong>Email:</strong> Resend, to deliver account and
+                  subscription emails
                 </li>
                 <li>
                   <strong>Advertising and Measurement (consent only):</strong>{" "}
@@ -170,6 +199,57 @@ export default function MakeEbookPrivacyPage() {
               <p className="text-gray-700 mb-4">
                 We do not sell, rent, or trade your personal data to third
                 parties for marketing purposes.
+              </p>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                5.2 Book Mind and AI processing
+              </h3>
+              <p className="text-gray-700 mb-4">
+                Book Mind is the Pro writing assistant. Your manuscript is the
+                most private thing you keep here, so this section says exactly
+                what happens to it.
+              </p>
+              <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                <li>
+                  <strong>Nothing happens unless you ask.</strong> A request is
+                  sent only when you send a message, run a rewrite or start a
+                  deep read. Nothing is sent when you save, open a book, or
+                  leave the app open.
+                </li>
+                <li>
+                  <strong>What is sent.</strong> Your question, the chapter text
+                  or selection the question needs, your book and chapter titles,
+                  any notes you have saved to Book Mind&rsquo;s memory, and the
+                  recent messages in that conversation. A deep read sends the
+                  whole manuscript.
+                </li>
+                <li>
+                  <strong>What is not sent.</strong> Your email address, your
+                  account identifier and your payment details are never included
+                  in a request to an AI provider.
+                </li>
+                <li>
+                  <strong>Where it goes.</strong> To Anthropic PBC in the United
+                  States, through their commercial API. If that call fails, the
+                  same request may be retried with xAI or OpenAI.
+                </li>
+                <li>
+                  <strong>What we keep.</strong> Our server logs record the size
+                  of a request, the model used and how long it took. They do not
+                  record your text. The conversation itself is stored in your
+                  browser, and any memory notes you save are stored with the
+                  book.
+                </li>
+                <li>
+                  <strong>Your choice.</strong> Book Mind is optional. If you
+                  never use it, no part of your manuscript is sent to an AI
+                  provider.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-4">
+                Each provider&rsquo;s own terms govern what they do with an API
+                request. We do not grant any of them permission to train models
+                on your writing.
               </p>
             </section>
 
@@ -193,6 +273,16 @@ export default function MakeEbookPrivacyPage() {
                 <li>
                   <strong>Usage Logs:</strong> Maximum of 12 months for security
                   and improvement purposes
+                </li>
+                <li>
+                  <strong>Book Mind Conversations:</strong> Held in your browser
+                  until you delete them or clear the site&rsquo;s data. We do
+                  not keep a server-side copy of the text.
+                </li>
+                <li>
+                  <strong>Billing Records:</strong> Kept by Stripe, and by us in
+                  summary form, for as long as tax and accounting law requires,
+                  normally six years.
                 </li>
               </ul>
             </section>
@@ -246,8 +336,11 @@ export default function MakeEbookPrivacyPage() {
               </h2>
               <p className="text-gray-700 mb-4">
                 Your data may be processed outside the UK through our service
-                providers (Supabase, Vercel). We ensure appropriate safeguards
-                are in place through:
+                providers. Supabase and Vercel host the application and your
+                account. Stripe processes payments, Resend delivers email, and
+                Anthropic, or in a fallback xAI or OpenAI, processes Book Mind
+                requests. These providers operate in the United States. We
+                ensure appropriate safeguards are in place through:
               </p>
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>Standard Contractual Clauses approved by UK authorities</li>

@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import {
+  PRO_LIFETIME_TERMS,
+  PRO_MONTHLY_PRICE,
+  PRO_REFUND_DAYS,
+  PRO_RENEWAL_TERMS,
+  PRO_TRIAL_DAYS,
+} from "@/lib/billing/plan";
 import { track } from "@vercel/analytics";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { Sparkles, Cloud, BookOpen, Clock, Check } from "lucide-react";
@@ -168,7 +175,7 @@ export default function UpgradeModal({
                 </span>
               </div>
               <p className="text-sm text-gray-600 dark:text-[var(--clay-muted)] mt-1">
-                Cancel anytime, no commitment
+                {PRO_TRIAL_DAYS} days free, then {PRO_MONTHLY_PRICE} a month
               </p>
             </div>
           </label>
@@ -280,8 +287,13 @@ export default function UpgradeModal({
               : "Buy Lifetime - $149"}
         </button>
 
+        <p className="text-xs leading-relaxed text-gray-600 dark:text-[var(--clay)]">
+          {selectedPlan === "monthly" ? PRO_RENEWAL_TERMS : PRO_LIFETIME_TERMS}
+        </p>
+
         <p className="text-xs text-center text-gray-500 dark:text-[var(--clay-muted)]">
-          Secure checkout powered by Stripe • 30-day money back guarantee
+          Secure checkout powered by Stripe. {PRO_REFUND_DAYS} day money back
+          guarantee.
         </p>
       </ModalBody>
     </Modal>
