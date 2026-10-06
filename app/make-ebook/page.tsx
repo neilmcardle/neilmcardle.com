@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { track } from "@vercel/analytics";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useFeatureAccess } from "@/lib/hooks/useSubscription";
+import { useFeatureAccess, useSubscription } from "@/lib/hooks/useSubscription";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   PlusIcon,
@@ -107,6 +107,7 @@ function MakeEbookPage() {
 
   useSignupConversion();
 
+  const { isLoading: tierLoading } = useSubscription();
   const hasCloudSync = useFeatureAccess("cloud_sync");
   const hasBookMind = useFeatureAccess("book_mind_ai");
   const isPro = hasBookMind;
@@ -688,6 +689,7 @@ function MakeEbookPage() {
   const cloudSync = useCloudSync({
     user,
     hasCloudSync,
+    cloudSyncKnown: !tierLoading,
     isLoadingBookRef,
     setLibraryBooks,
     openBookIdRef,
@@ -862,6 +864,19 @@ function MakeEbookPage() {
   };
 
   useUnsavedChangesWarning(showDirty);
+
+  useEffect(() => {
+    const flush = () => void flushSaveRef.current();
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", onHidden);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, []);
 
   useEditorShortcuts({
     onSave: () => {
@@ -1172,6 +1187,24 @@ function MakeEbookPage() {
     chapters.length,
     libraryBooks,
     cloudSync.initialSyncDone,
+  ]);
+
+  const openUploadRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!hasCloudSync || !cloudSync.initialSyncDone) return;
+    if (!user?.id || !currentBookId) return;
+    if (openUploadRef.current === currentBookId) return;
+    const book = libraryBooks.find((b) => b.id === currentBookId);
+    if (!book || book.cloudSyncedAt || bookIsBlank(book)) return;
+    openUploadRef.current = currentBookId;
+    void saveBook.pushNow(currentBookId);
+  }, [
+    hasCloudSync,
+    cloudSync.initialSyncDone,
+    user?.id,
+    currentBookId,
+    libraryBooks,
   ]);
 
   useEffect(() => {

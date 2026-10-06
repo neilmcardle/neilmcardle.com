@@ -37,6 +37,7 @@ const SYNC_THROTTLE_MS = 10000;
 interface UseCloudSyncParams {
   user: { id: string } | null;
   hasCloudSync: boolean;
+  cloudSyncKnown: boolean;
   isLoadingBookRef: React.MutableRefObject<boolean>;
   setLibraryBooks: (books: any[]) => void;
   openBookIdRef: React.MutableRefObject<string | undefined>;
@@ -46,6 +47,7 @@ interface UseCloudSyncParams {
 export function useCloudSync({
   user,
   hasCloudSync,
+  cloudSyncKnown,
   isLoadingBookRef,
   setLibraryBooks,
   openBookIdRef,
@@ -61,6 +63,8 @@ export function useCloudSync({
   > | null>(null);
 
   const syncingRef = useRef(false);
+  const rerunRef = useRef(false);
+  const syncNowRef = useRef<(force?: boolean) => Promise<void>>(async () => {});
   const lastSyncRef = useRef(0);
   const conflictsOpenRef = useRef(false);
   const onOpenBookUpdatedRef = useRef(onOpenBookUpdated);
@@ -99,7 +103,10 @@ export function useCloudSync({
 
   const syncNow = useCallback(
     async (force = false) => {
-      if (syncingRef.current || conflictsOpenRef.current) return;
+      if (syncingRef.current || conflictsOpenRef.current) {
+        if (force && syncingRef.current) rerunRef.current = true;
+        return;
+      }
       if (!force && Date.now() - lastSyncRef.current < SYNC_THROTTLE_MS) return;
       if (!user?.id) return;
       const userId = user.id;
@@ -153,10 +160,16 @@ export function useCloudSync({
       } finally {
         syncingRef.current = false;
         setInitialSyncDone(true);
+        if (rerunRef.current) {
+          rerunRef.current = false;
+          setTimeout(() => void syncNowRef.current(true), 0);
+        }
       }
     },
     [user, openBookIdRef, applyLibrary, uploadLocalOnly],
   );
+
+  syncNowRef.current = syncNow;
 
   useEffect(() => {
     conflictsOpenRef.current = syncConflicts.length > 0;
@@ -170,7 +183,9 @@ export function useCloudSync({
 
   useEffect(() => {
     void syncNow(true);
+  }, [syncNow, cloudSyncKnown]);
 
+  useEffect(() => {
     const onFocus = () => void syncNow();
     const onOnline = () => void syncNow(true);
     const onVisible = () => {

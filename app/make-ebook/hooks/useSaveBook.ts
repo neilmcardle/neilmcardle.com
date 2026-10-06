@@ -145,6 +145,8 @@ export function useSaveBook({
   const cloudTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cloudPendingSinceRef = useRef(0);
   const cloudFailuresRef = useRef(0);
+  const cloudPendingIdRef = useRef<string | null>(null);
+  const flushCloudRef = useRef<() => void>(() => {});
   const [cloudPending, setCloudPending] = useState(false);
   const currentBookIdRef = useRef(currentBookId);
   currentBookIdRef.current = currentBookId;
@@ -156,6 +158,19 @@ export function useSaveBook({
     },
     [],
   );
+
+  useEffect(() => {
+    const flush = () => flushCloudRef.current();
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      document.removeEventListener("visibilitychange", onHidden);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, []);
 
   pushRef.current = async (id: string) => {
     if (!(user?.id && hasCloudSync)) return true;
@@ -203,6 +218,7 @@ export function useSaveBook({
 
   function scheduleCloudPush(id: string) {
     if (!(user?.id && hasCloudSync)) return;
+    cloudPendingIdRef.current = id;
     if (!cloudTimerRef.current) cloudPendingSinceRef.current = Date.now();
     else clearTimeout(cloudTimerRef.current);
     setCloudPending(true);
@@ -214,8 +230,10 @@ export function useSaveBook({
     cloudTimerRef.current = setTimeout(async () => {
       cloudTimerRef.current = null;
       const ok = await pushRef.current(id);
-      if (ok) setCloudPending(false);
-      else scheduleCloudPush(id);
+      if (ok) {
+        cloudPendingIdRef.current = null;
+        setCloudPending(false);
+      } else scheduleCloudPush(id);
     }, delay);
   }
 
@@ -227,10 +245,18 @@ export function useSaveBook({
     }
     setCloudPending(true);
     const ok = await pushRef.current(id);
-    if (ok) setCloudPending(false);
-    else scheduleCloudPush(id);
+    if (ok) {
+      cloudPendingIdRef.current = null;
+      setCloudPending(false);
+    } else scheduleCloudPush(id);
     return ok;
   }
+
+  flushCloudRef.current = () => {
+    const id = cloudPendingIdRef.current;
+    if (!id || !cloudTimerRef.current) return;
+    void pushNow(id);
+  };
 
   function trackExport(format: "epub" | "pdf" | "docx") {
     track("book_exported", { format });
@@ -500,6 +526,7 @@ export function useSaveBook({
   return {
     isSavingRef,
     saveBookDirectly,
+    pushNow,
     cloudPending,
     saveVersionSnapshot,
     handleSaveBook,
