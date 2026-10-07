@@ -1,25 +1,24 @@
 .root {
-  --bone: #ebe8e4;
-  --card: #fdfcfb;
-  --ink: #000000;
-  --ink-idle: rgba(0, 0, 0, 0.43);
-  --ink-hover: rgba(0, 0, 0, 0.7);
-  --row: #59544f;
-  --muted: #736d64;
-  --muted-bone: #6e685f;
-  --field-line: #948d84;
-  --line: #d7d2cc;
-  --dot: rgba(0, 0, 0, 0.17);
-  --pill-hover: #e1ddd7;
+  --bone: #ffffff;
+  --card: #ffffff;
+  --ink: #111111;
+  --ink-idle: rgba(17, 17, 17, 0.4);
+  --ink-hover: rgba(17, 17, 17, 0.7);
+  --row: #55524d;
+  --muted: #6b675f;
+  --muted-bone: #66625c;
+  --line: #e6e4e0;
+  --dot: rgba(0, 0, 0, 0.14);
+  --pill-hover: #f1f0ed;
   --display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
   --ui: var(--font-inter), system-ui, sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --header: 96px;
   --header-mobile: 88px;
-  --curl-tip: #c9c5bb;
-  --curl-mid: #e4e0da;
-  --curl-fold: #fdfcfb;
+  --curl-tip: #cfccc5;
+  --curl-mid: #eeedea;
+  --curl-fold: #ffffff;
 
   min-height: 100svh;
   padding: 16px 16px 32px;
@@ -70,7 +69,10 @@
   background: var(--card);
   color: var(--ink);
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
   transition:
     transform 240ms var(--ease),
     box-shadow 240ms var(--ease);
@@ -281,9 +283,9 @@
   cursor: pointer;
   text-decoration: none;
   box-shadow:
-    inset 0 0 0 1px var(--line),
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 8px 16px rgba(0, 0, 0, 0.05);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
   transition:
     box-shadow 240ms var(--ease),
     transform 240ms var(--ease);
@@ -291,17 +293,17 @@
 
 .iconButton:focus {
   box-shadow:
-    inset 0 0 0 1px var(--line),
-    0 1px 2px rgba(0, 0, 0, 0.05),
-    0 8px 16px rgba(0, 0, 0, 0.05);
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 .iconButton:hover {
   transform: translateY(-1px);
   box-shadow:
-    inset 0 0 0 1px #c9c3bc,
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 8px 24px rgba(0, 0, 0, 0.07);
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
 .iconButton:active {
@@ -344,7 +346,10 @@
 
 .menuButton:focus,
 .searchToggle:focus {
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 959px) {
@@ -469,9 +474,6 @@
   min-width: 0;
   border-radius: 24px;
   background: var(--card);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.04),
-    0 16px 32px rgba(0, 0, 0, 0.04);
 }
 
 .titlePhoto {
@@ -481,6 +483,10 @@
   overflow: hidden;
   border-radius: 50%;
   background: var(--bone);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 .titlePhoto img {
@@ -502,7 +508,10 @@
   background: var(--card);
   color: var(--ink);
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 .searchToggle:focus-visible {
@@ -550,7 +559,10 @@
   background: transparent;
   color: var(--ink);
   font: 400 1rem / 1 var(--ui);
-  box-shadow: inset 0 0 0 1px var(--field-line);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    0 2px 4px 0 rgba(0, 0, 0, 0.04);
   appearance: none;
   transition: box-shadow 200ms var(--ease);
 }
@@ -563,10 +575,20 @@
   display: none;
 }
 
+.searchInput:hover {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    0 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
 .searchInput:focus {
   border: 0;
   outline: none;
-  box-shadow: inset 0 0 0 1.5px var(--ink);
+  box-shadow:
+    0 0 0 1.5px var(--ink),
+    0 1px 2px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
 .searchIcon {
@@ -1120,6 +1142,13 @@
   height: var(--logo-h);
   filter: brightness(0);
   opacity: 0.26;
+  transition: opacity 240ms var(--ease);
+}
+
+@media (hover: hover) {
+  .clientLogo:hover {
+    opacity: 0.8;
+  }
 }
 
 .root :is(a, button) {
@@ -1185,6 +1214,7 @@
 
   .header {
     z-index: 2;
+    background: none;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "brand links";
     column-gap: 12px;

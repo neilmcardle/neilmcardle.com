@@ -373,9 +373,6 @@ function Covers() {
   return (
     <div className={styles.showcases}>
       <article className={styles.showcase}>
-        <div className={styles.showcaseHead}>
-          <h3 className={styles.showcaseName}>The Banner of Truth</h3>
-        </div>
         <p className={styles.what}>
           Covers for new editions of three classic books.
         </p>

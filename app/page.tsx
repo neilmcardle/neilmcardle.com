@@ -12,14 +12,14 @@ export const metadata: Metadata = share({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#ebe8e4",
+  themeColor: "#ffffff",
 };
 
 export default function Homepage() {
   return (
     <div className={GeistSans.variable}>
       <style>
-        {"html,body{background:#ebe8e4}html{scrollbar-color:#c9c3bc #ebe8e4}@media (max-width:959px){html{scroll-padding-top:104px}}" +
+        {"html,body{background:#ffffff}html{scrollbar-color:#d6d4cf #ffffff}@media (max-width:959px){html{scroll-padding-top:104px}}" +
           INTRO_CSS}
       </style>
       <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />

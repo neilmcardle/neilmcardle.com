@@ -14,11 +14,11 @@ export const alt = SHARE_ALT;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const BONE = "#ebe8e4";
-const CARD = "#fdfcfb";
-const INK = "#000000";
-const MUTED = "#736d64";
-const LINE = "#e4e0da";
+const BONE = "#ffffff";
+const CARD = "#ffffff";
+const INK = "#111111";
+const MUTED = "#6b675f";
+const LINE = "#e3e0da";
 
 const PRODUCTS = [
   {
