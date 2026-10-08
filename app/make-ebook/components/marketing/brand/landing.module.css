@@ -705,6 +705,19 @@
   margin-top: 16px;
 }
 
+.textLinkUnderline {
+  text-decoration: underline;
+  text-decoration-color: rgba(216, 212, 201, 0.3);
+  text-underline-offset: 3px;
+  transition:
+    color 160ms var(--ease),
+    text-decoration-color 180ms var(--ease);
+}
+
+.textLinkUnderline:hover {
+  text-decoration-color: currentColor;
+}
+
 .formats {
   display: inline-flex;
   flex-wrap: wrap;

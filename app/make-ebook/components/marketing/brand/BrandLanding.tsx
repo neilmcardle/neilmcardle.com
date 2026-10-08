@@ -571,7 +571,7 @@ export default function BrandLanding({
                 label: "Learn whether lifetime or subscription suits you",
                 href: "/make-ebook/blog/lifetime-license-vs-subscription",
               }}
-              className={landing.textLink}
+              className={`${landing.textLink} ${landing.textLinkUnderline}`}
             />
           </section>
 
