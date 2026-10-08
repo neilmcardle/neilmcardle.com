@@ -26,7 +26,9 @@ export const MARK_SETTINGS: NSettings = {
   returnTime: 1.5,
 };
 
-export default function ParticleMark() {
+const SPIN_SETTINGS: NSettings = { ...MARK_SETTINGS, sway: undefined };
+
+export default function ParticleMark({ spin = false }: { spin?: boolean }) {
   const [ready, setReady] = useState(false);
   const [assemble, setAssemble] = useState<{ angle: number }>();
 
@@ -49,7 +51,7 @@ export default function ParticleMark() {
       </svg>
       <NParticles
         className={styles.particleStage}
-        settings={MARK_SETTINGS}
+        settings={spin ? SPIN_SETTINGS : MARK_SETTINGS}
         interactive={false}
         assemble={assemble}
         onReady={() => setReady(true)}

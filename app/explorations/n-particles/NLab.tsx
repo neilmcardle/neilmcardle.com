@@ -80,7 +80,7 @@ export default function NLab() {
     <div className={styles.page}>
       <header className={styles.bar}>
         <Link
-          href="/?filter=explorations"
+          href="/?work=n-particles"
           className={styles.close}
           aria-label="Close the lab"
           onClick={(event) => {

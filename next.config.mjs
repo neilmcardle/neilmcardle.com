@@ -67,6 +67,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/explorations/orbit",
+        destination: "/",
+        permanent: false,
+      },
+      {
         source: "/make-ebook/book-mind",
         destination: "/make-ebook",
         permanent: true,

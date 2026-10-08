@@ -290,7 +290,7 @@ function ShowcaseMedia({ title }: { title: string }) {
   return null;
 }
 
-function Showcase({ work }: { work: Work }) {
+export function Showcase({ work }: { work: Work }) {
   const info = SHOWCASE[work.title];
   if (!info) return null;
   const external = work.href.startsWith("http");
@@ -369,7 +369,7 @@ const BOOTH = [
   { rotate: 6, x: 108, y: 3 },
 ];
 
-function Covers() {
+export function Covers() {
   return (
     <div className={styles.showcases}>
       <article className={styles.showcase}>
@@ -426,7 +426,7 @@ function Covers() {
   );
 }
 
-function Paintings() {
+export function Paintings() {
   return (
     <div className={styles.gallery}>
       <div className={styles.paintingWall}>
@@ -502,7 +502,7 @@ function Paintings() {
   );
 }
 
-function Demo() {
+export function Demo() {
   return (
     <section
       className={styles.group}
@@ -559,7 +559,7 @@ function Demo() {
   );
 }
 
-function ExplorationCard({ work }: { work: Work }) {
+export function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>

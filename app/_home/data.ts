@@ -187,7 +187,7 @@ export const WORKS: Work[] = [
     title: painting.title,
     group: "paintings" as const,
     sub: painting.medium,
-    href: "/?filter=paintings",
+    href: "/work?filter=paintings",
     pills: [
       String(painting.year),
       painting.status.charAt(0).toUpperCase() + painting.status.slice(1),

@@ -17,7 +17,7 @@ const HEX = [
   [16.5, 4.2],
 ] as const;
 
-function Glyph({ icon }: { icon: AppIconKey }) {
+export function Glyph({ icon }: { icon: AppIconKey }) {
   switch (icon) {
     case "vectorPaint":
       return (
