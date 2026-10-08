@@ -513,24 +513,6 @@ function Demo() {
         SpeakUI Demo on Dive Radio
       </h2>
       <article className={styles.showcase}>
-        <p className={styles.demoNote}>
-          Following an approach by{" "}
-          <a className={styles.handle} href="https://x.com/Moore">
-            @Moore
-          </a>
-          , I built a simple SpeakUI demo to show off the speed at which Jev,
-          TypeSafe AI&rsquo;s new fast decision model, can edit designs, making
-          speaking edits almost feel realtime (demo recording played on Dive
-          Radio by{" "}
-          <a className={styles.handle} href="https://x.com/designertom">
-            @designertom
-          </a>{" "}
-          and{" "}
-          <a className={styles.handle} href="https://x.com/ridd_design">
-            @ridd_design
-          </a>
-          , 24 September 2026).
-        </p>
         <video
           className={styles.film}
           src="/home/dive-radio-jit.mp4"
@@ -540,6 +522,23 @@ function Demo() {
           playsInline
           preload="none"
         />
+        <p className={styles.demoNote}>
+          Inspired by{" "}
+          <a className={styles.handle} href="https://x.com/Moore">
+            @Moore
+          </a>
+          , I built a simple SpeakUI demo showcasing how Jev, TypeSafe
+          AI&rsquo;s new fast decision model, makes voice-driven design edits
+          feel almost realtime. Demo played on Dive Radio by{" "}
+          <a className={styles.handle} href="https://x.com/designertom">
+            @designertom
+          </a>{" "}
+          and{" "}
+          <a className={styles.handle} href="https://x.com/ridd_design">
+            @ridd_design
+          </a>
+          , 24 September 2026.
+        </p>
         <div className={styles.demoFoot}>
           {SPEAKUI_URL ? (
             <a
