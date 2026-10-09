@@ -1,0 +1,57 @@
+.page.page {
+  display: grid;
+  min-height: 100svh;
+  height: auto;
+  overflow: visible;
+}
+
+.main {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0;
+  padding: 120px 24px 80px;
+  text-align: center;
+}
+
+.cloud {
+  display: block;
+  width: min(260px, 60vw);
+  aspect-ratio: 1;
+  margin-bottom: 20px;
+}
+
+.line {
+  max-width: 18em;
+  margin: 0;
+  color: var(--ink);
+  font: 400 clamp(1.25rem, 2.4vw, 1.75rem) / 1.25 var(--display);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font: 400 0.875rem / 1.4 var(--ui);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+@media (max-width: 899px) {
+  .main {
+    padding-top: 96px;
+  }
+}
