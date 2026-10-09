@@ -330,17 +330,22 @@ function PreviewView({ item }: { item: OrbitItem }) {
   );
 }
 
+const ALL = -1;
+
 export default function Orbit({
   items,
   panels,
+  all,
 }: {
   items: OrbitItem[];
   panels: Record<string, ReactNode>;
+  all: ReactNode;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<HTMLButtonElement>(null);
+  const allWorkRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const glyphRefs = useRef<(SVGSVGElement | null)[]>([]);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -363,7 +368,7 @@ export default function Orbit({
       setActive(index);
       setHot(null);
       const url = new URL(window.location.href);
-      url.searchParams.set("work", items[index].id);
+      url.searchParams.set("work", index === ALL ? "all" : items[index].id);
       window.history.replaceState(null, "", url);
       requestAnimationFrame(() => {
         panelRef.current?.scrollTo({ top: 0 });
@@ -379,12 +384,17 @@ export default function Orbit({
     const url = new URL(window.location.href);
     url.searchParams.delete("work");
     window.history.replaceState(null, "", url);
-    if (index !== null)
+    if (index === ALL) requestAnimationFrame(() => allWorkRef.current?.focus());
+    else if (index !== null)
       requestAnimationFrame(() => buttonRefs.current[index]?.focus());
   }, []);
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("work");
+    if (id === "all") {
+      setActive(ALL);
+      return;
+    }
     const index = items.findIndex((item) => item.id === id);
     if (index >= 0) setActive(index);
   }, [items]);
@@ -544,6 +554,9 @@ export default function Orbit({
       const center = centerRef.current;
       if (center)
         center.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      const allWork = allWorkRef.current;
+      if (allWork)
+        allWork.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, 30px)`;
 
       frame = document.hidden ? 0 : requestAnimationFrame(draw);
     };
@@ -568,7 +581,8 @@ export default function Orbit({
   }, [items]);
 
   const shown = active === null ? hot : null;
-  const activeItem = active !== null ? items[active] : null;
+  const activeItem = active !== null && active !== ALL ? items[active] : null;
+  const panelName = active === ALL ? "All work" : activeItem?.name;
 
   return (
     <div
@@ -664,6 +678,17 @@ export default function Orbit({
         ))}
       </div>
 
+      <button
+        ref={allWorkRef}
+        type="button"
+        className={`${styles.back} ${styles.allWork}`}
+        data-on={(active === null && shown === null) || undefined}
+        tabIndex={active === null ? undefined : -1}
+        onClick={() => open(ALL)}
+      >
+        View all work
+      </button>
+
       <ul className={styles.ring} aria-label="Work">
         {items.map((item, i) => (
           <li key={item.id}>
@@ -725,21 +750,23 @@ export default function Orbit({
         ref={panelRef}
         className={styles.panel}
         tabIndex={-1}
-        aria-label={activeItem ? activeItem.name : undefined}
+        aria-label={panelName}
         hidden={active === null}
       >
         <div className={styles.panelBar}>
-          <p className={styles.eyebrow}>{activeItem?.group}</p>
+          <p className={styles.eyebrow}>
+            {active === ALL ? "All work" : activeItem?.group}
+          </p>
           <button
             type="button"
             className={`${styles.back} ${styles.panelBack}`}
             onClick={close}
           >
-            Back to all work
+            {active === ALL ? "Close" : "Back to all work"}
           </button>
         </div>
         <div className={styles.panelBody}>
-          {activeItem ? panels[activeItem.id] : null}
+          {active === ALL ? all : activeItem ? panels[activeItem.id] : null}
         </div>
       </section>
 

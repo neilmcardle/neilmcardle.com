@@ -1,4 +1,5 @@
 import {
+  AllWork,
   Covers,
   Demo,
   ExplorationCard,
@@ -156,5 +157,5 @@ const PANELS = {
 };
 
 export default function OrbitHome() {
-  return <Orbit items={ITEMS} panels={PANELS} />;
+  return <Orbit items={ITEMS} panels={PANELS} all={<AllWork />} />;
 }

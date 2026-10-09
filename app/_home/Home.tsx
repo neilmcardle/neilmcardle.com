@@ -6,7 +6,7 @@ import MakeEbookMocks from "@/components/home/MakeEbookMocks";
 import AppIcon from "./AppIcon";
 import ExplorationPreview from "./ExplorationPreview";
 import HomeShell from "./HomeShell";
-import PodiumFilm from "./PodiumFilm";
+import PodiumGallery from "./PodiumGallery";
 import ProductMark from "./ProductMark";
 import SparkIntro from "./SparkIntro";
 import { COVERS } from "./covers";
@@ -34,12 +34,21 @@ const POSTERS = {
   makeebook: poster("/home/makeebook-promo.jpg"),
   spark: poster("/home/spark-promo.jpg"),
   diveRadio: poster("/home/dive-radio-jit.jpg"),
-  podium: poster("/home/podium/film-poster.jpg"),
+  coverly: poster("/home/coverly-promo.jpg"),
+  podium: poster("/home/podium/trailer-poster.jpg"),
 };
 
 export default function Home() {
   return (
     <HomeShell>
+      <AllWork />
+    </HomeShell>
+  );
+}
+
+export function AllWork() {
+  return (
+    <>
       <Demo />
       {GROUP_ORDER.map((key) => {
         const items = WORKS.filter((work) => work.group === key);
@@ -111,7 +120,7 @@ export default function Home() {
           </section>
         );
       })}
-    </HomeShell>
+    </>
   );
 }
 
@@ -266,26 +275,33 @@ function ShowcaseMedia({ title }: { title: string }) {
   if (title === "Podium")
     return (
       <>
-        <PodiumFilm poster={POSTERS.podium} />
-        <Image
-          className={styles.podiumArt}
-          src="/home/podium/keyart.jpg"
-          alt="The boy in a blue hoodie on the rain-soaked podium deck, Petticoat Tower lost in the mist above him"
-          width={1600}
-          height={1280}
-          sizes="(max-width: 960px) 100vw, 600px"
+        <video
+          className={styles.film}
+          src="/home/podium/trailer.mp4"
+          poster={POSTERS.podium}
+          aria-label="Podium trailer"
+          controls
+          playsInline
+          preload="none"
         />
-        <Image
-          className={styles.podiumArt}
-          src="/home/podium/tower.jpg"
-          alt="The boy alone on the deck below Petticoat Tower, the City's towers in the fog behind"
-          width={1600}
-          height={905}
-          sizes="(max-width: 960px) 100vw, 600px"
-        />
+        <PodiumGallery />
       </>
     );
-  if (title === "Coverly") return <CoverlyMocks />;
+  if (title === "Coverly")
+    return (
+      <>
+        <video
+          className={styles.film}
+          src="/home/coverly-promo.mp4"
+          poster={POSTERS.coverly}
+          aria-label="Coverly product film"
+          controls
+          playsInline
+          preload="none"
+        />
+        <CoverlyMocks />
+      </>
+    );
   if (title === "DoodleWire") return <DoodleWireShots />;
   return null;
 }

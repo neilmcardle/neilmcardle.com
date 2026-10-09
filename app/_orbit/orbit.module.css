@@ -469,6 +469,28 @@
   display: none;
 }
 
+.allWork {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink);
+  text-decoration: none;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 320ms var(--ease),
+    box-shadow 200ms var(--ease);
+}
+
+.allWork[data-on] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 @media (max-width: 899px) {
   .centerBack {
     display: none;
@@ -605,7 +627,8 @@
 
   .slide,
   .idle,
-  .label {
+  .label,
+  .allWork {
     transition: none;
   }
 }

@@ -1,0 +1,21 @@
+{
+  "name": "neilmcardle-promo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:coverly": "remotion render src/index.ts CoverlyFilm out/coverly-film.mp4 --codec h264 --crf 18",
+    "still:coverly": "remotion still src/index.ts CoverlyFilm out/coverly-poster.jpg --frame 260"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.534",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.534"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "7.0.2"
+  }
+}

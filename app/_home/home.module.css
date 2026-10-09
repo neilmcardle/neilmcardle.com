@@ -1475,32 +1475,110 @@
   object-fit: cover;
 }
 
-.podiumFilm {
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.podiumEnd {
-  position: absolute;
-  inset: 0;
+.podiumStills {
   display: grid;
-  place-items: center;
-  border-radius: 8px;
-  background: #000;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.podiumEnd img {
-  width: 44%;
-  height: auto;
+.podiumStills li:first-child {
+  grid-column: 1 / -1;
 }
 
-.podiumArt {
+.podiumStill {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #1a1a1a;
+  cursor: zoom-in;
+}
+
+.podiumStill img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 8px;
-  background: #9a9a98;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  transition:
+    opacity 200ms var(--ease),
+    transform 400ms var(--ease);
+}
+
+@media (hover: hover) {
+  .podiumStill:hover img {
+    opacity: 0.86;
+    transform: scale(1.02);
+  }
+}
+
+.podiumViewer {
+  width: min(1600px, 92vw);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  overflow: visible;
+}
+
+.podiumViewer::backdrop {
+  background: rgba(8, 8, 9, 0.92);
+}
+
+.podiumViewerFigure {
+  margin: 0;
+}
+
+.podiumViewerFigure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 160px);
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.podiumViewerControls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.podiumViewerControls button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 200ms var(--ease);
+}
+
+.podiumViewerControls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.podiumViewerControls svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .what {

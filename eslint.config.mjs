@@ -13,6 +13,7 @@ const config = [
       "**/.next/**",
       "ios/**",
       "speakui/**",
+      "promo/**",
       "android/**",
       "coverage/**",
       "public/**",
