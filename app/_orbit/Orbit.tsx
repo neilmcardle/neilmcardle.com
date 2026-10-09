@@ -647,8 +647,8 @@ export default function Orbit({
         className={styles.centerBack}
         onClick={close}
         hidden={active === null}
-        aria-label="Back to all work"
-        title="Back to all work"
+        aria-label="Back"
+        title="Back"
       >
         <svg
           viewBox="0 0 24 24"
@@ -757,13 +757,24 @@ export default function Orbit({
           <p className={styles.eyebrow}>
             {active === ALL ? "All work" : activeItem?.group}
           </p>
-          <button
-            type="button"
-            className={`${styles.back} ${styles.panelBack}`}
-            onClick={close}
-          >
-            {active === ALL ? "Close" : "Back to all work"}
-          </button>
+          <div className={styles.panelActions}>
+            {active !== ALL ? (
+              <button
+                type="button"
+                className={styles.allWorkLink}
+                onClick={() => open(ALL)}
+              >
+                View all work
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className={`${styles.back} ${styles.panelBack}`}
+              onClick={close}
+            >
+              {active === ALL ? "Close" : "Back"}
+            </button>
+          </div>
         </div>
         <div className={styles.panelBody}>
           {active === ALL ? all : activeItem ? panels[activeItem.id] : null}

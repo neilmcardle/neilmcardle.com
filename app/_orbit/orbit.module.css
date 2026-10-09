@@ -405,6 +405,32 @@
   font-size: 0.8125rem;
 }
 
+.panelActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.allWorkLink {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 400 0.8125rem / 1 var(--ui);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition:
+    color 180ms var(--ease),
+    text-decoration-color 180ms var(--ease);
+}
+
+.allWorkLink:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
 .back {
   height: 34px;
   padding: 0 14px;
