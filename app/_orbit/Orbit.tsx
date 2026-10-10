@@ -52,6 +52,7 @@ export type OrbitItem = {
   group: string;
   mark: OrbitMark;
   preview: Preview;
+  caption?: string;
 };
 
 const PER_ICON = 1200;
@@ -290,6 +291,7 @@ export default function Orbit({
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const captionRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<HTMLButtonElement>(null);
   const allWorkRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -538,6 +540,14 @@ export default function Orbit({
         preview.style.width = `${pw}px`;
         preview.style.height = `${ph}px`;
         preview.style.transform = `translate(${cx - pw / 2}px, ${cy - ph / 2}px)`;
+        const caption = captionRef.current;
+        if (caption) {
+          const outside = height - (cy + r + s / 2) >= 120;
+          const cw = outside ? Math.min(width - 48, 420) : Math.min(pw, 420);
+          const top = outside ? cy + r + s / 2 + 20 : cy + ph / 2 + 16;
+          caption.style.width = `${cw}px`;
+          caption.style.transform = `translate(${cx - cw / 2}px, ${top}px)`;
+        }
       }
       const center = centerRef.current;
       if (center)
@@ -649,6 +659,21 @@ export default function Orbit({
       >
         View all work
       </button>
+
+      <div ref={captionRef} className={styles.caption} aria-hidden="true">
+        {items.map((item, i) =>
+          item.caption ? (
+            <p
+              key={item.id}
+              className={styles.captionItem}
+              data-on={shown === i || undefined}
+            >
+              <span className={styles.captionName}>{item.name}</span>
+              <span className={styles.captionText}>{item.caption}</span>
+            </p>
+          ) : null,
+        )}
+      </div>
 
       <ul className={styles.ring} aria-label="Work">
         {items.map((item, i) => (

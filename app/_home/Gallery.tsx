@@ -56,7 +56,7 @@ export default function Gallery({
   const item = items[index];
 
   return (
-    <div className={styles.gallery}>
+    <div className={styles.galleryGroup}>
       {preview > 0 ? (
         <ul className={styles.galleryPreview}>
           {items.slice(0, preview).map((entry, i) => (

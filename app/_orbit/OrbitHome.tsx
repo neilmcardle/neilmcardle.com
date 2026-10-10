@@ -7,6 +7,7 @@ import {
   Showcase,
 } from "@/app/_home/Home";
 import { WORKS, type Work } from "@/app/_home/data";
+import { SHOWCASE } from "@/app/_home/showcase";
 import Orbit, { type OrbitItem } from "./Orbit";
 import ToolPanel from "./ToolPanel";
 
@@ -19,9 +20,17 @@ const COVER_SRCS = [
   "/home/covers/childs-story-bible.jpg",
 ];
 
+const WHAT = {
+  vectorPaint:
+    "A drawing app for children, and a way for parents to keep the good ones.",
+  iconAnimator: "Animate SVG icons with CSS keyframes.",
+  promptr: "A place to refine your prompts.",
+};
+
 const ITEMS: OrbitItem[] = [
   {
     id: "makeebook",
+    caption: SHOWCASE.makeebook.what,
     name: "makeebook",
     group: "Products",
     mark: "makeebook",
@@ -29,6 +38,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "speakui",
+    caption: "SpeakUI Demo on Dive Radio",
     name: "SpeakUI",
     group: "Demo",
     mark: "speakui",
@@ -41,6 +51,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "coverly",
+    caption: SHOWCASE.Coverly.what,
     name: "Coverly",
     group: "Products",
     mark: "coverly",
@@ -48,6 +59,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "spark",
+    caption: SHOWCASE.Spark.what,
     name: "Spark",
     group: "Products",
     mark: "spark",
@@ -55,6 +67,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "doodlewire",
+    caption: SHOWCASE.DoodleWire.what,
     name: "DoodleWire",
     group: "Products",
     mark: "doodlewire",
@@ -65,6 +78,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "podium",
+    caption: SHOWCASE.Podium.what,
     name: "Podium",
     group: "Products",
     mark: "podium",
@@ -78,6 +92,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "book-covers",
+    caption: "Covers for new editions of three classic books.",
     name: "Book covers",
     group: "Client work",
     mark: "book",
@@ -85,6 +100,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "paintings",
+    caption: "Oil paintings, 2015 and 2016.",
     name: "Paintings",
     group: "Paintings",
     mark: "frame",
@@ -95,6 +111,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "vector-paint",
+    caption: WHAT.vectorPaint,
     name: "Vector Paint",
     group: "Tools",
     mark: "vectorPaint",
@@ -102,6 +119,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "icon-animator",
+    caption: WHAT.iconAnimator,
     name: "Icon Animator",
     group: "Tools",
     mark: "iconAnimator",
@@ -109,6 +127,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "promptr",
+    caption: WHAT.promptr,
     name: "Promptr",
     group: "Tools",
     mark: "promptr",
@@ -116,6 +135,7 @@ const ITEMS: OrbitItem[] = [
   },
   {
     id: "n-particles",
+    caption: "The N mark, drawn in particles that scatter and reform.",
     name: "N particles",
     group: "Explorations",
     mark: "n",
@@ -133,21 +153,21 @@ const PANELS = {
   "vector-paint": (
     <ToolPanel
       work={work("Vector Paint")}
-      what="A drawing app for children, and a way for parents to keep the good ones."
+      what={WHAT.vectorPaint}
       image="/home/orbit/vector-paint.jpg"
     />
   ),
   "icon-animator": (
     <ToolPanel
       work={work("Icon Animator")}
-      what="Animate SVG icons with CSS keyframes."
+      what={WHAT.iconAnimator}
       image="/home/orbit/icon-animator.jpg"
     />
   ),
   promptr: (
     <ToolPanel
       work={work("Promptr")}
-      what="A workshop for your first draft. Score and refine your prompts against a rubric, and learn what makes a great prompt."
+      what={WHAT.promptr}
       image="/home/orbit/promptr.jpg"
     />
   ),

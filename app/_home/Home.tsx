@@ -346,7 +346,6 @@ export function Showcase({ work }: { work: Work }) {
         ) : null}
       </div>
       <p className={styles.what}>{info.what}</p>
-      <p className={styles.note}>{info.note}</p>
       <dl className={styles.facts}>
         <div>
           <dt>Type</dt>
@@ -581,6 +580,15 @@ export function ExplorationCard({ work }: { work: Work }) {
         <h3 className={styles.showcaseName}>{work.title}</h3>
         <GoLink href={work.href} label={`Open the ${work.title} lab`} />
       </div>
+      <p className={styles.what}>
+        The N mark, drawn in particles that scatter and reform.
+      </p>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
       <a
         className={styles.previewLink}
         href={work.href}
