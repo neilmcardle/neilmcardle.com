@@ -36,7 +36,7 @@ const POSTERS = {
   spark: poster("/home/spark-promo.jpg"),
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
-  podium: poster("/home/podium/trailer-logo-poster.jpg"),
+  podium: poster("/home/podium/trailer-02-poster.jpg"),
 };
 
 export default function Home() {
@@ -264,7 +264,7 @@ function ShowcaseMedia({ title }: { title: string }) {
       <>
         <video
           className={styles.film}
-          src="/home/podium/trailer-logo.mp4"
+          src="/home/podium/trailer-02.mp4"
           poster={POSTERS.podium}
           aria-label="Podium trailer"
           controls
