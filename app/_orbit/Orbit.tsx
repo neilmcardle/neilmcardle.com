@@ -544,7 +544,7 @@ export default function Orbit({
         if (caption) {
           const outside = height - (cy + r + s / 2) >= 120;
           const cw = outside ? Math.min(width - 48, 420) : Math.min(pw, 420);
-          const top = outside ? cy + r + s / 2 + 20 : cy + ph / 2 + 16;
+          const top = outside ? cy + r + s / 2 + 40 : cy + ph / 2 + 16;
           caption.style.width = `${cw}px`;
           caption.style.transform = `translate(${cx - cw / 2}px, ${top}px)`;
         }
@@ -668,8 +668,7 @@ export default function Orbit({
               className={styles.captionItem}
               data-on={shown === i || undefined}
             >
-              <span className={styles.captionName}>{item.name}</span>
-              <span className={styles.captionText}>{item.caption}</span>
+              {item.caption}
             </p>
           ) : null,
         )}
