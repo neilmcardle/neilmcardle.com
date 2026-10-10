@@ -5,6 +5,7 @@ import DoodleWireShots from "@/components/home/DoodleWireShots";
 import MakeEbookMocks from "@/components/home/MakeEbookMocks";
 import AppIcon from "./AppIcon";
 import ExplorationPreview from "./ExplorationPreview";
+import GoLink from "./GoLink";
 import HomeShell from "./HomeShell";
 import PodiumGallery from "./PodiumGallery";
 import ProductMark from "./ProductMark";
@@ -136,7 +137,6 @@ function WorkLink({ work }: { work: Work }) {
         {external && (
           <span className={styles.linkIcons}>
             {appStore(work.href) && <AppleIcon className={styles.apple} />}
-            {elevenReader(work.href) && <ElevenIcon className={styles.apple} />}
             <ExternalIcon className={styles.external} />
             <span className={styles.srOnly}>
               {appStore(work.href)
@@ -195,20 +195,6 @@ function elevenReader(href: string) {
   return href.startsWith("https://elevenreader.io/");
 }
 
-function ElevenIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 12 12"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <rect x="3" y="1" width="2" height="10" rx="0.4" />
-      <rect x="7" y="1" width="2" height="10" rx="0.4" />
-    </svg>
-  );
-}
-
 function AppleIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -234,7 +220,8 @@ function ExternalIcon({ className }: { className?: string }) {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+      <path d="M9.5 7v2.25a1.25 1.25 0 01-1.25 1.25h-5.5A1.25 1.25 0 011.5 9.25v-5.5A1.25 1.25 0 012.75 2.5H5" />
+      <path d="M7 1.5h3.5V5M10.5 1.5L6 6" />
     </svg>
   );
 }
@@ -340,10 +327,22 @@ export function Showcase({ work }: { work: Work }) {
           </h3>
         )}
         {work.href && info.label ? (
-          <a className={styles.visit} href={work.href} {...linkProps}>
-            {appStore(work.href) && <AppleIcon className={styles.apple} />}
-            {info.label}
-          </a>
+          <GoLink
+            href={work.href}
+            newTab={external}
+            label={
+              appStore(work.href)
+                ? `${work.title} on the App Store`
+                : external
+                  ? info.label
+                  : `Open ${work.title}`
+            }
+            lead={
+              appStore(work.href) ? (
+                <AppleIcon className={styles.goApple} />
+              ) : undefined
+            }
+          />
         ) : null}
       </div>
       <p className={styles.what}>{info.what}</p>
@@ -580,9 +579,7 @@ export function ExplorationCard({ work }: { work: Work }) {
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
         <h3 className={styles.showcaseName}>{work.title}</h3>
-        <a className={styles.visit} href={work.href}>
-          Open the lab
-        </a>
+        <GoLink href={work.href} label={`Open the ${work.title} lab`} />
       </div>
       <a
         className={styles.previewLink}

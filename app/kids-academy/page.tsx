@@ -1,19 +1,20 @@
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import Link from "next/link";
+import BackLink from "@/components/BackLink";
+import { ArrowRight } from "lucide-react";
 
 export default function KidsAcademyHome() {
   return (
     <main className="min-h-screen flex flex-col">
       <header className="px-6 sm:px-10 py-6 flex items-center justify-between">
-        <Link href="/kids-academy" className="font-ka-display text-lg font-bold tracking-tight">
+        <Link
+          href="/kids-academy"
+          className="font-ka-display text-lg font-bold tracking-tight"
+        >
           Kids Academy
         </Link>
-        <Link
-          href="/"
-          className="text-sm text-slate-500 hover:text-slate-900 transition"
-        >
+        <BackLink className="text-sm text-slate-500 hover:text-slate-900 transition">
           neilmcardle.com
-        </Link>
+        </BackLink>
       </header>
 
       <section className="flex-1 flex flex-col items-center justify-center px-6 sm:px-10 pb-16">
@@ -44,8 +45,9 @@ export default function KidsAcademyHome() {
       </section>
 
       <footer className="px-6 sm:px-10 py-6 text-center text-xs text-slate-400">
-        Built by Neil McArdle. Lessons match the statutory UK National Curriculum.
+        Built by Neil McArdle. Lessons match the statutory UK National
+        Curriculum.
       </footer>
     </main>
-  )
+  );
 }

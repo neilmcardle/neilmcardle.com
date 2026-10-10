@@ -6,6 +6,7 @@ import "../styles/immersive.css";
 import "./make-ebook/styles/tokens.css";
 import { THEME_SCRIPT } from "@/components/home/theme";
 import NeilAgent from "@/components/NeilAgent";
+import NavTracker from "@/components/NavTracker";
 import { Analytics } from "@vercel/analytics/next";
 import {
   Archivo,
@@ -188,6 +189,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <main className="flex-1">{children}</main>
         </div>
+        <NavTracker />
         <NeilAgent />
         <Analytics />
       </body>

@@ -31,6 +31,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.orbit :where(p, h1, h2, h3, dd, li) {
+  text-wrap: pretty;
+}
+
 .orbit :focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 4px;
@@ -83,6 +87,10 @@
   letter-spacing: 0;
 }
 
+.roleCopy {
+  display: none;
+}
+
 .contact {
   display: flex;
   gap: 8px;
@@ -122,6 +130,7 @@
   top: 0;
   left: 0;
   z-index: 1;
+  container-type: size;
   pointer-events: none;
   transition: opacity 300ms var(--ease);
 }
@@ -147,6 +156,11 @@
   transform: none;
 }
 
+.slide[data-on] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 .idle {
   display: grid;
   place-content: center;
@@ -156,6 +170,7 @@
   font: 400 clamp(1.125rem, 2vw, 1.5rem) / 1.2 var(--display);
   letter-spacing: -0.02em;
   text-align: center;
+  text-wrap: balance;
 }
 
 .slide {
@@ -186,10 +201,9 @@
 
 .pictureWrap {
   position: relative;
-  display: grid;
-  place-items: center;
-  max-width: 100%;
-  max-height: 100%;
+  display: block;
+  max-width: 100cqw;
+  max-height: 100cqh;
 }
 
 .shade {
@@ -222,8 +236,8 @@
   display: block;
   width: auto;
   height: auto;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 100cqw;
+  max-height: 100cqh;
   border-radius: 10px;
   box-shadow: var(--edge);
 }
@@ -243,8 +257,9 @@
 
 .phone {
   display: block;
-  height: 96%;
-  aspect-ratio: 828 / 1792;
+  flex: none;
+  height: 96cqh;
+  width: calc(96cqh * 828 / 1792);
   overflow: hidden;
   border: 4px solid #111111;
   border-radius: 18px;
@@ -270,8 +285,8 @@
   top: 50%;
   left: 50%;
   display: block;
-  height: 82%;
-  aspect-ratio: 2 / 3;
+  height: 82cqh;
+  width: calc(82cqh * 2 / 3);
   overflow: hidden;
   border-radius: 3px;
   box-shadow:
@@ -287,8 +302,9 @@
 
 .painting {
   display: block;
-  height: 62%;
-  aspect-ratio: 4 / 5;
+  flex: none;
+  height: 62cqh;
+  width: calc(62cqh * 4 / 5);
   padding: 3px;
   background: linear-gradient(135deg, #37331f 0%, #2a2718 55%, #322e1c 100%);
   box-shadow: 0 8px 14px -8px rgba(0, 0, 0, 0.6);
@@ -405,10 +421,10 @@
   font-size: 0.8125rem;
 }
 
-.panelActions {
+.panelLead {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .allWorkLink {
@@ -493,6 +509,26 @@
 
 .panelBack {
   display: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 180ms var(--ease);
+}
+
+.panelBack:hover {
+  background: rgba(17, 17, 17, 0.05);
+}
+
+.panelBack svg {
+  width: 20px;
+  height: 20px;
 }
 
 .allWork {
@@ -500,16 +536,25 @@
   top: 0;
   left: 0;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
+  padding: 6px 2px;
+  border: 0;
+  background: none;
   color: var(--ink);
-  text-decoration: none;
+  font: 500 0.875rem / 1 var(--ui);
+  text-decoration: underline;
+  text-decoration-color: rgba(17, 17, 17, 0.35);
+  text-underline-offset: 4px;
   white-space: nowrap;
+  cursor: pointer;
   opacity: 0;
   pointer-events: none;
   transition:
     opacity 320ms var(--ease),
-    box-shadow 200ms var(--ease);
+    text-decoration-color 180ms var(--ease);
+}
+
+.allWork:hover {
+  text-decoration-color: currentColor;
 }
 
 .allWork[data-on] {
@@ -523,7 +568,11 @@
   }
 
   .panelBack {
-    display: inline-block;
+    display: grid;
+  }
+
+  .allWorkLink {
+    text-decoration-color: currentColor;
   }
 }
 
@@ -618,7 +667,35 @@
   }
 
   .wordmark {
+    flex: 1;
+    min-width: 0;
     font-size: 1rem;
+  }
+
+  .wordmark a {
+    min-width: 0;
+  }
+
+  .role {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .role[data-overflow] {
+    mask-image: linear-gradient(90deg, #000 85%, transparent);
+  }
+
+  .role[data-overflow] .roleTrack {
+    display: inline-flex;
+    animation: roleTicker 28s linear infinite;
+  }
+
+  .role[data-overflow] .roleTrack > span {
+    padding-right: 2.5em;
+  }
+
+  .role[data-overflow] .roleCopy {
+    display: inline;
   }
 
   .contact a {
@@ -646,7 +723,25 @@
   }
 }
 
+@keyframes roleTicker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .roleTrack {
+    animation: none;
+  }
+
+  .roleCopy {
+    display: none !important;
+  }
+
+  .role {
+    text-overflow: ellipsis;
+  }
+
   .panel {
     animation: none;
   }

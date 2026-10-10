@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 
 type Player = "p1" | "p2";
 type Point = {
@@ -634,8 +634,7 @@ export default function Tessera() {
         position: "relative",
       }}
     >
-      <Link
-        href="/"
+      <BackLink
         aria-label="Back to neilmcardle.com"
         style={{
           position: "fixed",
@@ -665,7 +664,7 @@ export default function Tessera() {
         >
           ←
         </span>
-      </Link>
+      </BackLink>
       <style>{`
         @keyframes drawIn { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
         @keyframes wash { from { opacity:0; transform:scale(0.6);} to {opacity:1; transform:scale(1);} }

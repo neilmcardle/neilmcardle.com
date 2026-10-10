@@ -15,6 +15,7 @@ import ParticleMark from "@/app/_home/ParticleMark";
 import { CLIENTS } from "@/app/_home/data";
 import home from "@/app/_home/home.module.css";
 import Contact from "./Contact";
+import Role from "./Role";
 import { FRAGMENT, INK, VERTEX } from "./particles";
 import styles from "./orbit.module.css";
 
@@ -215,6 +216,10 @@ function PreviewView({ item }: { item: OrbitItem }) {
           alt=""
           width={p.width}
           height={p.height}
+          style={{
+            width: `min(100cqw, 100cqh * ${p.width} / ${p.height})`,
+            aspectRatio: `${p.width} / ${p.height}`,
+          }}
           loading="lazy"
         />
         {p.logo ? (
@@ -306,11 +311,21 @@ export default function Orbit({
 
   const open = useCallback(
     (index: number) => {
+      const state = window.history.state ?? {};
+      if (live.current.active !== null)
+        window.history.replaceState(
+          { ...state, orbitScroll: panelRef.current?.scrollTop ?? 0 },
+          "",
+        );
       setActive(index);
       setHot(null);
       const url = new URL(window.location.href);
       url.searchParams.set("work", index === ALL ? "all" : items[index].id);
-      window.history.replaceState(null, "", url);
+      window.history.pushState(
+        { orbitDepth: (state.orbitDepth ?? 0) + 1, orbitScroll: 0 },
+        "",
+        url,
+      );
       requestAnimationFrame(() => {
         panelRef.current?.scrollTo({ top: 0 });
         panelRef.current?.focus({ preventScroll: true });
@@ -318,6 +333,20 @@ export default function Orbit({
     },
     [items],
   );
+
+  const indexFor = useCallback(
+    (id: string | null) => {
+      if (id === "all") return ALL;
+      const index = items.findIndex((item) => item.id === id);
+      return index >= 0 ? index : null;
+    },
+    [items],
+  );
+
+  const restore = useCallback(() => {
+    const top = window.history.state?.orbitScroll ?? 0;
+    requestAnimationFrame(() => panelRef.current?.scrollTo({ top }));
+  }, []);
 
   const close = useCallback(() => {
     const index = live.current.active;
@@ -330,23 +359,41 @@ export default function Orbit({
       requestAnimationFrame(() => buttonRefs.current[index]?.focus());
   }, []);
 
+  const back = useCallback(() => {
+    if ((window.history.state?.orbitDepth ?? 0) > 0) window.history.back();
+    else close();
+  }, [close]);
+
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("work");
-    if (id === "all") {
-      setActive(ALL);
-      return;
+    const read = () =>
+      indexFor(new URLSearchParams(window.location.search).get("work"));
+    const index = read();
+    if (index !== null) {
+      setActive(index);
+      restore();
     }
-    const index = items.findIndex((item) => item.id === id);
-    if (index >= 0) setActive(index);
-  }, [items]);
+    const onPop = () => {
+      const next = read();
+      const previous = live.current.active;
+      setActive(next);
+      setHot(null);
+      if (next !== null) restore();
+      else if (previous === ALL)
+        requestAnimationFrame(() => allWorkRef.current?.focus());
+      else if (previous !== null)
+        requestAnimationFrame(() => buttonRefs.current[previous]?.focus());
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [indexFor, restore]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && live.current.active !== null) close();
+      if (event.key === "Escape" && live.current.active !== null) back();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+  }, [back]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -538,10 +585,7 @@ export default function Orbit({
             <ParticleMark spin />
           </span>
           <Link href="/" onClick={() => active !== null && close()}>
-            <span className={styles.name}>Neil McArdle</span>{" "}
-            <span className={styles.role}>
-              Senior Digital Product Designer, London, UK
-            </span>
+            <span className={styles.name}>Neil McArdle</span> <Role />
           </Link>
         </h1>
         <Contact />
@@ -555,8 +599,8 @@ export default function Orbit({
         className={styles.centerBack}
         onClick={close}
         hidden={active === null}
-        aria-label="Back"
-        title="Back"
+        aria-label="Close and show the full circle"
+        title="Show the full circle"
       >
         <svg
           viewBox="0 0 24 24"
@@ -571,9 +615,18 @@ export default function Orbit({
         </svg>
       </button>
 
-      <div ref={previewRef} className={styles.preview} aria-hidden="true">
+      <div
+        ref={previewRef}
+        className={styles.preview}
+        aria-hidden="true"
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => {
+          const { hot: index, active: current } = live.current;
+          if (index !== null && current === null) open(index);
+        }}
+      >
         <p className={styles.idle} data-on={shown === null || undefined}>
-          Things I&rsquo;ve said and done
+          Things I&rsquo;ve said and&nbsp;done
         </p>
         {items.map((item, i) => (
           <div
@@ -589,7 +642,7 @@ export default function Orbit({
       <button
         ref={allWorkRef}
         type="button"
-        className={`${styles.back} ${styles.allWork}`}
+        className={styles.allWork}
         data-on={(active === null && shown === null) || undefined}
         tabIndex={active === null ? undefined : -1}
         onClick={() => open(ALL)}
@@ -662,27 +715,38 @@ export default function Orbit({
         hidden={active === null}
       >
         <div className={styles.panelBar}>
-          <p className={styles.eyebrow}>
-            {active === ALL ? "All work" : activeItem?.group}
-          </p>
-          <div className={styles.panelActions}>
-            {active !== ALL ? (
-              <button
-                type="button"
-                className={styles.allWorkLink}
-                onClick={() => open(ALL)}
-              >
-                View all work
-              </button>
-            ) : null}
+          <div className={styles.panelLead}>
             <button
               type="button"
-              className={`${styles.back} ${styles.panelBack}`}
-              onClick={close}
+              className={styles.panelBack}
+              onClick={back}
+              aria-label="Back"
             >
-              {active === ALL ? "Close" : "Back"}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M19 12H5M11 6l-6 6 6 6" />
+              </svg>
             </button>
+            <p className={styles.eyebrow}>
+              {active === ALL ? "All work" : activeItem?.group}
+            </p>
           </div>
+          {active !== ALL ? (
+            <button
+              type="button"
+              className={styles.allWorkLink}
+              onClick={() => open(ALL)}
+            >
+              View all work
+            </button>
+          ) : null}
         </div>
         <div className={styles.panelBody}>
           {active === ALL ? all : activeItem ? panels[activeItem.id] : null}

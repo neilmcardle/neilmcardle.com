@@ -14,11 +14,16 @@
   text-align: center;
 }
 
+.cloudLink {
+  display: block;
+  margin-bottom: 20px;
+  border-radius: 50%;
+}
+
 .cloud {
   display: block;
   width: min(260px, 60vw);
   aspect-ratio: 1;
-  margin-bottom: 20px;
 }
 
 .line {
@@ -34,6 +39,13 @@
   margin: 10px 0 0;
   color: var(--muted);
   font: 400 0.875rem / 1.4 var(--ui);
+}
+
+.code {
+  margin: 28px 0 0;
+  color: var(--muted);
+  font: 400 0.8125rem / 1.4 var(--ui);
+  font-variant-numeric: tabular-nums;
 }
 
 .actions {

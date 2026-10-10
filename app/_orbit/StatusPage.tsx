@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import BackLink from "@/components/BackLink";
 import ParticleMark from "@/app/_home/ParticleMark";
 import home from "@/app/_home/home.module.css";
 import Contact from "./Contact";
+import Role from "./Role";
 import LostCloud from "./LostCloud";
 import styles from "./orbit.module.css";
 import status from "./status.module.css";
@@ -12,12 +14,15 @@ import status from "./status.module.css";
 export default function StatusPage({
   line,
   note,
+  code,
   actions,
 }: {
   line: ReactNode;
   note?: ReactNode;
-  actions: ReactNode;
+  code?: ReactNode;
+  actions?: ReactNode;
 }) {
+  const [formed, setFormed] = useState(false);
   return (
     <div className={`${styles.orbit} ${status.page}`}>
       <header className={styles.top}>
@@ -26,20 +31,27 @@ export default function StatusPage({
             <ParticleMark spin />
           </span>
           <Link href="/">
-            <span className={styles.name}>Neil McArdle</span>{" "}
-            <span className={styles.role}>
-              Senior Digital Product Designer, London, UK
-            </span>
+            <span className={styles.name}>Neil McArdle</span> <Role />
           </Link>
         </div>
         <Contact />
       </header>
 
       <main className={status.main}>
-        <LostCloud className={status.cloud} />
+        <BackLink
+          className={status.cloudLink}
+          aria-label="Wander back"
+          onMouseEnter={() => setFormed(true)}
+          onMouseLeave={() => setFormed(false)}
+          onFocus={() => setFormed(true)}
+          onBlur={() => setFormed(false)}
+        >
+          <LostCloud className={status.cloud} formed={formed} />
+        </BackLink>
         <h1 className={status.line}>{line}</h1>
         {note ? <p className={status.note}>{note}</p> : null}
-        <div className={status.actions}>{actions}</div>
+        {code ? <p className={status.code}>{code}</p> : null}
+        {actions ? <div className={status.actions}>{actions}</div> : null}
       </main>
     </div>
   );

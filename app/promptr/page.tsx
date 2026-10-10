@@ -1,10 +1,7 @@
 "use client";
 
-// Top-level shell for the prompt workshop. State lives here; child
-// components are pure renderers over that state.
-
 import { useState, useRef, useCallback } from "react";
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import Hero from "./components/Hero";
 import PromptEditor from "./components/PromptEditor";
 import Scorecard from "./components/Scorecard";
@@ -24,21 +21,17 @@ import type { LibraryPrompt } from "./library";
 export default function PromptrPage() {
   const [prompt, setPrompt] = useState("");
 
-  // Scorecard state. `dimensions` is a map so we can populate
-  // incrementally as the NDJSON stream arrives.
-  const [dimensions, setDimensions] = useState<Map<DimensionKey, RubricDimension>>(new Map());
+  const [dimensions, setDimensions] = useState<
+    Map<DimensionKey, RubricDimension>
+  >(new Map());
   const [summary, setSummary] = useState<RubricSummary | null>(null);
   const [scoreError, setScoreError] = useState<string | null>(null);
   const [isScoring, setIsScoring] = useState(false);
 
-  // Refine state. The refined prompt is buffered in full before we
-  // parse it; we don't render partial JSON.
   const [refineResult, setRefineResult] = useState<RefineResponse | null>(null);
   const [refineError, setRefineError] = useState<string | null>(null);
   const [isRefining, setIsRefining] = useState(false);
 
-  // Toast for copy feedback from library cards. Tiny and ephemeral,
-  // rendered by the page shell so any component can trigger it.
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((message: string) => {
@@ -47,16 +40,12 @@ export default function PromptrPage() {
     toastTimer.current = setTimeout(() => setToast(null), 1600);
   }, []);
 
-  // Clear previous scorecard state before starting a new scoring run.
-  // The stream populates dimensions one at a time; we don't want stale
-  // entries from the last run lingering.
   const resetScore = () => {
     setDimensions(new Map());
     setSummary(null);
     setScoreError(null);
   };
 
-  // ─── Score handler ─────────────────────────────────────────────────
   const handleScore = useCallback(async () => {
     if (!prompt.trim() || isScoring) return;
     resetScore();
@@ -71,12 +60,12 @@ export default function PromptrPage() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error ?? `Request failed with status ${response.status}`);
+        throw new Error(
+          data.error ?? `Request failed with status ${response.status}`,
+        );
       }
       if (!response.body) throw new Error("No response body");
 
-      // Parse NDJSON incrementally. Lines may be split across chunks,
-      // so we buffer and split on newlines each time.
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
@@ -109,42 +98,44 @@ export default function PromptrPage() {
               });
             }
             if (parsed.type === "summary") {
-              // Model may send a category we don't recognise; normalise
-              // via our own bucketing so the UI never gets a stray value.
-              const totalRaw = typeof parsed.total === "number" ? parsed.total : 0;
+              const totalRaw =
+                typeof parsed.total === "number" ? parsed.total : 0;
               const safeCategory = categoryFor(totalRaw);
               setSummary({
                 total: totalRaw,
                 category: safeCategory,
-                headline: String(parsed.headline ?? CATEGORY_HEADLINES[safeCategory]),
+                headline: String(
+                  parsed.headline ?? CATEGORY_HEADLINES[safeCategory],
+                ),
               });
             }
           } catch (e) {
-            // Skip malformed lines silently; a broken dimension just
-            // leaves its placeholder in the UI.
             if (e instanceof Error && e.message !== "Unexpected token") {
-              // Real error → propagate
               throw e;
             }
           }
         }
       }
 
-      // Flush any trailing line that didn't end with \n
       const trailing = buffer.trim();
       if (trailing) {
         try {
           const parsed = JSON.parse(trailing);
           if (parsed.type === "summary") {
-            const totalRaw = typeof parsed.total === "number" ? parsed.total : 0;
+            const totalRaw =
+              typeof parsed.total === "number" ? parsed.total : 0;
             const safeCategory = categoryFor(totalRaw);
             setSummary({
               total: totalRaw,
               category: safeCategory,
-              headline: String(parsed.headline ?? CATEGORY_HEADLINES[safeCategory]),
+              headline: String(
+                parsed.headline ?? CATEGORY_HEADLINES[safeCategory],
+              ),
             });
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Scoring failed";
@@ -154,7 +145,6 @@ export default function PromptrPage() {
     }
   }, [prompt, isScoring]);
 
-  // ─── Refine handler ────────────────────────────────────────────────
   const handleRefine = useCallback(async () => {
     if (!prompt.trim() || isRefining) return;
     setRefineResult(null);
@@ -170,13 +160,12 @@ export default function PromptrPage() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error ?? `Request failed with status ${response.status}`);
+        throw new Error(
+          data.error ?? `Request failed with status ${response.status}`,
+        );
       }
       if (!response.body) throw new Error("No response body");
 
-      // Refine streams raw text; we buffer the whole thing and JSON.parse
-      // at the end. Sonnet usually returns < 1500 chars so there's no
-      // meaningful interactivity lost vs. incremental parsing.
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let full = "";
@@ -196,7 +185,9 @@ export default function PromptrPage() {
       setRefineResult({
         refined: parsed.refined,
         changes: Array.isArray(parsed.changes)
-          ? parsed.changes.filter((c: unknown): c is string => typeof c === "string").slice(0, 5)
+          ? parsed.changes
+              .filter((c: unknown): c is string => typeof c === "string")
+              .slice(0, 5)
           : [],
       });
     } catch (err) {
@@ -207,9 +198,6 @@ export default function PromptrPage() {
     }
   }, [prompt, isRefining]);
 
-  // Accept the refined version: replace the editor content with the
-  // refined prompt and clear the refine card. User can immediately
-  // re-score to see the new number.
   const handleKeepRefine = () => {
     if (!refineResult) return;
     setPrompt(refineResult.refined);
@@ -221,7 +209,6 @@ export default function PromptrPage() {
     setRefineResult(null);
   };
 
-  // Library copy — write to clipboard and trigger a toast.
   const handleLibraryCopy = useCallback(
     async (item: LibraryPrompt) => {
       try {
@@ -234,8 +221,6 @@ export default function PromptrPage() {
     [showToast],
   );
 
-  // Library load — replace the editor contents, clear any existing
-  // scorecard, and scroll back up so the user sees what they just loaded.
   const handleLibraryLoad = useCallback(
     (item: LibraryPrompt) => {
       setPrompt(item.prompt);
@@ -255,7 +240,6 @@ export default function PromptrPage() {
         fontFamily: "var(--font-inter)",
       }}
     >
-      {/* ─── Header ─────────────────────────────────────────────────── */}
       <header
         style={{
           position: "sticky",
@@ -273,16 +257,19 @@ export default function PromptrPage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link
-            href="/"
+          <BackLink
             style={{
               color: "rgba(0,0,0,0.3)",
               display: "flex",
               transition: "color 0.15s",
             }}
             aria-label="Back to neilmcardle.com"
-            onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(0,0,0,0.7)")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(0,0,0,0.3)")}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "rgba(0,0,0,0.7)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "rgba(0,0,0,0.3)")
+            }
           >
             <svg
               width="14"
@@ -296,7 +283,7 @@ export default function PromptrPage() {
             >
               <path d="M19 12H5M12 5l-7 7 7 7" />
             </svg>
-          </Link>
+          </BackLink>
           <span style={{ color: "rgba(0,0,0,0.12)" }}>·</span>
           <span
             style={{
@@ -312,7 +299,6 @@ export default function PromptrPage() {
         </div>
       </header>
 
-      {/* ─── Body ───────────────────────────────────────────────────── */}
       <main>
         <Hero />
         <PromptEditor
@@ -363,7 +349,6 @@ export default function PromptrPage() {
         </footer>
       </main>
 
-      {/* ─── Toast ──────────────────────────────────────────────────── */}
       {toast && (
         <div
           style={{
@@ -389,15 +374,10 @@ export default function PromptrPage() {
   );
 }
 
-// Best-effort JSON extraction for the refine endpoint's response. The
-// model is instructed to return a single JSON object, but we still
-// guard against leading/trailing whitespace and stray prose by scanning
-// for the first '{' and the matching last '}'.
 function extractJson(text: string): Record<string, unknown> | null {
   const trimmed = text.trim();
   if (!trimmed) return null;
 
-  // Fast path: already valid JSON
   try {
     return JSON.parse(trimmed);
   } catch {

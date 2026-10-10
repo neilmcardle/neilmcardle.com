@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppIcon from "@/app/_home/AppIcon";
+import GoLink from "@/app/_home/GoLink";
 import type { Work } from "@/app/_home/data";
 import home from "@/app/_home/home.module.css";
 import styles from "./orbit.module.css";
@@ -25,9 +26,7 @@ export default function ToolPanel({
           ) : null}
           {work.title}
         </h3>
-        <Link className={home.visit} href={work.href}>
-          Open
-        </Link>
+        <GoLink href={work.href} label={`Open ${work.title}`} />
       </div>
       <p className={home.what}>{what}</p>
       <dl className={home.facts}>

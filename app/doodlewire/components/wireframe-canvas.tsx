@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import BackLink from "@/components/BackLink";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
@@ -1591,8 +1591,7 @@ function TopBar() {
         pointerEvents: "none",
       }}
     >
-      <Link
-        href="/"
+      <BackLink
         aria-label="Back to neilmcardle.com"
         style={{
           color: "rgba(0,0,0,0.45)",
@@ -1613,7 +1612,7 @@ function TopBar() {
         >
           <path d="M19 12H5M12 5l-7 7 7 7" />
         </svg>
-      </Link>
+      </BackLink>
     </header>
   );
 }

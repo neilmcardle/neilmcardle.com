@@ -140,7 +140,7 @@ const PANELS = {
   "icon-animator": (
     <ToolPanel
       work={work("Icon Animator")}
-      what="Animate SVG icons with CSS keyframes. Pick a preset, tune the timing, copy the code."
+      what="Animate SVG icons with CSS keyframes."
       image="/home/orbit/icon-animator.jpg"
     />
   ),
