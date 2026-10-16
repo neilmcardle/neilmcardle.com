@@ -743,6 +743,11 @@
   padding: 56px 48px;
 }
 
+.cardStageCompact {
+  min-height: 0;
+  padding: 40px 32px;
+}
+
 .zoom {
   zoom: 0.8;
 }

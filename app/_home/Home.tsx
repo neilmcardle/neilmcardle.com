@@ -11,6 +11,7 @@ import ExplorationPreview from "./ExplorationPreview";
 import GoLink from "./GoLink";
 import HomeShell from "./HomeShell";
 import PodiumGallery from "./PodiumGallery";
+import CoverShelf from "./CoverShelf";
 import ProductMark from "./ProductMark";
 import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
@@ -40,6 +41,8 @@ const POSTERS = {
 };
 
 const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
+  tools: "tools",
+  explorations: "n",
   kids: "kids",
   covers: "book",
   books: "audio",
@@ -239,9 +242,8 @@ function ShowcaseMedia({ title }: { title: string }) {
   if (title === "makeebook")
     return (
       <>
-        <MakeEbookMocks only="video" />
-        <MakeEbookMocks only="lockup" />
         <MakeEbookMocks only="rain" />
+        <MakeEbookMocks only="video" />
         <video
           className={styles.film}
           src="/home/makeebook-promo.mp4"
@@ -251,7 +253,7 @@ function ShowcaseMedia({ title }: { title: string }) {
           playsInline
           preload="none"
         />
-        <RewriteDemo />
+        <RewriteDemo compact />
       </>
     );
   if (title === "Spark")
@@ -280,17 +282,16 @@ function ShowcaseMedia({ title }: { title: string }) {
           playsInline
           preload="none"
         />
-        <PodiumGallery />
       </>
     );
-  if (title === "Coverly")
+  if (title === "coverly")
     return (
       <>
         <video
           className={styles.film}
           src="/home/coverly-promo.mp4"
           poster={POSTERS.coverly}
-          aria-label="Coverly product film"
+          aria-label="coverly product film"
           controls
           playsInline
           preload="none"
@@ -351,9 +352,16 @@ export function Showcase({ work }: { work: Work }) {
                 <AppleIcon className={styles.goApple} />
               ) : undefined
             }
-            caption={appStore(work.href) ? "App Store" : undefined}
+            caption={
+              appStore(work.href)
+                ? "App Store"
+                : work.title === "coverly" || work.title === "Spark"
+                  ? "Open"
+                  : undefined
+            }
           />
         ) : null}
+        {work.title === "Podium" ? <PodiumGallery /> : null}
       </div>
       <p className={styles.what}>{info.what}</p>
       <dl className={styles.facts}>
@@ -387,12 +395,6 @@ export function Showcase({ work }: { work: Work }) {
   );
 }
 
-const BOOTH = [
-  { rotate: -6, x: -108, y: 3 },
-  { rotate: 0, x: 0, y: -3 },
-  { rotate: 6, x: 108, y: 3 },
-];
-
 export function Covers() {
   return (
     <div className={styles.showcases}>
@@ -412,39 +414,7 @@ export function Covers() {
             </dd>
           </div>
         </dl>
-        <div className={styles.coverBooth}>
-          {COVERS.map((cover, index) => (
-            <span
-              key={cover.title}
-              className={styles.boothCover}
-              data-item={slug(cover.title)}
-              style={{
-                transform: `translate(calc(-50% + ${BOOTH[index].x}%), calc(-50% + ${BOOTH[index].y}%)) rotate(${BOOTH[index].rotate}deg)`,
-              }}
-            >
-              <Image
-                src={cover.image}
-                alt={`Cover of ${cover.title} by ${cover.author}`}
-                fill
-                sizes="(max-width: 959px) 28vw, 180px"
-              />
-            </span>
-          ))}
-        </div>
-        <ul className={styles.covers} aria-label="Covers">
-          {COVERS.map((cover) => (
-            <li
-              key={cover.title}
-              className={styles.cover}
-              data-item={slug(cover.title)}
-            >
-              <span className={styles.coverTitle}>{cover.title}</span>
-              <span className={styles.coverMeta}>
-                {cover.year} edition, first published {cover.original}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <CoverShelf />
       </article>
     </div>
   );
@@ -551,23 +521,26 @@ export function Demo() {
           playsInline
           preload="none"
         />
-        <p className={styles.demoNote}>
-          Inspired by{" "}
-          <a className={styles.handle} href="https://x.com/Moore">
-            @Moore
-          </a>
-          , I built a simple SpeakUI demo showcasing how Jev, TypeSafe
-          AI&rsquo;s new fast decision model, makes voice-driven design edits
-          feel almost realtime. Demo played on Dive Radio by{" "}
-          <a className={styles.handle} href="https://x.com/designertom">
-            @designertom
-          </a>{" "}
-          and{" "}
-          <a className={styles.handle} href="https://x.com/ridd_design">
-            @ridd_design
-          </a>
-          , 24 September 2026.
-        </p>
+        <details className={styles.demoAbout}>
+          <summary>About this demo</summary>
+          <p className={styles.demoNote}>
+            Inspired by{" "}
+            <a className={styles.handle} href="https://x.com/Moore">
+              @Moore
+            </a>
+            , I built a simple SpeakUI demo showcasing how Jev, TypeSafe
+            AI&rsquo;s new fast decision model, makes voice-driven design edits
+            feel almost realtime. Demo played on Dive Radio by{" "}
+            <a className={styles.handle} href="https://x.com/designertom">
+              @designertom
+            </a>{" "}
+            and{" "}
+            <a className={styles.handle} href="https://x.com/ridd_design">
+              @ridd_design
+            </a>
+            , 24 September 2026.
+          </p>
+        </details>
         <div className={styles.demoFoot}>
           {SPEAKUI_URL ? (
             <a
@@ -592,17 +565,15 @@ export function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <h3 className={`${styles.showcaseName} ${styles.markedName}`}>
-          <span className={styles.nameMark} aria-hidden="true">
-            <Mark mark="n" />
-          </span>
-          {work.title}
-        </h3>
-        <GoLink href={work.href} label={`Open the ${work.title} lab`} />
+        <p className={styles.what}>
+          The N mark, drawn in particles that scatter and reform.
+        </p>
+        <GoLink
+          href={work.href}
+          label={`Open the ${work.title} lab`}
+          caption="Explore"
+        />
       </div>
-      <p className={styles.what}>
-        The N mark, drawn in particles that scatter and reform.
-      </p>
       <dl className={styles.facts}>
         <div>
           <dt>Type</dt>

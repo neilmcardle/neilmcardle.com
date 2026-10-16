@@ -28,7 +28,7 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
     role: "Solo, design and build",
     status: "Live",
   },
-  Coverly: {
+  coverly: {
     mark: "coverly",
     what: "Be inspired to design your next book cover.",
     label: "Visit",

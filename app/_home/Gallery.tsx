@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import styles from "./home.module.css";
 
 export type GalleryItem = {
@@ -28,6 +28,84 @@ const ICONS = {
   ),
 };
 
+export type ViewerHandle = { open: (index: number) => void };
+
+export const Viewer = forwardRef<
+  ViewerHandle,
+  { items: GalleryItem[]; name: string }
+>(function Viewer({ items, name }, ref) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [index, setIndex] = useState(0);
+  const [viewing, setViewing] = useState(false);
+  const count = items.length;
+  const step = (by: number) => setIndex((i) => (i + by + count) % count);
+
+  useImperativeHandle(ref, () => ({
+    open: (i: number) => {
+      setIndex(i);
+      setViewing(true);
+      dialogRef.current?.showModal();
+    },
+  }));
+
+  const item = items[index];
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onClose={() => setViewing(false)}
+      className={styles.viewer}
+      aria-label={name}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) dialogRef.current?.close();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowRight") step(1);
+        if (event.key === "ArrowLeft") step(-1);
+      }}
+    >
+      <div className={styles.viewerFigure}>
+        {viewing ? (
+          <Image
+            key={item.src}
+            src={item.src}
+            alt={item.alt}
+            width={item.width}
+            height={item.height}
+            sizes="(max-width: 1700px) 92vw, 1600px"
+            loading="eager"
+            style={{
+              width: `min(100%, (100svh - 160px) * ${item.width} / ${item.height})`,
+              aspectRatio: `${item.width} / ${item.height}`,
+            }}
+          />
+        ) : null}
+      </div>
+      <div className={styles.viewerControls}>
+        <button type="button" onClick={() => step(-1)} aria-label="Previous">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M10 3L5 8l5 5" />
+          </svg>
+        </button>
+        <button type="button" onClick={() => step(1)} aria-label="Next">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M6 3l5 5-5 5" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => dialogRef.current?.close()}
+          aria-label="Close"
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
+        </button>
+      </div>
+    </dialog>
+  );
+});
+
 export default function Gallery({
   items,
   label,
@@ -41,19 +119,8 @@ export default function Gallery({
   icon?: keyof typeof ICONS;
   preview?: number;
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const [index, setIndex] = useState(0);
-  const [viewing, setViewing] = useState(false);
-  const count = items.length;
-  const step = (by: number) => setIndex((i) => (i + by + count) % count);
-
-  const open = (i: number) => {
-    setIndex(i);
-    setViewing(true);
-    dialogRef.current?.showModal();
-  };
-
-  const item = items[index];
+  const viewerRef = useRef<ViewerHandle>(null);
+  const open = (i: number) => viewerRef.current?.open(i);
 
   return (
     <div className={styles.galleryGroup}>
@@ -98,58 +165,7 @@ export default function Gallery({
         </svg>
         <span>{label}</span>
       </button>
-      <dialog
-        ref={dialogRef}
-        onClose={() => setViewing(false)}
-        className={styles.viewer}
-        aria-label={name}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) dialogRef.current?.close();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowRight") step(1);
-          if (event.key === "ArrowLeft") step(-1);
-        }}
-      >
-        <div className={styles.viewerFigure}>
-          {viewing ? (
-            <Image
-              key={item.src}
-              src={item.src}
-              alt={item.alt}
-              width={item.width}
-              height={item.height}
-              sizes="(max-width: 1700px) 92vw, 1600px"
-              loading="eager"
-              style={{
-                width: `min(100%, (100svh - 160px) * ${item.width} / ${item.height})`,
-                aspectRatio: `${item.width} / ${item.height}`,
-              }}
-            />
-          ) : null}
-        </div>
-        <div className={styles.viewerControls}>
-          <button type="button" onClick={() => step(-1)} aria-label="Previous">
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M10 3L5 8l5 5" />
-            </svg>
-          </button>
-          <button type="button" onClick={() => step(1)} aria-label="Next">
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M6 3l5 5-5 5" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => dialogRef.current?.close()}
-            aria-label="Close"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
-          </button>
-        </div>
-      </dialog>
+      <Viewer ref={viewerRef} items={items} name={name} />
     </div>
   );
 }

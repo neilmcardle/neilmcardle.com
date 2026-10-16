@@ -143,7 +143,7 @@ const TAKES = [
   },
 ] as const;
 
-export function RewriteDemo() {
+export function RewriteDemo({ compact = false }: { compact?: boolean }) {
   const reduced = useReducedMotion();
   const [ref, inView] = useInView<HTMLDivElement>(0.45);
   const [open, setOpen] = useState(false);
@@ -191,13 +191,13 @@ export function RewriteDemo() {
   return (
     <Stage
       image="/make-ebook/brand/stages/stage-manuscript.jpg"
-      className={styles.cardStage}
+      className={`${styles.cardStage} ${compact ? styles.cardStageCompact : ""}`}
     >
       <div ref={ref} className={styles.pane}>
         <Window title={`Chapter Forty · ${BOOK.title}`}>
           <div className={styles.rewritePanel}>
             <div className={styles.rewriteProse}>
-              <p>{CHAPTERS[4].body[0]}</p>
+              {compact ? null : <p>{CHAPTERS[4].body[0]}</p>}
               <p>
                 Elena walked the length of the pier with her collar up and the
                 manuscript held flat against her chest, its pages still warm

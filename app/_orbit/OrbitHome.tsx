@@ -51,8 +51,8 @@ export const ITEMS: OrbitItem[] = [
   },
   {
     id: "coverly",
-    caption: SHOWCASE.Coverly.what,
-    name: "Coverly",
+    caption: SHOWCASE.coverly.what,
+    name: "coverly",
     group: "Products",
     mark: "coverly",
     preview: { kind: "screen", src: "/home/orbit/coverly.jpg" },
@@ -145,7 +145,7 @@ export const ITEMS: OrbitItem[] = [
 
 const PANELS = {
   makeebook: <Showcase work={work("makeebook")} />,
-  coverly: <Showcase work={work("Coverly")} />,
+  coverly: <Showcase work={work("coverly")} />,
   doodlewire: <Showcase work={work("DoodleWire")} />,
   spark: <Showcase work={work("Spark")} />,
   podium: <Showcase work={work("Podium")} />,

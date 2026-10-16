@@ -40,7 +40,7 @@ export const FEATURES: Feature[] = [
   {
     tileKey: "coverly",
     category: "Design research tool",
-    name: "Coverly",
+    name: "coverly",
     description:
       "Comparable research for book cover designers. Thousands of covers searchable by design attributes rather than genre, with boards and PDF comp-deck export. Free to use.",
     href: "/coverly",

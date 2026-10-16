@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import * as THREE from "three";
 import {
   Mark,
@@ -40,6 +40,23 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     query.addEventListener("change", sync);
     return () => query.removeEventListener("change", sync);
   }, []);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!wide || !rail) return;
+    const place = () => {
+      const title = document.querySelector("[data-group] h2");
+      if (!title) return;
+      const box = title.getBoundingClientRect();
+      const top = box.top + box.height / 2 + window.scrollY;
+      rail.style.setProperty("--top", `${Math.round(top)}px`);
+      rail.dataset.placed = "";
+    };
+    place();
+    const sizer = new ResizeObserver(place);
+    sizer.observe(document.body);
+    return () => sizer.disconnect();
+  }, [wide]);
 
   useEffect(() => {
     if (!wide) return;
@@ -229,6 +246,14 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     <nav
       ref={railRef}
       className={styles.rail}
+      style={
+        {
+          "--n": items.length,
+          "--g": items.filter(
+            (item, i) => i > 0 && items[i - 1].group !== item.group,
+          ).length,
+        } as CSSProperties
+      }
       aria-label="Work"
       data-ready={ready || undefined}
     >

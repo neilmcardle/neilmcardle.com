@@ -19,6 +19,7 @@ import SectionChips from "./SectionChips";
 import WorkScroll from "./WorkScroll";
 
 const WHOLE: Partial<Record<string, string>> = {
+  tools: "tools",
   covers: "book-covers",
   paintings: "paintings",
   kids: "kids",
@@ -26,9 +27,14 @@ const WHOLE: Partial<Record<string, string>> = {
 };
 
 const EXTRA = [
+  { id: "tools", name: "Tools", mark: "tools" as const },
   { id: "kids", name: "For my kids", mark: "kids" as const },
   { id: "audiobook", name: "Audiobook", mark: "audio" as const },
 ];
+
+const RENAME: Partial<Record<string, string>> = {
+  "n-particles": "Explorations",
+};
 
 const PAGE: { id: string; group: string }[] = [
   { id: "speakui", group: "demo" },
@@ -47,7 +53,9 @@ const RAIL = PAGE.flatMap(({ id, group }) => {
   const item =
     ITEMS.find((entry) => entry.id === id) ??
     EXTRA.find((entry) => entry.id === id);
-  return item ? [{ id, name: item.name, mark: item.mark, group }] : [];
+  return item
+    ? [{ id, name: RENAME[id] ?? item.name, mark: item.mark, group }]
+    : [];
 });
 
 const SECTIONS = [

@@ -1741,17 +1741,27 @@
 .cvShelves {
   display: grid;
   grid-template-rows: 1fr 1fr;
-  gap: 10px;
+  gap: 14px;
   height: 100%;
+  padding: 4px 4% 0;
 }
 
 .cvShelfRow {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   min-height: 0;
-  border-bottom: 3px solid rgb(18 18 18 / 0.35);
+  padding: 0 6%;
+  border-bottom: 3px solid rgb(18 18 18 / 0.28);
+}
+
+.cvShelfRow .cvViewCover {
+  flex: none;
+  width: auto;
+  max-height: none;
+  border-radius: 3px;
+  box-shadow: 0 5px 9px -3px rgb(0 0 0 / 0.4);
 }
 
 .cvViewCover {

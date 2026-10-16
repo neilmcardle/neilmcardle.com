@@ -87,6 +87,20 @@
   letter-spacing: 0;
 }
 
+.role.roleNarrow {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .role.roleWide {
+    display: none;
+  }
+
+  .role.roleNarrow {
+    display: block;
+  }
+}
+
 .identity {
   display: block;
   min-width: 0;

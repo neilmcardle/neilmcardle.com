@@ -46,11 +46,11 @@ export const CONTACTS: Contact[] = [
 
 export const GROUP_ORDER: GroupKey[] = [
   "products",
-  "tools",
   "explorations",
+  "tools",
   "kids",
-  "covers",
   "books",
+  "covers",
   "paintings",
 ];
 
@@ -80,7 +80,7 @@ export const WORKS: Work[] = [
     pills: ["Writing platform", "Web"],
   },
   {
-    title: "Coverly",
+    title: "coverly",
     group: "products",
     sub: "Shipped",
     href: "/coverly",

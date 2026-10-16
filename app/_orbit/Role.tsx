@@ -13,7 +13,15 @@ const LINES: ((copy: boolean) => ReactNode)[] = [
   ),
 ];
 
-function Line({ render }: { render: (copy: boolean) => ReactNode }) {
+const NARROW = "Senior Digital Product Designer @ Avis Budget Group";
+
+function Line({
+  render,
+  className,
+}: {
+  render: (copy: boolean) => ReactNode;
+  className: string;
+}) {
   const boxRef = useRef<HTMLSpanElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const [overflow, setOverflow] = useState(false);
@@ -37,7 +45,7 @@ function Line({ render }: { render: (copy: boolean) => ReactNode }) {
   return (
     <span
       ref={boxRef}
-      className={styles.role}
+      className={`${styles.role} ${className}`}
       data-overflow={overflow || undefined}
     >
       <span className={styles.roleTrack}>
@@ -54,8 +62,9 @@ export default function Role() {
   return (
     <>
       {LINES.map((render, i) => (
-        <Line key={i} render={render} />
+        <Line key={i} render={render} className={styles.roleWide} />
       ))}
+      <Line render={() => NARROW} className={styles.roleNarrow} />
     </>
   );
 }

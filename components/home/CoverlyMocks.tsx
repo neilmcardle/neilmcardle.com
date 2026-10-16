@@ -9,6 +9,9 @@ function thumb(src: string, width: number) {
   return getImageProps({ src, alt: "", width, height: width * 1.5 }).props.src;
 }
 
+const SHELF_HEIGHT = [74, 92, 80, 98, 86, 72];
+const SHELF_ASPECT = [0.66, 0.67, 0.6, 0.7, 0.64];
+
 function useSeen(ref: RefObject<Element | null>) {
   const [state, setState] = useState({ seen: false, visible: false });
 
@@ -83,7 +86,9 @@ function Views() {
                     key={cover.src}
                     className={styles.cvViewCover}
                     style={{
-                      width: `${12 + ((i * 5 + r * 3) % 5)}%`,
+                      height: `${SHELF_HEIGHT[(i + r * 3) % SHELF_HEIGHT.length]}%`,
+                      aspectRatio:
+                        SHELF_ASPECT[(i * 2 + r) % SHELF_ASPECT.length],
                       backgroundImage: seen
                         ? `url(${thumb(cover.src, 64)})`
                         : undefined,
