@@ -249,9 +249,6 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       style={
         {
           "--n": items.length,
-          "--g": items.filter(
-            (item, i) => i > 0 && items[i - 1].group !== item.group,
-          ).length,
         } as CSSProperties
       }
       aria-label="Work"
@@ -264,10 +261,7 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       />
       <ul>
         {items.map((item, i) => (
-          <li
-            key={item.id}
-            data-gap={(i > 0 && items[i - 1].group !== item.group) || undefined}
-          >
+          <li key={item.id}>
             <button
               type="button"
               data-node

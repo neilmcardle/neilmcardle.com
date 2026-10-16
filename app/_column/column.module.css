@@ -121,9 +121,7 @@
   --top: 50vh;
   --s: clamp(
     20px,
-    calc(
-      (100vh - var(--top) - 32px - var(--g, 3) * 12px) / var(--n, 14) - 14px
-    ),
+    calc((100vh - var(--top) - 32px) / var(--n, 14) - 14px),
     34px
   );
   position: fixed;
@@ -143,10 +141,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.rail li[data-gap] {
-  margin-top: 12px;
 }
 
 .railCanvas {
