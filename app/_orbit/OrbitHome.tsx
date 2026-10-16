@@ -135,7 +135,7 @@ export const ITEMS: OrbitItem[] = [
   },
   {
     id: "n-particles",
-    caption: "The N mark, drawn in particles that scatter and reform.",
+    caption: "N mark that scatters and reforms.",
     name: "N particles",
     group: "Explorations",
     mark: "n",

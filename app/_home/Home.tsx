@@ -573,9 +573,7 @@ export function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>
-          The N mark, drawn in particles that scatter and reform.
-        </p>
+        <p className={styles.what}>N mark that scatters and reforms.</p>
         <GoLink
           href={work.href}
           label={`Open the ${work.title} lab`}
