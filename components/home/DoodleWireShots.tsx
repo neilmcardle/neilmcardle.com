@@ -1,4 +1,5 @@
-import Gallery from "@/app/_home/Gallery";
+import Image from "next/image";
+import styles from "./home.module.css";
 
 const SHOTS = [
   "Share doodle love",
@@ -10,21 +11,23 @@ const SHOTS = [
   "Correct your doodles",
 ];
 
-const ITEMS = SHOTS.map((caption, i) => ({
-  src: `/doodlewire/appstore/${i + 1}.jpg`,
-  alt: `DoodleWire screenshot: ${caption}`,
-  width: 828,
-  height: 1792,
-}));
-
 export default function DoodleWireShots() {
   return (
-    <Gallery
-      items={ITEMS}
-      preview={2}
-      icon="phone"
-      label="View screenshots"
-      name="DoodleWire screenshots"
-    />
+    <ul
+      className={styles.dwShots}
+      aria-label="DoodleWire App Store screenshots"
+    >
+      {SHOTS.map((caption, i) => (
+        <li key={caption} className={styles.dwShot}>
+          <Image
+            src={`/doodlewire/appstore/${i + 1}.jpg`}
+            alt={`DoodleWire screenshot: ${caption}`}
+            width={828}
+            height={1792}
+            sizes="(max-width: 600px) 60vw, 252px"
+          />
+        </li>
+      ))}
+    </ul>
   );
 }

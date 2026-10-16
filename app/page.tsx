@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
-import OrbitHome from "./_orbit/OrbitHome";
+import ColumnHome from "./_column/ColumnHome";
 import Intro from "./_home/Intro";
 import { INTRO_CSS, INTRO_SCRIPT } from "./_home/intro-script";
 import { SITE_DESCRIPTION, SITE_TITLE, share } from "./shared-metadata";
@@ -24,7 +24,7 @@ export default function Homepage() {
       </style>
       <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
       <Intro />
-      <OrbitHome />
+      <ColumnHome />
     </div>
   );
 }

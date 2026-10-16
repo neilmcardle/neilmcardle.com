@@ -12,6 +12,8 @@ type Line = { text: string; tone?: Tone };
 
 type Progress = { furthest: number; complete: boolean };
 
+const CABINET_ROUTES = new Set(["/spark"]);
+
 const BOOT: Line[] = [
   { text: "SPARK TERMINAL MODEL 1.0", tone: "amber" },
   { text: "type help for commands", tone: "dim" },
@@ -127,8 +129,7 @@ export function SparkTerminal({
 
   useEffect(() => {
     if (variant !== "dock") return;
-    if (!document.querySelector("[data-spark-cabinet]")) return;
-    setDockReady(false);
+
     const onStow = (event: Event) => {
       const detail = (
         event as CustomEvent<{ x?: number; y?: number; open?: boolean }>
@@ -141,7 +142,40 @@ export function SparkTerminal({
       }
     };
     window.addEventListener("spark-terminal-stow", onStow);
-    return () => window.removeEventListener("spark-terminal-stow", onStow);
+
+    if (!CABINET_ROUTES.has(pathname ?? "")) {
+      setDockReady(true);
+      return () => window.removeEventListener("spark-terminal-stow", onStow);
+    }
+
+    setDockReady(false);
+    let watcher: IntersectionObserver | null = null;
+    let hunt = 0;
+    let tries = 0;
+
+    const find = () => {
+      const cabinet = document.querySelector("[data-spark-cabinet]");
+      if (cabinet) {
+        watcher = new IntersectionObserver(
+          ([entry]) => setDockReady(!entry.isIntersecting),
+          { threshold: 0.25 },
+        );
+        watcher.observe(cabinet);
+        return;
+      }
+      if (tries++ > 12) {
+        setDockReady(true);
+        return;
+      }
+      hunt = window.setTimeout(find, 120);
+    };
+    find();
+
+    return () => {
+      window.clearTimeout(hunt);
+      watcher?.disconnect();
+      window.removeEventListener("spark-terminal-stow", onStow);
+    };
   }, [variant, pathname]);
 
   useEffect(() => {
@@ -650,7 +684,7 @@ export function SparkTerminal({
     );
   }
 
-  if (!dockReady) return null;
+  if (!dockReady && !open) return null;
 
   return (
     <div

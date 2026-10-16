@@ -29,14 +29,6 @@ const WHAT = {
 
 const ITEMS: OrbitItem[] = [
   {
-    id: "makeebook",
-    caption: SHOWCASE.makeebook.what,
-    name: "makeebook",
-    group: "Products",
-    mark: "makeebook",
-    preview: { kind: "screen", src: "/home/orbit/makeebook.jpg" },
-  },
-  {
     id: "speakui",
     caption: "SpeakUI Demo on Dive Radio",
     name: "SpeakUI",
@@ -48,6 +40,14 @@ const ITEMS: OrbitItem[] = [
       width: 1280,
       height: 720,
     },
+  },
+  {
+    id: "makeebook",
+    caption: SHOWCASE.makeebook.what,
+    name: "makeebook",
+    group: "Products",
+    mark: "makeebook",
+    preview: { kind: "screen", src: "/home/orbit/makeebook.jpg" },
   },
   {
     id: "coverly",
@@ -177,5 +177,13 @@ const PANELS = {
 };
 
 export default function OrbitHome() {
-  return <Orbit items={ITEMS} panels={PANELS} all={<AllWork />} />;
+  return (
+    <Orbit
+      items={ITEMS}
+      panels={PANELS}
+      all={<AllWork />}
+      hero="speakui"
+      greet="n-particles"
+    />
+  );
 }

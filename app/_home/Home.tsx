@@ -3,13 +3,14 @@ import Link from "next/link";
 import CoverlyMocks from "@/components/home/CoverlyMocks";
 import DoodleWireShots from "@/components/home/DoodleWireShots";
 import MakeEbookMocks from "@/components/home/MakeEbookMocks";
+import { RewriteDemo } from "@/app/make-ebook/components/marketing/brand/demos";
 import AppIcon from "./AppIcon";
+import AutoVideo from "./AutoVideo";
 import ExplorationPreview from "./ExplorationPreview";
 import GoLink from "./GoLink";
 import HomeShell from "./HomeShell";
 import PodiumGallery from "./PodiumGallery";
 import ProductMark from "./ProductMark";
-import SparkIntro from "./SparkIntro";
 import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
 import { SHOWCASE } from "./showcase";
@@ -33,7 +34,7 @@ const SPEAKUI_URL = process.env.SPEAKUI_ORIGIN ? "/speakui" : "";
 
 const POSTERS = {
   makeebook: poster("/home/makeebook-promo.jpg"),
-  spark: poster("/home/spark-promo.jpg"),
+  spark: poster("/home/spark-promo-logo.jpg"),
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
   podium: poster("/home/podium/trailer-02-poster.jpg"),
@@ -230,9 +231,9 @@ function ShowcaseMedia({ title }: { title: string }) {
   if (title === "makeebook")
     return (
       <>
+        <MakeEbookMocks only="video" />
         <MakeEbookMocks only="lockup" />
         <MakeEbookMocks only="rain" />
-        <MakeEbookMocks only="video" />
         <video
           className={styles.film}
           src="/home/makeebook-promo.mp4"
@@ -242,12 +243,12 @@ function ShowcaseMedia({ title }: { title: string }) {
           playsInline
           preload="none"
         />
+        <RewriteDemo />
       </>
     );
   if (title === "Spark")
     return (
       <>
-        <SparkIntro />
         <video
           className={styles.film}
           src="/home/spark-promo.mp4"
@@ -342,6 +343,7 @@ export function Showcase({ work }: { work: Work }) {
                 <AppleIcon className={styles.goApple} />
               ) : undefined
             }
+            caption={appStore(work.href) ? "App Store" : undefined}
           />
         ) : null}
       </div>
@@ -527,12 +529,14 @@ export function Demo() {
         SpeakUI Demo on Dive Radio
       </h2>
       <article className={styles.showcase}>
-        <video
+        <AutoVideo
           className={styles.film}
           src="/home/dive-radio-jit.mp4"
           poster={POSTERS.diveRadio}
           aria-label="Dive Radio, Just-in-Time Interfaces"
           controls
+          muted
+          loop
           playsInline
           preload="none"
         />

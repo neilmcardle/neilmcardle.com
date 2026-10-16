@@ -1490,6 +1490,12 @@
   height: 18px;
 }
 
+.goCaption {
+  font-size: 0.8125rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .go .goApple {
   width: 15px;
   height: 15px;

@@ -6,11 +6,13 @@ export default function GoLink({
   label,
   newTab = false,
   lead,
+  caption = newTab ? "Visit site" : undefined,
 }: {
   href: string;
   label: string;
   newTab?: boolean;
   lead?: ReactNode;
+  caption?: string;
 }) {
   const text = newTab ? `${label} (opens in a new tab)` : label;
   return (
@@ -22,6 +24,7 @@ export default function GoLink({
       {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {lead}
+      {caption ? <span className={styles.goCaption}>{caption}</span> : null}
       <svg
         viewBox="0 0 16 16"
         fill="none"

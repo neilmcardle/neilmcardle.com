@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import BackLink from "@/components/BackLink";
-import ParticleMark from "@/app/_home/ParticleMark";
-import home from "@/app/_home/home.module.css";
 import Contact from "./Contact";
+import ProfileMark from "./ProfileMark";
 import Role from "./Role";
 import LostCloud from "./LostCloud";
 import styles from "./orbit.module.css";
@@ -27,12 +26,13 @@ export default function StatusPage({
     <div className={`${styles.orbit} ${status.page}`}>
       <header className={styles.top}>
         <div className={styles.wordmark}>
-          <span className={home.mark}>
-            <ParticleMark spin />
+          <ProfileMark />
+          <span className={styles.identity}>
+            <Link href="/" className={styles.name}>
+              Neil McArdle
+            </Link>
+            <Role />
           </span>
-          <Link href="/">
-            <span className={styles.name}>Neil McArdle</span> <Role />
-          </Link>
         </div>
         <Contact />
       </header>

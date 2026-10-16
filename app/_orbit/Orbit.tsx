@@ -11,10 +11,10 @@ import {
 import * as THREE from "three";
 import { Glyph, type AppIconKey } from "@/app/_home/AppIcon";
 import ProductMark from "@/app/_home/ProductMark";
-import ParticleMark from "@/app/_home/ParticleMark";
+import { MARK_EVENT } from "@/app/_home/intro-script";
 import { CLIENTS } from "@/app/_home/data";
-import home from "@/app/_home/home.module.css";
 import Contact from "./Contact";
+import ProfileMark from "./ProfileMark";
 import Role from "./Role";
 import { FRAGMENT, INK, VERTEX } from "./particles";
 import styles from "./orbit.module.css";
@@ -194,7 +194,7 @@ function targetLayout(width: number, height: number, open: boolean): Layout {
       s,
     };
   }
-  const room = Math.min(width, height - 120);
+  const room = Math.min(width, height - 170);
   const r = Math.max(118, Math.min(560, room * (room > 700 ? 0.41 : 0.36)));
   const s = Math.max(44, Math.min(132, r * 0.27));
   return { cx: width / 2, cy: height / 2 + 24, r, s };
@@ -283,10 +283,14 @@ export default function Orbit({
   items,
   panels,
   all,
+  hero,
+  greet,
 }: {
   items: OrbitItem[];
   panels: Record<string, ReactNode>;
   all: ReactNode;
+  hero?: string;
+  greet?: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -294,6 +298,7 @@ export default function Orbit({
   const captionRef = useRef<HTMLDivElement>(null);
   const centerRef = useRef<HTMLButtonElement>(null);
   const allWorkRef = useRef<HTMLButtonElement>(null);
+  const belowRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const glyphRefs = useRef<(SVGSVGElement | null)[]>([]);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -302,14 +307,36 @@ export default function Orbit({
   const [hot, setHot] = useState<number | null>(null);
   const [active, setActive] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
+  const heroIndex = hero ? items.findIndex((item) => item.id === hero) : -1;
+  const lead = heroIndex >= 0 ? heroIndex : null;
   const live = useRef({
     hot: null as number | null,
     active: null as number | null,
+    lead: null as number | null,
   });
+  const greeting = useRef<number | null>(null);
 
   useEffect(() => {
-    live.current = { hot, active };
-  }, [hot, active]);
+    live.current = { hot, active, lead };
+  }, [hot, active, lead]);
+
+  useEffect(() => {
+    const index = greet ? items.findIndex((item) => item.id === greet) : -1;
+    if (index < 0) return;
+    let timer = 0;
+    const form = () => {
+      greeting.current = index;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        greeting.current = null;
+      }, 2600);
+    };
+    window.addEventListener(MARK_EVENT, form);
+    return () => {
+      window.removeEventListener(MARK_EVENT, form);
+      window.clearTimeout(timer);
+    };
+  }, [greet, items]);
 
   const open = useCallback(
     (index: number) => {
@@ -499,7 +526,11 @@ export default function Orbit({
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (!reduced) uniforms.uTime.value += dt;
-      const { hot: hotIndex, active: activeIndex } = live.current;
+      const {
+        hot: hotIndex,
+        active: activeIndex,
+        lead: leadIndex,
+      } = live.current;
       const target = targetLayout(width, height, activeIndex !== null);
       if (!layout || reduced) layout = { ...target };
       else {
@@ -515,7 +546,13 @@ export default function Orbit({
         1.7 * dpr * Math.max(1, Math.min(1.5, Math.sqrt(s / 80)));
 
       for (let i = 0; i < count; i += 1) {
-        const on = i === hotIndex || i === activeIndex ? 1 : 0;
+        const on =
+          i === hotIndex ||
+          i === activeIndex ||
+          (hotIndex === null && activeIndex === null && i === leadIndex) ||
+          i === greeting.current
+            ? 1
+            : 0;
         form[i] = reduced
           ? on
           : form[i] + (on - form[i]) * Math.min(1, dt * 2.6);
@@ -552,9 +589,16 @@ export default function Orbit({
       const center = centerRef.current;
       if (center)
         center.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
-      const allWork = allWorkRef.current;
-      if (allWork)
-        allWork.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, 30px)`;
+      const below = belowRef.current;
+      if (below) {
+        const caption = captionRef.current;
+        const outside = height - (cy + r + s / 2) >= 120;
+        const top =
+          outside && caption
+            ? cy + r + s / 2 + 40 + caption.offsetHeight + 20
+            : Math.min(cy + r + s / 2 + 36, height - 40);
+        below.style.transform = `translate(${cx}px, ${top}px) translateX(-50%)`;
+      }
 
       frame = document.hidden ? 0 : requestAnimationFrame(draw);
     };
@@ -578,7 +622,7 @@ export default function Orbit({
     };
   }, [items]);
 
-  const shown = active === null ? hot : null;
+  const shown = active === null ? (hot ?? lead) : null;
   const activeItem = active !== null && active !== ALL ? items[active] : null;
   const panelName = active === ALL ? "All work" : activeItem?.name;
 
@@ -591,12 +635,17 @@ export default function Orbit({
     >
       <header className={styles.top}>
         <h1 className={styles.wordmark}>
-          <span className={home.mark} data-home-mark>
-            <ParticleMark spin />
+          <ProfileMark />
+          <span className={styles.identity}>
+            <Link
+              href="/"
+              className={styles.name}
+              onClick={() => active !== null && close()}
+            >
+              Neil McArdle
+            </Link>
+            <Role />
           </span>
-          <Link href="/" onClick={() => active !== null && close()}>
-            <span className={styles.name}>Neil McArdle</span> <Role />
-          </Link>
         </h1>
         <Contact />
       </header>
@@ -631,13 +680,11 @@ export default function Orbit({
         aria-hidden="true"
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
-          const { hot: index, active: current } = live.current;
+          const { hot, lead: hero, active: current } = live.current;
+          const index = hot ?? hero;
           if (index !== null && current === null) open(index);
         }}
       >
-        <p className={styles.idle} data-on={shown === null || undefined}>
-          Things I&rsquo;ve said and&nbsp;done
-        </p>
         {items.map((item, i) => (
           <div
             key={item.id}
@@ -649,16 +696,18 @@ export default function Orbit({
         ))}
       </div>
 
-      <button
-        ref={allWorkRef}
-        type="button"
-        className={styles.allWork}
-        data-on={(active === null && shown === null) || undefined}
-        tabIndex={active === null ? undefined : -1}
-        onClick={() => open(ALL)}
-      >
-        View all work
-      </button>
+      <div ref={belowRef} className={styles.below}>
+        <p className={styles.tagline}>Things I&rsquo;ve said and done</p>
+        <button
+          ref={allWorkRef}
+          type="button"
+          className={styles.allWork}
+          tabIndex={active === null ? undefined : -1}
+          onClick={() => open(ALL)}
+        >
+          View all work
+        </button>
+      </div>
 
       <div ref={captionRef} className={styles.caption} aria-hidden="true">
         {items.map((item, i) =>
@@ -685,7 +734,7 @@ export default function Orbit({
               className={styles.node}
               aria-pressed={active === i}
               aria-label={`${item.name}, ${item.group}`}
-              data-hot={hot === i || active === i || undefined}
+              data-hot={hot === i || active === i || shown === i || undefined}
               onPointerDown={(event) => {
                 pointerType.current = event.pointerType;
                 armed.current = live.current.hot === i;
