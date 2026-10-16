@@ -1,20 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-
-const TARGETS: Record<string, string> = {
-  speakui: '[data-group="demo"]',
-  "book-covers": '[data-group="covers"]',
-  paintings: '[data-group="paintings"]',
-};
+import { targetFor } from "./targets";
 
 export default function WorkScroll() {
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("work");
     if (!id || id === "all") return;
-    const target = document.querySelector(
-      TARGETS[id] ?? `[data-item="${CSS.escape(id)}"]`,
-    );
+    const target = targetFor(id);
     if (!target) return;
     let timer = 0;
     const go = () => {

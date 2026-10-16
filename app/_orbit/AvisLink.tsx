@@ -152,7 +152,7 @@ export default function AvisLink({ copy = false }: { copy?: boolean }) {
               sizes="20px"
             />
           </span>
-          Neil, Senior Digital Product Designer, London
+          Global Product/UX Design Team
         </span>
       </span>
     </span>

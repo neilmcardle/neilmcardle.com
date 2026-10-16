@@ -6,6 +6,7 @@ import MakeEbookMocks from "@/components/home/MakeEbookMocks";
 import { RewriteDemo } from "@/app/make-ebook/components/marketing/brand/demos";
 import AppIcon from "./AppIcon";
 import AutoVideo from "./AutoVideo";
+import { Mark, type OrbitMark } from "@/app/_orbit/Orbit";
 import ExplorationPreview from "./ExplorationPreview";
 import GoLink from "./GoLink";
 import HomeShell from "./HomeShell";
@@ -15,12 +16,10 @@ import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
 import { SHOWCASE } from "./showcase";
 import {
-  FILTERS,
   GROUP_LABEL,
   GROUP_ORDER,
   MULTI_SUB,
   WORKS,
-  pad,
   slug,
   subKey,
   type Work,
@@ -38,6 +37,13 @@ const POSTERS = {
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
   podium: poster("/home/podium/trailer-02-poster.jpg"),
+};
+
+const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
+  kids: "kids",
+  covers: "book",
+  books: "audio",
+  paintings: "frame",
 };
 
 export default function Home() {
@@ -63,9 +69,11 @@ export function AllWork() {
             data-group={key}
           >
             <h2 className={styles.groupTitle}>
-              <span className={styles.groupCount} aria-hidden="true">
-                {pad(FILTERS.indexOf(key))}
-              </span>
+              {GROUP_MARK[key] ? (
+                <span className={styles.sectionMark} aria-hidden="true">
+                  <Mark mark={GROUP_MARK[key]} />
+                </span>
+              ) : null}
               <span>{GROUP_LABEL[key]}</span>
             </h2>
             {key === "explorations" ? (
@@ -526,7 +534,10 @@ export function Demo() {
       data-group="demo"
     >
       <h2 id="home-demo" className={styles.groupTitle}>
-        SpeakUI Demo on Dive Radio
+        <span className={styles.sectionMark} aria-hidden="true">
+          <Mark mark="speakui" />
+        </span>
+        <span>SpeakUI Demo on Dive Radio</span>
       </h2>
       <article className={styles.showcase}>
         <AutoVideo
@@ -581,7 +592,12 @@ export function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <h3 className={styles.showcaseName}>{work.title}</h3>
+        <h3 className={`${styles.showcaseName} ${styles.markedName}`}>
+          <span className={styles.nameMark} aria-hidden="true">
+            <Mark mark="n" />
+          </span>
+          {work.title}
+        </h3>
         <GoLink href={work.href} label={`Open the ${work.title} lab`} />
       </div>
       <p className={styles.what}>

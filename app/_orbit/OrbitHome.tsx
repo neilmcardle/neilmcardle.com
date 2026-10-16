@@ -27,7 +27,7 @@ const WHAT = {
   promptr: "A place to refine your prompts.",
 };
 
-const ITEMS: OrbitItem[] = [
+export const ITEMS: OrbitItem[] = [
   {
     id: "speakui",
     caption: "SpeakUI Demo on Dive Radio",

@@ -112,3 +112,156 @@
     gap: 56px;
   }
 }
+
+.page :is([data-group], [data-item]) {
+  scroll-margin-top: 24px;
+}
+
+.rail {
+  --s: clamp(22px, calc((100vh - 300px) / 14 - 14px), 34px);
+  position: fixed;
+  top: 50%;
+  left: max(56px, calc(50vw - 404px - 72px));
+  z-index: 4;
+  transform: translateY(-50%);
+}
+
+.rail ul {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail li[data-gap] {
+  margin-top: 12px;
+}
+
+.railCanvas {
+  position: absolute;
+  top: -48px;
+  left: -48px;
+  width: calc(100% + 96px);
+  height: calc(100% + 96px);
+  pointer-events: none;
+}
+
+.railNode {
+  position: relative;
+  display: block;
+  width: var(--s);
+  height: var(--s);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.railGlyph {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0.85;
+  transition: opacity 400ms var(--ease);
+}
+
+.railGlyph > span,
+.railGlyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rail[data-ready] .railGlyph {
+  opacity: 0;
+}
+
+.railLabel {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 14px);
+  color: var(--muted);
+  font: 500 0.8125rem / 1.2 var(--ui);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(4px, -50%);
+  transition:
+    opacity 220ms var(--ease),
+    transform 260ms var(--ease);
+  pointer-events: none;
+}
+
+.railNode[data-on] .railLabel {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.railNode[aria-current="true"] .railLabel {
+  color: var(--ink);
+}
+
+.chips {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  margin: -24px -24px 24px;
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.chipRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chipRow::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: none;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 500 0.8125rem / 1 var(--ui);
+  cursor: pointer;
+  transition:
+    color 180ms var(--ease),
+    background 180ms var(--ease);
+}
+
+.chip[aria-current="true"] {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+@media (min-width: 1200px) {
+  .chips {
+    display: none;
+  }
+}
+
+@media (max-width: 1199px) {
+  .page :is([data-group], [data-item]) {
+    scroll-margin-top: 64px;
+  }
+}
+
+@media (max-width: 899px) {
+  .chips {
+    margin: -16px -16px 16px;
+    padding: 8px 16px;
+  }
+}

@@ -31,7 +31,9 @@ export type OrbitMark =
   | "promptr"
   | "n"
   | "book"
-  | "frame";
+  | "frame"
+  | "kids"
+  | "audio";
 
 type Preview =
   | { kind: "screen"; src: string }
@@ -55,9 +57,9 @@ export type OrbitItem = {
   caption?: string;
 };
 
-const PER_ICON = 1200;
+export const PER_ICON = 1200;
 const SAMPLE = 160;
-function Mark({ mark }: { mark: OrbitMark }) {
+export function Mark({ mark }: { mark: OrbitMark }) {
   if (
     mark === "makeebook" ||
     mark === "coverly" ||
@@ -110,6 +112,25 @@ function Mark({ mark }: { mark: OrbitMark }) {
         <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0M3 6v13M12 6v13M21 6v13" />
       </svg>
     );
+  if (mark === "kids" || mark === "audio")
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path
+          d={
+            mark === "kids"
+              ? "M4.5 13h6.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4.5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1zM13 13h6.5a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H13a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1zM8.75 4.5h6.5a1 1 0 0 1 1 1v6.5H7.75V5.5a1 1 0 0 1 1-1z"
+              : "M3.5 14.5h2.5a2 2 0 0 1 2 2v2.5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V12a8.5 8.5 0 0 1 17 0v7a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2v-2.5a2 2 0 0 1 2-2h2.5"
+          }
+        />
+      </svg>
+    );
   if (mark === "frame")
     return (
       <svg
@@ -140,7 +161,7 @@ function loadImage(src: string) {
   });
 }
 
-async function samplePoints(mark: OrbitMark, svg: SVGSVGElement | null) {
+export async function samplePoints(mark: OrbitMark, svg: SVGSVGElement | null) {
   let img: HTMLImageElement;
   if (mark === "podium") {
     img = await loadImage("/home/podium/mark.png");
