@@ -399,9 +399,17 @@ export function Covers() {
   return (
     <div className={styles.showcases}>
       <article className={styles.showcase}>
-        <p className={styles.what}>
-          Covers for new editions of three classic books.
-        </p>
+        <div className={styles.showcaseHead}>
+          <p className={styles.what}>
+            Covers for new editions of three classic books.
+          </p>
+          <GoLink
+            href="https://banneroftruth.org/uk/store/new-release/the-childs-story-bible/"
+            newTab
+            label="The Child’s Story Bible at the Banner of Truth"
+            caption="Publisher"
+          />
+        </div>
         <dl className={styles.facts}>
           <div>
             <dt>Type</dt>
