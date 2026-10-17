@@ -538,7 +538,8 @@ export function Demo() {
             </a>
             , I built a simple SpeakUI demo showcasing how Jev, TypeSafe
             AI&rsquo;s new fast decision model, makes voice-driven design edits
-            feel almost realtime. Demo played on Dive Radio by{" "}
+            feel almost realtime. Demo played on Dive Radio&rsquo;s Just-in-Time
+            Interfaces episode by{" "}
             <a className={styles.handle} href="https://x.com/designertom">
               @designertom
             </a>{" "}
@@ -549,8 +550,8 @@ export function Demo() {
             , 24 September 2026.
           </p>
         </details>
-        <div className={styles.demoFoot}>
-          {SPEAKUI_URL ? (
+        {SPEAKUI_URL ? (
+          <div className={styles.demoFoot}>
             <a
               className={styles.visit}
               href={SPEAKUI_URL}
@@ -561,9 +562,8 @@ export function Demo() {
               <ExternalIcon className={styles.external} />
               <span className={styles.srOnly}> (opens in a new tab)</span>
             </a>
-          ) : null}
-          <p className={styles.caption}>Episode: Just-in-Time Interfaces</p>
-        </div>
+          </div>
+        ) : null}
       </article>
     </section>
   );
