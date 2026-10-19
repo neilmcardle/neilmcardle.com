@@ -72,6 +72,11 @@ const nextConfig = {
         permanent: false,
       },
       {
+        source: "/coverly/brand",
+        destination: "/coverly",
+        permanent: false,
+      },
+      {
         source: "/make-ebook/book-mind",
         destination: "/make-ebook",
         permanent: true,
