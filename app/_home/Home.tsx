@@ -303,10 +303,15 @@ function ShowcaseMedia({ title }: { title: string }) {
   return null;
 }
 
+const CASE_STUDY: Partial<Record<string, string>> = {
+  coverly: "/work/coverly",
+};
+
 export function Showcase({ work }: { work: Work }) {
   const info = SHOWCASE[work.title];
   if (!info) return null;
   const external = work.href.startsWith("http");
+  const study = CASE_STUDY[work.title];
   const linkProps = external ? { target: "_blank", rel: "noreferrer" } : {};
 
   return (
@@ -337,29 +342,44 @@ export function Showcase({ work }: { work: Work }) {
           </h3>
         )}
         {work.href && info.label ? (
-          <GoLink
-            href={work.href}
-            newTab={external}
-            label={
-              appStore(work.href)
-                ? `${work.title} on the App Store`
-                : external
-                  ? info.label
-                  : `Open ${work.title}`
-            }
-            lead={
-              appStore(work.href) ? (
-                <AppleIcon className={styles.goApple} />
-              ) : undefined
-            }
-            caption={
-              appStore(work.href)
-                ? "App Store"
-                : work.title === "coverly" || work.title === "Spark"
-                  ? "Open"
-                  : undefined
-            }
-          />
+          <span className={styles.goGroup}>
+            {study ? (
+              <GoLink
+                href={study}
+                label={`View the ${work.title} case study`}
+                caption="View case study"
+                short="Case study"
+              />
+            ) : null}
+            <GoLink
+              href={work.href}
+              newTab={external}
+              label={
+                appStore(work.href)
+                  ? `${work.title} on the App Store`
+                  : external
+                    ? info.label
+                    : study
+                      ? `Use ${work.title}`
+                      : `Open ${work.title}`
+              }
+              lead={
+                appStore(work.href) ? (
+                  <AppleIcon className={styles.goApple} />
+                ) : undefined
+              }
+              caption={
+                appStore(work.href)
+                  ? "App Store"
+                  : study
+                    ? `Use ${work.title}`
+                    : work.title === "Spark"
+                      ? "Open"
+                      : undefined
+              }
+              short={study ? `Open ${work.title}` : undefined}
+            />
+          </span>
         ) : null}
         {work.title === "Podium" ? <PodiumGallery /> : null}
       </div>

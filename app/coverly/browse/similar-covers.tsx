@@ -22,14 +22,17 @@ export function SimilarCovers({
   covers,
   onOpen,
   onLoad,
+  height,
 }: {
   covers: CoverCard[];
   onOpen: (id: string) => void;
   onLoad: () => void;
+  height?: number;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const config = useDockConfig();
-  const metrics = rowMetrics(config.peak, config.height, config.anchor);
+  const coverHeight = height ?? config.height;
+  const metrics = rowMetrics(config.peak, coverHeight, config.anchor);
 
   useEffect(() => {
     const row = rowRef.current;
@@ -139,7 +142,7 @@ export function SimilarCovers({
       row.removeEventListener("mouseleave", leave);
       row.removeEventListener("load", measure, true);
     };
-  }, [covers]);
+  }, [covers, coverHeight]);
 
   return (
     <div
@@ -172,7 +175,7 @@ export function SimilarCovers({
             alt={cover.title}
             loading="lazy"
             onLoad={onLoad}
-            style={{ height: config.height }}
+            style={{ height: coverHeight }}
             className="w-auto rounded shadow-sm"
           />
           <span className="pointer-events-none absolute inset-x-0 bottom-0 hidden truncate rounded-b bg-gradient-to-t from-black/85 to-transparent px-1.5 pb-1 pt-4 text-[10px] font-medium text-white group-hover/sim:block">

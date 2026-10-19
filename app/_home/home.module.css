@@ -1474,6 +1474,40 @@
   text-decoration-color: currentColor;
 }
 
+.goGroup {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+}
+
+.goNarrow {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .goGroup {
+    gap: 14px;
+  }
+
+  .goGroup .go {
+    gap: 2px;
+    padding: 0;
+  }
+
+  .goGroup .go:last-child {
+    margin-right: 0;
+  }
+
+  .goWide {
+    display: none;
+  }
+
+  .goNarrow {
+    display: inline;
+  }
+}
+
 .go {
   display: inline-flex;
   flex: none;

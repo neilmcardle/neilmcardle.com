@@ -7,12 +7,14 @@ export default function GoLink({
   newTab = false,
   lead,
   caption = newTab ? "Visit site" : undefined,
+  short,
 }: {
   href: string;
   label: string;
   newTab?: boolean;
   lead?: ReactNode;
   caption?: string;
+  short?: string;
 }) {
   const text = newTab ? `${label} (opens in a new tab)` : label;
   return (
@@ -24,7 +26,16 @@ export default function GoLink({
       {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {lead}
-      {caption ? <span className={styles.goCaption}>{caption}</span> : null}
+      {caption ? (
+        <span className={`${styles.goCaption} ${short ? styles.goWide : ""}`}>
+          {caption}
+        </span>
+      ) : null}
+      {short ? (
+        <span className={`${styles.goCaption} ${styles.goNarrow}`}>
+          {short}
+        </span>
+      ) : null}
       <svg
         viewBox="0 0 16 16"
         fill="none"
