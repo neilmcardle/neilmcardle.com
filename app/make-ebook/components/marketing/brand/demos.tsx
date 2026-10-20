@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { KindlePreview } from "./KindlePreview";
 import {
@@ -122,6 +123,9 @@ export function ImportDemo() {
   );
 }
 
+const PIER =
+  "Elena walked the length of the pier with her collar up and the manuscript held flat against her chest, its pages still warm from the bag.";
+
 const TARGET =
   "The water below was the colour of pewter, and the old iron columns went down into it without a sound.";
 
@@ -129,17 +133,17 @@ const TAKES = [
   {
     id: "tighter",
     label: "Tighter",
-    text: "Below, the pewter water took the iron columns without a sound.",
+    text: "Below, the pewter water took the columns in silence.",
   },
   {
     id: "plainer",
     label: "Plainer",
-    text: "The water under the pier was grey, and the iron columns stood in it silently.",
+    text: "The grey water quietly covered the iron columns.",
   },
   {
     id: "warmer",
     label: "Warmer",
-    text: "Below her the water had gone the soft grey of old pewter, and the iron columns slipped into it as quietly as a held breath.",
+    text: "Below her, soft pewter water held the columns like a breath.",
   },
 ] as const;
 
@@ -198,69 +202,93 @@ export function RewriteDemo({ compact = false }: { compact?: boolean }) {
           <div className={styles.rewritePanel}>
             <div className={styles.rewriteProse}>
               {compact ? null : <p>{CHAPTERS[4].body[0]}</p>}
-              <p>
-                Elena walked the length of the pier with her collar up and the
-                manuscript held flat against her chest, its pages still warm
-                from the bag. {sentence}
-              </p>
+              <div
+                className={styles.stack}
+                style={{ "--indent": compact ? "0" : "1.5em" } as CSSProperties}
+              >
+                {[TARGET, ...TAKES.map((t) => t.text)].map((text) => (
+                  <p key={text} className={styles.ghost} aria-hidden="true">
+                    {PIER} {text}
+                  </p>
+                ))}
+                <p>
+                  {PIER} {sentence}
+                </p>
+              </div>
             </div>
-            <div className={styles.rewriteActions}>
-              {open ? (
-                <div className={styles.takes}>
-                  <div className={styles.takesHead}>
-                    <div
-                      className={styles.seg}
-                      role="group"
-                      aria-label="Rewrite style"
-                    >
-                      {TAKES.map((t) => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          aria-pressed={tab === t.id}
-                          className={`${styles.segItem} ${tab === t.id ? styles.segActive : ""}`}
-                          onClick={() => {
-                            setChars(0);
-                            setTab(t.id);
-                          }}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-                    <span className={`${styles.tag} ${styles.tagMind}`}>
-                      <BookMindMark
-                        className={styles.tagMark}
-                        thinking={shown < take.text.length}
-                      />
-                      Book Mind
-                    </span>
+            <div className={`${styles.rewriteActions} ${styles.stack}`}>
+              <div
+                key={open ? "open" : "closed"}
+                className={`${styles.takes} ${open ? "" : styles.ghost}`}
+                aria-hidden={!open || undefined}
+              >
+                <div className={styles.takesHead}>
+                  <div
+                    className={styles.seg}
+                    role="group"
+                    aria-label="Rewrite style"
+                  >
+                    {TAKES.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        aria-pressed={tab === t.id}
+                        className={`${styles.segItem} ${tab === t.id ? styles.segActive : ""}`}
+                        onClick={() => {
+                          setChars(0);
+                          setTab(t.id);
+                        }}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
                   </div>
-                  <p className={styles.takeText}>{take.text.slice(0, shown)}</p>
-                  <div className={styles.takesFoot}>
-                    <button
-                      type="button"
-                      className={styles.btn}
-                      onClick={() => setOpen(false)}
-                    >
-                      Keep mine
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.btn}
-                      disabled={shown < take.text.length}
-                      onClick={() => {
-                        setKept(take.text);
-                        setOpen(false);
-                      }}
-                    >
-                      Use this take
-                    </button>
-                  </div>
+                  <span className={`${styles.tag} ${styles.tagMind}`}>
+                    <BookMindMark
+                      className={styles.tagMark}
+                      thinking={shown < take.text.length}
+                    />
+                    <span className={styles.tagLabel}>Book Mind</span>
+                  </span>
                 </div>
-              ) : (
+                <div className={styles.stack}>
+                  {TAKES.map((t) => (
+                    <p
+                      key={t.id}
+                      className={`${styles.takeText} ${styles.ghost}`}
+                      aria-hidden="true"
+                    >
+                      {t.text}
+                    </p>
+                  ))}
+                  <p className={styles.takeText}>
+                    {open ? take.text.slice(0, shown) : null}
+                  </p>
+                </div>
+                <div className={styles.takesFoot}>
+                  <button
+                    type="button"
+                    className={styles.btn}
+                    onClick={() => setOpen(false)}
+                  >
+                    Keep mine
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.btn}
+                    disabled={shown < take.text.length}
+                    onClick={() => {
+                      setKept(take.text);
+                      setOpen(false);
+                    }}
+                  >
+                    Use this take
+                  </button>
+                </div>
+              </div>
+              {open ? null : (
                 <div
-                  className={styles.paneFoot}
+                  className={`${styles.paneFoot} ${styles.stackTop}`}
                   style={{ padding: "12px 0 0" }}
                 >
                   <span>
@@ -480,26 +508,26 @@ const FORMATS = [
   {
     id: "epub",
     label: "EPUB",
-    desc: "Reflowable EPUB 3, the file Kindle, Apple Books and Kobo ask for.",
+    desc: "For Kindle, Apple Books and Kobo.",
     file: "the-rainy-city.epub",
     size: "1.4 MB",
-    done: "Ready for Kindle, Apple Books, Kobo and Google Play Books",
+    done: "Ready to upload",
   },
   {
     id: "pdf",
     label: "PDF",
-    desc: "A fixed layout for proofreading on screen or printing a copy.",
+    desc: "For proofreading or printing.",
     file: "the-rainy-city.pdf",
     size: "2.8 MB",
-    done: "Ready to proof or print",
+    done: "Ready to print",
   },
   {
     id: "docx",
     label: "DOCX",
-    desc: "A Word document with chapter headings intact, for editors and agents.",
+    desc: "A Word document for your editor.",
     file: "the-rainy-city.docx",
     size: "612 KB",
-    done: "Ready for your editor",
+    done: "Ready to send",
   },
 ] as const;
 
@@ -573,11 +601,6 @@ export function ExportDemo() {
               </div>
             </dl>
             <div className={styles.exportStatus}>
-              {phase === "idle" && (
-                <p className={styles.exportIdle}>
-                  Choose a format and export. The file lands in your downloads.
-                </p>
-              )}
               {phase === "working" && (
                 <>
                   <div className={styles.progress} key={run}>
@@ -608,8 +631,7 @@ export function ExportDemo() {
               )}
             </div>
           </div>
-          <div className={styles.paneFoot}>
-            <span>Open standards, nothing locked in</span>
+          <div className={`${styles.paneFoot} ${styles.paneFootEnd}`}>
             <button
               type="button"
               className={styles.acid}

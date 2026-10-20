@@ -437,6 +437,54 @@
 .tagMind {
   gap: 5px;
   padding-left: 3px;
+  white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .tag.tagMind {
+    height: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  .tagMind .tagMark {
+    width: 22px;
+    height: 22px;
+  }
+
+  .takesHead .tagMind {
+    order: -1;
+  }
+
+  .stack .takeText.takeText {
+    min-height: 0;
+  }
+
+  .takesHead.takesHead {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .takesHead .seg {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .takesHead .segItem {
+    flex: 1;
+    min-width: 0;
+    padding-inline: 4px;
+  }
+
+  .tagLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .tagMark {
@@ -746,6 +794,40 @@
 .cardStageCompact {
   min-height: 0;
   padding: 40px 32px;
+}
+
+.stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.stack > * {
+  grid-area: 1 / 1;
+}
+
+.stack.stack > p {
+  text-indent: var(--indent, 0);
+}
+
+.stackTop {
+  align-self: start;
+}
+
+.paneFoot.paneFootEnd {
+  justify-content: flex-end;
+}
+
+.rewriteActions.stack {
+  min-height: 0;
+  align-items: start;
+}
+
+.rewriteActions.stack > .takes {
+  margin-bottom: 0;
+}
+
+.ghost {
+  visibility: hidden;
 }
 
 .zoom {

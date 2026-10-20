@@ -292,7 +292,9 @@ function ShowcaseMedia({ title }: { title: string }) {
 }
 
 const CASE_STUDY: Partial<Record<string, string>> = {
+  makeebook: "/work/makeebook",
   coverly: "/work/coverly",
+  DoodleWire: "/work/doodlewire",
 };
 
 export function Showcase({ work }: { work: Work }) {
@@ -359,13 +361,15 @@ export function Showcase({ work }: { work: Work }) {
               caption={
                 appStore(work.href)
                   ? "App Store"
-                  : study
-                    ? `Use ${work.title}`
-                    : work.title === "Spark"
-                      ? "Open"
-                      : undefined
+                  : external
+                    ? undefined
+                    : study
+                      ? `Use ${work.title}`
+                      : work.title === "Spark"
+                        ? "Open"
+                        : undefined
               }
-              short={study ? `Open ${work.title}` : undefined}
+              short={study && !external ? `Open ${work.title}` : undefined}
             />
           </span>
         ) : null}

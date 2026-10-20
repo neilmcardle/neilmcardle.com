@@ -107,6 +107,7 @@ export default function NMark() {
     sizer.observe(canvas);
     place();
 
+    const hover = window.matchMedia("(hover: hover)");
     let form = 0;
     let frame = 0;
     let last = performance.now();
@@ -114,7 +115,7 @@ export default function NMark() {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (!reduced) uniforms.uTime.value += dt;
-      const target = hot.current ? 1 : 0;
+      const target = hot.current || !hover.matches ? 1 : 0;
       form = reduced ? target : form + (target - form) * Math.min(1, dt * 3);
       uniforms.uForm.value[0] = form;
       if (geometry) renderer.render(scene, camera);

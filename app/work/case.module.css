@@ -75,6 +75,10 @@
   overflow: hidden;
 }
 
+.heroImage {
+  object-fit: cover;
+}
+
 .overview {
   display: grid;
   grid-template-columns: 310px minmax(0, 981px);
@@ -131,6 +135,36 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: #dfdad5 url("/work/coverly/cream-paper.jpg") center / cover;
+}
+
+.demo {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #141413;
+}
+
+.demo > * {
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 900px) {
+  .demoLarge > * > * {
+    zoom: 1.4;
+  }
+}
+
+@media (max-width: 899px) {
+  .demo {
+    aspect-ratio: auto;
+  }
+
+  .demo > * {
+    height: auto;
+    padding: 24px 10px;
+  }
 }
 
 .similarRow {
