@@ -1,9 +1,6 @@
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
-import CoverlyMocks from "@/components/home/CoverlyMocks";
 import DoodleWireShots from "@/components/home/DoodleWireShots";
-import MakeEbookMocks from "@/components/home/MakeEbookMocks";
-import { RewriteDemo } from "@/app/make-ebook/components/marketing/brand/demos";
 import AppIcon from "./AppIcon";
 import AutoVideo from "./AutoVideo";
 import { Mark, type OrbitMark } from "@/app/_orbit/Orbit";
@@ -13,7 +10,6 @@ import HomeShell from "./HomeShell";
 import PodiumGallery from "./PodiumGallery";
 import CoverShelf from "./CoverShelf";
 import ProductMark from "./ProductMark";
-import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
 import { SHOWCASE } from "./showcase";
 import {
@@ -33,7 +29,7 @@ const poster = (src: string) =>
 const SPEAKUI_URL = process.env.SPEAKUI_ORIGIN ? "/speakui" : "";
 
 const POSTERS = {
-  makeebook: poster("/home/makeebook-promo.jpg"),
+  makeebook: poster("/home/makeebook-promo-logo.jpg"),
   spark: poster("/home/spark-promo-logo.jpg"),
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
@@ -241,20 +237,15 @@ function ExternalIcon({ className }: { className?: string }) {
 function ShowcaseMedia({ title }: { title: string }) {
   if (title === "makeebook")
     return (
-      <>
-        <MakeEbookMocks only="rain" />
-        <MakeEbookMocks only="video" />
-        <video
-          className={styles.film}
-          src="/home/makeebook-promo.mp4"
-          poster={POSTERS.makeebook}
-          aria-label="makeebook product film"
-          controls
-          playsInline
-          preload="none"
-        />
-        <RewriteDemo compact />
-      </>
+      <video
+        className={styles.film}
+        src="/home/makeebook-promo.mp4"
+        poster={POSTERS.makeebook}
+        aria-label="makeebook product film"
+        controls
+        playsInline
+        preload="none"
+      />
     );
   if (title === "Spark")
     return (
@@ -286,18 +277,15 @@ function ShowcaseMedia({ title }: { title: string }) {
     );
   if (title === "coverly")
     return (
-      <>
-        <video
-          className={styles.film}
-          src="/home/coverly-promo.mp4"
-          poster={POSTERS.coverly}
-          aria-label="coverly product film"
-          controls
-          playsInline
-          preload="none"
-        />
-        <CoverlyMocks />
-      </>
+      <video
+        className={styles.film}
+        src="/home/coverly-promo.mp4"
+        poster={POSTERS.coverly}
+        aria-label="coverly product film"
+        controls
+        playsInline
+        preload="none"
+      />
     );
   if (title === "DoodleWire") return <DoodleWireShots />;
   return null;

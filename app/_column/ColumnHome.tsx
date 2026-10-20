@@ -9,6 +9,7 @@ import {
 } from "@/app/_home/data";
 import home from "@/app/_home/home.module.css";
 import Contact from "@/app/_orbit/Contact";
+import ParticleMark from "@/app/_home/ParticleMark";
 import ProfileMark from "@/app/_orbit/ProfileMark";
 import Role from "@/app/_orbit/Role";
 import orbit from "@/app/_orbit/orbit.module.css";
@@ -68,6 +69,9 @@ export default function ColumnHome() {
     <div className={`${home.root} ${styles.page}`}>
       <div className={styles.column}>
         <header className={styles.head}>
+          <span className={styles.homeMark} data-home-mark aria-hidden="true">
+            <ParticleMark />
+          </span>
           <h1 className={styles.brand}>
             <ProfileMark />
             <span className={orbit.identity}>

@@ -36,6 +36,44 @@
   padding: 32px 0 48px;
 }
 
+.homeMark {
+  position: absolute;
+  top: 24px;
+  left: calc(max(56px, 50vw - 476px) - (50vw - 380px) - 15px);
+  display: none;
+  width: 64px;
+  height: 64px;
+}
+
+@media (min-width: 1200px) {
+  .head {
+    position: sticky;
+    top: 0;
+    margin: 16px 0 32px;
+    padding: 16px 0;
+  }
+
+  .head::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(50% - 50vw);
+    z-index: -1;
+    background: rgb(255 255 255 / 0.72);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+  }
+
+  .homeMark {
+    top: calc(50% - 32px);
+    display: grid;
+    place-items: center;
+  }
+
+  .page.page :is([data-group], [data-item]) {
+    scroll-margin-top: 104px;
+  }
+}
+
 .brand {
   display: flex;
   align-items: center;
