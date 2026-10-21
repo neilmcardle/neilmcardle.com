@@ -634,11 +634,13 @@ function GameBoyCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>My portfolio, playable on a 3D Game Boy.</p>
+        <p className={styles.what}>
+          A 3D Game Boy as navigation for my portfolio.
+        </p>
         <GoLink
           href={work.href}
-          label="Play the Game Boy portfolio"
-          caption="Play"
+          label="Open the Game Boy navigation exploration"
+          caption="Explore"
         />
       </div>
       <dl className={styles.facts}>
@@ -650,7 +652,7 @@ function GameBoyCard({ work }: { work: Work }) {
       <a
         className={styles.previewLink}
         href={work.href}
-        aria-label="Play the Game Boy portfolio, full screen"
+        aria-label="Open the Game Boy navigation exploration, full screen"
       >
         <AutoVideo
           className={styles.film}
