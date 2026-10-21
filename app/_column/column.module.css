@@ -70,7 +70,7 @@
   }
 
   .page.page :is([data-group], [data-item]) {
-    scroll-margin-top: 104px;
+    scroll-margin-top: var(--rail-land, 104px);
   }
 }
 
@@ -156,16 +156,14 @@
 }
 
 .rail {
-  --top: 50vh;
-  --s: clamp(
-    20px,
-    calc((100vh - var(--top) - 32px) / var(--n, 14) - 14px),
-    34px
-  );
+  --s: 30px;
+  --row: calc(var(--s) + 14px);
+  --wheel: calc(var(--row) * 9);
   position: fixed;
-  top: calc(var(--top) - var(--s) / 2);
-  left: max(56px, calc(50vw - 404px - 72px));
+  top: calc(var(--top, 50vh) - var(--wheel) / 2);
+  left: calc(max(56px, 50vw - 476px) + var(--s) + 8px - 160px);
   z-index: 4;
+  width: 160px;
 }
 
 .rail:not([data-placed]) {
@@ -175,18 +173,32 @@
 .rail ul {
   position: relative;
   display: grid;
+  justify-items: end;
   gap: 14px;
+  height: var(--wheel);
   margin: 0;
-  padding: 0;
+  padding: calc((var(--wheel) - var(--s)) / 2) 8px;
+  overflow-y: auto;
   list-style: none;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.rail ul::-webkit-scrollbar {
+  display: none;
+}
+
+.rail li {
+  scroll-snap-align: center;
 }
 
 .railCanvas {
   position: absolute;
-  top: -48px;
-  left: -48px;
-  width: calc(100% + 96px);
-  height: calc(100% + 96px);
+  top: -24px;
+  left: -24px;
+  width: calc(100% + 48px);
+  height: calc(var(--wheel) + 48px);
   pointer-events: none;
 }
 
@@ -201,6 +213,12 @@
   background: none;
   color: var(--ink);
   cursor: pointer;
+  will-change: transform;
+}
+
+.railNode:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .railGlyph {
@@ -227,7 +245,7 @@
   position: absolute;
   top: 50%;
   right: calc(100% + 14px);
-  color: rgba(17, 17, 17, 0.32);
+  color: rgba(17, 17, 17, 0.5);
   font: 500 0.8125rem / 1.2 var(--ui);
   white-space: nowrap;
   transform: translateY(-50%);
@@ -236,7 +254,7 @@
 }
 
 .railNode[data-on] .railLabel {
-  color: rgba(17, 17, 17, 0.62);
+  color: rgba(17, 17, 17, 0.72);
 }
 
 .railNode[aria-current="true"] .railLabel {
@@ -277,7 +295,12 @@
   cursor: pointer;
   transition:
     color 180ms var(--ease),
-    background 180ms var(--ease);
+    background 180ms var(--ease),
+    transform 160ms var(--ease);
+}
+
+.chip:active {
+  transform: scale(0.97);
 }
 
 .chip[aria-current="true"] {
@@ -301,5 +324,122 @@
   .chips {
     margin: -16px -16px 16px;
     padding: 8px 16px;
+  }
+}
+
+.socialTabs {
+  position: fixed;
+  right: 24px;
+  bottom: 32px;
+  z-index: 6;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.xTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+  padding: 12px 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink, #111111);
+  box-shadow: var(--edge);
+  text-decoration: none;
+  transition:
+    box-shadow 200ms var(--ease),
+    transform 160ms var(--ease);
+}
+
+.xTab:hover {
+  box-shadow: var(--edge-hover);
+}
+
+.xTab:active {
+  transform: scale(0.97);
+}
+
+.xTab:focus-visible {
+  outline: 2px solid var(--ink, #111111);
+  outline-offset: 3px;
+}
+
+.xTabReveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 240ms var(--ease);
+}
+
+.xTabInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms var(--ease);
+}
+
+.xTab:hover .xTabReveal,
+.xTab:focus-visible .xTabReveal {
+  grid-template-rows: 1fr;
+}
+
+.xTab:hover .xTabInner,
+.xTab:focus-visible .xTabInner {
+  opacity: 1;
+  transition-delay: 60ms;
+}
+
+.xTabText {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.xTabHandle {
+  font:
+    600 0.875rem / 1 var(--font-inter),
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.xTabRule {
+  flex: none;
+  width: 12px;
+  height: 1px;
+  margin-bottom: 12px;
+  background: rgb(17 17 17 / 0.18);
+}
+
+.xTabIcon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+@media (min-width: 1200px) {
+  .socialTabs {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xTabReveal {
+    transition: none;
+  }
+
+  .xTab:active,
+  .chip:active {
+    transform: none;
   }
 }

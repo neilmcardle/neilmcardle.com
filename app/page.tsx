@@ -19,7 +19,7 @@ export default function Homepage() {
   return (
     <div className={GeistSans.variable}>
       <style>
-        {"html,body{background:#ffffff}html{scrollbar-color:#d6d4cf #ffffff}" +
+        {"html,body{background:#ffffff}html{scrollbar-color:#d6d4cf #ffffff}@media(min-width:1200px){html,body{overscroll-behavior-y:none}}" +
           INTRO_CSS}
       </style>
       <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />

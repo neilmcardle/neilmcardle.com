@@ -26,8 +26,6 @@ import styles from "./home.module.css";
 const poster = (src: string) =>
   getImageProps({ src, alt: "", width: 600, height: 338 }).props.src;
 
-const SPEAKUI_URL = process.env.SPEAKUI_ORIGIN ? "/speakui" : "";
-
 const POSTERS = {
   makeebook: poster("/home/makeebook-promo-logo.jpg"),
   spark: poster("/home/spark-promo-logo.jpg"),
@@ -542,7 +540,19 @@ export function Demo() {
           preload="none"
         />
         <details className={styles.demoAbout}>
-          <summary>About this demo</summary>
+          <summary>
+            About this demo
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path
+                d="M3 4.5l3 3 3-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </summary>
           <p className={styles.demoNote}>
             Inspired by{" "}
             <a className={styles.handle} href="https://x.com/Moore">
@@ -562,20 +572,6 @@ export function Demo() {
             , 24 September 2026.
           </p>
         </details>
-        {SPEAKUI_URL ? (
-          <div className={styles.demoFoot}>
-            <a
-              className={styles.visit}
-              href={SPEAKUI_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Try SpeakUI for yourself
-              <ExternalIcon className={styles.external} />
-              <span className={styles.srOnly}> (opens in a new tab)</span>
-            </a>
-          </div>
-        ) : null}
       </article>
     </section>
   );

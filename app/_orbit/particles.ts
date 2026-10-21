@@ -6,6 +6,10 @@ uniform vec2 uCenter[COUNT];
 uniform float uScale;
 uniform float uTime;
 uniform float uDot;
+#ifdef WHEEL
+uniform float uSize[COUNT];
+uniform float uFade[COUNT];
+#endif
 attribute float icon;
 attribute vec2 logo;
 attribute vec3 sphere;
@@ -37,12 +41,18 @@ void main() {
   float e = k * k * (3.0 - 2.0 * k);
   vec2 swirl = flow(vec3(logo * 3.0, icon), uTime * 0.8).xy * 0.16 * sin(e * 3.14159);
   vec2 local = mix(p.xy * 0.46, logo, e) + swirl;
-  vec2 pos = uCenter[i] + local * uScale;
+  float size = 1.0;
+  float fade = 1.0;
+#ifdef WHEEL
+  size = uSize[i];
+  fade = uFade[i];
+#endif
+  vec2 pos = uCenter[i] + local * uScale * size;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 0.0, 1.0);
   float depth = clamp(p.z * 0.5 + 0.5, 0.0, 1.0);
   float haze = (0.2 + 0.42 * depth) * (1.0 - 0.5 * spread * spread);
   gl_PointSize = uDot * mix(0.55 + 0.35 * depth, 0.95, e);
-  vAlpha = mix(haze, 0.9, e);
+  vAlpha = mix(haze, 0.9, e) * fade;
 }
 `;
 

@@ -2,9 +2,12 @@ import { EMAIL, LINKEDIN } from "@/app/_home/data";
 import { LinkedInIcon } from "@/components/LinkedInIcon";
 import styles from "./orbit.module.css";
 
-export default function Contact() {
+export default function Contact({ desk = true }: { desk?: boolean }) {
   return (
-    <nav className={styles.contact} aria-label="Contact">
+    <nav
+      className={`${styles.contact} ${desk ? "" : styles.contactMobileOnly}`}
+      aria-label="Contact"
+    >
       <a
         href="https://x.com/BetterNeil"
         target="_blank"

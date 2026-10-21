@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import {
   Mark,
@@ -16,6 +16,12 @@ type RailItem = { id: string; name: string; mark: OrbitMark; group: string };
 
 const WIDE = "(min-width: 1200px)";
 
+function wheelAt(i: number, offset: number) {
+  const d = Math.min(Math.abs(i - offset), 5);
+  const fall = i < offset ? 0.6 : 0.26;
+  return { scale: 1 - d * 0.085, fade: Math.max(0, 1 - d * fall) };
+}
+
 export default function ParticleRail({ items }: { items: RailItem[] }) {
   const [wide, setWide] = useState(false);
   const [hot, setHot] = useState<number | null>(null);
@@ -28,6 +34,10 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     hot: null as number | null,
     active: null as number | null,
   });
+  const wheel = useRef({ offset: 0, row: 0 });
+  const aim = useRef<number | null>(null);
+  const aimTimer = useRef(0);
+  const rolled = useRef<number | null>(null);
 
   useEffect(() => {
     live.current = { hot, active };
@@ -44,19 +54,91 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
   useEffect(() => {
     const rail = railRef.current;
     if (!wide || !rail) return;
+    const root = document.documentElement;
     const place = () => {
       const title = document.querySelector("[data-group] h2");
-      if (!title) return;
+      const group = title?.closest<HTMLElement>("[data-group]");
+      if (!title || !group) return;
       const box = title.getBoundingClientRect();
-      const top = box.top + box.height / 2 + window.scrollY;
-      rail.style.setProperty("--top", `${Math.round(top)}px`);
+      const centre = box.top + box.height / 2 + window.scrollY;
+      const offset =
+        box.top - group.getBoundingClientRect().top + box.height / 2;
+      rail.style.setProperty("--top", `${Math.round(centre)}px`);
+      root.style.setProperty("--rail-land", `${Math.round(centre - offset)}px`);
       rail.dataset.placed = "";
     };
     place();
     const sizer = new ResizeObserver(place);
     sizer.observe(document.body);
-    return () => sizer.disconnect();
+    return () => {
+      sizer.disconnect();
+      root.style.removeProperty("--rail-land");
+    };
   }, [wide]);
+
+  const listOf = () => railRef.current?.querySelector<HTMLElement>("ul");
+
+  const roll = (index: number) => {
+    const list = listOf();
+    if (!list) return;
+    rolled.current = index;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    list.scrollTo({
+      top: index * wheel.current.row,
+      behavior: reduced ? "auto" : "smooth",
+    });
+  };
+
+  useEffect(() => {
+    const rail = railRef.current;
+    const list = listOf();
+    if (!wide || !rail || !list) return;
+    const rows = list.querySelectorAll<HTMLElement>("[data-wheel-item]");
+    let frame = 0;
+    const measure = () => {
+      wheel.current.row =
+        rows.length > 1 ? rows[1].offsetTop - rows[0].offsetTop : 1;
+    };
+    const paint = () => {
+      frame = 0;
+      const offset = list.scrollTop / wheel.current.row;
+      wheel.current.offset = offset;
+      rows.forEach((li, i) => {
+        const { scale, fade } = wheelAt(i, offset);
+        li.style.opacity = String(fade);
+        li.style.visibility = fade > 0.02 ? "" : "hidden";
+        const node = li.firstElementChild as HTMLElement | null;
+        if (node) node.style.transform = `scale(${scale})`;
+      });
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const touch = () => {
+      rolled.current = null;
+    };
+    measure();
+    rolled.current = aim.current ?? live.current.active ?? 0;
+    list.scrollTop = rolled.current * wheel.current.row;
+    paint();
+    const resize = new ResizeObserver(() => {
+      measure();
+      paint();
+    });
+    resize.observe(list);
+    list.addEventListener("scroll", onScroll, { passive: true });
+    list.addEventListener("wheel", touch, { passive: true });
+    list.addEventListener("touchmove", touch, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      list.removeEventListener("scroll", onScroll);
+      list.removeEventListener("wheel", touch);
+      list.removeEventListener("touchmove", touch);
+    };
+  }, [wide, items]);
 
   useEffect(() => {
     if (!wide) return;
@@ -70,6 +152,9 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
         if (target && target.getBoundingClientRect().top <= line) current = i;
       });
       setActive(current);
+      const want = current ?? 0;
+      if (aim.current === want) aim.current = null;
+      if (aim.current === null && rolled.current !== want) roll(want);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(spy);
@@ -115,10 +200,12 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       uTime: { value: 0 },
       uDot: { value: 1.4 * dpr },
       uInk: { value: new THREE.Color(INK) },
+      uSize: { value: new Array<number>(count).fill(1) },
+      uFade: { value: new Array<number>(count).fill(1) },
     };
     const material = new THREE.ShaderMaterial({
       uniforms,
-      defines: { COUNT: count },
+      defines: { COUNT: count, WHEEL: 1 },
       vertexShader: VERTEX,
       fragmentShader: FRAGMENT,
       transparent: true,
@@ -169,20 +256,30 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       setReady(true);
     });
 
+    const base = Array.from({ length: count }, () => new THREE.Vector2());
     const place = () => {
       const box = canvas.getBoundingClientRect();
       renderer.setSize(box.width, box.height, false);
       camera.right = box.width;
       camera.bottom = box.height;
       camera.updateProjectionMatrix();
-      const buttons = rail.querySelectorAll<HTMLElement>("[data-node]");
-      buttons.forEach((button, i) => {
-        const r = button.getBoundingClientRect();
-        uniforms.uCenter.value[i].set(
-          r.left + r.width / 2 - box.left,
-          r.top + r.height / 2 - box.top,
+      const list = rail.querySelector<HTMLElement>("ul");
+      const rows = rail.querySelectorAll<HTMLElement>("[data-wheel-item]");
+      if (!list) return;
+      rows.forEach((li, i) => {
+        const node = li.firstElementChild as HTMLElement | null;
+        if (!node) return;
+        base[i].set(
+          list.offsetLeft +
+            node.offsetLeft +
+            node.offsetWidth / 2 -
+            canvas.offsetLeft,
+          list.offsetTop +
+            node.offsetTop +
+            node.offsetHeight / 2 -
+            canvas.offsetTop,
         );
-        if (i === 0) uniforms.uScale.value = r.width;
+        if (i === 0) uniforms.uScale.value = node.offsetWidth;
       });
     };
     const sizer = new ResizeObserver(place);
@@ -196,7 +293,12 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       last = now;
       if (!reduced) uniforms.uTime.value += dt;
       const { hot: h, active: a } = live.current;
+      const { offset, row } = wheel.current;
       for (let i = 0; i < count; i += 1) {
+        const { scale, fade } = wheelAt(i, offset);
+        uniforms.uCenter.value[i].set(base[i].x, base[i].y - offset * row);
+        uniforms.uSize.value[i] = scale;
+        uniforms.uFade.value[i] = fade;
         const on = i === h || (h === null && i === a) ? 1 : 0;
         form[i] = reduced ? on : form[i] + (on - form[i]) * Math.min(1, dt * 3);
         uniforms.uForm.value[i] = form[i];
@@ -228,6 +330,14 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     const item = items[index];
     const target = targetFor(item.id);
     if (!target) return;
+    aim.current = index;
+    roll(index);
+    window.clearTimeout(aimTimer.current);
+    aimTimer.current = window.setTimeout(() => {
+      if (aim.current !== index) return;
+      aim.current = null;
+      roll(live.current.active ?? index);
+    }, 1600);
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -240,17 +350,20 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     window.history.replaceState(window.history.state, "", url);
   };
 
+  const stepTo = (index: number) => {
+    if (index < 0 || index >= items.length) return;
+    go(index);
+    railRef.current
+      ?.querySelectorAll<HTMLElement>("[data-node]")
+      [index]?.focus({ preventScroll: true });
+  };
+
   if (!wide) return null;
 
   return (
     <nav
       ref={railRef}
       className={styles.rail}
-      style={
-        {
-          "--n": items.length,
-        } as CSSProperties
-      }
       aria-label="Work"
       data-ready={ready || undefined}
     >
@@ -261,7 +374,7 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       />
       <ul>
         {items.map((item, i) => (
-          <li key={item.id}>
+          <li key={item.id} data-wheel-item>
             <button
               type="button"
               data-node
@@ -278,6 +391,12 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
                 setHot((current) => (current === i ? null : current))
               }
               onClick={() => go(i)}
+              onKeyDown={(event) => {
+                if (event.key !== "ArrowDown" && event.key !== "ArrowUp")
+                  return;
+                event.preventDefault();
+                stepTo(i + (event.key === "ArrowDown" ? 1 : -1));
+              }}
             >
               <span className={styles.railGlyph} aria-hidden="true">
                 <span

@@ -18,6 +18,7 @@ import styles from "./column.module.css";
 import ParticleRail from "./ParticleRail";
 import SectionChips from "./SectionChips";
 import WorkScroll from "./WorkScroll";
+import XTab from "./XTab";
 
 const WHOLE: Partial<Record<string, string>> = {
   tools: "tools",
@@ -81,7 +82,7 @@ export default function ColumnHome() {
               <Role />
             </span>
           </h1>
-          <Contact />
+          <Contact desk={false} />
         </header>
         <SectionChips sections={SECTIONS} />
         <main className={styles.work}>
@@ -104,6 +105,7 @@ export default function ColumnHome() {
       </div>
       <ParticleRail items={RAIL} />
       <WorkScroll />
+      <XTab />
     </div>
   );
 }

@@ -709,10 +709,6 @@
   transition: color 200ms var(--ease);
 }
 
-.rowLink:hover {
-  color: var(--ink);
-}
-
 .rowTitle {
   display: inline-flex;
   align-items: center;
@@ -730,9 +726,29 @@
     transform 200ms var(--ease);
 }
 
-.rowLink:hover .external {
-  color: var(--ink);
-  transform: translate(1px, -1px);
+@media (hover: hover) and (pointer: fine) {
+  .rowLink:hover {
+    color: var(--ink);
+  }
+
+  .rowLink:hover .external {
+    color: var(--ink);
+    transform: translate(1px, -1px);
+  }
+
+  .rowLink:hover .pillTag {
+    background: var(--pill-hover);
+  }
+
+  .rowLink:hover .appIcon[data-icon] {
+    transform: translateY(-1px);
+  }
+
+  .showcaseName:hover span {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
 }
 
 .pills {
@@ -790,10 +806,6 @@
   }
 }
 
-.rowLink:hover .pillTag {
-  background: var(--pill-hover);
-}
-
 .appIcon[data-icon] {
   position: relative;
   isolation: isolate;
@@ -835,10 +847,6 @@
 .appIcon[data-icon] svg {
   position: relative;
   z-index: 1;
-}
-
-.rowLink:hover .appIcon[data-icon] {
-  transform: translateY(-1px);
 }
 
 .appIcon[data-icon="vectorPaint"] {
@@ -1425,12 +1433,6 @@
   text-wrap: pretty;
 }
 
-.showcaseName:hover span {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-
 .productMark {
   flex: none;
   width: auto;
@@ -1519,7 +1521,9 @@
   margin-right: -8px;
   padding: 0 8px;
   color: var(--muted);
-  transition: color 180ms var(--ease);
+  transition:
+    color 180ms var(--ease),
+    transform 160ms var(--ease);
 }
 
 .go:hover {
@@ -1568,7 +1572,9 @@
   padding: 0;
   color: var(--muted);
   font-size: 0.8125rem;
-  transition: color 180ms var(--ease);
+  transition:
+    color 180ms var(--ease),
+    transform 160ms var(--ease);
 }
 
 .showcaseHead .galleryLink:hover {
@@ -1593,6 +1599,7 @@
   border-radius: 8px;
   background: none;
   cursor: zoom-in;
+  transition: transform 160ms var(--ease);
 }
 
 .galleryThumb img {
@@ -1613,6 +1620,7 @@
   color: var(--ink);
   font: 500 0.875rem / 1 var(--ui);
   cursor: pointer;
+  transition: transform 160ms var(--ease);
 }
 
 .galleryLink svg {
@@ -1642,10 +1650,45 @@
   background: transparent;
   color: #ffffff;
   overflow: visible;
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 150ms var(--ease),
+    transform 150ms var(--ease),
+    overlay 150ms allow-discrete,
+    display 150ms allow-discrete;
+}
+
+.viewer[open] {
+  opacity: 1;
+  transform: none;
+  transition-duration: 220ms;
+}
+
+@starting-style {
+  .viewer[open] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
 
 .viewer::backdrop {
+  background: rgba(8, 8, 9, 0);
+  transition:
+    background-color 150ms var(--ease),
+    overlay 150ms allow-discrete,
+    display 150ms allow-discrete;
+}
+
+.viewer[open]::backdrop {
   background: rgba(8, 8, 9, 0.92);
+  transition-duration: 200ms;
+}
+
+@starting-style {
+  .viewer[open]::backdrop {
+    background: rgba(8, 8, 9, 0);
+  }
 }
 
 .viewerFigure {
@@ -1680,7 +1723,9 @@
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   cursor: pointer;
-  transition: background 200ms var(--ease);
+  transition:
+    background 200ms var(--ease),
+    transform 160ms var(--ease);
 }
 
 .viewerControls button:hover {
@@ -1812,8 +1857,7 @@
   transform-origin: 50% 100%;
   transition:
     transform var(--lift),
-    opacity var(--lift),
-    filter var(--lift);
+    opacity var(--lift);
 }
 
 .shelfBook img {
@@ -1842,9 +1886,17 @@
     0 2px 6px rgb(0 0 0 / 0.14);
 }
 
+.shelfBook:active {
+  transform: scale(0.98);
+  transition-duration: 120ms;
+}
+
+.shelfSlot[data-on] .shelfBook:active {
+  transform: translateY(-4px) rotateX(-4deg) scale(0.98);
+}
+
 .shelf[data-hot] .shelfSlot:not([data-on]) .shelfBook {
-  opacity: 0.78;
-  filter: saturate(0.8);
+  opacity: 0.72;
 }
 
 .shelfCaptions {
@@ -1881,7 +1933,8 @@
     transition: none;
   }
 
-  .shelfSlot[data-on] .shelfBook {
+  .shelfSlot[data-on] .shelfBook,
+  .shelfSlot[data-on] .shelfBook:active {
     transform: translateY(-3px);
   }
 }
@@ -2150,24 +2203,31 @@
   }
 }
 
+.group[data-group="demo"] {
+  --reserve: 92px;
+  margin-bottom: calc(var(--reserve) * -1);
+}
+
 .demoAbout {
+  min-height: calc(0.875rem * 1.5 + var(--reserve, 0px));
   margin: 0 0 8px;
+}
+
+@media (max-width: 899px) {
+  .group[data-group="demo"] {
+    --reserve: 56px;
+  }
 }
 
 .demoAbout summary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   color: var(--muted);
   font-size: 0.875rem;
-  text-decoration: underline;
-  text-decoration-color: rgba(17, 17, 17, 0.3);
-  text-underline-offset: 3px;
   cursor: pointer;
   list-style: none;
-  transition:
-    color 180ms var(--ease),
-    text-decoration-color 180ms var(--ease);
+  transition: color 180ms var(--ease);
 }
 
 .demoAbout summary::-webkit-details-marker {
@@ -2176,11 +2236,20 @@
 
 .demoAbout summary:hover {
   color: var(--ink);
-  text-decoration-color: currentColor;
+}
+
+.demoAbout summary svg {
+  width: 10px;
+  height: 10px;
+  transition: transform 200ms var(--ease);
 }
 
 .demoAbout[open] summary {
   margin-bottom: 10px;
+}
+
+.demoAbout[open] summary svg {
+  transform: rotate(180deg);
 }
 
 .demoNote {
@@ -2233,4 +2302,36 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.go:active,
+.galleryLink:active,
+.galleryThumb:active,
+.viewerControls button:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .external,
+  .appIcon[data-icon],
+  .go,
+  .galleryLink,
+  .galleryThumb,
+  .viewerControls button {
+    transition-property: color, background-color, opacity;
+  }
+
+  .rowLink:hover .external,
+  .rowLink:hover .appIcon[data-icon],
+  .go:active,
+  .galleryLink:active,
+  .galleryThumb:active,
+  .viewerControls button:active {
+    transform: none;
+  }
+
+  .viewer,
+  .viewer[open] {
+    transform: none;
+  }
 }

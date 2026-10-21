@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import styles from "./home.module.css";
 
 export type GalleryItem = {
@@ -42,8 +43,10 @@ export const Viewer = forwardRef<
 
   useImperativeHandle(ref, () => ({
     open: (i: number) => {
-      setIndex(i);
-      setViewing(true);
+      flushSync(() => {
+        setIndex(i);
+        setViewing(true);
+      });
       dialogRef.current?.showModal();
     },
   }));
@@ -53,7 +56,6 @@ export const Viewer = forwardRef<
   return (
     <dialog
       ref={dialogRef}
-      onClose={() => setViewing(false)}
       className={styles.viewer}
       aria-label={name}
       onClick={(event) => {

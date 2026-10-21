@@ -115,6 +115,23 @@
   margin-top: 1px;
 }
 
+@media (min-width: 1200px) {
+  .identity {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.3em;
+    align-items: baseline;
+  }
+
+  .identity .name {
+    grid-column: 1 / -1;
+  }
+
+  .role + .role {
+    margin-top: 4px;
+  }
+}
+
 .role .roleLink {
   color: inherit;
   text-decoration: underline;
@@ -298,16 +315,34 @@
   background: #ffffff;
   color: var(--ink);
   box-shadow: var(--edge);
-  transition: box-shadow 200ms var(--ease);
+  transition:
+    box-shadow 200ms var(--ease),
+    transform 160ms var(--ease);
 }
 
 .contact a:hover {
   box-shadow: var(--edge-hover);
 }
 
+.contact a:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact a:active {
+    transform: none;
+  }
+}
+
 .contact svg {
   width: 16px;
   height: 16px;
+}
+
+@media (min-width: 1200px) {
+  .contact.contactMobileOnly {
+    display: none;
+  }
 }
 
 .canvas {
