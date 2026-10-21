@@ -582,6 +582,7 @@ export function Demo() {
 }
 
 export function ExplorationCard({ work }: { work: Work }) {
+  if (work.title === "Game Boy") return <GameBoyCard work={work} />;
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
@@ -623,6 +624,63 @@ export function ExplorationCard({ work }: { work: Work }) {
           rel="noopener noreferrer"
         >
           @krispuckett
+        </a>
+      </p>
+    </article>
+  );
+}
+
+function GameBoyCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <p className={styles.what}>My portfolio, playable on a 3D Game Boy.</p>
+        <GoLink
+          href={work.href}
+          label="Play the Game Boy portfolio"
+          caption="Play"
+        />
+      </div>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
+      <a
+        className={styles.previewLink}
+        href={work.href}
+        aria-label="Play the Game Boy portfolio, full screen"
+      >
+        <AutoVideo
+          className={styles.film}
+          src="/home/gameboy-portfolio.mp4"
+          poster="/home/gameboy-portfolio.jpg"
+          aria-label="Scrolling through the portfolio menu on the Game Boy"
+          muted
+          loop
+          playsInline
+          preload="none"
+        />
+      </a>
+      <p className={styles.caption}>
+        Remixed from{" "}
+        <a
+          className={styles.handle}
+          href="https://ask.jig.com/j/mVwDz2UfKSat"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Numa&rsquo;s Game Boy
+        </a>{" "}
+        on{" "}
+        <a
+          className={styles.handle}
+          href="https://ask.jig.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Jig
         </a>
       </p>
     </article>

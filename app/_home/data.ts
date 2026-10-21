@@ -200,6 +200,13 @@ export const WORKS: Work[] = [
     href: "/explorations/n-particles",
     pills: ["Interactive", "WebGL"],
   },
+  {
+    title: "Game Boy",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/handheld",
+    pills: ["Interactive", "3D", "Made with Jig"],
+  },
 ];
 
 export const MULTI_SUB = new Set(
