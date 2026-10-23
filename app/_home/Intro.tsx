@@ -136,7 +136,6 @@ export default function Intro() {
       <span className={styles.track}>
         <span ref={bar} className={styles.fill} />
       </span>
-      <span className={styles.skip}>Skip</span>
     </div>
   );
 }

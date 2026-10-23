@@ -58,40 +58,6 @@
   transform-origin: 0 50%;
 }
 
-.skip {
-  position: absolute;
-  top: calc(50% + 133px);
-  left: 50%;
-  padding: 6px 10px;
-  color: rgba(31, 29, 26, 0.38);
-  font:
-    500 0.75rem / 1 var(--font-inter),
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transform: translateX(-50%);
-  animation: appear 300ms ease 400ms backwards;
-  transition: color 180ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .skip:hover {
-    color: rgba(31, 29, 26, 0.7);
-  }
-}
-
-.intro[data-leaving] .skip {
-  opacity: 0;
-  transition: opacity 200ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .skip {
-    animation: none;
-  }
-}
-
 .intro[data-ready] .fill {
   animation: load 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
 }
