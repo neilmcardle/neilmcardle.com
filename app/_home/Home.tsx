@@ -34,7 +34,7 @@ const POSTERS = {
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
   podium: poster("/home/podium/trailer-02-poster.jpg"),
-  avis: poster("/work/avis/three-steps-title.jpg"),
+  avis: poster("/work/avis/three-steps-start.jpg"),
 };
 
 const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
@@ -204,7 +204,7 @@ function AvisWork() {
         </div>
         <div>
           <dt>Role</dt>
-          <dd>Senior Digital Product Designer</dd>
+          <dd>Product design, checkout</dd>
         </div>
         <div>
           <dt>Result</dt>
@@ -213,7 +213,7 @@ function AvisWork() {
       </dl>
       <video
         className={styles.film}
-        src="/work/avis/three-steps-titled.mp4"
+        src="/work/avis/three-steps.mp4"
         poster={POSTERS.avis}
         aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
         controls

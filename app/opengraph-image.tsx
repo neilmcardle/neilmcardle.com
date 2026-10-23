@@ -6,7 +6,7 @@ import {
   MAKEEBOOK_MARK,
   MAKEEBOOK_TRANSFORM,
 } from "@/components/home/ProductBadge";
-import { SPARK_MARK_PATH } from "@/components/spark/SparkMark";
+import { AVIS_PATHS } from "@/app/_home/AvisLogo";
 import { SHARE_ALT } from "./shared-metadata";
 
 export const runtime = "nodejs";
@@ -20,7 +20,21 @@ const INK = "#111111";
 const MUTED = "#6b675f";
 const LINE = "#e3e0da";
 
-const PRODUCTS = [
+const WORK = [
+  {
+    name: "3-Step Checkout",
+    line: "Taking car rental booking from five steps to three.",
+    view: "200 18 75.6328 32",
+    width: 48,
+    height: 20,
+    mark: (
+      <g>
+        {AVIS_PATHS.map((d) => (
+          <path key={d.slice(0, 16)} d={d} />
+        ))}
+      </g>
+    ),
+  },
   {
     name: "makeebook",
     line: "A peaceful place for authors to write their most thoughtful work.",
@@ -30,7 +44,7 @@ const PRODUCTS = [
     mark: <path d={MAKEEBOOK_MARK} transform={MAKEEBOOK_TRANSFORM} />,
   },
   {
-    name: "Coverly",
+    name: "coverly",
     line: "Be inspired to design your next book cover.",
     view: "15 12 34 34",
     width: 22,
@@ -49,14 +63,6 @@ const PRODUCTS = [
         <path d={DOODLEWIRE_BOTTOM} />
       </g>
     ),
-  },
-  {
-    name: "Spark",
-    line: "A course for designers heading in the direction of design-engineer.",
-    view: "20 13 23 37",
-    width: 14,
-    height: 22,
-    mark: <path d={SPARK_MARK_PATH} />,
   },
 ];
 
@@ -77,9 +83,9 @@ async function loadGoogleFont(family: string, weight: number) {
 
 export default async function OpenGraphImage() {
   const [light, regular, medium] = await Promise.all([
-    loadGoogleFont("Geist", 300),
-    loadGoogleFont("Geist", 400),
-    loadGoogleFont("Geist", 500),
+    loadGoogleFont("Inter", 300),
+    loadGoogleFont("Inter", 400),
+    loadGoogleFont("Inter", 500),
   ]);
 
   return new ImageResponse(
@@ -89,7 +95,7 @@ export default async function OpenGraphImage() {
         height: "100%",
         display: "flex",
         backgroundColor: BONE,
-        fontFamily: "Geist",
+        fontFamily: "Inter",
         color: INK,
       }}
     >
@@ -98,7 +104,7 @@ export default async function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          width: 580,
+          width: 540,
           padding: "0 0 0 72px",
         }}
       >
@@ -126,7 +132,7 @@ export default async function OpenGraphImage() {
           style={{
             display: "flex",
             marginTop: 36,
-            fontFamily: "GeistMedium",
+            fontFamily: "InterMedium",
             fontSize: 44,
             lineHeight: 1.1,
             letterSpacing: -1.2,
@@ -138,7 +144,7 @@ export default async function OpenGraphImage() {
           style={{
             display: "flex",
             marginTop: 2,
-            fontFamily: "GeistLight",
+            fontFamily: "InterLight",
             fontSize: 44,
             lineHeight: 1.1,
             letterSpacing: -1.2,
@@ -152,7 +158,7 @@ export default async function OpenGraphImage() {
         style={{
           display: "flex",
           flexDirection: "column",
-          width: 556,
+          width: 612,
           marginTop: 56,
           padding: "40px 40px 0",
           borderRadius: "28px 28px 0 0",
@@ -164,28 +170,17 @@ export default async function OpenGraphImage() {
         <div
           style={{
             display: "flex",
-            fontFamily: "Geist",
+            fontFamily: "Inter",
             fontSize: 34,
             letterSpacing: -0.8,
           }}
         >
-          Things I’ve said and done
+          Work
         </div>
         <div
-          style={{
-            display: "flex",
-            marginTop: 30,
-            fontFamily: "GeistMedium",
-            fontSize: 24,
-            letterSpacing: -0.4,
-          }}
+          style={{ display: "flex", flexDirection: "column", marginTop: 24 }}
         >
-          Products
-        </div>
-        <div
-          style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
-        >
-          {PRODUCTS.map((product) => (
+          {WORK.map((product) => (
             <div
               key={product.name}
               style={{
@@ -201,7 +196,7 @@ export default async function OpenGraphImage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: 34,
+                    width: 48,
                     height: 22,
                   }}
                 >
@@ -214,7 +209,7 @@ export default async function OpenGraphImage() {
                     {product.mark}
                   </svg>
                 </div>
-                <span style={{ fontFamily: "GeistMedium", fontSize: 22 }}>
+                <span style={{ fontFamily: "InterMedium", fontSize: 22 }}>
                   {product.name}
                 </span>
               </div>
@@ -222,8 +217,8 @@ export default async function OpenGraphImage() {
                 style={{
                   display: "flex",
                   marginTop: 6,
-                  marginLeft: 46,
-                  fontFamily: "Geist",
+                  marginLeft: 60,
+                  fontFamily: "Inter",
                   fontSize: 18,
                   color: MUTED,
                 }}
@@ -238,9 +233,9 @@ export default async function OpenGraphImage() {
     {
       ...size,
       fonts: [
-        { name: "GeistLight", data: light, weight: 300, style: "normal" },
-        { name: "Geist", data: regular, weight: 400, style: "normal" },
-        { name: "GeistMedium", data: medium, weight: 500, style: "normal" },
+        { name: "InterLight", data: light, weight: 300, style: "normal" },
+        { name: "Inter", data: regular, weight: 400, style: "normal" },
+        { name: "InterMedium", data: medium, weight: 500, style: "normal" },
       ],
     },
   );

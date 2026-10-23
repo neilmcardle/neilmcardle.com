@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 export const SITE_TITLE = "Neil McArdle · Product Designer";
 export const SITE_DESCRIPTION =
-  "Product designer in London. Building makeebook, coverly, DoodleWire and Spark.";
+  "Product designer in London. Checkout at Avis Budget Group, and makeebook, coverly and DoodleWire.";
 export const SHARE_ALT =
-  "Neil McArdle, product designer in London. Things he has said and done: makeebook, coverly, DoodleWire and Spark.";
+  "Neil McArdle, product designer in London. Work: the Avis 3-Step Checkout, makeebook, coverly and DoodleWire.";
 
 const SHARE_IMAGE = {
   url: "/opengraph-image",

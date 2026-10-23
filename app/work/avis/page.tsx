@@ -29,8 +29,8 @@ export default function AvisCase() {
       frames={[
         {
           kind: "film",
-          src: "/work/avis/three-steps-titled.mp4",
-          poster: "/work/avis/three-steps-title.jpg",
+          src: "/work/avis/three-steps.mp4",
+          poster: "/work/avis/three-steps-start.jpg",
           label:
             "Booking an Avis car in three steps: searching, picking a vehicle and rate, then reviewing the booking and adding protection",
         },
