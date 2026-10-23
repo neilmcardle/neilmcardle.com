@@ -39,7 +39,6 @@ const POSTERS = {
 
 const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
   tools: "tools",
-  explorations: "n",
   kids: "kids",
   covers: "book",
   books: "audio",
@@ -510,7 +509,7 @@ export function Covers() {
       <div className={styles.showcaseHead}>
         <h3 className={styles.showcaseHeading}>
           <span className={styles.showcaseName}>
-            <span className={styles.coversMark} aria-hidden="true">
+            <span className={styles.nameMark} aria-hidden="true">
               <Mark mark="book" />
             </span>
             <span>Book covers</span>
@@ -627,12 +626,19 @@ export function Demo() {
       data-group="demo"
     >
       <h3 id="home-demo" className={styles.groupTitle}>
-        <span className={styles.sectionMark} aria-hidden="true">
-          <Mark mark="speakui" />
-        </span>
-        <span>SpeakUI Demo on Dive Radio</span>
+        Demo on Dive Radio
       </h3>
       <article className={styles.showcase}>
+        <div className={styles.showcaseHead}>
+          <h4 className={styles.showcaseHeading}>
+            <span className={styles.showcaseName}>
+              <span className={styles.nameMark} aria-hidden="true">
+                <Mark mark="speakui" />
+              </span>
+              <span>SpeakUI</span>
+            </span>
+          </h4>
+        </div>
         <AutoVideo
           className={styles.film}
           src="/home/dive-radio-jit.mp4"

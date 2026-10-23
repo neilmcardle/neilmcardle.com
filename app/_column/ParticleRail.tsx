@@ -379,14 +379,11 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       />
       <ul>
         {items.map((item, i) => (
-          <li
-            key={item.id}
-            data-wheel-item
-            data-divide={item.divide || undefined}
-          >
+          <li key={item.id} data-wheel-item>
             <button
               type="button"
               data-node
+              data-divide={item.divide || undefined}
               className={styles.railNode}
               aria-label={item.name}
               aria-current={active === i ? "true" : undefined}
