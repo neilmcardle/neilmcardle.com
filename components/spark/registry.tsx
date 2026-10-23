@@ -1,4 +1,5 @@
 import React from "react";
+import { AppFrame } from "./AppFrame";
 import { AsyncTimeline } from "./AsyncTimeline";
 import { Build } from "./Build";
 import { Check } from "./Check";
@@ -23,6 +24,14 @@ const WIDGETS: Record<string, (attrs: Attrs) => React.ReactNode> = {
       options={attrs.options}
       correct={attrs.correct}
       why={attrs.why}
+    />
+  ),
+  AppFrame: (attrs) => (
+    <AppFrame
+      src={attrs.src ?? ""}
+      title={attrs.title ?? ""}
+      note={attrs.note}
+      height={attrs.height ? Number(attrs.height) : undefined}
     />
   ),
   Build: (attrs) => <Build id={attrs.id ?? ""} />,

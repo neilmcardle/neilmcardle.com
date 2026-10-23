@@ -207,6 +207,13 @@ export const WORKS: Work[] = [
     href: "/explorations/handheld",
     pills: ["Interactive", "3D", "Made with Jig"],
   },
+  {
+    title: "Record player",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/record-player",
+    pills: ["Interactive", "Illustration", "Made with Colorfigures"],
+  },
 ];
 
 export const MULTI_SUB = new Set(

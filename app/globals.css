@@ -1983,6 +1983,20 @@ button.spark-card:hover,
   }
 }
 
+@media (min-width: 1360px) {
+  .spark-appframe {
+    width: 1000px;
+    margin-inline: -160px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .spark-appframe {
+    width: 1080px;
+    margin-inline: -200px;
+  }
+}
+
 .spark-action {
   display: inline-flex;
   align-items: center;

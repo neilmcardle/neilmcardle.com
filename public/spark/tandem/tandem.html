@@ -1,0 +1,2458 @@
+<title>Tandem</title>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+/>
+<style>
+  :root {
+    --paper: #fbf9f3;
+    --ink: #14120e;
+    --subtle: #6b6254;
+    --ochre: #86621b;
+    --ochre-strong: #5f4512;
+    --hairline: rgb(20 18 14 / 0.08);
+    --edge: rgb(20 18 14 / 0.14);
+    --dot: rgb(20 18 14 / 0.2);
+    --dock: rgb(255 255 255 / 0.62);
+    --ochre-tint: rgb(134 98 27 / 0.12);
+    --ochre-flash: rgb(134 98 27 / 0.22);
+    --ink-tint: rgb(20 18 14 / 0.045);
+    --redline: #b3261e;
+    --redline-tint: rgb(179 38 30 / 0.07);
+    --amber: #9a5b06;
+    --pass: #4d7c4a;
+    --tok-tag: #c2185b;
+    --tok-attr: #0060d0;
+    --tok-str: #23803d;
+    --tok-name: #7a2fc0;
+    --tok-punc: #7a7064;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --cell: 24px;
+    --inset: 14px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --settle: cubic-bezier(0.22, 1, 0.36, 1);
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  ::selection {
+    background: rgb(134 98 27 / 0.2);
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: 52px var(--cell) minmax(0, 1fr);
+    height: 100%;
+  }
+
+  .top {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+
+  .wordmark {
+    margin-right: 16px;
+    padding-left: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .divider {
+    width: 1px;
+    height: 16px;
+    margin: 0 6px;
+    background: var(--hairline);
+    flex: 0 0 auto;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 12px;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(20 18 14 / 0.82);
+    font: 500 12px/1 var(--sans);
+    letter-spacing: -0.006em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      border-color 160ms var(--ease),
+      background-color 160ms var(--ease),
+      color 160ms var(--ease);
+  }
+  .pill svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+  }
+  .pill:hover {
+    border-color: rgb(20 18 14 / 0.32);
+    color: var(--ink);
+  }
+  .pill:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .pill-ghost {
+    border-color: transparent;
+  }
+  .pill-ghost:hover {
+    border-color: transparent;
+    background: rgb(20 18 14 / 0.06);
+  }
+  .pill-ghost:disabled:hover {
+    background: transparent;
+  }
+  .pill-ink {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 600;
+  }
+  .pill-ink:hover {
+    border-color: #2b2720;
+    background: #2b2720;
+    color: var(--paper);
+  }
+
+  .readout {
+    margin-left: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0;
+    color: var(--subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .readout strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .corner {
+    border-right: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+
+  .ruler,
+  .gutter {
+    position: relative;
+    overflow: hidden;
+    background: var(--paper);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    color: rgb(107 98 84 / 0.8);
+    user-select: none;
+  }
+  .ruler {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .gutter {
+    border-right: 1px solid var(--hairline);
+  }
+
+  .strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    will-change: transform;
+  }
+  .ruler .strip {
+    height: var(--cell);
+  }
+  .gutter .strip {
+    flex-direction: column;
+    width: 100%;
+  }
+  .ruler .strip span {
+    width: var(--cell);
+    flex: 0 0 var(--cell);
+    line-height: var(--cell);
+    text-align: center;
+  }
+  .gutter .strip span {
+    height: var(--cell);
+    line-height: var(--cell);
+    padding-right: 10px;
+    text-align: right;
+  }
+
+  .strip span.on {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 11px;
+    background: rgb(20 18 14 / 0.06);
+  }
+  .strip span.caret {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .strip span.bad {
+    color: var(--redline);
+    font-weight: 600;
+  }
+  .strip span.warn {
+    color: var(--amber);
+    font-weight: 600;
+  }
+  .strip span.changed {
+    color: var(--paper);
+    background: var(--ochre);
+    font-weight: 600;
+  }
+
+  .stage {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .scroller {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .surface {
+    position: relative;
+    background-color: var(--paper);
+    background-image: radial-gradient(
+      circle,
+      var(--dot) 1.1px,
+      transparent 1.6px
+    );
+    background-size: var(--cell) var(--cell);
+    background-position: calc(var(--cell) / -2) calc(var(--cell) / -2);
+  }
+
+  .code {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .hl,
+  .ta {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: var(--cell);
+    letter-spacing: 0;
+    tab-size: 2;
+    white-space: pre;
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+  }
+
+  .hl {
+    position: absolute;
+    inset: 0 auto auto 0;
+    pointer-events: none;
+    color: var(--ink);
+  }
+  .hl .ln {
+    height: var(--cell);
+    padding: 0 12px 0 var(--inset);
+  }
+  .hl .ln.sel {
+    background: var(--ink-tint);
+    box-shadow: inset 2px 0 0 rgb(20 18 14 / 0.55);
+  }
+  .hl .ln.bad {
+    background: var(--redline-tint);
+    box-shadow: inset 2px 0 0 var(--redline);
+  }
+
+  .t-tag {
+    color: var(--tok-tag);
+  }
+  .t-attr {
+    color: var(--tok-attr);
+  }
+  .t-num {
+    color: var(--tok-name);
+  }
+  .t-str {
+    color: var(--tok-str);
+  }
+  .t-punc {
+    color: var(--tok-punc);
+  }
+
+  .ta {
+    position: relative;
+    display: block;
+    padding-left: var(--inset);
+    resize: none;
+    overflow: hidden;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--ink);
+    outline: none;
+  }
+  .ta::selection {
+    background: rgb(134 98 27 / 0.2);
+    color: transparent;
+  }
+
+  .marks,
+  .squigs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .mark {
+    position: absolute;
+    height: 20px;
+    border-radius: 4px;
+    background: var(--ochre-flash);
+    box-shadow: inset 0 0 0 1px rgb(134 98 27 / 0.55);
+    animation: mark-fade 2.6s var(--settle) forwards;
+  }
+  @keyframes mark-fade {
+    0% {
+      transform: scale(1.12);
+      opacity: 0;
+    }
+    8% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .squig {
+    position: absolute;
+    height: 4px;
+    background-repeat: repeat-x;
+    background-position: left bottom;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4'%3E%3Cpath d='M0 3 L1.5 1 L3 3 L4.5 1 L6 3' fill='none' stroke='%23b3261e' stroke-width='1.2'/%3E%3C/svg%3E");
+  }
+  .squig.warn {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4'%3E%3Cpath d='M0 3 L1.5 1 L3 3 L4.5 1 L6 3' fill='none' stroke='%239a5b06' stroke-width='1.2'/%3E%3C/svg%3E");
+  }
+
+  .layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+
+  .el {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    padding: 0 10px;
+    border: 0;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: normal;
+    text-align: center;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition:
+      left 140ms var(--ease),
+      top 140ms var(--ease),
+      width 140ms var(--ease),
+      height 140ms var(--ease);
+  }
+  .el.dragging {
+    cursor: grabbing;
+    transition: none;
+  }
+  .el:focus {
+    outline: none;
+  }
+  .el.selected,
+  .el:focus-visible {
+    outline: 1.5px solid var(--ink);
+    outline-offset: 3px;
+  }
+  .el .label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .el .label[contenteditable="true"] {
+    outline: none;
+    cursor: text;
+    user-select: text;
+    text-overflow: clip;
+    box-shadow: 0 1px 0 currentColor;
+  }
+  .el .handle {
+    position: absolute;
+    right: -7px;
+    bottom: -7px;
+    width: 9px;
+    height: 9px;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+    background: #fff;
+    cursor: nwse-resize;
+  }
+  .el:not(.selected) .handle {
+    display: none;
+  }
+  .el.stale {
+    opacity: 0.45;
+    outline: 1.5px dashed var(--subtle);
+    outline-offset: 3px;
+  }
+  .el.stale .handle {
+    display: none;
+  }
+
+  .stale-note {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: var(--cell);
+    color: var(--subtle);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .dock {
+    position: absolute;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 14px;
+    width: max-content;
+    max-width: calc(100% - 32px);
+    padding: 8px 10px 8px 16px;
+    border: 1px solid var(--edge);
+    border-radius: 22px;
+    background: var(--dock);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: 0 16px 40px rgb(20 18 14 / 0.12);
+    transform: translateX(-50%);
+  }
+
+  .group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .eyebrow {
+    color: var(--subtle);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .picker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 28px;
+    padding: 0 10px 0 3px;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 160ms var(--ease);
+  }
+  .picker:hover {
+    border-color: rgb(20 18 14 / 0.32);
+  }
+  .picker:focus-within {
+    outline: 2px solid var(--ochre);
+    outline-offset: 2px;
+  }
+  #fillPicker {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  #fillPicker::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  #fillPicker::-webkit-color-swatch {
+    border: 1px solid var(--edge);
+    border-radius: 50%;
+  }
+  #fillPicker::-moz-color-swatch {
+    border: 1px solid var(--edge);
+    border-radius: 50%;
+  }
+  #fillPicker:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  #fillPicker:focus-visible {
+    outline: none;
+  }
+  .fill-class {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0;
+    color: var(--ink);
+  }
+  .swatch {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid var(--edge);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 160ms var(--ease);
+  }
+  .swatch:hover {
+    transform: scale(1.08);
+  }
+  .swatch[aria-pressed="true"] {
+    outline: 1.5px solid var(--ink);
+    outline-offset: 2px;
+  }
+  .swatch:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .seg {
+    display: inline-flex;
+    padding: 2px;
+    border-radius: 999px;
+    background: rgb(20 18 14 / 0.06);
+  }
+  .seg-item {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 11px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--subtle);
+    font: 500 12px/1 var(--sans);
+    cursor: pointer;
+    transition:
+      background-color 160ms var(--ease),
+      color 160ms var(--ease);
+  }
+  .seg-item:hover {
+    color: var(--ink);
+  }
+  .seg-item[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .seg-item:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .dock .divider {
+    margin: 0;
+  }
+
+  .sync {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    font-size: 12px;
+    color: var(--subtle);
+  }
+  .sync i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--pass);
+    flex: 0 0 auto;
+  }
+  .sync {
+    flex: 0 0 auto;
+  }
+  .sync span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 48ch;
+  }
+  .sync.bad {
+    color: var(--redline);
+  }
+  .sync.bad i {
+    background: var(--redline);
+  }
+  .sync.warn {
+    color: var(--amber);
+  }
+  .sync.warn i {
+    background: var(--amber);
+  }
+  .fix {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0;
+  }
+
+  .pill:focus-visible,
+  .seg-item:focus-visible,
+  .swatch:focus-visible {
+    outline: 2px solid var(--ochre);
+    outline-offset: 2px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 1100px) {
+    .pill .txt {
+      display: none;
+    }
+    .readout {
+      max-width: 34ch;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .top {
+      padding: 0 10px;
+    }
+    .pill .txt {
+      display: none;
+    }
+    .wordmark {
+      margin-right: 8px;
+    }
+    .sync span {
+      white-space: normal;
+    }
+    .dock {
+      border-radius: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .el,
+    .swatch,
+    .pill,
+    .seg-item {
+      transition: none;
+    }
+    .mark {
+      animation: none;
+    }
+  }
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <span class="wordmark">tandem</span>
+    <button
+      class="pill pill-ghost"
+      type="button"
+      id="add"
+      title="Add a button component"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      <span class="txt">Add button</span>
+    </button>
+    <button
+      class="pill pill-ghost selonly"
+      type="button"
+      id="remove"
+      title="Delete the selected component"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3" />
+      </svg>
+      <span class="txt">Delete</span>
+    </button>
+    <span class="divider" aria-hidden="true"></span>
+    <button
+      class="pill pill-ghost"
+      type="button"
+      id="undo"
+      title="Undo (⌘Z)"
+      disabled
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M9 14 4 9l5-5" />
+        <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+      </svg>
+      <span class="txt">Undo</span>
+    </button>
+    <button
+      class="pill pill-ghost"
+      type="button"
+      id="redo"
+      title="Redo (⇧⌘Z)"
+      disabled
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m15 14 5-5-5-5" />
+        <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" />
+      </svg>
+      <span class="txt">Redo</span>
+    </button>
+    <span class="divider" aria-hidden="true"></span>
+    <button
+      class="pill pill-ghost"
+      type="button"
+      id="reset"
+      title="Start again from the sample"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" />
+      </svg>
+      <span class="txt">Reset</span>
+    </button>
+    <div class="readout" id="readout"></div>
+    <span class="divider" aria-hidden="true"></span>
+    <div class="sync" id="sync" role="status" aria-live="polite">
+      <i></i><span id="syncText">Code and canvas in sync</span>
+    </div>
+    <button class="pill pill-ink fix" type="button" id="fix" hidden></button>
+  </header>
+
+  <div class="corner" aria-hidden="true"></div>
+  <div class="ruler" aria-hidden="true">
+    <div class="strip" id="ruler"></div>
+  </div>
+  <div class="gutter" aria-hidden="true">
+    <div class="strip" id="gutter"></div>
+  </div>
+
+  <div class="stage">
+    <div class="scroller" id="scroller">
+      <div class="surface" id="surface">
+        <div class="code" id="codeBox">
+          <div class="marks" id="marks" aria-hidden="true"></div>
+          <div class="hl" id="hl" aria-hidden="true"></div>
+          <div class="squigs" id="squigs" aria-hidden="true"></div>
+          <textarea
+            class="ta"
+            id="ta"
+            spellcheck="false"
+            autocapitalize="off"
+            autocomplete="off"
+            autocorrect="off"
+            wrap="off"
+            aria-label="Code"
+          ></textarea>
+        </div>
+        <div class="layer" id="layer"></div>
+      </div>
+    </div>
+
+    <div class="dock selonly" role="toolbar" aria-label="Selected button">
+      <div class="group selonly" id="fillGroup">
+        <span class="eyebrow">Fill</span>
+        <label class="picker" for="fillPicker">
+          <input type="color" id="fillPicker" aria-label="Fill colour" />
+          <span class="fill-class" id="fillClass"></span>
+        </label>
+      </div>
+      <span class="divider selonly" aria-hidden="true"></span>
+      <div class="group selonly">
+        <span class="eyebrow">Corners</span>
+        <div class="seg" role="group" aria-label="Corners">
+          <button
+            class="seg-item"
+            type="button"
+            id="shape-square"
+            data-shape="square"
+          >
+            Square
+          </button>
+          <button
+            class="seg-item"
+            type="button"
+            id="shape-soft"
+            data-shape="soft"
+          >
+            Soft
+          </button>
+          <button
+            class="seg-item"
+            type="button"
+            id="shape-pill"
+            data-shape="pill"
+          >
+            Pill
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const CELL = 24;
+    const INSET = 14;
+    const MIN_CODE_COLS = 24;
+    const STORE = "tandem-code-v4";
+    const SCENE = "tandem-scene-v4";
+    const PAUSE = 600;
+
+    const SAMPLE = [
+      "export function StartButton() {",
+      "  return (",
+      '    <button className="h-12 w-54 rounded-md bg-neutral-900 px-4 text-sm font-medium text-neutral-50">',
+      "      Start building",
+      "    </button>",
+      "  );",
+      "}",
+      "",
+    ].join("\n");
+
+    const PALETTE = {
+      neutral: {
+        50: "#fafafa",
+        100: "#f5f5f5",
+        200: "#e5e5e5",
+        300: "#d4d4d4",
+        400: "#a3a3a3",
+        500: "#737373",
+        600: "#525252",
+        700: "#404040",
+        800: "#262626",
+        900: "#171717",
+        950: "#0a0a0a",
+      },
+      blue: {
+        50: "#eff6ff",
+        100: "#dbeafe",
+        200: "#bfdbfe",
+        300: "#93c5fd",
+        400: "#60a5fa",
+        500: "#3b82f6",
+        600: "#2563eb",
+        700: "#1d4ed8",
+        800: "#1e40af",
+        900: "#1e3a8a",
+        950: "#172554",
+      },
+      red: {
+        50: "#fef2f2",
+        100: "#fee2e2",
+        200: "#fecaca",
+        300: "#fca5a5",
+        400: "#f87171",
+        500: "#ef4444",
+        600: "#dc2626",
+        700: "#b91c1c",
+        800: "#991b1b",
+        900: "#7f1d1d",
+        950: "#450a0a",
+      },
+      green: {
+        50: "#f0fdf4",
+        100: "#dcfce7",
+        200: "#bbf7d0",
+        300: "#86efac",
+        400: "#4ade80",
+        500: "#22c55e",
+        600: "#16a34a",
+        700: "#15803d",
+        800: "#166534",
+        900: "#14532d",
+        950: "#052e16",
+      },
+    };
+    const FAMILIES =
+      "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
+    const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+
+    const RADIUS = {
+      "rounded-none": 0,
+      "rounded-xs": 2,
+      "rounded-sm": 4,
+      rounded: 4,
+      "rounded-md": 6,
+      "rounded-lg": 8,
+      "rounded-xl": 12,
+      "rounded-2xl": 16,
+      "rounded-3xl": 24,
+      "rounded-full": 9999,
+    };
+    const SIZE = {
+      "text-xs": 12,
+      "text-sm": 14,
+      "text-base": 16,
+      "text-lg": 18,
+      "text-xl": 20,
+      "text-2xl": 24,
+      "text-3xl": 30,
+    };
+    const WEIGHT = {
+      "font-normal": 400,
+      "font-medium": 500,
+      "font-semibold": 600,
+      "font-bold": 700,
+    };
+    const ORDER = ["h", "w", "rounded", "bg", "px", "size", "weight", "color"];
+
+    const EXTRAS = [
+      "flex",
+      "inline-flex",
+      "grid",
+      "block",
+      "inline-block",
+      "hidden",
+      "items-center",
+      "items-start",
+      "items-end",
+      "justify-center",
+      "justify-between",
+      "justify-start",
+      "justify-end",
+      "shadow",
+      "shadow-xs",
+      "shadow-sm",
+      "shadow-md",
+      "shadow-lg",
+      "shadow-xl",
+      "shadow-2xl",
+      "shadow-none",
+      "shadow-inner",
+      "border",
+      "border-0",
+      "border-2",
+      "border-4",
+      "transition",
+      "transition-colors",
+      "transition-all",
+      "uppercase",
+      "lowercase",
+      "capitalize",
+      "underline",
+      "no-underline",
+      "truncate",
+      "italic",
+      "cursor-pointer",
+      "cursor-not-allowed",
+      "select-none",
+      "outline-none",
+      "whitespace-nowrap",
+      "text-left",
+      "text-center",
+      "text-right",
+      "font-thin",
+      "font-light",
+      "font-extrabold",
+      "font-black",
+      "font-sans",
+      "font-mono",
+      "font-serif",
+      "tracking-tight",
+      "tracking-tighter",
+      "tracking-normal",
+      "tracking-wide",
+      "tracking-wider",
+      "leading-none",
+      "leading-tight",
+      "leading-snug",
+      "leading-normal",
+      "relative",
+      "absolute",
+      "sr-only",
+      "ring",
+      "ring-2",
+    ];
+
+    const VALID = [
+      /^(p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|size|min-w|min-h|max-w|max-h)-(\d+(\.5)?|\[\d+px\]|auto|full|px)$/,
+      /^(h|w)-(auto|full|screen|fit|min|max|px)$/,
+      new RegExp(
+        `^(bg|text|border|ring|outline|fill|stroke|from|to|via|decoration)-(${FAMILIES})-(50|[1-9]00|950)(\\/\\d+)?$`,
+      ),
+      /^(bg|text|border|ring)-(white|black|transparent|current|inherit)(\/\d+)?$/,
+      /^(border|ring|outline)(-(0|1|2|4|8))?$/,
+      /^ring-offset-\d$/,
+      /^opacity-\d{1,3}$/,
+      /^(duration|delay)-\d+$/,
+      /^ease-(linear|in|out|in-out)$/,
+      /^leading-\d+$/,
+      /^rounded-(t|b|l|r|tl|tr|bl|br|s|e)(-(none|xs|sm|md|lg|xl|2xl|3xl|full))?$/,
+      /^text-(4xl|5xl|6xl)$/,
+    ];
+
+    const ATTRS = [
+      "className",
+      "type",
+      "onClick",
+      "disabled",
+      "id",
+      "name",
+      "value",
+      "title",
+      "tabIndex",
+      "key",
+      "ref",
+      "style",
+      "form",
+      "autoFocus",
+    ];
+
+    const VOCAB = (() => {
+      const v = new Set([
+        ...EXTRAS,
+        ...Object.keys(RADIUS),
+        ...Object.keys(SIZE),
+        ...Object.keys(WEIGHT),
+      ]);
+      ["bg", "text", "border"].forEach((p) => {
+        ["white", "black", "transparent"].forEach((c) => v.add(`${p}-${c}`));
+        FAMILIES.split("|").forEach((f) =>
+          SHADES.forEach((s) => v.add(`${p}-${f}-${s}`)),
+        );
+      });
+      return [...v];
+    })();
+
+    const $ = (id) => document.getElementById(id);
+    const ta = $("ta"),
+      hl = $("hl"),
+      squigs = $("squigs"),
+      layer = $("layer"),
+      surface = $("surface"),
+      scroller = $("scroller");
+    const rulerStrip = $("ruler"),
+      gutterStrip = $("gutter");
+
+    let code = SAMPLE;
+    let scene = [{ x: 30, y: 4 }];
+    try {
+      const saved = localStorage.getItem(STORE);
+      if (saved !== null) code = saved;
+      const s = JSON.parse(localStorage.getItem(SCENE) || "null");
+      if (Array.isArray(s)) scene = s;
+    } catch (e) {}
+
+    let parsed = { comps: [], blocks: [] };
+    const lastDrawn = [];
+    const PROP = {
+      h: "h",
+      w: "w",
+      rounded: "radius",
+      bg: "fill",
+      color: "color",
+    };
+    let fresh = [];
+    let goodItems = [];
+    let pending = [];
+    let shown = [];
+    let showTimer = 0;
+    let selected = -1;
+    let flashLines = new Set();
+    let marks = [];
+    let diffBase = null;
+    const past = [];
+    const future = [];
+    let typingAt = 0;
+    let drawnMarks = null;
+    let flashTimer = 0;
+    let caretLine = 0;
+    let charW = 7.8;
+    let editing = -1;
+
+    const blocking = () => shown.some((i) => i.kind === "error");
+    const breaking = () => pending.some((i) => i.kind === "error");
+    let haveGood = false;
+    const broken = () => blocking() || breaking();
+    const items = () => (breaking() && haveGood ? goodItems : fresh);
+
+    function lev(a, b) {
+      if (Math.abs(a.length - b.length) > 3) return 99;
+      const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+      for (let i = 1; i <= a.length; i++) {
+        let prev = row[0];
+        row[0] = i;
+        for (let j = 1; j <= b.length; j++) {
+          const tmp = row[j];
+          row[j] = Math.min(
+            row[j] + 1,
+            row[j - 1] + 1,
+            prev + (a[i - 1] === b[j - 1] ? 0 : 1),
+          );
+          prev = tmp;
+        }
+      }
+      return row[b.length];
+    }
+
+    function nearest(word, list, limit) {
+      let best = null,
+        bestD = limit + 1;
+      for (const w of list) {
+        const d = lev(word, w);
+        if (d < bestD) {
+          bestD = d;
+          best = w;
+        }
+      }
+      return best;
+    }
+
+    function lineStarts(src) {
+      const starts = [0];
+      for (let i = 0; i < src.length; i++)
+        if (src.charCodeAt(i) === 10) starts.push(i + 1);
+      return starts;
+    }
+
+    function lineAt(starts, pos) {
+      let lo = 0,
+        hi = starts.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (starts[mid] <= pos) lo = mid;
+        else hi = mid - 1;
+      }
+      return lo + 1;
+    }
+
+    function brackets(src, issues) {
+      const pairs = { ")": "(", "}": "{", "]": "[" };
+      const stack = [];
+      let quote = null;
+      for (let i = 0; i < src.length; i++) {
+        const ch = src[i];
+        if (quote) {
+          if (ch === "\\") {
+            i++;
+            continue;
+          }
+          if (ch === quote) quote = null;
+          else if (ch === "\n" && quote !== "`") quote = null;
+          continue;
+        }
+        if (ch === '"' || ch === "'" || ch === "`") {
+          quote = ch;
+          continue;
+        }
+        if (ch === "/" && src[i + 1] === "/") {
+          while (i < src.length && src[i] !== "\n") i++;
+          continue;
+        }
+        if (ch === "(" || ch === "{" || ch === "[") stack.push({ ch, pos: i });
+        else if (pairs[ch]) {
+          const top = stack[stack.length - 1];
+          if (!top) {
+            issues.push({
+              kind: "error",
+              start: i,
+              end: i + 1,
+              msg: `This ${ch} has nothing to close.`,
+              fix: { start: i, end: i + 1, text: "", label: `Remove ${ch}` },
+            });
+            return;
+          }
+          if (top.ch !== pairs[ch]) {
+            const want = { "(": ")", "{": "}", "[": "]" }[top.ch];
+            issues.push({
+              kind: "error",
+              start: i,
+              end: i + 1,
+              msg: `Expected ${want} to close the ${top.ch} on line ${lineAt(lineStarts(src), top.pos)}.`,
+              fix: { start: i, end: i, text: want, label: `Add ${want}` },
+            });
+            return;
+          }
+          stack.pop();
+        }
+      }
+      const open = stack[stack.length - 1];
+      if (open) {
+        const want = { "(": ")", "{": "}", "[": "]" }[open.ch];
+        issues.push({
+          kind: "error",
+          start: open.pos,
+          end: open.pos + 1,
+          msg: `This ${open.ch} is never closed. Add a ${want} after it.`,
+        });
+      }
+    }
+
+    function parse(src, issues) {
+      const comps = [];
+      const cre =
+        /^(?:export\s+(?:default\s+)?)?function\s+([A-Za-z0-9_]+)\s*\([^)]*\)\s*\{/gm;
+      let m;
+      while ((m = cre.exec(src))) {
+        const close = src.indexOf("\n}", m.index);
+        comps.push({
+          name: m[1],
+          start: m.index,
+          end: close < 0 ? src.length : close + 2,
+        });
+      }
+
+      const blocks = [];
+      const bre = /<button\b([^>]*)>([\s\S]*?)<\/button\s*>/g;
+      while ((m = bre.exec(src))) {
+        const start = m.index;
+        const attrStart = start + "<button".length;
+        const attrs = m[1];
+        const childStart = attrStart + attrs.length + 1;
+        const cm = /className\s*=\s*"([^"]*)"/.exec(attrs);
+        let cls = null;
+        if (cm) {
+          const vStart = attrStart + cm.index + cm[0].indexOf('"') + 1;
+          cls = { value: cm[1], start: vStart, end: vStart + cm[1].length };
+        } else if (/className\s*=\s*\{/.test(attrs)) {
+          issues.push({
+            kind: "warn",
+            start: attrStart + attrs.indexOf("className"),
+            end: attrStart + attrs.indexOf("className") + 9,
+            msg: 'Tandem reads className as a plain string for now, like className="h-12 w-54".',
+          });
+        }
+
+        const are = /([A-Za-z][\w-]*)\s*=/g;
+        let a;
+        while ((a = are.exec(attrs))) {
+          const name = a[1];
+          if (ATTRS.includes(name) || /^(aria|data)-/.test(name)) continue;
+          const s0 = attrStart + a.index,
+            s1 = s0 + name.length;
+          if (name === "class") {
+            issues.push({
+              kind: "warn",
+              start: s0,
+              end: s1,
+              msg: "React calls this className, so these classes are ignored.",
+              fix: {
+                start: s0,
+                end: s1,
+                text: "className",
+                label: "Change to className",
+              },
+            });
+          } else {
+            const near = nearest(name, ATTRS, name.length > 6 ? 3 : 2);
+            issues.push(
+              near
+                ? {
+                    kind: "warn",
+                    start: s0,
+                    end: s1,
+                    msg: `${name} isn't a button attribute. Did you mean ${near}?`,
+                    fix: {
+                      start: s0,
+                      end: s1,
+                      text: near,
+                      label: `Change to ${near}`,
+                    },
+                  }
+                : {
+                    kind: "warn",
+                    start: s0,
+                    end: s1,
+                    msg: `${name} isn't a button attribute.`,
+                  },
+            );
+          }
+        }
+
+        blocks.push({
+          start,
+          end: start + m[0].length,
+          attrStart,
+          childStart,
+          childEnd: childStart + m[2].length,
+          cls,
+          label: m[2].replace(/\s+/g, " ").trim(),
+          comp: comps.find((c) => start >= c.start && start < c.end) || null,
+        });
+      }
+
+      const open = /<button\b/g;
+      let o;
+      while ((o = open.exec(src))) {
+        const at = o.index;
+        if (!blocks.some((b) => at >= b.start && at < b.end)) {
+          issues.push({
+            kind: "error",
+            start: at,
+            end: at + 7,
+            msg: "This <button> needs a closing </button>.",
+          });
+        }
+      }
+      const typo = /<\/?(buton|buttn|butto|botton|bttn|btn)\b/gi;
+      while ((o = typo.exec(src))) {
+        const s0 = o.index + (o[0][1] === "/" ? 2 : 1);
+        issues.push({
+          kind: "error",
+          start: s0,
+          end: s0 + o[1].length,
+          msg: `${o[1]} isn't an HTML tag. Did you mean button?`,
+          fix: {
+            start: s0,
+            end: s0 + o[1].length,
+            text: "button",
+            label: "Change to button",
+          },
+        });
+      }
+      return { comps, blocks };
+    }
+
+    function category(tok) {
+      if (/^h-/.test(tok)) return "h";
+      if (/^w-/.test(tok)) return "w";
+      if (/^rounded(-|$)/.test(tok)) return "rounded";
+      if (/^bg-/.test(tok)) return "bg";
+      if (/^px-/.test(tok)) return "px";
+      if (/^text-(xs|sm|base|lg|xl|2xl|3xl)$/.test(tok)) return "size";
+      if (/^text-/.test(tok)) return "color";
+      if (/^font-/.test(tok)) return "weight";
+      return "other";
+    }
+
+    function spacing(v) {
+      if (/^\d+(\.5)?$/.test(v)) return Number(v) * 4;
+      const px = /^\[(\d+(?:\.\d+)?)px\]$/.exec(v);
+      return px ? Number(px[1]) : null;
+    }
+
+    function colour(v) {
+      if (v === "white") return "#ffffff";
+      if (v === "black") return "#000000";
+      if (v === "transparent") return "transparent";
+      const hex = /^\[(#[0-9a-fA-F]{3,8})\]$/.exec(v);
+      if (hex) return hex[1];
+      const pal = /^([a-z]+)-(\d{2,3})$/.exec(v);
+      if (pal && PALETTE[pal[1]] && PALETTE[pal[1]][pal[2]])
+        return PALETTE[pal[1]][pal[2]];
+      return null;
+    }
+
+    function isTailwind(tok) {
+      const variant =
+        /^(hover|focus|focus-visible|active|disabled|dark|group-hover|sm|md|lg|xl|2xl):(.+)$/.exec(
+          tok,
+        );
+      if (variant) return isTailwind(variant[2]) || draws(variant[2]);
+      return EXTRAS.includes(tok) || VALID.some((re) => re.test(tok));
+    }
+
+    function draws(t) {
+      const cat = category(t);
+      if (cat === "h" || cat === "w") return spacing(t.slice(2)) !== null;
+      if (cat === "px") return spacing(t.slice(3)) !== null;
+      if (cat === "rounded") return t in RADIUS;
+      if (cat === "bg") return colour(t.slice(3)) !== null;
+      if (cat === "color") return colour(t.slice(5)) !== null;
+      if (cat === "size") return true;
+      if (cat === "weight") return t in WEIGHT;
+      return false;
+    }
+
+    function styleFrom(value) {
+      const st = {
+        w: null,
+        h: null,
+        px: 0,
+        fill: "transparent",
+        color: null,
+        radius: 0,
+        size: 16,
+        weight: 400,
+      };
+      for (const t of (value || "").split(/\s+/).filter(Boolean)) {
+        if (!draws(t)) continue;
+        const cat = category(t);
+        if (cat === "h") st.h = spacing(t.slice(2));
+        else if (cat === "w") st.w = spacing(t.slice(2));
+        else if (cat === "px") st.px = spacing(t.slice(3));
+        else if (cat === "rounded") st.radius = RADIUS[t];
+        else if (cat === "bg") st.fill = colour(t.slice(3));
+        else if (cat === "color") st.color = colour(t.slice(5));
+        else if (cat === "size") st.size = SIZE[t];
+        else if (cat === "weight") st.weight = WEIGHT[t];
+      }
+      return st;
+    }
+
+    function checkClasses(b, issues) {
+      if (!b.cls) return;
+      const re = /\S+/g;
+      let m;
+      while ((m = re.exec(b.cls.value))) {
+        const t = m[0];
+        const s0 = b.cls.start + m.index,
+          s1 = s0 + t.length;
+        if (draws(t)) continue;
+        if (isTailwind(t)) {
+          issues.push({ kind: "note", start: s0, end: s1, token: t });
+          continue;
+        }
+        const sized = /^(h|w|px|py|p|m|gap)-(.+)$/.exec(t);
+        const near = nearest(t, VOCAB, t.length > 10 ? 3 : 2);
+        if (near) {
+          issues.push({
+            kind: "warn",
+            start: s0,
+            end: s1,
+            msg: `${t} isn't a Tailwind class. Did you mean ${near}?`,
+            fix: { start: s0, end: s1, text: near, label: `Change to ${near}` },
+          });
+        } else if (sized) {
+          issues.push({
+            kind: "warn",
+            start: s0,
+            end: s1,
+            msg: `${t} isn't a size Tailwind knows. Use a number, like ${sized[1]}-12.`,
+          });
+        } else {
+          issues.push({
+            kind: "warn",
+            start: s0,
+            end: s1,
+            msg: `${t} isn't a Tailwind class Tandem recognises.`,
+          });
+        }
+      }
+    }
+
+    function resolve() {
+      const issues = [];
+      brackets(code, issues);
+      parsed = parse(code, issues);
+      parsed.blocks.forEach((b) => checkClasses(b, issues));
+      fresh = parsed.blocks.map((b, i) => ({
+        ...styleFrom(b.cls ? b.cls.value : ""),
+        label: b.label || "Button",
+        name: b.comp ? b.comp.name : `button ${i + 1}`,
+        classes: b.cls ? b.cls.value.split(/\s+/).filter(Boolean) : [],
+      }));
+      fresh.forEach((it, i) => {
+        const keep = (lastDrawn[i] = lastDrawn[i] || {});
+        for (const [cat, prop] of Object.entries(PROP)) {
+          const tok = it.classes.find((t) => category(t) === cat);
+          if (!tok) continue;
+          if (draws(tok)) keep[cat] = it[prop];
+          else if (cat in keep) it[prop] = keep[cat];
+        }
+      });
+      const starts = lineStarts(code);
+      pending = issues
+        .map((i) => ({
+          ...i,
+          line: lineAt(starts, i.start),
+          col: i.start - starts[lineAt(starts, i.start) - 1],
+        }))
+        .sort((a, b) => a.start - b.start);
+      if (!breaking()) {
+        goodItems = fresh;
+        haveGood = true;
+      }
+      const count = items().length;
+      while (scene.length < count) {
+        const last = scene[scene.length - 1];
+        scene.push(last ? { x: last.x, y: last.y + 4 } : { x: 30, y: 4 });
+      }
+      if (selected >= count) selected = count ? count - 1 : -1;
+    }
+
+    function publishIssues(now) {
+      clearTimeout(showTimer);
+      if (now || !pending.some((i) => i.kind !== "note")) {
+        shown = pending;
+        return;
+      }
+      shown = pending.filter((p) =>
+        shown.some((s) => s.kind === p.kind && s.msg === p.msg),
+      );
+      showTimer = setTimeout(() => {
+        shown = pending;
+        render();
+      }, PAUSE);
+    }
+
+    function esc(s) {
+      return s
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function highlightLine(line) {
+      const re =
+        /(\/\/.*$)|("[^"]*")|(\b(?:export|default|function|return|const|import|from)\b)|(<\/?[a-z][A-Za-z0-9]*\b|\/?>)|(\b[A-Z][A-Za-z0-9]*\b)|([A-Za-z]+)(?=\s*=)|([(){};=])/g;
+      let out = "",
+        last = 0,
+        m;
+      while ((m = re.exec(line))) {
+        out += esc(line.slice(last, m.index));
+        const cls = m[1]
+          ? "t-punc"
+          : m[2]
+            ? "t-str"
+            : m[3]
+              ? "t-tag"
+              : m[4]
+                ? "t-tag"
+                : m[5]
+                  ? "t-num"
+                  : m[6]
+                    ? "t-attr"
+                    : "t-punc";
+        out += `<span class="${cls}">${esc(m[0])}</span>`;
+        last = m.index + m[0].length;
+      }
+      return out + esc(line.slice(last));
+    }
+
+    function blockLines(i) {
+      const b = parsed.blocks[i];
+      if (!b) return [0, -1];
+      const starts = lineStarts(code);
+      const from = b.comp ? b.comp.start : b.start;
+      const to = b.comp ? b.comp.end : b.end;
+      return [lineAt(starts, from), lineAt(starts, Math.max(from, to - 1))];
+    }
+
+    function cellsOf(i) {
+      const el = layer.children[i];
+      const w = el ? el.offsetWidth : 0,
+        h = el ? el.offsetHeight : 0;
+      return {
+        w: Math.max(1, Math.round(w / CELL)),
+        h: Math.max(1, Math.round(h / CELL)),
+        pxW: w,
+        pxH: h,
+      };
+    }
+
+    function gridSize() {
+      const lines = code.split("\n");
+      const longest = lines.reduce((n, l) => Math.max(n, l.length), 0);
+      const codeCols = Math.max(
+        MIN_CODE_COLS,
+        Math.ceil((longest * charW + INSET + 24) / CELL),
+      );
+      let maxRight = 0,
+        maxBottom = 0;
+      items().forEach((it, i) => {
+        const p = scene[i];
+        const c = cellsOf(i);
+        maxRight = Math.max(maxRight, p.x + c.w);
+        maxBottom = Math.max(maxBottom, p.y + c.h + 1);
+      });
+      const cols = Math.max(
+        Math.ceil(scroller.clientWidth / CELL) + 1,
+        maxRight + 8,
+        codeCols + 2,
+      );
+      const rows = Math.max(
+        Math.ceil(scroller.clientHeight / CELL) + 1,
+        lines.length + 8,
+        maxBottom + 8,
+      );
+      return { cols, rows, codeCols, lines };
+    }
+
+    function render() {
+      renderItems();
+      const { cols, rows, codeCols, lines } = gridSize();
+      surface.style.width = cols * CELL + "px";
+      surface.style.height = rows * CELL + "px";
+
+      const codeW = codeCols * CELL;
+      ta.style.width = codeW + "px";
+      ta.style.height = Math.max(lines.length + 2, 3) * CELL + "px";
+      hl.style.width = codeW + "px";
+
+      const [selFrom, selTo] =
+        selected >= 0 && !blocking() ? blockLines(selected) : [0, -1];
+      const errLines = new Set(
+        shown.filter((i) => i.kind === "error").map((i) => i.line),
+      );
+      const warnLines = new Set(
+        shown.filter((i) => i.kind === "warn").map((i) => i.line),
+      );
+      hl.innerHTML = lines
+        .map((line, i) => {
+          const n = i + 1;
+          const cls = ["ln"];
+          if (errLines.has(n)) cls.push("bad");
+          else if (n >= selFrom && n <= selTo) cls.push("sel");
+          return `<div class="${cls.join(" ")}">${highlightLine(line) || " "}</div>`;
+        })
+        .join("");
+
+      const starts = lineStarts(code);
+      if (marks !== drawnMarks)
+        $("marks").innerHTML = marks
+          .map((r) => {
+            const out = [];
+            let pos = r.start;
+            while (pos < r.end) {
+              const line = lineAt(starts, pos);
+              const lineEnd =
+                line < starts.length ? starts[line] - 1 : code.length;
+              const stop = Math.min(r.end, lineEnd);
+              const col = pos - starts[line - 1];
+              if (stop > pos)
+                out.push(
+                  `<span class="mark" style="left:${INSET + col * charW - 2}px;top:${(line - 1) * CELL + 2}px;width:${(stop - pos) * charW + 4}px"></span>`,
+                );
+              pos = lineEnd + 1;
+            }
+            return out.join("");
+          })
+          .join("");
+      drawnMarks = marks;
+
+      squigs.innerHTML = shown
+        .filter((i) => i.kind !== "note")
+        .map((i) => {
+          const len = Math.max(
+            1,
+            Math.min(
+              i.end,
+              code.indexOf("\n", i.start) < 0
+                ? i.end
+                : code.indexOf("\n", i.start),
+            ) - i.start,
+          );
+          return `<span class="squig${i.kind === "warn" ? " warn" : ""}" style="left:${INSET + i.col * charW}px;top:${(i.line - 1) * CELL + 17}px;width:${Math.max(charW, len * charW)}px"></span>`;
+        })
+        .join("");
+
+      const p = selected >= 0 ? scene[selected] : null;
+      const c = selected >= 0 ? cellsOf(selected) : null;
+      let g = "";
+      for (let r = 1; r <= rows; r++) {
+        const cls = errLines.has(r)
+          ? "bad"
+          : warnLines.has(r)
+            ? "warn"
+            : flashLines.has(r)
+              ? "changed"
+              : p && r >= p.y && r < p.y + c.h
+                ? "on"
+                : r === caretLine
+                  ? "caret"
+                  : "";
+        g += `<span${cls ? ` class="${cls}"` : ""}>${r}</span>`;
+      }
+      gutterStrip.innerHTML = g;
+
+      let rs = "";
+      for (let col = 1; col <= cols; col++) {
+        const on = p && col >= p.x && col < p.x + c.w;
+        rs += `<span${on ? ' class="on"' : ""}>${col}</span>`;
+      }
+      rulerStrip.innerHTML = rs;
+      rulerStrip.style.width = cols * CELL + "px";
+
+      renderBar();
+      syncStrips();
+    }
+
+    function renderItems() {
+      const list = items();
+      const stale = blocking();
+      layer.querySelectorAll(".stale-note").forEach((n) => n.remove());
+      const els = [...layer.querySelectorAll(".el")];
+      els.slice(list.length).forEach((n) => n.remove());
+      list.forEach((it, i) => {
+        let el = layer.querySelectorAll(".el")[i];
+        if (!el) {
+          el = document.createElement("button");
+          el.type = "button";
+          el.className = "el";
+          el.innerHTML =
+            '<span class="label"></span><span class="handle" aria-hidden="true"></span>';
+          bindItem(el);
+          layer.appendChild(el);
+        }
+        const pos = scene[i];
+        el.dataset.index = i;
+        el.style.left = (pos.x - 1) * CELL + "px";
+        el.style.top = (pos.y - 1) * CELL + "px";
+        el.style.width = it.w === null ? "auto" : it.w + "px";
+        el.style.height = it.h === null ? "auto" : it.h + "px";
+        el.style.paddingInline = it.px + "px";
+        el.style.paddingBlock = it.h === null ? "8px" : "0";
+        el.style.background = it.fill;
+        el.style.color = it.color || "var(--ink)";
+        el.style.borderRadius = Math.min(it.radius, 9999) + "px";
+        el.style.fontSize = it.size + "px";
+        el.style.fontWeight = it.weight;
+        el.classList.toggle("selected", i === selected && !stale);
+        el.classList.toggle("stale", stale);
+        el.setAttribute(
+          "aria-label",
+          `${it.label}, ${it.name}. Drag to place it on the grid, Enter to edit the text.`,
+        );
+        const label = el.querySelector(".label");
+        if (editing !== i) label.textContent = it.label;
+      });
+      if (stale && list.length) {
+        const pos = scene[0];
+        const first = layer.querySelector(".el");
+        const note = document.createElement("span");
+        note.className = "stale-note";
+        note.textContent = "Showing the last version that worked";
+        note.style.left = (pos.x - 1) * CELL + "px";
+        note.style.top =
+          (pos.y - 1) * CELL + (first ? first.offsetHeight : 48) + 8 + "px";
+        layer.appendChild(note);
+      }
+    }
+
+    function renderBar() {
+      const list = items();
+      const locked = blocking();
+      const it = selected >= 0 ? list[selected] : null;
+      document.querySelectorAll(".selonly").forEach((n) => {
+        n.hidden = !it;
+      });
+      const reason = locked
+        ? `Fix line ${shown.find((i) => i.kind === "error").line} first`
+        : "";
+      document
+        .querySelectorAll("#fillPicker, .seg-item, #remove, #add")
+        .forEach((b) => {
+          b.disabled = locked;
+          if (!("baseTitle" in b.dataset)) b.dataset.baseTitle = b.title || "";
+          b.title = locked ? reason : b.dataset.baseTitle;
+        });
+
+      if (it) {
+        const c = cellsOf(selected);
+        const p = scene[selected];
+        $("readout").innerHTML =
+          `<strong>${esc(it.name)}</strong>  ${Math.round(c.pxW)} &times; ${Math.round(c.pxH)} &middot; placed at ${p.x}, ${p.y}`;
+        const bg =
+          it.classes.find((t) => category(t) === "bg") || "no bg class";
+        if (document.activeElement !== picker) picker.value = toHex(it.fill);
+        $("fillClass").textContent = bg;
+        const r = it.classes.find((t) => category(t) === "rounded") || "";
+        const shape =
+          r === "rounded-none" || r === ""
+            ? "square"
+            : r === "rounded-full"
+              ? "pill"
+              : "soft";
+        document
+          .querySelectorAll("[data-shape]")
+          .forEach((s) =>
+            s.setAttribute("aria-pressed", String(s.dataset.shape === shape)),
+          );
+      } else {
+        $("readout").innerHTML = list.length
+          ? ""
+          : "No buttons yet. Add one, or type a &lt;button&gt;";
+      }
+
+      const sync = $("sync");
+      const fix = $("fix");
+      const top =
+        shown.find((i) => i.kind === "error") ||
+        shown.find((i) => i.kind === "warn");
+      $("readout").hidden = !!top;
+      $("undo").disabled = past.length === 0;
+      $("redo").disabled = future.length === 0;
+      const notes = [
+        ...new Set(shown.filter((i) => i.kind === "note").map((i) => i.token)),
+      ];
+      sync.classList.toggle("bad", !!top && top.kind === "error");
+      sync.classList.toggle("warn", !!top && top.kind === "warn");
+      if (top) {
+        $("syncText").textContent = `Line ${top.line}: ${top.msg}`;
+      } else if (notes.length) {
+        $("syncText").textContent =
+          `In sync. Not drawn yet: ${notes.slice(0, 3).join(", ")}${notes.length > 3 ? "…" : ""}`;
+      } else {
+        $("syncText").textContent = "Code and canvas in sync";
+      }
+      if (top && top.fix) {
+        fix.hidden = false;
+        fix.textContent = top.fix.label;
+        fix.onclick = () => {
+          setCode(
+            code.slice(0, top.fix.start) +
+              top.fix.text +
+              code.slice(top.fix.end),
+          );
+          ta.focus();
+          const at = top.fix.start + top.fix.text.length;
+          ta.setSelectionRange(at, at);
+        };
+      } else {
+        fix.hidden = true;
+        fix.onclick = null;
+      }
+    }
+
+    function syncStrips() {
+      rulerStrip.style.transform = `translateX(${-scroller.scrollLeft}px)`;
+      gutterStrip.style.transform = `translateY(${-scroller.scrollTop}px)`;
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORE, code);
+        localStorage.setItem(SCENE, JSON.stringify(scene));
+      } catch (e) {}
+    }
+
+    function snapshot() {
+      return { code, scene: scene.map((p) => ({ ...p })) };
+    }
+
+    function record(prev) {
+      past.push(prev);
+      if (past.length > 200) past.shift();
+      future.length = 0;
+    }
+
+    function restore(state) {
+      code = state.code;
+      scene = state.scene.map((p) => ({ ...p }));
+      ta.value = code;
+      diffBase = null;
+      typingAt = 0;
+      save();
+      resolve();
+      publishIssues(true);
+      if (selected >= items().length) selected = -1;
+      render();
+    }
+
+    function undo() {
+      if (!past.length || editing >= 0) return;
+      future.push(snapshot());
+      restore(past.pop());
+    }
+
+    function redo() {
+      if (!future.length || editing >= 0) return;
+      past.push(snapshot());
+      restore(future.pop());
+    }
+
+    function setCode(next, { flash = true, history = true } = {}) {
+      if (next === code) return;
+      if (history && diffBase === null) record(snapshot());
+      if (flash) {
+        const d = diffTokens(diffBase === null ? code : diffBase, next);
+        const starts = lineStarts(next);
+        marks = d.ranges;
+        flashLines = new Set(d.ranges.map((r) => lineAt(starts, r.start)));
+        clearTimeout(flashTimer);
+        flashTimer = setTimeout(() => {
+          flashLines = new Set();
+          marks = [];
+          render();
+        }, 2600);
+      }
+      const focused = document.activeElement === ta;
+      const s = ta.selectionStart,
+        e = ta.selectionEnd;
+      code = next;
+      ta.value = code;
+      if (focused)
+        ta.setSelectionRange(
+          Math.min(s, code.length),
+          Math.min(e, code.length),
+        );
+      save();
+      resolve();
+      publishIssues(true);
+      render();
+    }
+
+    function diffTokens(a, b) {
+      let p = 0;
+      while (p < a.length && p < b.length && a[p] === b[p]) p++;
+      let s = 0;
+      while (
+        s < a.length - p &&
+        s < b.length - p &&
+        a[a.length - 1 - s] === b[b.length - 1 - s]
+      )
+        s++;
+      let as = p,
+        ae = a.length - s,
+        bs = p,
+        be = b.length - s;
+      const edge = /[\s"<>{}()]/;
+      while (bs > 0 && !edge.test(b[bs - 1])) {
+        bs--;
+        as--;
+      }
+      while (be < b.length && !edge.test(b[be])) {
+        be++;
+        ae++;
+      }
+      const tok = (str, base) => {
+        const out = [];
+        const re = /[^\s"<>{}()]+/g;
+        let m;
+        while ((m = re.exec(str)))
+          out.push({
+            t: m[0],
+            start: base + m.index,
+            end: base + m.index + m[0].length,
+          });
+        return out;
+      };
+      const A = tok(a.slice(as, ae), as),
+        B = tok(b.slice(bs, be), bs);
+      const L = Array.from({ length: A.length + 1 }, () =>
+        new Array(B.length + 1).fill(0),
+      );
+      for (let i = A.length - 1; i >= 0; i--)
+        for (let j = B.length - 1; j >= 0; j--)
+          L[i][j] =
+            A[i].t === B[j].t
+              ? L[i + 1][j + 1] + 1
+              : Math.max(L[i + 1][j], L[i][j + 1]);
+      const added = [],
+        removed = [];
+      let i = 0,
+        j = 0;
+      while (i < A.length && j < B.length) {
+        if (A[i].t === B[j].t) {
+          i++;
+          j++;
+        } else if (L[i + 1][j] >= L[i][j + 1]) removed.push(A[i++]);
+        else added.push(B[j++]);
+      }
+      while (i < A.length) removed.push(A[i++]);
+      while (j < B.length) added.push(B[j++]);
+      const ranges =
+        added.length > 14
+          ? [{ start: bs, end: be }]
+          : added.map((x) => ({ start: x.start, end: x.end }));
+      return { ranges };
+    }
+
+    function withTokens(src, index, updates) {
+      const b = parse(src, []).blocks[index];
+      if (!b) return src;
+      if (!b.cls) {
+        const toks = ORDER.map((c) => updates[c])
+          .filter(Boolean)
+          .join(" ");
+        return (
+          src.slice(0, b.attrStart) +
+          ` className="${toks}"` +
+          src.slice(b.attrStart)
+        );
+      }
+      const toks = b.cls.value.split(/\s+/).filter(Boolean);
+      const rank = (t) => {
+        const r = ORDER.indexOf(category(t));
+        return r < 0 ? 99 : r;
+      };
+      for (const [cat, tok] of Object.entries(updates)) {
+        const at = toks.findIndex((t) => category(t) === cat);
+        if (at >= 0) {
+          if (tok) toks[at] = tok;
+          else toks.splice(at, 1);
+        } else if (tok) {
+          const r = ORDER.indexOf(cat);
+          let ins = toks.findIndex((t) => rank(t) > r);
+          if (ins < 0) ins = toks.length;
+          toks.splice(ins, 0, tok);
+        }
+      }
+      return src.slice(0, b.cls.start) + toks.join(" ") + src.slice(b.cls.end);
+    }
+
+    function setTokens(index, updates) {
+      if (broken()) return;
+      setCode(withTokens(code, index, updates));
+    }
+
+    function indentOf(pos) {
+      const starts = lineStarts(code);
+      const ls = starts[lineAt(starts, pos) - 1];
+      return code.slice(ls, pos).match(/^\s*/)[0];
+    }
+
+    function setLabel(index, text) {
+      const clean =
+        text
+          .replace(/[<>{}]/g, "")
+          .replace(/\s+/g, " ")
+          .trim() || "Button";
+      const b = parsed.blocks[index];
+      if (!b) return;
+      const indent = indentOf(b.start);
+      setCode(
+        code.slice(0, b.childStart) +
+          `\n${indent}  ${clean}\n${indent}` +
+          code.slice(b.childEnd),
+      );
+    }
+
+    function select(i) {
+      selected = i;
+      render();
+    }
+
+    function bindItem(el) {
+      el.addEventListener("pointerdown", (e) => {
+        if (editing >= 0 || e.button !== 0) return;
+        const i = Number(el.dataset.index);
+        const resizing = e.target.classList.contains("handle") && !broken();
+        e.preventDefault();
+        if (selected !== i) select(i);
+        el.focus({ preventScroll: true });
+        const origin = { ...scene[i] };
+        const size = cellsOf(i);
+        const sx = e.clientX,
+          sy = e.clientY;
+        let last = "";
+        const before = snapshot();
+        let recorded = false;
+        el.setPointerCapture(e.pointerId);
+        el.classList.add("dragging");
+        const onMove = (ev) => {
+          const dx = Math.round((ev.clientX - sx) / CELL);
+          const dy = Math.round((ev.clientY - sy) / CELL);
+          const key = dx + "," + dy;
+          if (key === last) return;
+          last = key;
+          if (!recorded) {
+            record(before);
+            recorded = true;
+            diffBase = code;
+          }
+          if (resizing) {
+            setTokens(i, {
+              w: `w-${Math.max(1, size.w + dx) * 6}`,
+              h: `h-${Math.max(1, size.h + dy) * 6}`,
+            });
+          } else {
+            scene[i] = {
+              x: Math.max(1, origin.x + dx),
+              y: Math.max(1, origin.y + dy),
+            };
+            save();
+            render();
+          }
+        };
+        const onUp = () => {
+          diffBase = null;
+          el.classList.remove("dragging");
+          el.removeEventListener("pointermove", onMove);
+          el.removeEventListener("pointerup", onUp);
+          el.removeEventListener("pointercancel", onUp);
+        };
+        el.addEventListener("pointermove", onMove);
+        el.addEventListener("pointerup", onUp);
+        el.addEventListener("pointercancel", onUp);
+      });
+
+      el.addEventListener("dblclick", () => {
+        if (!broken()) startEdit(Number(el.dataset.index));
+      });
+
+      el.addEventListener("keydown", (e) => {
+        const i = Number(el.dataset.index);
+        if (editing === i) return;
+        const step = e.shiftKey ? 4 : 1;
+        const moves = {
+          ArrowLeft: [-step, 0],
+          ArrowRight: [step, 0],
+          ArrowUp: [0, -step],
+          ArrowDown: [0, step],
+        };
+        if (moves[e.key]) {
+          e.preventDefault();
+          const [dx, dy] = moves[e.key];
+          record(snapshot());
+          scene[i] = {
+            x: Math.max(1, scene[i].x + dx),
+            y: Math.max(1, scene[i].y + dy),
+          };
+          save();
+          render();
+        } else if (e.key === "Enter" && !broken()) {
+          e.preventDefault();
+          startEdit(i);
+        } else if ((e.key === "Delete" || e.key === "Backspace") && !broken()) {
+          e.preventDefault();
+          removeItem(i);
+        } else if (e.key === "Escape") {
+          el.blur();
+          select(-1);
+        }
+      });
+
+      el.addEventListener("focus", () => {
+        const i = Number(el.dataset.index);
+        if (selected !== i) select(i);
+      });
+    }
+
+    function startEdit(i) {
+      const el = layer.querySelectorAll(".el")[i];
+      if (!el) return;
+      editing = i;
+      const label = el.querySelector(".label");
+      const before = label.textContent;
+      label.contentEditable = "true";
+      label.focus();
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      let done = false;
+      const finish = (commit) => {
+        if (done) return;
+        done = true;
+        label.contentEditable = "false";
+        label.removeEventListener("keydown", onKey);
+        label.removeEventListener("blur", onBlur);
+        editing = -1;
+        if (commit && label.textContent !== before)
+          setLabel(i, label.textContent);
+        else {
+          label.textContent = before;
+          render();
+        }
+        const again = layer.querySelectorAll(".el")[i];
+        if (again) again.focus({ preventScroll: true });
+      };
+      const onKey = (e) => {
+        e.stopPropagation();
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finish(true);
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          finish(false);
+        }
+      };
+      const onBlur = () => finish(true);
+      label.addEventListener("keydown", onKey);
+      label.addEventListener("blur", onBlur);
+    }
+
+    function removeItem(i) {
+      const b = parsed.blocks[i];
+      if (!b) return;
+      let start = b.comp ? b.comp.start : b.start;
+      let end = b.comp ? b.comp.end : b.end;
+      if (code[end] === "\n") end++;
+      if (code.slice(0, start).endsWith("\n\n")) start--;
+      scene.splice(i, 1);
+      selected = -1;
+      setCode(code.slice(0, start) + code.slice(end));
+    }
+
+    function addItem() {
+      if (broken()) return;
+      const list = items();
+      const n = list.length + 1;
+      const block = [
+        `export function Button${n}() {`,
+        "  return (",
+        '    <button className="h-12 w-54 rounded-md bg-neutral-800 px-4 text-sm font-medium text-neutral-100">',
+        `      Button ${n}`,
+        "    </button>",
+        "  );",
+        "}",
+        "",
+      ].join("\n");
+      if (list.length) {
+        const i = list.length - 1;
+        const c = cellsOf(i);
+        scene[list.length] = { x: scene[i].x, y: scene[i].y + c.h + 2 };
+      } else {
+        scene[0] = { x: 30, y: 4 };
+      }
+      const base = code.length && !code.endsWith("\n") ? code + "\n" : code;
+      const gap = base.trim().length ? "\n" : "";
+      selected = list.length;
+      setCode(base + gap + block);
+    }
+
+    function caretSelect() {
+      const pos = ta.selectionStart;
+      caretLine = lineAt(lineStarts(code), pos);
+      const i = parsed.blocks.findIndex((b) => {
+        const from = b.comp ? b.comp.start : b.start;
+        const to = b.comp ? b.comp.end : b.end;
+        return pos >= from && pos <= to;
+      });
+      if (i >= 0 && !breaking()) selected = i;
+      render();
+    }
+
+    ta.addEventListener("input", () => {
+      const now = Date.now();
+      if (now - typingAt > 900) record(snapshot());
+      typingAt = now;
+      code = ta.value;
+      save();
+      resolve();
+      publishIssues(false);
+      caretSelect();
+      ta.scrollTop = 0;
+      ta.scrollLeft = 0;
+    });
+
+    ta.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end");
+        ta.dispatchEvent(new Event("input"));
+      }
+    });
+
+    ["click", "keyup", "focus"].forEach((ev) =>
+      ta.addEventListener(ev, caretSelect),
+    );
+    ta.addEventListener("blur", () => {
+      caretLine = 0;
+      render();
+    });
+
+    surface.addEventListener("pointerdown", (e) => {
+      if ((e.target === surface || e.target === layer) && selected !== -1)
+        select(-1);
+    });
+
+    scroller.addEventListener("scroll", syncStrips, { passive: true });
+
+    function toHex(c) {
+      if (!c || c === "transparent") return "#ffffff";
+      if (/^#[0-9a-f]{3}$/i.test(c))
+        return (
+          "#" +
+          c
+            .slice(1)
+            .split("")
+            .map((x) => x + x)
+            .join("")
+            .toLowerCase()
+        );
+      return /^#[0-9a-f]{6}/i.test(c) ? c.slice(0, 7).toLowerCase() : "#000000";
+    }
+
+    function hexClass(hex) {
+      if (hex === "#ffffff") return "white";
+      if (hex === "#000000") return "black";
+      for (const [fam, shades] of Object.entries(PALETTE)) {
+        for (const [shade, h] of Object.entries(shades))
+          if (h === hex) return `${fam}-${shade}`;
+      }
+      return `[${hex}]`;
+    }
+
+    function readableOn(hex) {
+      const [r, g, b] = [1, 3, 5].map((i) => {
+        const v = parseInt(hex.slice(i, i + 2), 16) / 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      return lum > 0.4 ? "text-neutral-900" : "text-white";
+    }
+
+    const picker = $("fillPicker");
+    picker.addEventListener("change", () => {
+      diffBase = null;
+    });
+    picker.addEventListener("input", () => {
+      if (selected < 0) return;
+      if (diffBase === null) {
+        record(snapshot());
+        diffBase = code;
+      }
+      const hex = picker.value.toLowerCase();
+      setTokens(selected, {
+        bg: `bg-${hexClass(hex)}`,
+        color: readableOn(hex),
+      });
+    });
+
+    document.querySelectorAll("[data-shape]").forEach((b) => {
+      b.addEventListener("click", () => {
+        if (selected < 0) return;
+        const tok =
+          b.dataset.shape === "square"
+            ? "rounded-none"
+            : b.dataset.shape === "soft"
+              ? "rounded-md"
+              : "rounded-full";
+        setTokens(selected, { rounded: tok });
+      });
+    });
+
+    $("remove").addEventListener("click", () => {
+      if (selected >= 0 && !broken()) removeItem(selected);
+    });
+    $("add").addEventListener("click", addItem);
+    $("undo").addEventListener("click", undo);
+    $("redo").addEventListener("click", redo);
+    window.addEventListener("keydown", (e) => {
+      if (!(e.metaKey || e.ctrlKey) || editing >= 0) return;
+      const k = e.key.toLowerCase();
+      if (k === "z" && e.shiftKey) {
+        e.preventDefault();
+        redo();
+      } else if (k === "z") {
+        e.preventDefault();
+        undo();
+      } else if (k === "y") {
+        e.preventDefault();
+        redo();
+      }
+    });
+
+    $("reset").addEventListener("click", () => {
+      record(snapshot());
+      selected = -1;
+      scene = [{ x: 30, y: 4 }];
+      if (code === SAMPLE) {
+        resolve();
+        publishIssues(true);
+      }
+      setCode(SAMPLE);
+      save();
+      render();
+    });
+
+    window.addEventListener("resize", render);
+
+    function measure() {
+      const probe = document.createElement("span");
+      probe.className = "hl";
+      probe.style.cssText = "position:absolute;visibility:hidden;padding:0";
+      probe.textContent = "0".repeat(40);
+      document.body.appendChild(probe);
+      charW = probe.getBoundingClientRect().width / 40 || charW;
+      probe.remove();
+    }
+
+    ta.value = code;
+    resolve();
+    publishIssues(true);
+    measure();
+    render();
+    if (document.fonts && document.fonts.ready)
+      document.fonts.ready.then(() => {
+        measure();
+        render();
+      });
+  })();
+</script>

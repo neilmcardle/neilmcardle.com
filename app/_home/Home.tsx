@@ -579,6 +579,7 @@ export function Demo() {
 
 export function ExplorationCard({ work }: { work: Work }) {
   if (work.title === "Game Boy") return <GameBoyCard work={work} />;
+  if (work.title === "Record player") return <RecordPlayerCard work={work} />;
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
@@ -679,6 +680,63 @@ function GameBoyCard({ work }: { work: Work }) {
           rel="noopener noreferrer"
         >
           Jig
+        </a>
+      </p>
+    </article>
+  );
+}
+
+function RecordPlayerCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <p className={styles.what}>Put on some neilmcardle.com sounds</p>
+        <GoLink
+          href={work.href}
+          label="Open the record player exploration"
+          caption="Explore"
+        />
+      </div>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
+      <a
+        className={styles.previewLink}
+        href={work.href}
+        aria-label="Open the record player exploration, full screen"
+      >
+        <AutoVideo
+          className={styles.film}
+          src="/home/record-player.mp4"
+          poster="/home/record-player.jpg"
+          aria-label="Opening the record player, putting on an LP and looking inside"
+          muted
+          loop
+          playsInline
+          preload="none"
+        />
+      </a>
+      <p className={styles.caption}>
+        Made with{" "}
+        <a
+          className={styles.handle}
+          href="https://april-zhu.com/colorfigures"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Colorfigures
+        </a>{" "}
+        by{" "}
+        <a
+          className={styles.handle}
+          href="https://x.com/Aprilzz423"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          April Zhu
         </a>
       </p>
     </article>
