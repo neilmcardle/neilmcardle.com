@@ -691,6 +691,8 @@ export function Demo() {
 export function ExplorationCard({ work }: { work: Work }) {
   if (work.title === "Game Boy") return <GameBoyCard work={work} />;
   if (work.title === "Record player") return <RecordPlayerCard work={work} />;
+  if (work.title === "Self-healing checkout")
+    return <CheckoutCard work={work} />;
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
@@ -850,6 +852,45 @@ function RecordPlayerCard({ work }: { work: Work }) {
           April Zhu
         </a>
       </p>
+    </article>
+  );
+}
+
+function CheckoutCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <p className={styles.what}>
+          A self-healing console that spots a broken checkout and ships the fix.
+        </p>
+        <GoLink
+          href={work.href}
+          label="Open the self-healing checkout exploration"
+          caption="Explore"
+        />
+      </div>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
+      <a
+        className={styles.previewLink}
+        href={work.href}
+        aria-label="Open the self-healing checkout exploration, full screen"
+      >
+        <AutoVideo
+          className={`${styles.film} ${styles.filmLight}`}
+          src="/home/self-healing-checkout.mp4"
+          poster="/home/self-healing-checkout.jpg"
+          aria-label="A checkout pay button hidden under the browser toolbar, then the fix being approved and the button sliding into view"
+          muted
+          loop
+          playsInline
+          preload="none"
+        />
+      </a>
     </article>
   );
 }

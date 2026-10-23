@@ -1636,6 +1636,11 @@
   object-fit: cover;
 }
 
+.filmLight {
+  background: #ffffff;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
 .galleryGroup {
   display: grid;
   gap: 16px;

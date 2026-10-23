@@ -120,7 +120,7 @@ export function Mark({ mark }: { mark: OrbitMark }) {
     return (
       <svg
         viewBox="0 0 24 24"
-        fill={mark === "tools" ? "currentColor" : "none"}
+        fill="none"
         stroke="currentColor"
         strokeWidth="1.9"
         strokeLinecap="round"

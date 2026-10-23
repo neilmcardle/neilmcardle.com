@@ -1,0 +1,2334 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0f0f0f" />
+    <title>OptiUX Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root,
+      [data-theme="dark"] {
+        color-scheme: dark;
+        --page-bg: #0f0f0f;
+        --text: #f1f1f1;
+        --text-2: #aaaaaa;
+        --text-3: #717171;
+        --line: rgba(255, 255, 255, 0.1);
+        --raised: rgba(255, 255, 255, 0.05);
+        --pill-bg: rgba(255, 255, 255, 0.1);
+        --pill-hover: rgba(255, 255, 255, 0.2);
+        --pill-active: rgba(255, 255, 255, 0.3);
+        --divider: rgba(255, 255, 255, 0.2);
+        --sheen: rgba(255, 255, 255, 0.1);
+        --glow: rgba(255, 255, 255, 0.05);
+        --focus: #3ea6ff;
+        --primary-bg: #f1f1f1;
+        --primary-hover: #d9d9d9;
+        --primary-fg: #0f0f0f;
+        --bad: #ff4e45;
+        --warn: #f2b01e;
+        --good: #2ba640;
+        --diff-del: rgba(255, 78, 69, 0.14);
+        --diff-add: rgba(43, 166, 64, 0.18);
+        --diff-del-fg: #ff8a83;
+        --diff-add-fg: #7fd88f;
+        --snack-bg: #f1f1f1;
+        --snack-fg: #0f0f0f;
+        --snack-fg-2: #606060;
+      }
+      [data-theme="light"] {
+        color-scheme: light;
+        --page-bg: #ffffff;
+        --text: #0f0f0f;
+        --text-2: #606060;
+        --text-3: #909090;
+        --line: rgba(0, 0, 0, 0.1);
+        --raised: rgba(0, 0, 0, 0.03);
+        --pill-bg: rgba(0, 0, 0, 0.05);
+        --pill-hover: rgba(0, 0, 0, 0.1);
+        --pill-active: rgba(0, 0, 0, 0.15);
+        --divider: rgba(0, 0, 0, 0.1);
+        --sheen: rgba(255, 255, 255, 0.7);
+        --glow: rgba(255, 255, 255, 0.5);
+        --focus: #065fd4;
+        --primary-bg: #0f0f0f;
+        --primary-hover: #272727;
+        --primary-fg: #ffffff;
+        --bad: #cc0000;
+        --warn: #b26a00;
+        --good: #107c2c;
+        --diff-del: rgba(204, 0, 0, 0.08);
+        --diff-add: rgba(16, 124, 44, 0.1);
+        --diff-del-fg: #b00000;
+        --diff-add-fg: #0b6b24;
+        --snack-bg: #0f0f0f;
+        --snack-fg: #f1f1f1;
+        --snack-fg-2: #aaaaaa;
+      }
+
+      :root {
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      }
+      html {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+      }
+      body {
+        background: var(--page-bg);
+        color: var(--text);
+        transition:
+          background-color 200ms ease,
+          color 200ms ease;
+      }
+      button {
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .scroll-thin {
+        overscroll-behavior: contain;
+      }
+      .scroll-thin::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .scroll-thin::-webkit-scrollbar-thumb {
+        background: var(--pill-hover);
+        border-radius: 4px;
+      }
+      .scroll-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      code.inline {
+        font-family: "Roboto Mono", monospace;
+        font-size: 12px;
+        padding: 1px 5px;
+        border-radius: 4px;
+        background: var(--pill-bg);
+        color: var(--text);
+      }
+
+      .sheen {
+        position: relative;
+        isolation: isolate;
+      }
+      .sheen::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: -1;
+        background:
+          radial-gradient(
+            ellipse 70% 60% at 50% 0%,
+            var(--glow),
+            transparent 100%
+          ),
+          linear-gradient(to bottom, var(--sheen), transparent 75%);
+      }
+
+      .btn {
+        all: unset;
+        box-sizing: border-box;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 36px;
+        padding: 0 16px;
+        border-radius: 18px;
+        font:
+          500 14px/36px Roboto,
+          Arial,
+          sans-serif;
+        transition:
+          background-color 150ms ease,
+          transform 160ms var(--ease-out);
+      }
+      .btn:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .btn:not(:disabled):active {
+        transform: scale(0.97);
+      }
+      .btn:disabled {
+        cursor: default;
+      }
+      .btn-lg {
+        height: 40px;
+        border-radius: 20px;
+        line-height: 40px;
+      }
+      .btn-tonal {
+        background: var(--pill-bg);
+        color: var(--text);
+      }
+      .btn-primary {
+        background: var(--primary-bg);
+        color: var(--primary-fg);
+      }
+      @media (hover: hover) {
+        .btn-tonal:not(:disabled):hover {
+          background: var(--pill-hover);
+        }
+        .btn-primary:not(:disabled):hover {
+          background: var(--primary-hover);
+        }
+      }
+      .btn-tonal:not(:disabled):active {
+        background: var(--pill-active);
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 24px;
+        padding: 0 10px;
+        border-radius: 12px;
+        background: var(--pill-bg);
+        color: var(--text);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .seg {
+        display: inline-flex;
+        align-items: center;
+        height: 36px;
+        border-radius: 18px;
+        background: var(--pill-bg);
+      }
+      .seg button {
+        all: unset;
+        box-sizing: border-box;
+        position: relative;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 14px;
+        font:
+          500 14px/36px Roboto,
+          Arial,
+          sans-serif;
+        color: var(--text);
+        transition: background-color 150ms ease;
+      }
+      .seg button:first-child {
+        border-radius: 18px 0 0 18px;
+      }
+      .seg button:last-child {
+        border-radius: 0 18px 18px 0;
+      }
+
+      .seg button + button::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: var(--divider);
+      }
+      @media (hover: hover) {
+        .seg button:hover {
+          background: var(--pill-hover);
+        }
+      }
+      .seg button:active {
+        background: var(--pill-active);
+      }
+      .seg button:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+      .seg-sm {
+        height: 32px;
+        border-radius: 16px;
+      }
+      .seg-sm button {
+        height: 32px;
+        line-height: 32px;
+        padding: 0 12px;
+        font-size: 13px;
+      }
+      .seg-sm button:first-child {
+        border-radius: 16px 0 0 16px;
+      }
+      .seg-sm button:last-child {
+        border-radius: 0 16px 16px 0;
+      }
+      .seg-text button[aria-pressed="true"] {
+        background: var(--pill-hover);
+      }
+
+      .icon {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        flex: none;
+      }
+      .icon svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        fill: currentColor;
+      }
+      .thumb-up .icon svg {
+        transform: rotate(180deg);
+      }
+      .icon .ic-filled {
+        opacity: 0;
+      }
+      [aria-pressed="true"] .icon .ic-filled {
+        opacity: 1;
+      }
+      [aria-pressed="true"] .icon .ic-outline {
+        opacity: 0;
+      }
+      [aria-pressed="true"] .icon {
+        animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(1);
+        }
+        40% {
+          transform: scale(0.8) rotate(-12deg);
+        }
+        100% {
+          transform: scale(1) rotate(0);
+        }
+      }
+
+      .device {
+        width: 300px;
+        padding: 10px;
+        border-radius: 44px;
+        background: #1f1f1f;
+        border: 1px solid var(--line);
+        box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.6);
+      }
+      .screen {
+        position: relative;
+        height: 580px;
+        border-radius: 34px;
+        overflow: hidden;
+        background: #fafafa;
+        color: #18181b;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, sans-serif;
+      }
+      .statusbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 36px;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 22px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #fafafa;
+      }
+      .notch {
+        position: absolute;
+        left: 50%;
+        top: 8px;
+        width: 84px;
+        height: 22px;
+        transform: translateX(-50%);
+        background: #000;
+        border-radius: 12px;
+      }
+      .viewport {
+        position: absolute;
+        top: 36px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .spacer {
+        flex: 1 0 8px;
+      }
+
+      .browser-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 64px;
+        z-index: 55;
+        background: rgba(244, 244, 245, 0.94);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #d4d4d8;
+        padding: 7px 12px 0;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .browser-url {
+        height: 26px;
+        border-radius: 8px;
+        background: #e4e4e7;
+        font-size: 11px;
+        color: #3f3f46;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .browser-nav {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 10px 0;
+        font-size: 13px;
+        color: #2563eb;
+      }
+      .home-ind {
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 96px;
+        height: 4px;
+        border-radius: 2px;
+        background: #18181b;
+      }
+
+      .cta-wrap {
+        position: relative;
+        padding: 0 14px 38px;
+      }
+      .pay-btn {
+        width: 100%;
+        height: 48px;
+        border-radius: 12px;
+        border: 0;
+        cursor: pointer;
+        background: #18181b;
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition:
+          background-color 300ms ease,
+          transform 160ms var(--ease-out);
+      }
+      .pay-btn:active {
+        transform: scale(0.97);
+      }
+
+      .is-fixed .viewport {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      .is-fixed .viewport::-webkit-scrollbar {
+        width: 0;
+      }
+      .is-fixed .cta-wrap {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        padding: 12px 14px 76px;
+        background: linear-gradient(
+          to bottom,
+          rgba(250, 250, 250, 0),
+          #fafafa 22%
+        );
+      }
+      .is-fixed .pay-btn {
+        background: #16a34a;
+      }
+
+      .clip-badge {
+        position: absolute;
+        right: 10px;
+        bottom: 74px;
+        z-index: 70;
+        font:
+          500 12px/1 Roboto,
+          Arial,
+          sans-serif;
+        color: #fff;
+        background: #cc0000;
+        padding: 6px 10px;
+        border-radius: 12px;
+        transform-origin: 85% 100%;
+        transition:
+          opacity 150ms var(--ease-out),
+          transform 150ms var(--ease-out);
+      }
+      .clip-badge::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        right: 18px;
+        width: 8px;
+        height: 8px;
+        background: #cc0000;
+        transform: rotate(45deg);
+      }
+      .clip-badge.gone {
+        opacity: 0;
+        transform: scale(0.95);
+        pointer-events: none;
+      }
+
+      .f-label {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: #71717a;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+        display: block;
+      }
+      .f-input {
+        width: 100%;
+        height: 36px;
+        border-radius: 9px;
+        border: 1px solid #d4d4d8;
+        background: #fff;
+        padding: 0 10px;
+        font-size: 13px;
+        color: #18181b;
+        outline: none;
+      }
+      .f-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+
+      @media (pointer: coarse) {
+        .f-input {
+          font-size: 16px;
+        }
+      }
+
+      .tap-ripple {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        margin: -15px 0 0 -15px;
+        border-radius: 50%;
+        border: 2px solid #ef4444;
+        z-index: 80;
+        pointer-events: none;
+        animation: ripple 450ms var(--ease-out) forwards;
+      }
+      @keyframes ripple {
+        from {
+          transform: scale(0.5);
+          opacity: 1;
+        }
+        to {
+          transform: scale(1.8);
+          opacity: 0;
+        }
+      }
+
+      .diff-line {
+        display: block;
+        padding: 0 12px;
+        white-space: pre;
+      }
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--pill-hover);
+        border-top-color: var(--text);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .pulse-dot {
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-3);
+        transition: color 200ms ease;
+      }
+      .step-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--pill-hover);
+        transition: background-color 200ms ease;
+      }
+      .step.is-run {
+        color: var(--text);
+      }
+      .step.is-run .step-dot {
+        background: var(--warn);
+      }
+      .step.is-done {
+        color: var(--text-2);
+      }
+      .step.is-done .step-dot {
+        background: var(--good);
+      }
+
+      .btn-label-in {
+        animation: labelIn 200ms var(--ease-out);
+      }
+      @keyframes labelIn {
+        from {
+          opacity: 0;
+          filter: blur(2px);
+          transform: translateY(3px);
+        }
+      }
+
+      .toast {
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition:
+          opacity 150ms var(--ease-out),
+          transform 150ms var(--ease-out);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+        transition-duration: 300ms;
+      }
+
+      #feed > article {
+        animation: rise 300ms var(--ease-out) both;
+      }
+      #feed > article:nth-child(2) {
+        animation-delay: 40ms;
+      }
+      #feed > article:nth-child(3) {
+        animation-delay: 80ms;
+      }
+      #feed > article:nth-child(4) {
+        animation-delay: 120ms;
+      }
+      #feed > article:nth-child(5) {
+        animation-delay: 160ms;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+      }
+      #log > div {
+        animation: fade 200ms var(--ease-out);
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pulse-dot,
+        [aria-pressed="true"] .icon {
+          animation: none;
+        }
+        #feed > article,
+        .btn-label-in {
+          animation: fade 200ms ease;
+        }
+        .tap-ripple {
+          animation: fade 300ms ease reverse forwards;
+        }
+        .toast,
+        .toast.show,
+        .clip-badge.gone {
+          transform: none;
+        }
+        .spinner {
+          animation-duration: 1.5s;
+        }
+      }
+    </style>
+    <style>
+      *,
+      :after,
+      :before {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgba(59, 130, 246, 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      }
+      ::backdrop {
+        --tw-border-spacing-x: 0;
+        --tw-border-spacing-y: 0;
+        --tw-translate-x: 0;
+        --tw-translate-y: 0;
+        --tw-rotate: 0;
+        --tw-skew-x: 0;
+        --tw-skew-y: 0;
+        --tw-scale-x: 1;
+        --tw-scale-y: 1;
+        --tw-pan-x: ;
+        --tw-pan-y: ;
+        --tw-pinch-zoom: ;
+        --tw-scroll-snap-strictness: proximity;
+        --tw-gradient-from-position: ;
+        --tw-gradient-via-position: ;
+        --tw-gradient-to-position: ;
+        --tw-ordinal: ;
+        --tw-slashed-zero: ;
+        --tw-numeric-figure: ;
+        --tw-numeric-spacing: ;
+        --tw-numeric-fraction: ;
+        --tw-ring-inset: ;
+        --tw-ring-offset-width: 0px;
+        --tw-ring-offset-color: #fff;
+        --tw-ring-color: rgba(59, 130, 246, 0.5);
+        --tw-ring-offset-shadow: 0 0 #0000;
+        --tw-ring-shadow: 0 0 #0000;
+        --tw-shadow: 0 0 #0000;
+        --tw-shadow-colored: 0 0 #0000;
+        --tw-blur: ;
+        --tw-brightness: ;
+        --tw-contrast: ;
+        --tw-grayscale: ;
+        --tw-hue-rotate: ;
+        --tw-invert: ;
+        --tw-saturate: ;
+        --tw-sepia: ;
+        --tw-drop-shadow: ;
+        --tw-backdrop-blur: ;
+        --tw-backdrop-brightness: ;
+        --tw-backdrop-contrast: ;
+        --tw-backdrop-grayscale: ;
+        --tw-backdrop-hue-rotate: ;
+        --tw-backdrop-invert: ;
+        --tw-backdrop-opacity: ;
+        --tw-backdrop-saturate: ;
+        --tw-backdrop-sepia: ;
+        --tw-contain-size: ;
+        --tw-contain-layout: ;
+        --tw-contain-paint: ;
+        --tw-contain-style: ;
+      } /*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/
+      *,
+      :after,
+      :before {
+        box-sizing: border-box;
+        border: 0 solid #e5e7eb;
+      }
+      :after,
+      :before {
+        --tw-content: "";
+      }
+      :host,
+      html {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        font-family: Roboto, Arial, sans-serif;
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        line-height: inherit;
+      }
+      hr {
+        height: 0;
+        color: inherit;
+        border-top-width: 1px;
+      }
+      abbr:where([title]) {
+        -webkit-text-decoration: underline dotted;
+        text-decoration: underline dotted;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-size: inherit;
+        font-weight: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: inherit;
+      }
+      b,
+      strong {
+        font-weight: bolder;
+      }
+      code,
+      kbd,
+      pre,
+      samp {
+        font-family:
+          Roboto Mono,
+          ui-monospace,
+          Menlo,
+          monospace;
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        font-size: 1em;
+      }
+      small {
+        font-size: 80%;
+      }
+      sub,
+      sup {
+        font-size: 75%;
+        line-height: 0;
+        position: relative;
+        vertical-align: baseline;
+      }
+      sub {
+        bottom: -0.25em;
+      }
+      sup {
+        top: -0.5em;
+      }
+      table {
+        text-indent: 0;
+        border-color: inherit;
+        border-collapse: collapse;
+      }
+      button,
+      input,
+      optgroup,
+      select,
+      textarea {
+        font-family: inherit;
+        font-feature-settings: inherit;
+        font-variation-settings: inherit;
+        font-size: 100%;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        color: inherit;
+        margin: 0;
+        padding: 0;
+      }
+      button,
+      select {
+        text-transform: none;
+      }
+      button,
+      input:where([type="button"]),
+      input:where([type="reset"]),
+      input:where([type="submit"]) {
+        -webkit-appearance: button;
+        background-color: transparent;
+        background-image: none;
+      }
+      :-moz-focusring {
+        outline: auto;
+      }
+      :-moz-ui-invalid {
+        box-shadow: none;
+      }
+      progress {
+        vertical-align: baseline;
+      }
+      ::-webkit-inner-spin-button,
+      ::-webkit-outer-spin-button {
+        height: auto;
+      }
+      [type="search"] {
+        -webkit-appearance: textfield;
+        outline-offset: -2px;
+      }
+      ::-webkit-search-decoration {
+        -webkit-appearance: none;
+      }
+      ::-webkit-file-upload-button {
+        -webkit-appearance: button;
+        font: inherit;
+      }
+      summary {
+        display: list-item;
+      }
+      blockquote,
+      dd,
+      dl,
+      figure,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      hr,
+      p,
+      pre {
+        margin: 0;
+      }
+      fieldset {
+        margin: 0;
+      }
+      fieldset,
+      legend {
+        padding: 0;
+      }
+      menu,
+      ol,
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      dialog {
+        padding: 0;
+      }
+      textarea {
+        resize: vertical;
+      }
+      input::-moz-placeholder,
+      textarea::-moz-placeholder {
+        opacity: 1;
+        color: #9ca3af;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        opacity: 1;
+        color: #9ca3af;
+      }
+      [role="button"],
+      button {
+        cursor: pointer;
+      }
+      :disabled {
+        cursor: default;
+      }
+      audio,
+      canvas,
+      embed,
+      iframe,
+      img,
+      object,
+      svg,
+      video {
+        display: block;
+        vertical-align: middle;
+      }
+      img,
+      video {
+        max-width: 100%;
+        height: auto;
+      }
+      [hidden]:where(:not([hidden="until-found"])) {
+        display: none;
+      }
+      .container {
+        width: 100%;
+      }
+      @media (min-width: 640px) {
+        .container {
+          max-width: 640px;
+        }
+      }
+      @media (min-width: 768px) {
+        .container {
+          max-width: 768px;
+        }
+      }
+      @media (min-width: 1024px) {
+        .container {
+          max-width: 1024px;
+        }
+      }
+      @media (min-width: 1280px) {
+        .container {
+          max-width: 1280px;
+        }
+      }
+      @media (min-width: 1536px) {
+        .container {
+          max-width: 1536px;
+        }
+      }
+      .pointer-events-none {
+        pointer-events: none;
+      }
+      .fixed {
+        position: fixed;
+      }
+      .absolute {
+        position: absolute;
+      }
+      .relative {
+        position: relative;
+      }
+      .sticky {
+        position: sticky;
+      }
+      .left-0 {
+        left: 0;
+      }
+      .right-0 {
+        right: 0;
+      }
+      .isolate {
+        isolation: isolate;
+      }
+      .z-\[100\] {
+        z-index: 100;
+      }
+      .ml-auto {
+        margin-left: auto;
+      }
+      .mt-0\.5 {
+        margin-top: 0.125rem;
+      }
+      .mt-1 {
+        margin-top: 0.25rem;
+      }
+      .mt-2 {
+        margin-top: 0.5rem;
+      }
+      .mt-3 {
+        margin-top: 0.75rem;
+      }
+      .mt-4 {
+        margin-top: 1rem;
+      }
+      .block {
+        display: block;
+      }
+      .inline {
+        display: inline;
+      }
+      .flex {
+        display: flex;
+      }
+      .inline-flex {
+        display: inline-flex;
+      }
+      .grid {
+        display: grid;
+      }
+      .contents {
+        display: contents;
+      }
+      .hidden {
+        display: none;
+      }
+      .h-1\.5 {
+        height: 0.375rem;
+      }
+      .h-12 {
+        height: 3rem;
+      }
+      .h-2 {
+        height: 0.5rem;
+      }
+      .h-9 {
+        height: 2.25rem;
+      }
+      .max-h-48 {
+        max-height: 12rem;
+      }
+      .max-h-\[480px\] {
+        max-height: 480px;
+      }
+      .min-h-0 {
+        min-height: 0;
+      }
+      .min-h-\[100dvh\] {
+        min-height: 100dvh;
+      }
+      .min-h-full {
+        min-height: 100%;
+      }
+      .w-1\.5 {
+        width: 0.375rem;
+      }
+      .w-2 {
+        width: 0.5rem;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .min-w-0 {
+        min-width: 0;
+      }
+      .flex-1 {
+        flex: 1 1 0%;
+      }
+      .shrink {
+        flex-shrink: 1;
+      }
+      .shrink-0 {
+        flex-shrink: 0;
+      }
+      .transform {
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+          rotate(var(--tw-rotate)) skewX(var(--tw-skew-x))
+          skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x))
+          scaleY(var(--tw-scale-y));
+      }
+      .cursor-pointer {
+        cursor: pointer;
+      }
+      .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .grid-cols-\[1fr_auto\] {
+        grid-template-columns: 1fr auto;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      .items-start {
+        align-items: flex-start;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .items-baseline {
+        align-items: baseline;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      .gap-2\.5 {
+        gap: 0.625rem;
+      }
+      .gap-3 {
+        gap: 0.75rem;
+      }
+      .gap-8 {
+        gap: 2rem;
+      }
+      .gap-y-1\.5 {
+        row-gap: 0.375rem;
+      }
+      .space-y-0\.5 > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(0.125rem * (1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.125rem * var(--tw-space-y-reverse));
+      }
+      .space-y-1 > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(0.25rem * (1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
+      }
+      .space-y-2\.5 > :not([hidden]) ~ :not([hidden]) {
+        --tw-space-y-reverse: 0;
+        margin-top: calc(0.625rem * (1 - var(--tw-space-y-reverse)));
+        margin-bottom: calc(0.625rem * var(--tw-space-y-reverse));
+      }
+      .overflow-auto {
+        overflow: auto;
+      }
+      .overflow-x-auto {
+        overflow-x: auto;
+      }
+      .overflow-y-auto {
+        overflow-y: auto;
+      }
+      .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .rounded-full {
+        border-radius: 9999px;
+      }
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      .rounded-xl {
+        border-radius: 0.75rem;
+      }
+      .border {
+        border-width: 1px;
+      }
+      .border-b {
+        border-bottom-width: 1px;
+      }
+      .border-t {
+        border-top-width: 1px;
+      }
+      .border-line {
+        border-color: var(--line);
+      }
+      .bg-bad {
+        background-color: var(--bad);
+      }
+      .bg-fg3 {
+        background-color: var(--text-3);
+      }
+      .bg-good {
+        background-color: var(--good);
+      }
+      .bg-raised {
+        background-color: var(--raised);
+      }
+      .bg-warn {
+        background-color: var(--warn);
+      }
+      .p-3 {
+        padding: 0.75rem;
+      }
+      .px-2 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+      }
+      .px-3 {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+      .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+      .py-2\.5 {
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
+      }
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .py-4 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .pb-3 {
+        padding-bottom: 0.75rem;
+      }
+      .pb-4 {
+        padding-bottom: 1rem;
+      }
+      .pb-8 {
+        padding-bottom: 2rem;
+      }
+      .pl-4 {
+        padding-left: 1rem;
+      }
+      .pr-2 {
+        padding-right: 0.5rem;
+      }
+      .pt-2 {
+        padding-top: 0.5rem;
+      }
+      .pt-3 {
+        padding-top: 0.75rem;
+      }
+      .pt-4 {
+        padding-top: 1rem;
+      }
+      .font-mono {
+        font-family:
+          Roboto Mono,
+          ui-monospace,
+          Menlo,
+          monospace;
+      }
+      .font-sans {
+        font-family: Roboto, Arial, sans-serif;
+      }
+      .text-\[12px\] {
+        font-size: 12px;
+      }
+      .text-\[13px\] {
+        font-size: 13px;
+      }
+      .text-\[14px\] {
+        font-size: 14px;
+      }
+      .text-\[16px\] {
+        font-size: 16px;
+      }
+      .text-\[18px\] {
+        font-size: 18px;
+      }
+      .text-\[24px\] {
+        font-size: 24px;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .font-normal {
+        font-weight: 400;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .tabular-nums {
+        --tw-numeric-spacing: tabular-nums;
+        font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero)
+          var(--tw-numeric-figure) var(--tw-numeric-spacing)
+          var(--tw-numeric-fraction);
+      }
+      .leading-\[1\.75\] {
+        line-height: 1.75;
+      }
+      .leading-relaxed {
+        line-height: 1.625;
+      }
+      .leading-snug {
+        line-height: 1.375;
+      }
+      .leading-tight {
+        line-height: 1.25;
+      }
+      .tracking-tight {
+        letter-spacing: -0.025em;
+      }
+      .text-bad {
+        color: var(--bad);
+      }
+      .text-fg {
+        color: var(--text);
+      }
+      .text-fg2 {
+        color: var(--text-2);
+      }
+      .text-fg3 {
+        color: var(--text-3);
+      }
+      .text-good {
+        color: var(--good);
+      }
+      .antialiased {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .shadow-xl {
+        --tw-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        --tw-shadow-colored:
+          0 20px 25px -5px var(--tw-shadow-color),
+          0 8px 10px -6px var(--tw-shadow-color);
+        box-shadow:
+          var(--tw-ring-offset-shadow, 0 0 #0000),
+          var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+      }
+      .shadow-black\/30 {
+        --tw-shadow-color: rgba(0, 0, 0, 0.3);
+        --tw-shadow: var(--tw-shadow-colored);
+      }
+      .outline {
+        outline-style: solid;
+      }
+      .blur {
+        --tw-blur: blur(8px);
+      }
+      .blur,
+      .filter {
+        filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast)
+          var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert)
+          var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+      }
+      .backdrop-filter {
+        backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness)
+          var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale)
+          var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert)
+          var(--tw-backdrop-opacity) var(--tw-backdrop-saturate)
+          var(--tw-backdrop-sepia);
+      }
+      .transition {
+        transition-property:
+          color, background-color, border-color, text-decoration-color, fill,
+          stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 0.15s;
+      }
+      .transition-colors {
+        transition-property:
+          color, background-color, border-color, text-decoration-color, fill,
+          stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 0.15s;
+      }
+      .ease-in-out {
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .hover\:bg-pill:hover {
+          background-color: var(--pill-bg);
+        }
+      }
+      @media (min-width: 640px) {
+        .sm\:right-auto {
+          right: auto;
+        }
+        .sm\:inline {
+          display: inline;
+        }
+        .sm\:inline-flex {
+          display: inline-flex;
+        }
+        .sm\:w-auto {
+          width: auto;
+        }
+        .sm\:whitespace-nowrap {
+          white-space: nowrap;
+        }
+      }
+      @media (min-width: 768px) {
+        .md\:inline {
+          display: inline;
+        }
+      }
+      @media (min-width: 1024px) {
+        .lg\:h-\[100dvh\] {
+          height: 100dvh;
+        }
+        .lg\:max-h-none {
+          max-height: none;
+        }
+        .lg\:grid-cols-\[320px_minmax\(0\2c 1fr\)_340px\] {
+          grid-template-columns: 320px minmax(0, 1fr) 340px;
+        }
+        .lg\:border-b-0 {
+          border-bottom-width: 0;
+        }
+        .lg\:border-l {
+          border-left-width: 1px;
+        }
+        .lg\:border-r {
+          border-right-width: 1px;
+        }
+        .lg\:border-t-0 {
+          border-top-width: 0;
+        }
+      }
+      @media (min-width: 1280px) {
+        .xl\:gap-14 {
+          gap: 3.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="font-sans text-[14px] antialiased min-h-[100dvh] lg:h-[100dvh] flex flex-col"
+  >
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <path
+          id="thumb-outline"
+          d="m11.31 2 .392.007c1.824.06 3.61.534 5.223 1.388l.343.189.27.154c.264.152.56.24.863.26l.13.004H20.5a1.5 1.5 0 011.5 1.5V11.5a1.5 1.5 0 01-1.5 1.5h-1.79l-.158.013a1 1 0 00-.723.512l-.064.145-2.987 8.535a1 1 0 01-1.109.656l-1.04-.174a4 4 0 01-3.251-4.783L10 15H5.938a3.664 3.664 0 01-3.576-2.868A3.682 3.682 0 013 9.15l-.02-.088A3.816 3.816 0 014 5.5v-.043l.008-.227a2.86 2.86 0 01.136-.664l.107-.28A3.754 3.754 0 017.705 2h3.605ZM7.705 4c-.755 0-1.425.483-1.663 1.2l-.032.126a.818.818 0 00-.01.131v.872l-.587.586a1.816 1.816 0 00-.524 1.465l.038.23.02.087.21.9-.55.744a1.686 1.686 0 00-.321 1.18l.029.177c.17.76.844 1.302 1.623 1.302H10a2.002 2.002 0 011.956 2.419l-.623 2.904-.034.208a2.002 2.002 0 001.454 2.139l.206.045.21.035 2.708-7.741A3.001 3.001 0 0118.71 11H20V6.002h-1.47c-.696 0-1.38-.183-1.985-.528l-.27-.155-.285-.157A10.002 10.002 0 0011.31 4H7.705Z"
+        />
+        <path
+          id="thumb-filled"
+          d="m11.31 2 .392.007c1.824.06 3.61.534 5.223 1.388l.343.189.27.154c.264.152.56.24.863.26l.13.004H20.5a1.5 1.5 0 011.5 1.5V11.5a1.5 1.5 0 01-1.5 1.5h-1.79l-.158.013a1 1 0 00-.723.512l-.064.145-2.987 8.535a1 1 0 01-1.109.656l-1.04-.174a4 4 0 01-3.251-4.783L10 15H5.938a3.664 3.664 0 01-3.576-2.868A3.682 3.682 0 013 9.15l-.02-.088A3.816 3.816 0 014 5.5v-.043l.008-.227a2.86 2.86 0 01.136-.664l.107-.28A3.754 3.754 0 017.705 2h3.605Z"
+        />
+      </defs>
+    </svg>
+
+    <header
+      class="shrink-0 border-b border-line flex items-center justify-between px-4 gap-3"
+      style="
+        padding-top: env(safe-area-inset-top, 0px);
+        height: calc(3.5rem + env(safe-area-inset-top, 0px));
+      "
+    >
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="text-[18px] font-bold tracking-tight">OptiUX</span>
+        <span class="hidden sm:inline text-fg3">/</span>
+        <span class="hidden sm:inline text-fg2 truncate">acme-storefront</span>
+        <span class="hidden sm:inline-flex chip">production</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span
+          id="buildTag"
+          class="hidden md:inline font-mono text-[12px] text-fg2"
+          >v1.0.4</span
+        >
+        <span class="chip"
+          ><span class="w-1.5 h-1.5 rounded-full bg-good pulse-dot"></span
+          >Live</span
+        >
+        <div class="seg seg-sm seg-text sheen" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="dark" aria-pressed="true">
+            Dark
+          </button>
+          <button type="button" data-theme-set="light" aria-pressed="false">
+            Light
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_340px]"
+    >
+      <aside
+        class="border-b lg:border-b-0 lg:border-r border-line flex flex-col min-h-0"
+      >
+        <div class="px-4 h-12 shrink-0 flex items-center justify-between">
+          <h2 class="text-[16px] font-medium">Friction feed</h2>
+          <span id="alertCount" class="chip">4 open</span>
+        </div>
+        <div
+          id="feed"
+          class="flex-1 overflow-y-auto scroll-thin px-2 pb-3 space-y-1 lg:max-h-none max-h-[480px]"
+        >
+          <article id="critCard" class="rounded-xl bg-raised p-3">
+            <div class="flex items-baseline gap-2">
+              <span
+                id="critDot"
+                class="w-2 h-2 shrink-0 rounded-full bg-bad"
+              ></span>
+              <h3 class="font-medium leading-snug">Mobile checkout drop-off</h3>
+              <span
+                id="critDelta"
+                class="ml-auto font-mono text-[13px] text-bad tabular-nums"
+                >+24.2%</span
+              >
+            </div>
+            <p class="mt-1 pl-4 text-[12px] text-fg2">
+              /checkout · iOS Safari · &lt;420px ·
+              <span id="critAge">6m ago</span>
+            </p>
+
+            <dl class="mt-3 pl-4 grid grid-cols-3 gap-2 text-[12px]">
+              <div>
+                <dt class="text-fg2">Sessions</dt>
+                <dd class="font-mono tabular-nums">3,912</dd>
+              </div>
+              <div>
+                <dt class="text-fg2">Dead taps</dt>
+                <dd id="deadTaps" class="font-mono tabular-nums">1,187</dd>
+              </div>
+              <div>
+                <dt class="text-fg2">Revenue/hr</dt>
+                <dd class="font-mono tabular-nums">−$4.1k</dd>
+              </div>
+            </dl>
+
+            <div class="mt-3 pt-3 pl-4 border-t border-line">
+              <h4 class="text-[12px] font-medium text-fg2">Root cause</h4>
+              <p class="mt-1 text-[13px] leading-relaxed">
+                <code class="inline">.checkout-cta</code> uses
+                <code class="inline">position: relative</code> inside a
+                <code class="inline">100vh</code> container with
+                <code class="inline">overflow: hidden</code>. On screens under
+                420px the browser's bottom toolbar covers about 70% of the pay
+                button.
+              </p>
+              <ul class="mt-2 space-y-0.5 text-[12px] text-fg2">
+                <li>
+                  Introduced in v1.0.4 · <span class="font-mono">a3f9c1e</span>
+                </li>
+                <li>Desktop and tablet unaffected</li>
+                <li>
+                  Follow-up: use <span class="font-mono">100dvh</span> for the
+                  shell
+                </li>
+              </ul>
+              <div class="mt-3 flex items-center gap-3">
+                <div
+                  class="seg seg-sm sheen"
+                  role="group"
+                  aria-label="Rate this diagnosis"
+                  data-likes="12"
+                >
+                  <button class="thumb-up" type="button" aria-pressed="false">
+                    <span class="icon" aria-hidden="true">
+                      <svg class="ic-outline" viewBox="0 0 24 24">
+                        <use href="#thumb-outline" />
+                      </svg>
+                      <svg class="ic-filled" viewBox="0 0 24 24">
+                        <use href="#thumb-filled" />
+                      </svg>
+                    </span>
+                    <span class="count tabular-nums"></span>
+                  </button>
+                  <button
+                    class="thumb-down"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="Diagnosis is wrong"
+                  >
+                    <span class="icon" aria-hidden="true">
+                      <svg class="ic-outline" viewBox="0 0 24 24">
+                        <use href="#thumb-outline" />
+                      </svg>
+                      <svg class="ic-filled" viewBox="0 0 24 24">
+                        <use href="#thumb-filled" />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+                <span class="text-[12px] text-fg3"
+                  >Is this diagnosis right?</span
+                >
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="rounded-xl px-3 py-2.5 hover:bg-pill transition-colors cursor-pointer"
+          >
+            <div class="flex items-baseline gap-2">
+              <span class="w-2 h-2 shrink-0 rounded-full bg-warn"></span>
+              <h3>Search filter rage-clicks</h3>
+              <span class="ml-auto font-mono text-[13px] text-fg2 tabular-nums"
+                >+9.7%</span
+              >
+            </div>
+            <p class="mt-0.5 pl-4 text-[12px] text-fg2">
+              /search · Chrome Android · 14m ago
+            </p>
+          </article>
+          <article
+            class="rounded-xl px-3 py-2.5 hover:bg-pill transition-colors cursor-pointer"
+          >
+            <div class="flex items-baseline gap-2">
+              <span class="w-2 h-2 shrink-0 rounded-full bg-warn"></span>
+              <h3>Product image layout shift</h3>
+              <span class="ml-auto font-mono text-[13px] text-fg2 tabular-nums"
+                >CLS 0.31</span
+              >
+            </div>
+            <p class="mt-0.5 pl-4 text-[12px] text-fg2">
+              /p/* · all devices · 38m ago
+            </p>
+          </article>
+          <article
+            class="rounded-xl px-3 py-2.5 hover:bg-pill transition-colors cursor-pointer"
+          >
+            <div class="flex items-baseline gap-2">
+              <span class="w-2 h-2 shrink-0 rounded-full bg-fg3"></span>
+              <h3>Promo code validation loop</h3>
+              <span class="ml-auto font-mono text-[13px] text-fg2 tabular-nums"
+                >+3.1%</span
+              >
+            </div>
+            <p class="mt-0.5 pl-4 text-[12px] text-fg2">
+              /cart · Safari macOS · 1h ago
+            </p>
+          </article>
+          <article class="rounded-xl px-3 py-2.5 text-fg3">
+            <div class="flex items-baseline gap-2">
+              <span class="w-2 h-2 shrink-0 rounded-full bg-good"></span>
+              <h3>Nav menu tap targets</h3>
+              <span class="ml-auto text-[12px]">Fixed</span>
+            </div>
+            <p class="mt-0.5 pl-4 text-[12px]">v1.0.3 · 2d ago</p>
+          </article>
+        </div>
+      </aside>
+
+      <section class="min-h-0 flex flex-col">
+        <div class="px-4 h-12 shrink-0 flex items-center justify-between gap-3">
+          <h2 class="text-[16px] font-medium">Live vs. proposed</h2>
+          <span class="chip font-mono font-normal">390 × 844 · iOS 18</span>
+        </div>
+        <div class="flex-1 overflow-auto scroll-thin">
+          <div
+            class="min-h-full flex flex-wrap items-start justify-center gap-8 xl:gap-14 px-4 pt-2 pb-8"
+          >
+            <figure class="flex flex-col items-center gap-3">
+              <figcaption class="flex items-center gap-2">
+                <span id="liveDot" class="w-2 h-2 rounded-full bg-bad"></span>
+                <span class="font-medium">Live</span>
+                <span id="liveBuild" class="font-mono text-[12px] text-fg2"
+                  >v1.0.4</span
+                >
+              </figcaption>
+              <div id="devLive" class="device is-buggy">
+                <div class="screen" data-device="live"></div>
+              </div>
+            </figure>
+
+            <figure class="flex flex-col items-center gap-3">
+              <figcaption class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-good"></span>
+                <span class="font-medium">Proposed</span>
+                <span class="font-mono text-[12px] text-fg2"
+                  >fix/cta-sticky</span
+                >
+              </figcaption>
+              <div id="devFix" class="device is-fixed">
+                <div class="screen" data-device="fix"></div>
+              </div>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <aside
+        class="border-t lg:border-t-0 lg:border-l border-line flex flex-col min-h-0"
+      >
+        <div class="px-4 h-12 shrink-0 flex items-center">
+          <h2 class="text-[16px] font-medium">Predicted impact</h2>
+        </div>
+        <div
+          class="flex-1 overflow-y-auto scroll-thin px-4"
+          style="padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px))"
+        >
+          <section class="pb-4 border-b border-line">
+            <dl class="grid grid-cols-2 gap-2">
+              <div class="rounded-xl bg-raised p-3">
+                <dt class="text-[12px] text-fg2">Conversion lift</dt>
+                <dd
+                  class="mt-0.5 font-mono text-[24px] leading-tight font-medium tabular-nums"
+                >
+                  +14.2%
+                </dd>
+                <dd class="font-mono text-[12px] text-fg3 tabular-nums">
+                  11.8–16.5 (95%)
+                </dd>
+              </div>
+              <div class="rounded-xl bg-raised p-3">
+                <dt class="text-[12px] text-fg2">Abandonment</dt>
+                <dd
+                  class="mt-0.5 font-mono text-[24px] leading-tight font-medium tabular-nums"
+                >
+                  −8.4%
+                </dd>
+                <dd class="font-mono text-[12px] text-fg3 tabular-nums">
+                  6.9–9.7 (95%)
+                </dd>
+              </div>
+            </dl>
+            <dl class="mt-4 grid grid-cols-[1fr_auto] gap-y-1.5 text-[13px]">
+              <dt class="text-fg2">Revenue / day</dt>
+              <dd class="font-mono tabular-nums">+$31,460</dd>
+              <dt class="text-fg2">Affected traffic</dt>
+              <dd class="font-mono tabular-nums">38.6% of mobile</dd>
+              <dt class="text-fg2">Regression risk</dt>
+              <dd>Low</dd>
+              <dt class="text-fg2">Based on</dt>
+              <dd class="font-mono tabular-nums">12,480 sessions</dd>
+            </dl>
+          </section>
+
+          <section class="py-4 border-b border-line">
+            <div class="flex items-center justify-between text-[12px] text-fg2">
+              <span class="font-mono">src/styles/checkout.css</span>
+              <span class="font-mono"
+                ><span class="text-good">+1</span>
+                <span class="text-bad">−1</span></span
+              >
+            </div>
+            <pre
+              class="mt-2 rounded-xl bg-raised py-2 font-mono text-[12px] leading-[1.75] overflow-x-auto scroll-thin"
+            ><span class="diff-line text-fg3">  .checkout-cta {</span><span class="diff-line text-fg3">    width: 100%;</span><span class="diff-line" style="background:var(--diff-del);color:var(--diff-del-fg)">- position: relative;</span><span class="diff-line" style="background:var(--diff-add);color:var(--diff-add-fg)">+ position: sticky; bottom: 0; z-index: 50;</span><span class="diff-line text-fg3">    padding: 12px 14px;</span><span class="diff-line text-fg3">  }</span></pre>
+          </section>
+
+          <section class="py-4 border-b border-line">
+            <button id="deployBtn" class="btn btn-lg btn-primary sheen w-full">
+              Approve and deploy fix
+            </button>
+            <p
+              id="voteNote"
+              class="hidden mt-2 items-center justify-center gap-2 text-[12px] text-fg2"
+            >
+              <span id="voteDot" class="w-1.5 h-1.5 rounded-full bg-good"></span
+              ><span id="voteText"></span>
+            </p>
+            <ol id="pipeline" class="mt-4 space-y-2.5 text-[13px]">
+              <li class="step">
+                <span class="step-dot"></span>Open pull request
+              </li>
+              <li class="step">
+                <span class="step-dot"></span>Build and test on staging
+              </li>
+              <li class="step">
+                <span class="step-dot"></span>Deploy to production
+              </li>
+            </ol>
+            <button id="resetBtn" class="btn btn-tonal sheen hidden mt-4">
+              Reset demo
+            </button>
+          </section>
+
+          <section class="pt-4">
+            <h3 class="text-[12px] font-medium text-fg2">Activity</h3>
+            <div
+              id="log"
+              class="mt-2 max-h-48 overflow-y-auto scroll-thin font-mono text-[12px] leading-relaxed text-fg2 space-y-0.5"
+            ></div>
+          </section>
+        </div>
+      </aside>
+    </main>
+
+    <div
+      class="fixed left-0 right-0 sm:right-auto z-[100] px-4 pointer-events-none"
+      style="bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px))"
+    >
+      <div
+        id="toast"
+        class="toast sm:w-auto rounded-lg pl-4 pr-2 py-3 shadow-xl shadow-black/30 flex items-center gap-3"
+        style="background: var(--snack-bg); color: var(--snack-fg)"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="w-2 h-2 shrink-0 rounded-full bg-good"></span>
+        <div class="flex-1 leading-snug">
+          <p class="font-medium">v1.0.5 deployed to production</p>
+          <p
+            class="text-[13px] sm:whitespace-nowrap"
+            style="color: var(--snack-fg-2)"
+          >
+            Checkout layout fixed. Watching conversion for 24h.
+          </p>
+        </div>
+        <button
+          id="toastClose"
+          class="btn h-9 px-3 text-[14px]"
+          style="color: var(--focus)"
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+
+    <template id="checkoutTpl">
+      <div class="statusbar">
+        <span>9:41</span><span class="notch"></span><span>5G ▮▮▮</span>
+      </div>
+      <div class="viewport">
+        <div style="padding: 12px 14px 0">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-size: 17px; font-weight: 700">Checkout</span>
+            <span style="font-size: 11px; color: #71717a">Step 3 of 3</span>
+          </div>
+          <div
+            style="
+              margin-top: 10px;
+              display: flex;
+              gap: 10px;
+              align-items: center;
+              padding: 9px;
+              border: 1px solid #e4e4e7;
+              border-radius: 12px;
+              background: #fff;
+            "
+          >
+            <div
+              style="
+                width: 42px;
+                height: 42px;
+                border-radius: 8px;
+                background: #e4e4e7;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: #71717a;
+                font-weight: 600;
+              "
+            >
+              ×2
+            </div>
+            <div style="flex: 1; min-width: 0">
+              <div style="font-size: 13px; font-weight: 600">
+                Trail Runner GTX
+              </div>
+              <div style="font-size: 11px; color: #71717a">Size 10 · Slate</div>
+            </div>
+            <div style="font-size: 13px; font-weight: 600">$118.00</div>
+          </div>
+          <div style="margin-top: 12px; display: grid; gap: 9px">
+            <label
+              ><span class="f-label">Email</span
+              ><input
+                class="f-input"
+                type="email"
+                autocapitalize="none"
+                autocorrect="off"
+                autocomplete="off"
+                value="jordan@example.com"
+            /></label>
+            <label
+              ><span class="f-label">Card number</span
+              ><input
+                class="f-input"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="4242 4242 4242 4242"
+            /></label>
+            <div
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"
+            >
+              <label
+                ><span class="f-label">Expiry</span
+                ><input
+                  class="f-input"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  placeholder="MM / YY"
+              /></label>
+              <label
+                ><span class="f-label">CVC</span
+                ><input
+                  class="f-input"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  placeholder="123"
+              /></label>
+            </div>
+            <label
+              ><span class="f-label">ZIP</span
+              ><input
+                class="f-input"
+                inputmode="numeric"
+                autocomplete="off"
+                enterkeyhint="done"
+                placeholder="94107"
+            /></label>
+          </div>
+          <div
+            style="
+              margin-top: 12px;
+              font-size: 12px;
+              color: #52525b;
+              display: grid;
+              gap: 3px;
+            "
+          >
+            <div style="display: flex; justify-content: space-between">
+              <span>Subtotal</span><span>$118.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between">
+              <span>Shipping</span><span>$10.40</span>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                color: #18181b;
+                font-weight: 700;
+                font-size: 14px;
+                margin-top: 2px;
+              "
+            >
+              <span>Total</span><span>$128.40</span>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="cta-wrap checkout-cta">
+          <button class="pay-btn" type="button">Pay $128.40</button>
+        </div>
+      </div>
+      <div class="browser-bar">
+        <div class="browser-url">shop.acme.com</div>
+        <div class="browser-nav">
+          <span>‹</span><span>›</span><span>⇧</span><span>☐</span><span>⧉</span>
+        </div>
+        <div class="home-ind"></div>
+      </div>
+    </template>
+
+    <script>
+      (() => {
+        const $ = (s, r = document) => r.querySelector(s);
+        const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+        const themeBtns = document.querySelectorAll("[data-theme-set]");
+        function applyTheme(t) {
+          document.documentElement.dataset.theme = t;
+          themeBtns.forEach((b) =>
+            b.setAttribute("aria-pressed", String(b.dataset.themeSet === t)),
+          );
+          $('meta[name="theme-color"]').content =
+            t === "light" ? "#ffffff" : "#0f0f0f";
+        }
+        let savedTheme = null;
+        try {
+          savedTheme = localStorage.getItem("optiux-theme");
+        } catch {}
+        applyTheme(savedTheme === "light" ? "light" : "dark");
+        themeBtns.forEach((b) =>
+          b.addEventListener("click", () => {
+            applyTheme(b.dataset.themeSet);
+            try {
+              localStorage.setItem("optiux-theme", b.dataset.themeSet);
+            } catch {}
+          }),
+        );
+
+        const compactFmt = new Intl.NumberFormat("en", {
+          notation: "compact",
+          maximumSignificantDigits: 2,
+        });
+        const compact = (n) => (n < 1000 ? String(n) : compactFmt.format(n));
+        document.querySelectorAll("[data-likes]").forEach((group) => {
+          const up = group.querySelector(".thumb-up");
+          const down = group.querySelector(".thumb-down");
+          const count = group.querySelector(".count");
+          const base = Number(group.dataset.likes) || 0;
+          function render() {
+            const liked = up.getAttribute("aria-pressed") === "true";
+            count.textContent = compact(base + (liked ? 1 : 0));
+            up.setAttribute(
+              "aria-label",
+              liked
+                ? "Remove your vote"
+                : `Diagnosis is right, along with ${base} other engineers`,
+            );
+          }
+          function toggle(btn, other) {
+            const on = btn.getAttribute("aria-pressed") !== "true";
+            btn.setAttribute("aria-pressed", String(on));
+            if (on) other.setAttribute("aria-pressed", "false");
+            render();
+            const vote =
+              up.getAttribute("aria-pressed") === "true"
+                ? "up"
+                : down.getAttribute("aria-pressed") === "true"
+                  ? "down"
+                  : null;
+            document.dispatchEvent(
+              new CustomEvent("diagnosis-vote", { detail: vote }),
+            );
+          }
+          up.addEventListener("click", () => toggle(up, down));
+          down.addEventListener("click", () => toggle(down, up));
+          render();
+        });
+
+        const tpl = $("#checkoutTpl");
+        const devLive = $("#devLive");
+        const liveScreen = $('[data-device="live"]'),
+          fixScreen = $('[data-device="fix"]');
+        liveScreen.appendChild(tpl.content.cloneNode(true));
+        fixScreen.appendChild(tpl.content.cloneNode(true));
+
+        const clipBadge = document.createElement("div");
+        clipBadge.className = "clip-badge";
+        clipBadge.textContent = "Component clipped";
+        liveScreen.appendChild(clipBadge);
+
+        const logEl = $("#log");
+        const ts = () =>
+          new Date().toLocaleTimeString("en-GB", { hour12: false });
+        function log(msg, cls = "") {
+          const line = document.createElement("div");
+          line.className = cls;
+          line.innerHTML = `<span class="text-fg3 tabular-nums">${ts()}</span>  ${msg}`;
+          logEl.appendChild(line);
+          logEl.scrollTop = logEl.scrollHeight;
+        }
+        log("Analyzed 12,480 checkout sessions");
+        log("Drop-off spike on screens under 420px");
+        log("Pay button 71% covered by browser toolbar");
+        log("Proposed fix: sticky checkout button");
+        log("Waiting for approval", "text-fg");
+
+        const deadTapsEl = $("#deadTaps");
+        let deadTaps = 1187;
+
+        function ripple(screen, e) {
+          const r = screen.getBoundingClientRect();
+          const d = document.createElement("div");
+          d.className = "tap-ripple";
+          d.style.left = e.clientX - r.left + "px";
+          d.style.top = e.clientY - r.top + "px";
+          screen.appendChild(d);
+          setTimeout(() => d.remove(), 650);
+        }
+
+        liveScreen
+          .querySelector(".browser-bar")
+          .addEventListener("click", (e) => {
+            if (!devLive.classList.contains("is-buggy")) return;
+            ripple(liveScreen, e);
+            deadTaps++;
+            deadTapsEl.textContent = deadTaps.toLocaleString();
+            log("Dead tap on toolbar, button blocked");
+          });
+
+        function swapContent(el, html) {
+          el.innerHTML = `<span class="btn-label-in inline-flex items-center gap-2.5">${html}</span>`;
+        }
+
+        function payFeedback(btn) {
+          const orig = (btn.dataset.label ??= btn.innerHTML);
+          swapContent(btn, "Payment authorized");
+          btn.disabled = true;
+          setTimeout(() => {
+            swapContent(btn, orig);
+            btn.disabled = false;
+          }, 1200);
+        }
+        [liveScreen, fixScreen].forEach((s) => {
+          s.querySelector(".pay-btn").addEventListener("click", (e) =>
+            payFeedback(e.currentTarget),
+          );
+        });
+
+        const btn = $("#deployBtn");
+        const steps = [...document.querySelectorAll("#pipeline li")];
+        const toast = $("#toast");
+        const resetBtn = $("#resetBtn");
+
+        function setStep(i, state) {
+          steps[i].className =
+            "step " + { idle: "", run: "is-run", done: "is-done" }[state];
+        }
+
+        function setBtn(text, busy) {
+          btn.className = "btn btn-lg btn-tonal sheen w-full";
+          swapContent(
+            btn,
+            busy
+              ? `<span class="spinner"></span><span>${text}</span>`
+              : `<span>${text}</span>`,
+          );
+        }
+
+        const voteNote = $("#voteNote");
+        let phase = "idle";
+
+        function note(text, tone) {
+          if (!text) {
+            voteNote.classList.add("hidden");
+            voteNote.classList.remove("flex");
+            return;
+          }
+          $("#voteDot").className =
+            "w-1.5 h-1.5 rounded-full " +
+            (tone === "bad" ? "bg-bad" : "bg-good");
+          $("#voteText").textContent = text;
+          voteNote.classList.remove("hidden");
+          voteNote.classList.add("flex");
+        }
+
+        document.addEventListener("diagnosis-vote", ({ detail: vote }) => {
+          if (vote === "up")
+            log("Diagnosis confirmed by neil.mcardle", "text-fg");
+          if (vote === "down")
+            log("Diagnosis flagged as wrong by neil.mcardle", "text-fg");
+          if (vote === null) log("Vote removed");
+          if (phase !== "idle") return;
+          if (vote === "down") {
+            btn.disabled = true;
+            setBtn("Needs a second look", false);
+            note("Deploy locked until the diagnosis is reviewed", "bad");
+          } else {
+            btn.disabled = false;
+            btn.className = "btn btn-lg btn-primary sheen w-full";
+            swapContent(btn, "Approve and deploy fix");
+            note(vote === "up" ? "Diagnosis confirmed" : "", "good");
+          }
+        });
+
+        btn.addEventListener("click", () => {
+          if (btn.disabled) return;
+          btn.disabled = true;
+          phase = "running";
+          note("");
+
+          setBtn("Opening pull request…", true);
+          setStep(0, "run");
+          log("Approved by neil.mcardle", "text-fg");
+
+          setTimeout(() => {
+            setStep(0, "done");
+            log("Opened PR #1842 via GitHub MCP");
+            setBtn("Running staging build…", true);
+            setStep(1, "run");
+          }, 1500);
+
+          setTimeout(() => {
+            setStep(1, "done");
+            setStep(2, "done");
+            log("214 tests passed, no visual changes ≥420px");
+            log("Deployed v1.0.5 to production", "text-fg");
+            heal();
+          }, 3000);
+        });
+
+        function heal() {
+          phase = "done";
+          const liveCta = liveScreen.querySelector(".pay-btn");
+          const before = liveCta.getBoundingClientRect().top;
+          devLive.classList.remove("is-buggy");
+          devLive.classList.add("is-fixed");
+          const delta = before - liveCta.getBoundingClientRect().top;
+          if (delta && !reduceMotion.matches) {
+            liveCta.animate(
+              [{ transform: `translateY(${delta}px)` }, { transform: "none" }],
+              { duration: 450, easing: "cubic-bezier(0.77, 0, 0.175, 1)" },
+            );
+          }
+          clipBadge.classList.add("gone");
+          $("#liveDot").className = "w-2 h-2 rounded-full bg-good";
+          $("#liveBuild").textContent = "v1.0.5";
+          $("#buildTag").textContent = "v1.0.5";
+
+          $("#critDot").className = "w-2 h-2 shrink-0 rounded-full bg-good";
+          const critDelta = $("#critDelta");
+          critDelta.className = "ml-auto chip";
+          critDelta.textContent = "Fixed";
+          $("#critAge").textContent = "fixed just now";
+          $("#alertCount").textContent = "3 open";
+
+          setBtn("Deployed v1.0.5", false);
+          toast.classList.add("show");
+          resetBtn.classList.remove("hidden");
+          log("Watching checkout conversion for 24h");
+          startToastTimer();
+        }
+
+        let toastTimer = null,
+          toastRemaining = 6000,
+          toastStarted = 0;
+        function startToastTimer() {
+          clearTimeout(toastTimer);
+          toastStarted = Date.now();
+          toastTimer = setTimeout(
+            () => toast.classList.remove("show"),
+            toastRemaining,
+          );
+        }
+        function pauseToastTimer() {
+          if (!toast.classList.contains("show")) return;
+          clearTimeout(toastTimer);
+          toastRemaining = Math.max(
+            1500,
+            toastRemaining - (Date.now() - toastStarted),
+          );
+        }
+        toast.addEventListener("pointerenter", pauseToastTimer);
+        toast.addEventListener(
+          "pointerleave",
+          () => toast.classList.contains("show") && startToastTimer(),
+        );
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) pauseToastTimer();
+          else if (toast.classList.contains("show")) startToastTimer();
+        });
+
+        $("#toastClose").addEventListener("click", () => {
+          clearTimeout(toastTimer);
+          toast.classList.remove("show");
+        });
+        resetBtn.addEventListener("click", () => location.reload());
+      })();
+    </script>
+  </body>
+</html>

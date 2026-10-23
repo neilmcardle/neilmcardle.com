@@ -214,6 +214,13 @@ export const WORKS: Work[] = [
     href: "/explorations/record-player",
     pills: ["Interactive", "Illustration", "Made with Colorfigures"],
   },
+  {
+    title: "Self-healing checkout",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/self-healing-checkout",
+    pills: ["Interactive concept", "Sample data"],
+  },
 ];
 
 export const MULTI_SUB = new Set(
