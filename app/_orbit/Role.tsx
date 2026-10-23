@@ -1,19 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import AvisLink from "./AvisLink";
 import styles from "./orbit.module.css";
 
 const LINES: ((copy: boolean) => ReactNode)[] = [
-  () => "Senior Digital Product Designer",
-  (copy) => (
-    <>
-      @ <AvisLink copy={copy} />, London, UK
-    </>
-  ),
+  () =>
+    "Product designer and builder focused on complex interfaces, design systems, and AI-native products.",
 ];
 
-const NARROW = "Senior Digital Product Designer @ Avis Budget Group";
+const NARROW =
+  "Product designer and builder focused on complex interfaces, design systems, and AI-native products.";
 
 function Line({
   render,
