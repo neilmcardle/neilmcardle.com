@@ -85,11 +85,6 @@ export default async function CoverlyCase() {
         },
         {
           kind: "full",
-          src: "/work/coverly/framed.jpg",
-          alt: "A framed black coverly poster on the wall of a design studio",
-        },
-        {
-          kind: "full",
           src: "/work/coverly/lockup.jpg",
           alt: "The coverly mark and wordmark in black on white",
         },

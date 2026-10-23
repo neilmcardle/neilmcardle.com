@@ -19,7 +19,7 @@ export default function DoodleWireShots() {
       {SHOTS.map((caption, i) => (
         <li key={caption} className={styles.dwShot}>
           <Image
-            src={`/doodlewire/screens/${i + 1}.jpg`}
+            src={`/doodlewire/flat/${i + 1}.jpg`}
             alt={`DoodleWire: ${caption}`}
             width={1360}
             height={1700}

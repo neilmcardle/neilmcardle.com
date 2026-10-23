@@ -60,11 +60,6 @@ export default function MakeebookCase() {
           alt: "The makeebook editor with a chapter open and Book Mind answering a question about the ending",
         },
         {
-          kind: "full",
-          src: "/work/makeebook/night-desk.jpg",
-          alt: "makeebook open on a laptop on a writer's desk at night under a brass lamp",
-        },
-        {
           kind: "custom",
           id: "rewrite",
           node: (

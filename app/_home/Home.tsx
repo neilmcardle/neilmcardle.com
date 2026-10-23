@@ -1,8 +1,10 @@
+import { Fragment } from "react";
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import DoodleWireShots from "@/components/home/DoodleWireShots";
 import AppIcon from "./AppIcon";
 import AutoVideo from "./AutoVideo";
+import AvisLogo from "./AvisLogo";
 import { Mark, type OrbitMark } from "@/app/_orbit/Orbit";
 import ExplorationPreview from "./ExplorationPreview";
 import GoLink from "./GoLink";
@@ -32,6 +34,7 @@ const POSTERS = {
   diveRadio: poster("/home/dive-radio-jit.jpg"),
   coverly: poster("/home/coverly-promo.jpg"),
   podium: poster("/home/podium/trailer-02-poster.jpg"),
+  avis: poster("/work/avis/three-steps-title.jpg"),
 };
 
 const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
@@ -51,63 +54,107 @@ export default function Home() {
   );
 }
 
+const SHIPPED = WORKS.filter(
+  (work) => work.group === "products" && work.sub === "Shipped",
+);
+
+const BUILDING = WORKS.filter(
+  (work) => work.group === "products" && work.sub !== "Shipped",
+);
+
+const PLAY = GROUP_ORDER.filter(
+  (key) => key !== "products" && key !== "covers",
+);
+
 export function AllWork() {
   return (
     <>
-      <Demo />
-      {GROUP_ORDER.map((key) => {
-        const items = WORKS.filter((work) => work.group === key);
-        const subs = [...new Set(items.map((work) => work.sub))];
-        return (
-          <section
-            key={key}
-            aria-label={GROUP_LABEL[key]}
-            className={styles.group}
-            data-group={key}
-          >
-            <h2 className={styles.groupTitle}>
-              {GROUP_MARK[key] ? (
-                <span className={styles.sectionMark} aria-hidden="true">
-                  <Mark mark={GROUP_MARK[key]} />
-                </span>
-              ) : null}
-              <span>{GROUP_LABEL[key]}</span>
-            </h2>
-            {key === "explorations" ? (
-              <div className={styles.sub} data-sub={subKey(items[0])}>
-                <div className={styles.showcases}>
-                  {items.map((work) => (
-                    <ExplorationCard key={work.title} work={work} />
-                  ))}
+      <section
+        aria-labelledby="part-work"
+        className={styles.part}
+        data-group="work"
+      >
+        <h2 id="part-work" className={styles.partTitle}>
+          Work
+        </h2>
+        <div className={styles.workList}>
+          <AvisWork />
+          {SHIPPED.map((work) => (
+            <Showcase key={work.title} work={work} />
+          ))}
+          <Covers />
+        </div>
+      </section>
+      <section
+        aria-labelledby="part-playground"
+        className={styles.part}
+        data-group="playground"
+      >
+        <div className={styles.partHead}>
+          <h2 id="part-playground" className={styles.partTitle}>
+            Playground
+          </h2>
+          <p className={styles.partNote}>
+            Experiments and things I make for fun.
+          </p>
+        </div>
+        <section
+          aria-labelledby="home-building"
+          className={styles.group}
+          data-group="products"
+        >
+          <h3 id="home-building" className={styles.groupTitle}>
+            In progress
+          </h3>
+          <div className={styles.showcases}>
+            {BUILDING.map((work) => (
+              <Showcase key={work.title} work={work} level={4} />
+            ))}
+          </div>
+        </section>
+        <Demo />
+        {PLAY.map((key) => {
+          const items = WORKS.filter((work) => work.group === key);
+          const subs = [...new Set(items.map((work) => work.sub))];
+          return (
+            <section
+              key={key}
+              aria-labelledby={`home-${key}`}
+              className={styles.group}
+              data-group={key}
+            >
+              <h3 id={`home-${key}`} className={styles.groupTitle}>
+                {GROUP_MARK[key] ? (
+                  <span className={styles.sectionMark} aria-hidden="true">
+                    <Mark mark={GROUP_MARK[key]} />
+                  </span>
+                ) : null}
+                <span>{GROUP_LABEL[key]}</span>
+              </h3>
+              {key === "explorations" ? (
+                <div className={styles.sub} data-sub={subKey(items[0])}>
+                  <div className={styles.showcases}>
+                    {items.map((work) => (
+                      <ExplorationCard key={work.title} work={work} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : key === "paintings" ? (
-              <div className={styles.sub} data-sub={subKey(items[0])}>
-                <Paintings />
-              </div>
-            ) : key === "covers" ? (
-              <div className={styles.sub} data-sub={subKey(items[0])}>
-                <Covers />
-              </div>
-            ) : (
-              subs.map((sub) => {
-                const inSub = items.filter((work) => work.sub === sub);
-                return (
-                  <div
-                    key={sub}
-                    className={styles.sub}
-                    data-sub={subKey(inSub[0])}
-                  >
-                    {MULTI_SUB.has(key) && key !== "products" && (
-                      <p className={styles.subTitle}>{sub}</p>
-                    )}
-                    {key === "products" ? (
-                      <div className={styles.showcases}>
-                        {inSub.map((work) => (
-                          <Showcase key={work.title} work={work} />
-                        ))}
-                      </div>
-                    ) : (
+              ) : key === "paintings" ? (
+                <div className={styles.sub} data-sub={subKey(items[0])}>
+                  <Paintings />
+                </div>
+              ) : (
+                subs.map((sub) => {
+                  const inSub = items.filter((work) => work.sub === sub);
+                  return (
+                    <div
+                      key={sub}
+                      className={styles.sub}
+                      data-sub={subKey(inSub[0])}
+                    >
+                      {MULTI_SUB.has(key) && (
+                        <p className={styles.subTitle}>{sub}</p>
+                      )}
                       <ul className={styles.rows}>
                         {inSub.map((work) => (
                           <li
@@ -119,15 +166,62 @@ export function AllWork() {
                           </li>
                         ))}
                       </ul>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </section>
-        );
-      })}
+                    </div>
+                  );
+                })
+              )}
+            </section>
+          );
+        })}
+      </section>
     </>
+  );
+}
+
+function AvisWork() {
+  return (
+    <article className={styles.showcase} data-item="avis">
+      <div className={styles.showcaseHead}>
+        <h3 className={styles.showcaseHeading}>
+          <Link className={styles.showcaseName} href="/work/avis">
+            <AvisLogo className={styles.productMark} />
+            <span>3-Step Checkout</span>
+          </Link>
+        </h3>
+        <GoLink
+          href="/work/avis"
+          label="View the Avis checkout case study"
+          caption="View case study"
+          short="Case study"
+        />
+      </div>
+      <p className={styles.what}>
+        Taking car rental booking from five steps to three.
+      </p>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>Checkout, web</dd>
+        </div>
+        <div>
+          <dt>Role</dt>
+          <dd>Senior Digital Product Designer</dd>
+        </div>
+        <div>
+          <dt>Result</dt>
+          <dd>Conversion up 5% in testing</dd>
+        </div>
+      </dl>
+      <video
+        className={styles.film}
+        src="/work/avis/three-steps-titled.mp4"
+        poster={POSTERS.avis}
+        aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
+        controls
+        playsInline
+        preload="none"
+      />
+    </article>
   );
 }
 
@@ -295,7 +389,8 @@ const CASE_STUDY: Partial<Record<string, string>> = {
   DoodleWire: "/work/doodlewire",
 };
 
-export function Showcase({ work }: { work: Work }) {
+export function Showcase({ work, level = 3 }: { work: Work; level?: 3 | 4 }) {
+  const Heading = level === 3 ? "h3" : "h4";
   const info = SHOWCASE[work.title];
   if (!info) return null;
   const external = work.href.startsWith("http");
@@ -306,16 +401,16 @@ export function Showcase({ work }: { work: Work }) {
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
         {work.href ? (
-          <h3 className={styles.showcaseHeading}>
+          <Heading className={styles.showcaseHeading}>
             <a className={styles.showcaseName} href={work.href} {...linkProps}>
               {info.mark ? (
                 <ProductMark mark={info.mark} className={styles.productMark} />
               ) : null}
               <span translate="no">{work.title}</span>
             </a>
-          </h3>
+          </Heading>
         ) : (
-          <h3 className={styles.showcaseName}>
+          <Heading className={styles.showcaseName}>
             {info.markImage ? (
               <span
                 className={styles.imageMark}
@@ -327,7 +422,7 @@ export function Showcase({ work }: { work: Work }) {
               />
             ) : null}
             <span translate="no">{work.title}</span>
-          </h3>
+          </Heading>
         )}
         {work.href && info.label ? (
           <span className={styles.goGroup}>
@@ -407,34 +502,44 @@ export function Showcase({ work }: { work: Work }) {
 
 export function Covers() {
   return (
-    <div className={styles.showcases}>
-      <article className={styles.showcase}>
-        <div className={styles.showcaseHead}>
-          <p className={styles.what}>
-            Covers for new editions of three classic books.
-          </p>
-          <GoLink
-            href="https://banneroftruth.org/uk/store/new-release/the-childs-story-bible/"
-            newTab
-            label="The Child’s Story Bible at the Banner of Truth"
-            caption="Publisher"
-          />
+    <article
+      className={styles.showcase}
+      data-group="covers"
+      data-item="book-covers"
+    >
+      <div className={styles.showcaseHead}>
+        <h3 className={styles.showcaseHeading}>
+          <span className={styles.showcaseName}>
+            <span className={styles.coversMark} aria-hidden="true">
+              <Mark mark="book" />
+            </span>
+            <span>Book covers</span>
+          </span>
+        </h3>
+        <GoLink
+          href="https://banneroftruth.org/uk/store/new-release/the-childs-story-bible/"
+          newTab
+          label="The Child’s Story Bible at the Banner of Truth"
+          caption="Publisher"
+        />
+      </div>
+      <p className={styles.what}>
+        Covers for new editions of three classic books.
+      </p>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>Book cover design</dd>
         </div>
-        <dl className={styles.facts}>
-          <div>
-            <dt>Type</dt>
-            <dd>Book cover design</dd>
-          </div>
-          <div>
-            <dt>Role</dt>
-            <dd>
-              Cover design, and illustration for The Child&rsquo;s Story Bible
-            </dd>
-          </div>
-        </dl>
-        <CoverShelf />
-      </article>
-    </div>
+        <div>
+          <dt>Role</dt>
+          <dd>
+            Cover design, and illustration for The Child&rsquo;s Story Bible
+          </dd>
+        </div>
+      </dl>
+      <CoverShelf />
+    </article>
   );
 }
 
@@ -467,9 +572,9 @@ export function Paintings() {
             className={styles.plaque}
             data-item={slug(painting.title)}
           >
-            <h3 className={styles.plaqueTitle}>
+            <h4 className={styles.plaqueTitle}>
               <i>{painting.title}</i>, {painting.year}
-            </h3>
+            </h4>
             <p className={styles.plaqueLine}>
               {painting.medium}, {painting.dimensions}
             </p>
@@ -521,12 +626,12 @@ export function Demo() {
       aria-labelledby="home-demo"
       data-group="demo"
     >
-      <h2 id="home-demo" className={styles.groupTitle}>
+      <h3 id="home-demo" className={styles.groupTitle}>
         <span className={styles.sectionMark} aria-hidden="true">
           <Mark mark="speakui" />
         </span>
         <span>SpeakUI Demo on Dive Radio</span>
-      </h2>
+      </h3>
       <article className={styles.showcase}>
         <AutoVideo
           className={styles.film}

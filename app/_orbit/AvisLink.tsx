@@ -109,15 +109,20 @@ export default function AvisLink({ copy = false }: { copy?: boolean }) {
             src="/logos/avis-budget-group.svg"
             alt=""
           />
-          <a
-            className={styles.avisVisit}
-            href={AVIS}
-            target="_blank"
-            rel="noopener noreferrer"
-            tabIndex={-1}
-          >
-            Visit site
-          </a>
+          <span className={styles.avisLinks}>
+            <a className={styles.avisVisit} href="/work/avis" tabIndex={-1}>
+              View case study
+            </a>
+            <a
+              className={styles.avisVisit}
+              href={AVIS}
+              target="_blank"
+              rel="noopener noreferrer"
+              tabIndex={-1}
+            >
+              Visit site
+            </a>
+          </span>
         </span>
         <span className={styles.avisQuote}>
           <span className={styles.avisTicker}>NASDAQ: CAR</span>

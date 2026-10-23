@@ -190,7 +190,18 @@
 }
 
 .rail li {
+  position: relative;
   scroll-snap-align: center;
+}
+
+.rail li[data-divide]::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  width: var(--s);
+  height: 1px;
+  background: rgba(17, 17, 17, 0.28);
 }
 
 .railCanvas {

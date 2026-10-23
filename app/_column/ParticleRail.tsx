@@ -12,7 +12,12 @@ import { FRAGMENT, INK, VERTEX } from "@/app/_orbit/particles";
 import styles from "./column.module.css";
 import { targetFor } from "./targets";
 
-type RailItem = { id: string; name: string; mark: OrbitMark; group: string };
+type RailItem = {
+  id: string;
+  name: string;
+  mark: OrbitMark;
+  divide?: boolean;
+};
 
 const WIDE = "(min-width: 1200px)";
 
@@ -374,7 +379,11 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       />
       <ul>
         {items.map((item, i) => (
-          <li key={item.id} data-wheel-item>
+          <li
+            key={item.id}
+            data-wheel-item
+            data-divide={item.divide || undefined}
+          >
             <button
               type="button"
               data-node

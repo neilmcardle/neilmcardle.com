@@ -30,29 +30,24 @@ export default function DoodleWireCase() {
           kind: "pair",
           items: [
             {
-              src: "/work/doodlewire/phone-pink.jpg",
-              alt: "DoodleWire on an iPhone, editing an image placeholder",
+              src: "/work/doodlewire/flat-edit.jpg",
+              alt: "DoodleWire on iPhone, editing an image placeholder",
             },
             {
-              src: "/work/doodlewire/phone-black.jpg",
-              alt: "DoodleWire on an iPhone, snapping elements to the grid",
+              src: "/work/doodlewire/flat-grid.jpg",
+              alt: "DoodleWire on iPhone, a sign-in wireframe snapped to the layout grid",
             },
           ],
-        },
-        {
-          kind: "full",
-          src: "/work/doodlewire/desk-phone.jpg",
-          alt: "An iPhone showing a DoodleWire sign in wireframe on a desk beside a notebook and coffee",
         },
         {
           kind: "pair",
           items: [
             {
-              src: "/work/doodlewire/ipad-dashboard.jpg",
+              src: "/work/doodlewire/ipad-dashboard-flat.jpg",
               alt: "A dashboard wireframe drawn in DoodleWire on iPad",
             },
             {
-              src: "/work/doodlewire/ipad-grids.jpg",
+              src: "/work/doodlewire/ipad-grids-flat.jpg",
               alt: "The same dashboard wireframe with the layout grid showing",
             },
           ],

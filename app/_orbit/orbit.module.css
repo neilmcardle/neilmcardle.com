@@ -10,7 +10,7 @@
   --line: #e6e4e0;
   --dot: rgba(0, 0, 0, 0.14);
   --pill-hover: #f1f0ed;
-  --display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --display: var(--font-inter), system-ui, sans-serif;
   --ui: var(--font-inter), system-ui, sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --edge:
@@ -193,6 +193,11 @@
   width: auto;
   height: 18px;
   filter: brightness(0);
+}
+
+.avisLinks {
+  display: flex;
+  gap: 6px;
 }
 
 .avisVisit {

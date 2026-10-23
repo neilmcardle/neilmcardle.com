@@ -71,7 +71,7 @@
   letter-spacing: 0.01em;
   cursor: pointer;
   transform: translateX(-50%);
-  animation: appear 600ms ease 1200ms backwards;
+  animation: appear 300ms ease 400ms backwards;
   transition: color 180ms ease;
 }
 
@@ -93,7 +93,7 @@
 }
 
 .intro[data-ready] .fill {
-  animation: load 6s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+  animation: load 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
 }
 
 @keyframes load {

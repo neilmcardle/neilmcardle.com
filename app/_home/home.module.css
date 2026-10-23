@@ -10,7 +10,7 @@
   --line: #e6e4e0;
   --dot: rgba(0, 0, 0, 0.14);
   --pill-hover: #f1f0ed;
-  --display: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --display: var(--font-inter), system-ui, sans-serif;
   --ui: var(--font-inter), system-ui, sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
@@ -647,6 +647,85 @@
   line-height: 1.06;
   letter-spacing: -0.03em;
   text-wrap: balance;
+}
+
+.part {
+  display: grid;
+  gap: 72px;
+}
+
+.part + .part {
+  margin-top: 96px;
+}
+
+.part > .group {
+  margin-top: 0;
+}
+
+.partHead {
+  display: grid;
+  gap: 12px;
+}
+
+.partTitle {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 2.75rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.part > .partTitle {
+  margin-bottom: -24px;
+}
+
+.partNote {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.workList {
+  display: grid;
+  gap: 72px;
+}
+
+.coversMark {
+  display: block;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--ink);
+}
+
+.coversMark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 600px) {
+  .partTitle {
+    font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 899px) {
+  .part {
+    gap: 56px;
+  }
+
+  .part + .part {
+    margin-top: 72px;
+  }
+
+  .workList {
+    gap: 56px;
+  }
 }
 
 .sectionMark {
@@ -1822,7 +1901,7 @@
   margin-top: 8px;
   padding: clamp(32px, 7%, 56px) clamp(16px, 6%, 48px) 24px;
   border-radius: 8px;
-  background: #f3f1ec;
+  background: #efefee;
 }
 
 .shelfBooks,
@@ -1865,10 +1944,6 @@
   width: 100%;
   height: auto;
   border-radius: 3px;
-  box-shadow:
-    0 5px 9px -3px rgb(0 0 0 / 0.4),
-    0 1px 2px rgb(0 0 0 / 0.12);
-  transition: box-shadow var(--lift);
 }
 
 .shelfBook:focus-visible {
@@ -1878,12 +1953,6 @@
 
 .shelfSlot[data-on] .shelfBook {
   transform: translateY(-4px) rotateX(-4deg);
-}
-
-.shelfSlot[data-on] .shelfBook img {
-  box-shadow:
-    0 12px 18px -8px rgb(0 0 0 / 0.42),
-    0 2px 6px rgb(0 0 0 / 0.14);
 }
 
 .shelfBook:active {
@@ -2295,7 +2364,7 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 8px;
-  background: #f3f1ec;
+  background: #f2efe6;
 }
 
 .previewCanvas {

@@ -15,6 +15,7 @@ import { MARK_EVENT } from "@/app/_home/intro-script";
 import { CLIENTS } from "@/app/_home/data";
 import Contact from "./Contact";
 import ProfileMark from "./ProfileMark";
+import AvisLogo from "@/app/_home/AvisLogo";
 import Role from "./Role";
 import { FRAGMENT, INK, VERTEX } from "./particles";
 import styles from "./orbit.module.css";
@@ -34,7 +35,8 @@ export type OrbitMark =
   | "frame"
   | "kids"
   | "audio"
-  | "tools";
+  | "tools"
+  | "avis";
 
 type Preview =
   | { kind: "screen"; src: string }
@@ -61,6 +63,7 @@ export type OrbitItem = {
 export const PER_ICON = 1200;
 const SAMPLE = 160;
 export function Mark({ mark }: { mark: OrbitMark }) {
+  if (mark === "avis") return <AvisLogo />;
   if (
     mark === "makeebook" ||
     mark === "coverly" ||

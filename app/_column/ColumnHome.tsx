@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { AllWork } from "@/app/_home/Home";
-import {
-  CLIENTS,
-  GROUP_LABEL,
-  GROUP_ORDER,
-  WORKS,
-  slug,
-} from "@/app/_home/data";
+import { CLIENTS } from "@/app/_home/data";
 import home from "@/app/_home/home.module.css";
 import Contact from "@/app/_orbit/Contact";
 import ParticleMark from "@/app/_home/ParticleMark";
@@ -20,15 +14,8 @@ import SectionChips from "./SectionChips";
 import WorkScroll from "./WorkScroll";
 import XTab from "./XTab";
 
-const WHOLE: Partial<Record<string, string>> = {
-  tools: "tools",
-  covers: "book-covers",
-  paintings: "paintings",
-  kids: "kids",
-  books: "audiobook",
-};
-
 const EXTRA = [
+  { id: "avis", name: "Avis", mark: "avis" as const },
   { id: "tools", name: "Tools", mark: "tools" as const },
   { id: "kids", name: "For my kids", mark: "kids" as const },
   { id: "audiobook", name: "Audiobook", mark: "audio" as const },
@@ -38,31 +25,38 @@ const RENAME: Partial<Record<string, string>> = {
   "n-particles": "Explorations",
 };
 
-const PAGE: { id: string; group: string }[] = [
-  { id: "speakui", group: "demo" },
-  ...GROUP_ORDER.flatMap((group) => {
-    const whole = WHOLE[group];
-    return whole
-      ? [{ id: whole, group }]
-      : WORKS.filter((work) => work.group === group).map((work) => ({
-          id: slug(work.title),
-          group,
-        }));
-  }),
+const WORK_IDS = ["avis", "makeebook", "coverly", "doodlewire", "book-covers"];
+
+const PLAY_IDS = [
+  "spark",
+  "podium",
+  "speakui",
+  "n-particles",
+  "tools",
+  "kids",
+  "audiobook",
+  "paintings",
 ];
 
-const RAIL = PAGE.flatMap(({ id, group }) => {
+const RAIL = [...WORK_IDS, ...PLAY_IDS].flatMap((id) => {
   const item =
     ITEMS.find((entry) => entry.id === id) ??
     EXTRA.find((entry) => entry.id === id);
   return item
-    ? [{ id, name: RENAME[id] ?? item.name, mark: item.mark, group }]
+    ? [
+        {
+          id,
+          name: RENAME[id] ?? item.name,
+          mark: item.mark,
+          divide: id === PLAY_IDS[0],
+        },
+      ]
     : [];
 });
 
 const SECTIONS = [
-  { key: "demo", label: "SpeakUI" },
-  ...GROUP_ORDER.map((key) => ({ key, label: GROUP_LABEL[key] })),
+  { key: "work", label: "Work" },
+  { key: "playground", label: "Playground" },
 ];
 
 export default function ColumnHome() {
