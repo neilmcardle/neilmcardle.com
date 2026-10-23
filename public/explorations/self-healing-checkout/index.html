@@ -1044,6 +1044,9 @@
       .pointer-events-none {
         pointer-events: none;
       }
+      .visible {
+        visibility: visible;
+      }
       .fixed {
         position: fixed;
       }
@@ -1067,6 +1070,9 @@
       }
       .z-\[100\] {
         z-index: 100;
+      }
+      .mb-3 {
+        margin-bottom: 0.75rem;
       }
       .ml-auto {
         margin-left: auto;
@@ -1116,6 +1122,9 @@
       .h-2 {
         height: 0.5rem;
       }
+      .h-3\.5 {
+        height: 0.875rem;
+      }
       .h-9 {
         height: 2.25rem;
       }
@@ -1139,6 +1148,9 @@
       }
       .w-2 {
         width: 0.5rem;
+      }
+      .w-3\.5 {
+        width: 0.875rem;
       }
       .w-full {
         width: 100%;
@@ -1629,6 +1641,10 @@
               </p>
               <ul class="mt-2 space-y-0.5 text-[12px] text-fg2">
                 <li>
+                  Seen in 1,187 session replays: taps land on the toolbar, not
+                  the button
+                </li>
+                <li>
                   Introduced in v1.0.4 · <span class="font-mono">a3f9c1e</span>
                 </li>
                 <li>Desktop and tablet unaffected</li>
@@ -1830,6 +1846,50 @@
           </section>
 
           <section class="py-4 border-b border-line">
+            <ul class="mb-3 space-y-1 text-[12px] text-fg2">
+              <li class="flex items-center gap-2">
+                <svg
+                  class="w-3.5 h-3.5 shrink-0 text-good"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3.5 8.5l3 3 6-7" /></svg
+                >Change limited to one CSS rule
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="w-3.5 h-3.5 shrink-0 text-good"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3.5 8.5l3 3 6-7" /></svg
+                >Proposed build checked at 390px
+              </li>
+              <li class="flex items-center gap-2">
+                <svg
+                  class="w-3.5 h-3.5 shrink-0 text-good"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3.5 8.5l3 3 6-7" /></svg
+                >No layout change at 420px and wider
+              </li>
+            </ul>
             <button id="deployBtn" class="btn btn-lg btn-primary sheen w-full">
               Approve and deploy fix
             </button>
@@ -1850,7 +1910,15 @@
               <li class="step">
                 <span class="step-dot"></span>Deploy to production
               </li>
+              <li class="step">
+                <span class="step-dot"></span>Verify on iOS Safari
+              </li>
             </ol>
+            <p class="mt-4 text-[12px] leading-relaxed text-fg3">
+              Ships to 10% of mobile traffic first and rolls back on its own if
+              checkout errors rise. Checkout, payment and pricing changes always
+              need a person.
+            </p>
             <button id="resetBtn" class="btn btn-tonal sheen hidden mt-4">
               Reset demo
             </button>
@@ -1880,12 +1948,12 @@
       >
         <span class="w-2 h-2 shrink-0 rounded-full bg-good"></span>
         <div class="flex-1 leading-snug">
-          <p class="font-medium">v1.0.5 deployed to production</p>
+          <p class="font-medium">v1.0.5 verified in production</p>
           <p
             class="text-[13px] sm:whitespace-nowrap"
             style="color: var(--snack-fg-2)"
           >
-            Checkout layout fixed. Watching conversion for 24h.
+            Pay button visible on iOS Safari. Tap success 99.2%.
           </p>
         </div>
         <button
@@ -2262,6 +2330,8 @@
           }, 3000);
         });
 
+        const critDelta = $("#critDelta");
+
         function heal() {
           phase = "done";
           const liveCta = liveScreen.querySelector(".pay-btn");
@@ -2281,16 +2351,26 @@
           $("#buildTag").textContent = "v1.0.5";
 
           $("#critDot").className = "w-2 h-2 shrink-0 rounded-full bg-good";
-          const critDelta = $("#critDelta");
           critDelta.className = "ml-auto chip";
           critDelta.textContent = "Fixed";
           $("#critAge").textContent = "fixed just now";
           $("#alertCount").textContent = "3 open";
 
-          setBtn("Deployed v1.0.5", false);
+          setBtn("Verifying on iOS Safari…", true);
+          setStep(3, "run");
+          setTimeout(verify, 1600);
+        }
+
+        function verify() {
+          setStep(3, "done");
+          log("Verified on iOS Safari: pay button fully visible");
+          log("Tap success on pay button 99.2%");
+          log("Marked resolved", "text-fg");
+          critDelta.textContent = "Resolved";
+          $("#critAge").textContent = "resolved just now";
+          setBtn("Resolved in v1.0.5", false);
           toast.classList.add("show");
           resetBtn.classList.remove("hidden");
-          log("Watching checkout conversion for 24h");
           startToastTimer();
         }
 

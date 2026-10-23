@@ -21,6 +21,7 @@ import {
   WORKS,
   slug,
   subKey,
+  type GroupKey,
   type Work,
 } from "./data";
 import styles from "./home.module.css";
@@ -61,9 +62,49 @@ const BUILDING = WORKS.filter(
   (work) => work.group === "products" && work.sub !== "Shipped",
 );
 
-const PLAY = GROUP_ORDER.filter(
-  (key) => key !== "products" && key !== "covers",
+const FOLDED = GROUP_ORDER.filter(
+  (key) => key !== "products" && key !== "covers" && key !== "explorations",
 );
+
+function GroupBody({ group }: { group: GroupKey }) {
+  const items = WORKS.filter((work) => work.group === group);
+  if (group === "explorations")
+    return (
+      <div className={styles.sub} data-sub={subKey(items[0])}>
+        <div className={styles.showcases}>
+          {items.map((work) => (
+            <ExplorationCard key={work.title} work={work} />
+          ))}
+        </div>
+      </div>
+    );
+  if (group === "paintings")
+    return (
+      <div className={styles.sub} data-sub={subKey(items[0])}>
+        <Paintings />
+      </div>
+    );
+  const subs = [...new Set(items.map((work) => work.sub))];
+  return subs.map((sub) => {
+    const inSub = items.filter((work) => work.sub === sub);
+    return (
+      <div key={sub} className={styles.sub} data-sub={subKey(inSub[0])}>
+        {MULTI_SUB.has(group) && <p className={styles.subTitle}>{sub}</p>}
+        <ul className={styles.rows}>
+          {inSub.map((work) => (
+            <li
+              key={work.title}
+              className={styles.rowItem}
+              data-item={slug(work.title)}
+            >
+              <WorkLink work={work} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  });
+}
 
 export function AllWork() {
   return (
@@ -112,66 +153,49 @@ export function AllWork() {
           </div>
         </section>
         <Demo />
-        {PLAY.map((key) => {
-          const items = WORKS.filter((work) => work.group === key);
-          const subs = [...new Set(items.map((work) => work.sub))];
-          return (
+        <section
+          aria-labelledby="home-explorations"
+          className={styles.group}
+          data-group="explorations"
+        >
+          <h3 id="home-explorations" className={styles.groupTitle}>
+            {GROUP_LABEL.explorations}
+          </h3>
+          <GroupBody group="explorations" />
+        </section>
+        <div className={styles.folds}>
+          {FOLDED.map((key) => (
             <section
               key={key}
               aria-labelledby={`home-${key}`}
               className={styles.group}
               data-group={key}
             >
-              <h3 id={`home-${key}`} className={styles.groupTitle}>
-                {GROUP_MARK[key] ? (
-                  <span className={styles.sectionMark} aria-hidden="true">
-                    <Mark mark={GROUP_MARK[key]} />
-                  </span>
-                ) : null}
-                <span>{GROUP_LABEL[key]}</span>
-              </h3>
-              {key === "explorations" ? (
-                <div className={styles.sub} data-sub={subKey(items[0])}>
-                  <div className={styles.showcases}>
-                    {items.map((work) => (
-                      <ExplorationCard key={work.title} work={work} />
-                    ))}
-                  </div>
+              <details className={styles.fold}>
+                <summary className={styles.foldSummary}>
+                  <h3 id={`home-${key}`} className={styles.groupTitle}>
+                    {GROUP_MARK[key] ? (
+                      <span className={styles.sectionMark} aria-hidden="true">
+                        <Mark mark={GROUP_MARK[key]} />
+                      </span>
+                    ) : null}
+                    <span>{GROUP_LABEL[key]}</span>
+                  </h3>
+                  <svg
+                    className={styles.foldChevron}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </summary>
+                <div className={styles.foldBody}>
+                  <GroupBody group={key} />
                 </div>
-              ) : key === "paintings" ? (
-                <div className={styles.sub} data-sub={subKey(items[0])}>
-                  <Paintings />
-                </div>
-              ) : (
-                subs.map((sub) => {
-                  const inSub = items.filter((work) => work.sub === sub);
-                  return (
-                    <div
-                      key={sub}
-                      className={styles.sub}
-                      data-sub={subKey(inSub[0])}
-                    >
-                      {MULTI_SUB.has(key) && (
-                        <p className={styles.subTitle}>{sub}</p>
-                      )}
-                      <ul className={styles.rows}>
-                        {inSub.map((work) => (
-                          <li
-                            key={work.title}
-                            className={styles.rowItem}
-                            data-item={slug(work.title)}
-                          >
-                            <WorkLink work={work} />
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })
-              )}
+              </details>
             </section>
-          );
-        })}
+          ))}
+        </div>
       </section>
     </>
   );
@@ -213,7 +237,7 @@ function AvisWork() {
       </dl>
       <video
         className={styles.film}
-        src="/work/avis/three-steps.mp4"
+        src="/work/avis/avis-3-step-c.mp4"
         poster={POSTERS.avis}
         aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
         controls
@@ -882,8 +906,8 @@ function CheckoutCard({ work }: { work: Work }) {
       >
         <AutoVideo
           className={`${styles.film} ${styles.filmLight}`}
-          src="/home/self-healing-checkout.mp4"
-          poster="/home/self-healing-checkout.jpg"
+          src="/home/self-healing-checkout-v2.mp4"
+          poster="/home/self-healing-checkout-v2.jpg"
           aria-label="A checkout pay button hidden under the browser toolbar, then the fix being approved and the button sliding into view"
           muted
           loop

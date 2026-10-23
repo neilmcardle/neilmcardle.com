@@ -694,6 +694,94 @@
   gap: 72px;
 }
 
+.folds {
+  display: grid;
+}
+
+.folds > .group {
+  margin-top: 0;
+  border-top: 1px solid var(--line);
+}
+
+.folds > .group:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.fold {
+  interpolate-size: allow-keywords;
+}
+
+.fold::details-content {
+  block-size: 0;
+  overflow: hidden;
+  transition:
+    block-size 320ms var(--ease),
+    content-visibility 320ms allow-discrete;
+}
+
+.fold[open]::details-content {
+  block-size: auto;
+}
+
+.fold[data-instant]::details-content {
+  transition: none;
+}
+
+.foldSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.foldSummary::-webkit-details-marker {
+  display: none;
+}
+
+.foldSummary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.foldSummary .groupTitle {
+  margin: 0;
+}
+
+.foldChevron {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 260ms var(--ease);
+}
+
+.fold[open] .foldChevron {
+  transform: rotate(180deg);
+}
+
+.foldBody {
+  padding-bottom: 32px;
+}
+
+.foldBody > .sub:first-child {
+  margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fold::details-content,
+  .foldChevron {
+    transition: none;
+  }
+}
+
 .nameMark {
   display: block;
   flex: none;

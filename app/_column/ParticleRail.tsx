@@ -10,7 +10,7 @@ import {
 } from "@/app/_orbit/Orbit";
 import { FRAGMENT, INK, VERTEX } from "@/app/_orbit/particles";
 import styles from "./column.module.css";
-import { targetFor } from "./targets";
+import { reveal, targetFor } from "./targets";
 
 type RailItem = {
   id: string;
@@ -335,6 +335,7 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     const item = items[index];
     const target = targetFor(item.id);
     if (!target) return;
+    reveal(target);
     aim.current = index;
     roll(index);
     window.clearTimeout(aimTimer.current);

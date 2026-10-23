@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { targetFor } from "./targets";
+import { reveal, targetFor } from "./targets";
 
 export default function WorkScroll() {
   useEffect(() => {
@@ -9,6 +9,7 @@ export default function WorkScroll() {
     if (!id || id === "all") return;
     const target = targetFor(id);
     if (!target) return;
+    reveal(target);
     let timer = 0;
     const go = () => {
       timer = window.setTimeout(
