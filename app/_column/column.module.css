@@ -21,7 +21,7 @@
 
 .column {
   width: 100%;
-  max-width: 808px;
+  max-width: 648px;
   margin: 0 auto;
   padding: 0 24px 96px;
 }
@@ -39,7 +39,7 @@
 .homeMark {
   position: absolute;
   top: 24px;
-  left: calc(max(56px, 50vw - 476px) - (50vw - 380px) - 15px);
+  left: calc(max(56px, 50vw - 396px) - (50vw - 300px) - 15px);
   display: none;
   width: 64px;
   height: 64px;
@@ -80,8 +80,8 @@
   gap: 14px;
   min-width: 0;
   margin: 0;
-  font: 400 1.25rem / 1.1 var(--display);
-  letter-spacing: -0.02em;
+  font: 400 1.0625rem / 1.2 var(--display);
+  letter-spacing: -0.015em;
 }
 
 .brand a {
@@ -161,7 +161,7 @@
   --wheel: calc(var(--row) * 9);
   position: fixed;
   top: calc(var(--top, 50vh) - var(--wheel) / 2);
-  left: calc(max(56px, 50vw - 476px) + var(--s) + 8px - 160px);
+  left: calc(max(56px, 50vw - 396px) + var(--s) + 8px - 160px);
   z-index: 4;
   width: 160px;
 }

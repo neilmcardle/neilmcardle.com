@@ -9,7 +9,7 @@ export default function ProfileMark() {
         alt=""
         width={480}
         height={480}
-        sizes="48px"
+        sizes="40px"
         priority
       />
     </span>
