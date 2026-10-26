@@ -252,3 +252,28 @@ export function CoverageParts() {
     </section>
   );
 }
+
+export function SystemSheet() {
+  return (
+    <section className={styles.section} aria-labelledby="avis-system">
+      <div className={styles.head}>
+        <h2 id="avis-system" className={styles.label}>
+          The system behind the cards
+        </h2>
+        <p className={styles.text}>
+          Under the cards is a small system: one 16px rhythm, 8px corners and a
+          28px row pitch. Drawing it out also caught a checkbox sitting 3px off
+          the line.
+        </p>
+      </div>
+      <Image
+        className={styles.sheet}
+        src="/work/avis/system-sheet.png"
+        alt="A black and white dimensional drawing of the protection bundle card: a plan view with every padding, gap and radius labelled as a variable, the card inside its panel, an exploded view of its layers, close-ups of the header and the price column, and tables of the values"
+        width={3520}
+        height={2196}
+        sizes="(max-width: 899px) 100vw, 1300px"
+      />
+    </section>
+  );
+}

@@ -1,13 +1,14 @@
 .root {
-  --bone: #ffffff;
+  --bone: #fafafa;
   --card: #ffffff;
-  --ink: #111111;
-  --ink-idle: rgba(17, 17, 17, 0.4);
-  --ink-hover: rgba(17, 17, 17, 0.7);
-  --row: #55524d;
-  --muted: #6b675f;
-  --muted-bone: #66625c;
-  --line: #e6e4e0;
+  --ink: #1d1d1f;
+  --text: #5c5c5c;
+  --ink-idle: rgba(29, 29, 31, 0.4);
+  --ink-hover: rgba(29, 29, 31, 0.7);
+  --row: #4a4a4a;
+  --muted: #737373;
+  --muted-bone: #737373;
+  --line: #e8e8e8;
   --dot: rgba(0, 0, 0, 0.14);
   --pill-hover: #f1f0ed;
   --display: var(--font-inter), system-ui, sans-serif;
@@ -642,10 +643,10 @@
   margin: 0 0 20px;
   color: var(--ink);
   font-family: var(--display);
-  font-size: 1.875rem;
-  font-weight: 300;
-  line-height: 1.06;
-  letter-spacing: -0.03em;
+  font-size: 1.25rem;
+  font-weight: 520;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
@@ -672,9 +673,9 @@
   color: var(--ink);
   font-family: var(--display);
   font-size: 2.75rem;
-  font-weight: 300;
+  font-weight: 520;
   line-height: 1;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.045em;
 }
 
 .part > .partTitle {
@@ -683,15 +684,27 @@
 
 .partNote {
   margin: 0;
-  color: var(--muted);
-  font-size: 1.0625rem;
-  line-height: 1.45;
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 425;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
   text-wrap: pretty;
 }
 
 .workList {
   display: grid;
-  gap: 72px;
+}
+
+.workList > * + * {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+
+.part > .group + .group {
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
 }
 
 .folds {
@@ -785,8 +798,8 @@
 .nameMark {
   display: block;
   flex: none;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   color: var(--ink);
 }
 
@@ -811,8 +824,9 @@
     margin-top: 72px;
   }
 
-  .workList {
-    gap: 56px;
+  .workList > * + * {
+    margin-top: 32px;
+    padding-top: 32px;
   }
 }
 
@@ -868,9 +882,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 62px;
+  min-height: 52px;
   color: var(--row);
-  font-size: 1rem;
+  font-size: 0.875rem;
+  font-weight: 450;
+  letter-spacing: -0.005em;
   text-decoration: none;
   border-radius: 8px;
   transition: color 200ms var(--ease);
@@ -927,12 +943,12 @@
 .pillTag {
   display: inline-flex;
   align-items: center;
-  height: 32px;
-  padding: 0 12px;
+  height: 26px;
+  padding: 0 10px;
   border-radius: 999px;
   background: var(--bone);
-  color: var(--row);
-  font-size: 0.875rem;
+  color: var(--muted);
+  font-size: 0.75rem;
   white-space: nowrap;
   transition: background-color 200ms var(--ease);
 }
@@ -1565,27 +1581,11 @@
   align-items: center;
   gap: 9px;
   color: var(--ink);
-  font: 500 1.25rem / 1.2 var(--display);
-  letter-spacing: -0.02em;
+  font: 550 1.0625rem / 1.25 var(--display);
+  letter-spacing: -0.015em;
   margin: 0;
   text-decoration: none;
   text-wrap: balance;
-}
-
-@media (min-width: 600px) {
-  .groupTitle {
-    font-size: 2.25rem;
-  }
-
-  .showcaseName {
-    font-size: 1.375rem;
-  }
-}
-
-@media (min-width: 960px) {
-  .groupTitle {
-    font-size: 2rem;
-  }
 }
 
 .what,
@@ -1603,17 +1603,17 @@
 .productMark {
   flex: none;
   width: auto;
-  height: 22px;
+  height: 18px;
   color: var(--ink);
 }
 
 .productMark[data-mark="makeebook"] {
-  height: 14px;
+  height: 12px;
 }
 
 .imageMark {
   flex: none;
-  height: 26px;
+  height: 21px;
   aspect-ratio: 114 / 295;
   background: var(--ink);
   mask-position: center;
@@ -1688,6 +1688,7 @@
   margin-right: -8px;
   padding: 0 8px;
   color: var(--muted);
+  font-weight: 450;
   transition:
     color 180ms var(--ease),
     transform 160ms var(--ease);
@@ -1915,11 +1916,12 @@
 }
 
 .what {
-  margin: 4px 0 0;
-  color: var(--ink);
-  font-size: 1.0625rem;
-  font-weight: 400;
-  line-height: 1.45;
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 0.9375rem;
+  font-weight: 425;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 .handle {
@@ -2250,10 +2252,12 @@
 
 .facts {
   display: grid;
-  gap: 4px;
-  margin: 4px 0 8px;
+  gap: 2px;
+  margin: 2px 0 8px;
   font-size: 0.8125rem;
-  line-height: 1.45;
+  font-weight: 450;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
 }
 
 .facts > div {
@@ -2416,15 +2420,15 @@
 
 .demoNote {
   margin: 0 0 8px;
-  color: var(--muted);
-  font-size: 0.9375rem;
+  color: var(--text);
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 
 .caption {
   margin: -4px 0 0;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   line-height: 1.4;
   text-align: right;
 }
