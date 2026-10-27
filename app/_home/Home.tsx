@@ -9,6 +9,7 @@ import { Mark, type OrbitMark } from "@/app/_orbit/Orbit";
 import ExplorationPreview from "./ExplorationPreview";
 import GoLink from "./GoLink";
 import HomeShell from "./HomeShell";
+import Lead from "./Lead";
 import PodiumGallery from "./PodiumGallery";
 import CoverShelf from "./CoverShelf";
 import ProductMark from "./ProductMark";
@@ -235,15 +236,21 @@ function AvisWork() {
           <dd>Conversion up 5% in testing</dd>
         </div>
       </dl>
-      <video
-        className={styles.film}
-        src="/work/avis/avis-3-step-c.mp4"
-        poster={POSTERS.avis}
-        aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
-        controls
-        playsInline
-        preload="none"
-      />
+      <Lead
+        src="/home/leads/avis.jpg"
+        action="Play film"
+        label="Play the Avis 3-step checkout film"
+      >
+        <video
+          className={styles.film}
+          src="/work/avis/avis-3-step-c.mp4"
+          poster={POSTERS.avis}
+          aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
+          controls
+          playsInline
+          preload="none"
+        />
+      </Lead>
     </article>
   );
 }
@@ -349,7 +356,50 @@ function ExternalIcon({ className }: { className?: string }) {
   );
 }
 
+const LEADS: Partial<
+  Record<
+    string,
+    {
+      action: string;
+      label: string;
+      kind?: "look";
+      corner?: "left";
+    }
+  >
+> = {
+  makeebook: {
+    action: "Play film",
+    label: "Play the makeebook film",
+    corner: "left",
+  },
+  Spark: { action: "Play film", label: "Play the Spark film" },
+  Podium: { action: "Play trailer", label: "Play the Podium trailer" },
+  coverly: { action: "Play film", label: "Play the coverly film" },
+  DoodleWire: {
+    action: "See the screens",
+    label: "See the DoodleWire screens",
+    kind: "look",
+  },
+};
+
 function ShowcaseMedia({ title }: { title: string }) {
+  const lead = LEADS[title];
+  const media = ShowcaseFilm({ title });
+  if (!lead || !media) return media;
+  return (
+    <Lead
+      src={`/home/leads/${slug(title)}.jpg`}
+      action={lead.action}
+      label={lead.label}
+      kind={lead.kind}
+      corner={lead.corner}
+    >
+      {media}
+    </Lead>
+  );
+}
+
+function ShowcaseFilm({ title }: { title: string }) {
   if (title === "makeebook")
     return (
       <video
@@ -561,7 +611,14 @@ export function Covers() {
           </dd>
         </div>
       </dl>
-      <CoverShelf />
+      <Lead
+        src="/home/leads/book-covers.jpg"
+        action="See the covers"
+        label="See the three book covers"
+        kind="look"
+      >
+        <CoverShelf />
+      </Lead>
     </article>
   );
 }
@@ -733,13 +790,20 @@ export function ExplorationCard({ work }: { work: Work }) {
           <dd>{work.pills.join(", ")}</dd>
         </div>
       </dl>
-      <a
-        className={styles.previewLink}
-        href={work.href}
-        aria-label={`Open the ${work.title} lab, full screen`}
+      <Lead
+        src="/home/leads/n-particles.jpg"
+        action="Play preview"
+        label="Play the N particles preview"
+        corner="left"
       >
-        <ExplorationPreview />
-      </a>
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label={`Open the ${work.title} lab, full screen`}
+        >
+          <ExplorationPreview />
+        </a>
+      </Lead>
       <p className={styles.caption}>
         Inspired by{" "}
         <a
@@ -783,22 +847,28 @@ function GameBoyCard({ work }: { work: Work }) {
           <dd>{work.pills.join(", ")}</dd>
         </div>
       </dl>
-      <a
-        className={styles.previewLink}
-        href={work.href}
-        aria-label="Open the Game Boy navigation exploration, full screen"
+      <Lead
+        src="/home/leads/game-boy.jpg"
+        action="Play preview"
+        label="Play the Game Boy preview"
       >
-        <AutoVideo
-          className={styles.film}
-          src="/home/gameboy-portfolio.mp4"
-          poster="/home/gameboy-portfolio.jpg"
-          aria-label="Scrolling through the portfolio menu on the Game Boy"
-          muted
-          loop
-          playsInline
-          preload="none"
-        />
-      </a>
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label="Open the Game Boy navigation exploration, full screen"
+        >
+          <AutoVideo
+            className={styles.film}
+            src="/home/gameboy-portfolio.mp4"
+            poster="/home/gameboy-portfolio.jpg"
+            aria-label="Scrolling through the portfolio menu on the Game Boy"
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </a>
+      </Lead>
       <p className={styles.caption}>
         Remixed from{" "}
         <a
@@ -840,22 +910,29 @@ function RecordPlayerCard({ work }: { work: Work }) {
           <dd>{work.pills.join(", ")}</dd>
         </div>
       </dl>
-      <a
-        className={styles.previewLink}
-        href={work.href}
-        aria-label="Open the record player exploration, full screen"
+      <Lead
+        src="/home/leads/record-player.jpg"
+        action="Play preview"
+        label="Play the record player preview"
+        corner="left"
       >
-        <AutoVideo
-          className={styles.film}
-          src="/home/record-player.mp4"
-          poster="/home/record-player.jpg"
-          aria-label="Opening the record player, putting on an LP and looking inside"
-          muted
-          loop
-          playsInline
-          preload="none"
-        />
-      </a>
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label="Open the record player exploration, full screen"
+        >
+          <AutoVideo
+            className={styles.film}
+            src="/home/record-player.mp4"
+            poster="/home/record-player.jpg"
+            aria-label="Opening the record player, putting on an LP and looking inside"
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </a>
+      </Lead>
       <p className={styles.caption}>
         Made with{" "}
         <a
@@ -899,22 +976,28 @@ function CheckoutCard({ work }: { work: Work }) {
           <dd>{work.pills.join(", ")}</dd>
         </div>
       </dl>
-      <a
-        className={styles.previewLink}
-        href={work.href}
-        aria-label="Open the self-healing checkout exploration, full screen"
+      <Lead
+        src="/home/leads/self-healing-checkout.jpg"
+        action="Play preview"
+        label="Play the self-healing checkout preview"
       >
-        <AutoVideo
-          className={`${styles.film} ${styles.filmLight}`}
-          src="/home/self-healing-checkout-v2.mp4"
-          poster="/home/self-healing-checkout-v2.jpg"
-          aria-label="A checkout pay button hidden under the browser toolbar, then the fix being approved and the button sliding into view"
-          muted
-          loop
-          playsInline
-          preload="none"
-        />
-      </a>
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label="Open the self-healing checkout exploration, full screen"
+        >
+          <AutoVideo
+            className={`${styles.film} ${styles.filmLight}`}
+            src="/home/self-healing-checkout-v2.mp4"
+            poster="/home/self-healing-checkout-v2.jpg"
+            aria-label="A checkout pay button hidden under the browser toolbar, then the fix being approved and the button sliding into view"
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </a>
+      </Lead>
     </article>
   );
 }

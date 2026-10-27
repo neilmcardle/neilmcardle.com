@@ -2501,3 +2501,137 @@
     transform: none;
   }
 }
+
+.lead {
+  position: relative;
+  min-width: 0;
+}
+
+.leadCover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: #111;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.leadImage {
+  object-fit: cover;
+  transition: transform 700ms var(--ease);
+}
+
+.leadCover:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.leadAction {
+  position: absolute;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.5);
+  color: #fafafa;
+  font: 500 0.75rem/1 var(--ui);
+  letter-spacing: -0.005em;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    background-color 180ms var(--ease),
+    transform 160ms var(--ease);
+}
+
+.leadAction[data-corner="right"] {
+  right: 12px;
+}
+
+.leadAction[data-corner="left"] {
+  left: 12px;
+}
+
+.leadAction svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.leadCover:active .leadAction {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .leadCover:hover .leadImage {
+    transform: scale(1.015);
+  }
+
+  .leadCover:hover .leadAction {
+    background: rgb(0 0 0 / 0.68);
+  }
+}
+
+.leadTiles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+  container-type: size;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.leadTile {
+  position: relative;
+  overflow: hidden;
+  animation: leadTile var(--length) calc(var(--d) * var(--spread)) both;
+}
+
+.leadTile img {
+  position: absolute;
+  top: calc(var(--r) * -100cqh / var(--rows));
+  left: calc(var(--c) * -100cqw / var(--cols));
+  width: 100cqw;
+  max-width: none;
+  height: 100cqh;
+  object-fit: cover;
+}
+
+@keyframes leadTile {
+  0% {
+    transform: none;
+    border-radius: 0;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  30% {
+    transform: scale(0.86);
+    border-radius: 12px;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.55, 0, 0.8, 0.2);
+  }
+  100% {
+    transform: translate(calc(var(--x) * 20px), calc(var(--y) * 20px + 28px))
+      scale(0.24);
+    border-radius: 16px;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leadImage {
+    transition: none;
+  }
+}

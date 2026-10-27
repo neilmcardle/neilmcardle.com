@@ -1,0 +1,142 @@
+.sheet {
+  --ink: #1d1d1f;
+  --text: #5c5c5c;
+  --muted: #737373;
+  --line: #e8e8e8;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 22mm 20mm 18mm;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18mm;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 10.5pt;
+  font-weight: 550;
+}
+
+.mark {
+  width: 18px;
+  height: auto;
+}
+
+.url {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9pt;
+}
+
+.title {
+  margin: 0 0 4mm;
+  font-size: 28pt;
+  font-weight: 520;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.lead {
+  max-width: 125mm;
+  margin: 0 0 10mm;
+  color: var(--text);
+  font-size: 12pt;
+  font-weight: 425;
+  letter-spacing: -0.01em;
+}
+
+.block {
+  display: grid;
+  grid-template-columns: 38mm minmax(0, 1fr);
+  gap: 6mm;
+  padding: 6mm 0;
+  border-top: 1px solid var(--line);
+}
+
+.h2 {
+  margin: 0;
+  font-size: 10.5pt;
+  font-weight: 550;
+}
+
+.body {
+  margin: 0;
+  color: var(--text);
+  font-weight: 425;
+}
+
+.weeks {
+  display: grid;
+  gap: 3mm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weeks li {
+  display: grid;
+  grid-template-columns: 22mm minmax(0, 1fr);
+  gap: 3mm;
+}
+
+.when {
+  color: var(--muted);
+  font-size: 9.5pt;
+}
+
+.weekTitle {
+  font-weight: 550;
+}
+
+.list {
+  display: grid;
+  gap: 1.5mm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text);
+}
+
+.foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 6mm;
+  border-top: 1px solid var(--ink);
+}
+
+.price {
+  margin: 0;
+  font-size: 13pt;
+  font-weight: 550;
+  letter-spacing: -0.015em;
+}
+
+.contact {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9pt;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}

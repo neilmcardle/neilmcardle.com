@@ -65,9 +65,14 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
       const group = title?.closest<HTMLElement>("[data-group]");
       if (!title || !group) return;
       const box = title.getBoundingClientRect();
-      const centre = box.top + box.height / 2 + window.scrollY;
       const offset =
         box.top - group.getBoundingClientRect().top + box.height / 2;
+      const head = document.querySelector<HTMLElement>("[data-hero]")
+        ? document.querySelector<HTMLElement>("header")
+        : null;
+      const centre = head
+        ? head.offsetHeight + 40 + offset
+        : box.top + box.height / 2 + window.scrollY;
       rail.style.setProperty("--top", `${Math.round(centre)}px`);
       root.style.setProperty("--rail-land", `${Math.round(centre - offset)}px`);
       rail.dataset.placed = "";
@@ -75,8 +80,20 @@ export default function ParticleRail({ items }: { items: RailItem[] }) {
     place();
     const sizer = new ResizeObserver(place);
     sizer.observe(document.body);
+    const hero = document.querySelector("[data-hero]");
+    const shy = hero
+      ? new IntersectionObserver(
+          ([entry]) => {
+            if (entry.intersectionRatio > 0.35) rail.dataset.shy = "";
+            else delete rail.dataset.shy;
+          },
+          { threshold: [0, 0.35, 0.7, 1] },
+        )
+      : null;
+    if (hero && shy) shy.observe(hero);
     return () => {
       sizer.disconnect();
+      shy?.disconnect();
       root.style.removeProperty("--rail-land");
     };
   }, [wide]);

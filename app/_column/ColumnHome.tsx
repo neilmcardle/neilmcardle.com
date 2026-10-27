@@ -9,6 +9,7 @@ import Role from "@/app/_orbit/Role";
 import orbit from "@/app/_orbit/orbit.module.css";
 import { ITEMS } from "@/app/_orbit/OrbitHome";
 import styles from "./column.module.css";
+import HeroFilm from "./HeroFilm";
 import ParticleRail from "./ParticleRail";
 import SectionChips from "./SectionChips";
 import WorkScroll from "./WorkScroll";
@@ -78,6 +79,7 @@ export default function ColumnHome() {
           </h1>
           <Contact desk={false} />
         </header>
+        <HeroFilm />
         <SectionChips sections={SECTIONS} />
         <main className={styles.work}>
           <AllWork />
