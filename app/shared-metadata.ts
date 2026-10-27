@@ -4,7 +4,7 @@ export const SITE_TITLE = "Neil McArdle · Product Designer";
 export const SITE_DESCRIPTION =
   "Product designer in London. Checkout at Avis Budget Group, and makeebook, coverly and DoodleWire.";
 export const SHARE_ALT =
-  "Neil McArdle, product designer in London. Work: the Avis 3-Step Checkout, makeebook, coverly and DoodleWire.";
+  "The N mark drawn in white particles on black, beside Neil McArdle, Product Designer, neilmcardle.com.";
 
 const SHARE_IMAGE = {
   url: "/opengraph-image",
