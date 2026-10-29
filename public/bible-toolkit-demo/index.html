@@ -1,0 +1,2959 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <!-- Unlisted demo: keep out of search results. Also sent as an X-Robots-Tag header (next.config.mjs). -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+    <style>
+      html,
+      body {
+        margin: 0;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      img {
+        max-width: 100%;
+      }
+      :root {
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+    </style>
+    <title>Bible Toolkit Workbench</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;700&family=Geist+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      /* Layout: a hub of tool tiles, then one narrow working column per tool with one step on screen at a time; header shapes double as the progress tracker. */
+      :root {
+        color-scheme: dark;
+        --bg: #0e0e0f;
+        --surface: #161617;
+        --raise: #1d1d1f;
+        --line: #262628;
+        --fg: #c9c9c9;
+        --fg-hi: #ececec;
+        --muted: #7c7c7e;
+        --btn-bg: #c9c9c9;
+        --btn-fg: #0e0e0f;
+        --on-chip: #0e0e0f;
+        --good: #7fb08a;
+        --warn: #d2a35c;
+        --shape: #e4e4e4; /* every tool shape and interactive accent: monochrome, told apart by form */
+        --scratch: #2a2a2c;
+        --font: "Geist", "Helvetica Neue", Arial, sans-serif;
+        --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      }
+      @media (prefers-color-scheme: light) {
+        :root:not([data-theme="dark"]) {
+          color-scheme: light;
+          --bg: #f4f4f3;
+          --surface: #ffffff;
+          --raise: #ececea;
+          --line: #dcdcd9;
+          --fg: #3a3a3b;
+          --fg-hi: #111112;
+          --muted: #6e6e70;
+          --btn-bg: #1a1a1b;
+          --btn-fg: #f4f4f3;
+          --on-chip: #ffffff;
+          --good: #3f7d4f;
+          --warn: #9a6a1e;
+          --shape: #1a1a1b;
+          --scratch: #cfcfcc;
+        }
+      }
+      :root[data-theme="light"] {
+        color-scheme: light;
+        --bg: #f4f4f3;
+        --surface: #ffffff;
+        --raise: #ececea;
+        --line: #dcdcd9;
+        --fg: #3a3a3b;
+        --fg-hi: #111112;
+        --muted: #6e6e70;
+        --btn-bg: #1a1a1b;
+        --btn-fg: #f4f4f3;
+        --on-chip: #ffffff;
+        --good: #3f7d4f;
+        --warn: #9a6a1e;
+        --shape: #1a1a1b;
+        --scratch: #cfcfcc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--font);
+        font-size: 17px;
+        line-height: 1.55;
+        letter-spacing: -0.01em;
+        -webkit-font-smoothing: antialiased;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0 0 auto;
+        height: env(safe-area-inset-top, 0px);
+        z-index: 10;
+        background: var(--bg);
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+      }
+      .wrap.wide {
+        max-width: 1040px;
+      }
+      a {
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--fg-hi);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      h1:focus,
+      h2:focus {
+        outline: none;
+      }
+
+      /* Header */
+      header.top {
+        position: sticky;
+        top: env(safe-area-inset-top, 0px);
+        z-index: 5;
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      header.top .wrap {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-block: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: var(--fg-hi);
+        text-decoration: none;
+        white-space: nowrap;
+        min-width: 0;
+      }
+      .brand svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      .brand span {
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .track {
+        display: flex;
+        gap: 6px;
+        margin-left: auto;
+        align-items: center;
+      }
+      .track button {
+        width: 18px;
+        height: 18px;
+        padding: 0;
+        border: 0;
+        cursor: pointer;
+        background: var(--c);
+        opacity: 0.18;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      .track button.done {
+        opacity: 0.9;
+      }
+      .track button.now {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+      .track button:disabled {
+        cursor: default;
+      }
+      .counter {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        min-width: 72px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .track:empty + .counter {
+        margin-left: auto;
+      }
+
+      /* Shapes */
+      .sh {
+        --c: var(--shape);
+        background: var(--c);
+      }
+      /* One geometric shape per tool. Forms are built with clip-path and gradients so each stays a single element. */
+      .shp-ring {
+        border-radius: 50%;
+        background: radial-gradient(circle, transparent 0 30%, var(--c) 31%);
+      }
+      .shp-frame {
+        clip-path: polygon(
+          evenodd,
+          0 0,
+          100% 0,
+          100% 100%,
+          0 100%,
+          0 0,
+          30% 30%,
+          30% 70%,
+          70% 70%,
+          70% 30%,
+          30% 30%
+        );
+      }
+      .shp-bars {
+        background: linear-gradient(
+          var(--c) 0 26%,
+          transparent 26% 37%,
+          var(--c) 37% 63%,
+          transparent 63% 74%,
+          var(--c) 74%
+        );
+      }
+      .shp-chevron {
+        clip-path: polygon(0 0, 50% 0, 100% 50%, 50% 100%, 0 100%, 50% 50%);
+      }
+      .shp-pillars {
+        background: linear-gradient(
+          90deg,
+          var(--c) 0 36%,
+          transparent 36% 64%,
+          var(--c) 64%
+        );
+      }
+      .shp-quarter {
+        border-radius: 100% 0 0 0;
+      }
+      .shp-square {
+        border-radius: 0;
+      }
+      .shp-diamond {
+        clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      }
+      .shp-half {
+        clip-path: circle(50% at 50% 100%);
+      }
+      .shp-dots {
+        background:
+          radial-gradient(circle at 25% 50%, var(--c) 0 23%, transparent 24%),
+          radial-gradient(circle at 75% 50%, var(--c) 0 23%, transparent 24%);
+      }
+      .shp-slant {
+        clip-path: polygon(32% 0, 100% 0, 68% 100%, 0 100%);
+      }
+      .shp-hex {
+        clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%);
+      }
+      .shp-bowtie {
+        clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 50% 50%, 0 100%);
+      }
+      .shp-play {
+        clip-path: polygon(8% 0, 100% 50%, 8% 100%);
+      }
+      .shp-circle {
+        border-radius: 50%;
+      }
+      .shp-plus {
+        clip-path: polygon(
+          35% 0,
+          65% 0,
+          65% 35%,
+          100% 35%,
+          100% 65%,
+          65% 65%,
+          65% 100%,
+          35% 100%,
+          35% 65%,
+          0 65%,
+          0 35%,
+          35% 35%
+        );
+      }
+
+      /* Type */
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .tag {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 3px 7px;
+        border-radius: 4px;
+        color: var(--c, var(--fg));
+        background: color-mix(in srgb, var(--c, var(--fg)) 12%, transparent);
+      }
+      h1,
+      h2 {
+        font-weight: 400;
+        color: var(--fg-hi);
+        text-wrap: balance;
+        margin: 0;
+      }
+      h1 {
+        font-size: clamp(30px, 6vw, 44px);
+        line-height: 1.1;
+        letter-spacing: -0.025em;
+      }
+      h2 {
+        font-size: clamp(24px, 4.6vw, 32px);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+      h1 em,
+      h2 em,
+      h3 em {
+        font-style: normal;
+        color: var(--muted);
+      }
+      .lede {
+        font-size: 19px;
+        color: var(--fg);
+        max-width: 60ch;
+        margin: 0;
+      }
+      .small {
+        font-size: 14px;
+        color: var(--muted);
+        margin: 0;
+      }
+
+      /* Views */
+      main {
+        padding-block: 40px 80px;
+      }
+      section.step {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .step-head {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .reveal-in {
+        animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      @keyframes rise {
+        from {
+          transform: translateY(8px);
+        }
+        to {
+          transform: none;
+        }
+      }
+
+      /* Hub */
+      .hero-shapes {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 8px;
+        max-width: 100%;
+      }
+      .hero-shapes .sh {
+        aspect-ratio: 1;
+        max-width: 100%;
+        animation: pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      @keyframes pop {
+        from {
+          transform: scale(0.85);
+        }
+        to {
+          transform: none;
+        }
+      }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 8px;
+      }
+      .tile {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 18px;
+        min-height: 172px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        text-decoration: none;
+        color: var(--fg);
+        background: transparent;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      a.tile:hover {
+        border-color: var(--muted);
+        background: var(--surface);
+      }
+      .tile .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .tile .sh {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .tile .num {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .tile b {
+        font-weight: 500;
+        color: var(--fg-hi);
+        font-size: 18px;
+        letter-spacing: -0.015em;
+      }
+      .tile p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+        flex: 1;
+      }
+      .tile .status {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .tile .status .bar {
+        flex: 1;
+        height: 2px;
+        background: var(--line);
+        position: relative;
+      }
+      .tile .status .bar i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: var(--c);
+      }
+      .tile.soon {
+        opacity: 0.5;
+      }
+      .tile.soon .sh {
+        opacity: 0.4;
+      }
+      .hero-shapes .sh.dim {
+        opacity: 0.28;
+      }
+      .hub-head {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .outline {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--line);
+      }
+      .outline li {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .outline .sh {
+        width: 18px;
+        height: 18px;
+      }
+      .outline b {
+        font-weight: 500;
+        color: var(--fg-hi);
+      }
+      .outline .t {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        font: 500 14px/1 var(--font);
+        letter-spacing: -0.01em;
+        padding: 14px 16px;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        background: var(--btn-bg);
+        color: var(--btn-fg);
+        text-decoration: none;
+        transition:
+          opacity 0.15s,
+          transform 0.1s;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+      }
+      .btn.ghost {
+        background: transparent;
+        color: var(--fg);
+        border-color: var(--line);
+      }
+      .btn.ghost:hover {
+        border-color: var(--muted);
+      }
+      .btn.wide {
+        flex: 1;
+      }
+      .btn .arr {
+        font-size: 15px;
+        line-height: 0;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .nav {
+        display: flex;
+        gap: 8px;
+        border-top: 1px solid var(--line);
+        padding-top: 24px;
+      }
+
+      .watch {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: flex-start;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+      }
+      .watch:hover {
+        color: var(--fg-hi);
+        border-color: var(--muted);
+      }
+      .watch .play {
+        width: 0;
+        height: 0;
+        border-left: 7px solid currentColor;
+        border-top: 4.5px solid transparent;
+        border-bottom: 4.5px solid transparent;
+      }
+
+      /* Passages */
+      .quote {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .quote p {
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.5;
+        color: var(--fg-hi);
+        letter-spacing: -0.015em;
+      }
+      .quote .ref {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .quote .note {
+        font-size: 15px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+      }
+      .v {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        vertical-align: super;
+        margin-right: 3px;
+        letter-spacing: 0;
+      }
+      .echo {
+        color: var(--muted) !important;
+      }
+      mark.key {
+        background: color-mix(in srgb, var(--shape) 16%, transparent);
+        box-shadow: inset 0 -2px 0 var(--fg-hi);
+        color: var(--fg-hi);
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+      mark.focus {
+        background: color-mix(in srgb, var(--shape) 18%, transparent);
+        color: var(--fg-hi);
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+
+      /* Choices */
+      .choices {
+        display: grid;
+        gap: 8px;
+      }
+      .choice {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 14px;
+        align-items: start;
+        text-align: left;
+        font: inherit;
+        color: var(--fg);
+        background: transparent;
+        cursor: pointer;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .choice:hover {
+        border-color: var(--muted);
+      }
+      .choice .k {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        padding-top: 3px;
+      }
+      .choice b {
+        display: block;
+        font-weight: 500;
+        color: var(--fg-hi);
+      }
+      .choice span.d {
+        display: block;
+        font-size: 15px;
+        color: var(--muted);
+      }
+      .choice[aria-pressed="true"] {
+        border-color: var(--fg-hi);
+        background: color-mix(in srgb, var(--fg-hi) 8%, transparent);
+      }
+      .choice:disabled {
+        cursor: default;
+      }
+      .choice:disabled:not([aria-pressed="true"]) {
+        opacity: 0.5;
+      }
+
+      .feedback {
+        border-left: 2px solid var(--fb, var(--muted));
+        padding: 4px 0 4px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .feedback .verdict {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--fb, var(--muted));
+      }
+      .feedback p {
+        margin: 0;
+        max-width: 62ch;
+      }
+      .feedback ol {
+        margin: 4px 0 0;
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-width: 62ch;
+      }
+      .feedback.good {
+        --fb: var(--good);
+      }
+      .feedback.warn {
+        --fb: var(--warn);
+      }
+
+      /* Scratch card */
+      .scratch {
+        position: relative;
+        border-radius: 4px;
+        overflow: hidden;
+        touch-action: none;
+      }
+      .scratch canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+        transition: opacity 0.4s;
+      }
+      .scratch.clear canvas {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .scratch:not(.clear) mark.key {
+        background: transparent;
+      }
+
+      .flow {
+        display: grid;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .flow > div {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        align-items: baseline;
+      }
+      .flow > div:last-child {
+        border-bottom: 0;
+      }
+      .flow .lab {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .flow .val {
+        color: var(--fg-hi);
+        min-width: 0;
+      }
+
+      /* Drag and drop */
+      .board {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 10px;
+        align-items: stretch;
+      }
+      .slot {
+        min-height: 96px;
+        border: 1px dashed var(--line);
+        border-radius: 4px;
+        background: transparent;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px;
+        font: inherit;
+        color: var(--muted);
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .slot .lab {
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .over,
+      .armed {
+        border-color: var(--fg) !important;
+      }
+      .filled-bad {
+        border-style: solid !important;
+        border-color: var(--warn) !important;
+        background: color-mix(in srgb, var(--warn) 8%, transparent);
+      }
+      .filled-good {
+        border-style: solid !important;
+        border-color: var(--good) !important;
+        background: color-mix(in srgb, var(--good) 8%, transparent);
+      }
+      .core {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 12px 18px;
+        border-radius: 4px;
+        background: var(--raise);
+        color: var(--fg-hi);
+        text-align: center;
+      }
+      .core b {
+        font-weight: 500;
+        font-size: 18px;
+      }
+      .core small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .tray {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-height: 48px;
+      }
+      .chip {
+        font: 500 15px/1 var(--font);
+        padding: 12px 16px;
+        border-radius: 4px;
+        cursor: grab;
+        border: 0;
+        background: var(--shape);
+        color: var(--on-chip);
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .chip.picked {
+        outline: 2px solid var(--fg-hi);
+        outline-offset: 2px;
+      }
+      .chip.dragging {
+        position: fixed;
+        z-index: 50;
+        pointer-events: none;
+        cursor: grabbing;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      }
+      .gaptext p {
+        line-height: 2.1;
+      }
+      .gap {
+        font: inherit;
+        display: inline-block;
+        min-width: 92px;
+        padding: 0 10px;
+        margin: 0 2px;
+        line-height: 1.5;
+        border: 0;
+        border-bottom: 2px dashed var(--muted);
+        border-radius: 3px 3px 0 0;
+        background: var(--raise);
+        color: var(--muted);
+        cursor: pointer;
+        text-align: center;
+        vertical-align: baseline;
+      }
+      .gap.filled {
+        color: var(--fg-hi);
+        border-bottom-style: solid;
+        border-bottom-color: var(--shape);
+        background: color-mix(in srgb, var(--shape) 18%, transparent);
+      }
+      .gap.bad {
+        border-bottom-color: var(--warn);
+        background: color-mix(in srgb, var(--warn) 22%, transparent);
+      }
+      .gap.ok {
+        border-bottom-color: var(--good);
+      }
+      .gap.armed {
+        border-bottom-color: var(--fg-hi);
+      }
+
+      /* Zoom */
+      .rings {
+        display: flex;
+        gap: 0;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .rings span {
+        flex: 1;
+        text-align: center;
+        padding: 10px 6px;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        border-right: 1px solid var(--line);
+      }
+      .rings span:last-child {
+        border-right: 0;
+      }
+      .rings span.on {
+        color: var(--fg-hi);
+        background: color-mix(in srgb, var(--shape) 12%, transparent);
+      }
+      .rings span.seen {
+        color: var(--fg);
+      }
+      .zoomcard {
+        transition: none;
+      }
+      .zoomcard.grow {
+        animation: grow 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+      }
+      @keyframes grow {
+        from {
+          transform: scale(0.985);
+        }
+        to {
+          transform: none;
+        }
+      }
+
+      /* Practice */
+      .tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .tabs button {
+        font: 500 13px/1 var(--font);
+        padding: 10px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--fg);
+      }
+      .tabs button[aria-selected="true"] {
+        background: var(--raise);
+        color: var(--fg-hi);
+        border-color: var(--muted);
+      }
+      .tabs button .ok {
+        color: var(--good);
+        margin-left: 6px;
+      }
+      .chunks p {
+        font-size: 20px;
+        line-height: 1.7;
+      }
+      .chunk {
+        font: inherit;
+        color: inherit;
+        background: transparent;
+        border: 0;
+        padding: 1px 3px;
+        margin: 0 -1px;
+        border-radius: 3px;
+        cursor: pointer;
+        text-align: left;
+        display: inline;
+        box-shadow: inset 0 -1px 0 var(--line);
+        transition: background 0.12s;
+      }
+      .chunk:hover {
+        background: var(--raise);
+      }
+      .chunk[aria-pressed="true"] {
+        background: color-mix(in srgb, var(--shape) 20%, transparent);
+        box-shadow: inset 0 -2px 0 var(--fg-hi);
+      }
+      .chunk.miss {
+        box-shadow: inset 0 -2px 0 var(--warn);
+      }
+      .chunk.wrong {
+        background: color-mix(in srgb, var(--warn) 34%, transparent);
+      }
+
+      label.field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      label.field > span {
+        font-size: 14px;
+        color: var(--muted);
+      }
+      textarea {
+        font: inherit;
+        font-size: 16px;
+        color: var(--fg-hi);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        padding: 12px 14px;
+        resize: vertical;
+        min-height: 84px;
+        width: 100%;
+      }
+      textarea:focus {
+        outline: none;
+        border-color: var(--muted);
+      }
+      .model {
+        background: var(--raise);
+        border-radius: 4px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .model p {
+        margin: 0;
+        color: var(--fg-hi);
+      }
+      .cols3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .cols2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .block {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+      }
+      .block h3 {
+        margin: 0;
+        font-weight: 400;
+        font-size: 20px;
+        color: var(--fg-hi);
+        letter-spacing: -0.015em;
+      }
+
+      /* Finish */
+      .summary {
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .summary .r {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+      }
+      .summary .r:last-child {
+        border-bottom: 0;
+      }
+      .summary .lab {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        padding-top: 3px;
+      }
+      .summary .val {
+        color: var(--fg-hi);
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+      }
+      .summary .val.empty {
+        color: var(--muted);
+      }
+      .copyFallback {
+        width: 100%;
+        min-height: 160px;
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+      }
+      footer .wrap {
+        padding-block: 20px 32px;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      @media (max-width: 560px) {
+        body {
+          font-size: 16px;
+        }
+        .brand span {
+          display: none;
+        }
+        .quote {
+          padding: 18px;
+        }
+        .quote p {
+          font-size: 19px;
+        }
+        .board {
+          grid-template-columns: 1fr;
+        }
+        .core {
+          padding: 10px;
+        }
+        .cols3,
+        .cols2 {
+          grid-template-columns: 1fr;
+        }
+        .flow > div,
+        .summary .r {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+        .hero-shapes {
+          grid-template-columns: repeat(8, 1fr);
+          gap: 6px;
+        }
+        .chunks p {
+          font-size: 18px;
+        }
+        .rings span {
+          font-size: 11px;
+          padding: 9px 2px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap" id="headWrap">
+        <a class="brand" href="#" id="home" aria-label="All tools">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M7 0h2v7h3l-4 9-4-9h3z" fill="currentColor" />
+          </svg>
+          Bible Toolkit <span id="crumb"></span>
+        </a>
+        <nav class="track" id="track" aria-label="Steps"></nav>
+        <div class="counter" id="counter"></div>
+      </div>
+    </header>
+
+    <main class="wrap" id="view"></main>
+
+    <footer>
+      <div class="wrap">
+        <span
+          >Based on the Dig Deeper Bible Toolkit and <i>Dig Deeper!</i> (IVP,
+          2005), © Andrew Sach. An independent study aid, not an official
+          resource.</span
+        >
+        <span>Scripture from the Berean Standard Bible (public domain).</span>
+      </div>
+    </footer>
+
+    <script>
+      /* ============================================================
+   CONTENT
+   Each tool is data: meta + an ordered list of steps.
+   Step types: choice · scratch · slots · gaps · zoom · highlight · reflect
+   ============================================================ */
+      /* Each tool is known by one monochrome shape: [id, name, description, shape class] */
+      const CATALOG = [
+        [
+          "authors-purpose",
+          "Author's Purpose",
+          "Ask the biggest question of any passage: why did the author write this?",
+          "shp-ring",
+        ],
+        [
+          "context",
+          "Context",
+          "Read each verse inside its paragraph, chapter and book before deciding what it means.",
+          "shp-frame",
+        ],
+        [
+          "structure",
+          "Structure",
+          "See how the author has divided the material and how the sections fit together.",
+          "shp-bars",
+        ],
+        [
+          "linking-words",
+          "Linking Words",
+          "Ask what every “therefore”, “because”, “for” and “so that” is doing.",
+          "shp-chevron",
+        ],
+        [
+          "parallels",
+          "Parallels",
+          "Hebrew poetry says a thing twice in different words. Use both lines.",
+          "shp-pillars",
+        ],
+        [
+          "narrators-comment",
+          "Narrator's Comment",
+          "Notice when the writer steps out of the story to explain what's going on.",
+          "shp-quarter",
+        ],
+        [
+          "vocabulary",
+          "Vocabulary",
+          "Bible words have Bible meanings. Watch for familiar words used in unusual ways.",
+          "shp-square",
+        ],
+        [
+          "translations",
+          "Translations",
+          "Read more than one version in case one has missed a nuance.",
+          "shp-diamond",
+        ],
+        [
+          "tone-and-feel",
+          "Tone and Feel",
+          "Notice how the author wants you to feel about what he's saying.",
+          "shp-half",
+        ],
+        [
+          "repetition",
+          "Repetition",
+          "When something is said more than once, the author wants to make sure you don't miss it.",
+          "shp-dots",
+        ],
+        [
+          "quotation",
+          "Quotation / Allusion",
+          "When the author quotes another passage, go there and see what he's picking up.",
+          "shp-slant",
+        ],
+        [
+          "genre",
+          "Genre",
+          "Song, story, genealogy or law? Knowing which changes how you read it.",
+          "shp-hex",
+        ],
+        [
+          "copycat",
+          "Copycat",
+          "Is this character someone to imitate, or someone to avoid?",
+          "shp-bowtie",
+        ],
+        [
+          "timeline",
+          "Bible Timeline",
+          "Where does this passage sit in the Bible's story, and where do I sit?",
+          "shp-play",
+        ],
+        [
+          "who-am-i",
+          "“Who am I?”",
+          "Whose shoes in the passage are you meant to step into, if any?",
+          "shp-circle",
+        ],
+        [
+          "so-what",
+          "“So What?”",
+          "What does this mean for me, for my church, and for someone who doesn't believe?",
+          "shp-plus",
+        ],
+      ];
+
+      const VIDEO = "https://youtu.be/85dvSv-neIg";
+
+      const TOOLS = {
+        /* ---------------- AUTHOR'S PURPOSE ---------------- */
+        "authors-purpose": {
+          video: VIDEO,
+          minutes: 10,
+          headline: [
+            "Why did the author write this?",
+            "The biggest question you can ever ask of a Bible passage.",
+          ],
+          lede: "Not just what a passage says, but why the author says it. Work through one real example from Titus, then try the tool on passages of your own.",
+          steps: [
+            {
+              type: "choice",
+              tag: "Warm-up",
+              outline: ["Why did she say it?", "Warm-up"],
+              t: 1,
+              title: ["Words do things.", "Why does Mum say this?"],
+              quote: [
+                "“Harry, you've left your dirty rugby kit on the kitchen floor.”",
+                "“Harry, you've left your dirty rugby kit on the kitchen floor <em>again</em>.”",
+              ],
+              options: [
+                [
+                  "inform",
+                  "To give information",
+                  "She's reporting where things are in the kitchen.",
+                ],
+                [
+                  "poetry",
+                  "For the sound of it",
+                  "She enjoys the rhythm of the words.",
+                ],
+                [
+                  "change",
+                  "To change what Harry does",
+                  "She wants a different result next time.",
+                ],
+              ],
+              correct: "change",
+              gate: "correct",
+              feedback: {
+                inform: [
+                  "warn",
+                  "Not quite",
+                  "The oranges are in the fruit bowl, the cookbooks are on the bookshelf, and the rugby kit is on the kitchen floor. All true, but Harry already knows where he dropped it.",
+                ],
+                poetry: [
+                  "warn",
+                  "Not quite",
+                  "It does have a certain rhythm. But nobody says it twice for the music.",
+                ],
+                change: [
+                  "good",
+                  "That's it",
+                  "Her exasperated cry is meant to change what Harry does the next time he comes in from rugby. Words don't just carry facts. They are meant to do something.",
+                ],
+              },
+              next: "Now try it on Titus",
+            },
+
+            {
+              type: "choice",
+              tag: "Read",
+              ref: "Titus 3:4–7",
+              outline: ["Read Titus 3:4–7", "Make a guess"],
+              t: 129,
+              title: [
+                "A wonderful summary of the gospel.",
+                "But why is it here?",
+              ],
+              note: "Paul is writing to Titus, a church leader on the island of Crete.",
+              passage: {
+                html: `<span class="v">4</span>But when the kindness of God our Savior and His love for mankind appeared, <span class="v">5</span>He saved us, not by the righteous deeds we had done, but according to His mercy, through the washing of new birth and renewal by the Holy Spirit. <span class="v">6</span>This is the Spirit He poured out on us abundantly through Jesus Christ our Savior, <span class="v">7</span>so that, having been justified by His grace, we would become heirs with the hope of eternal life.`,
+                ref: "Titus 3:4–7 · BSB",
+              },
+              options: [
+                [
+                  "inform",
+                  "To teach Titus some doctrine",
+                  "Facts about salvation he needs to know.",
+                ],
+                [
+                  "poetry",
+                  "To give the church beautiful words",
+                  "Lines to use in worship and liturgy.",
+                ],
+                [
+                  "change",
+                  "To change how people live",
+                  "The words are meant to do something.",
+                ],
+              ],
+              gate: "any",
+              feedback: {
+                inform: [
+                  "warn",
+                  "Hold that thought",
+                  "There are real doctrinal truths here. But Titus is a church leader. He already knows we're saved by grace, so why would Paul need to tell him?",
+                ],
+                poetry: [
+                  "warn",
+                  "Hold that thought",
+                  "They are lovely words, and worth learning and using in church. But that isn't really why they're written.",
+                ],
+                change: [
+                  "good",
+                  "Good instinct",
+                  "But don't stop at a hunch. The way to know for sure is to read on and let the author tell you.",
+                ],
+              },
+              next: "Read on to find out",
+            },
+
+            {
+              type: "scratch",
+              tag: "Reveal",
+              ref: "Titus 3:8",
+              outline: ["Scratch off verse 8", "Find the purpose"],
+              t: 202,
+              title: [
+                "To find out why, read on.",
+                "Scratch off the next verse.",
+              ],
+              label: "Scratch to reveal verse 8",
+              passage: {
+                html: `<span class="v">8</span>This saying is trustworthy. And I want you to <mark class="key">emphasize these things</mark>, <mark class="key">so that</mark> those who have believed God will take care to <mark class="key">devote themselves to good deeds</mark>. These things are excellent and profitable for the people.`,
+                ref: "Titus 3:8 · BSB",
+              },
+              reveal: [
+                "good",
+                "There's the purpose",
+                "“So that” is the giveaway. Paul gives the gospel summary so Titus will insist on it, and the result he's after is a church devoted to doing good.",
+              ],
+              flow: [
+                [
+                  "The words",
+                  "“These things”: saved by mercy, renewed by the Spirit, justified by grace (vv.4–7)",
+                ],
+                [
+                  "Titus does",
+                  "Emphasizes them. Insists on them in his preaching",
+                ],
+                [
+                  "So that",
+                  "Believers in Crete devote themselves to good deeds",
+                ],
+              ],
+              callback: {
+                from: 2,
+                map: {
+                  inform:
+                    "You guessed doctrine. The doctrine matters, but verse 8 shows it's given to change how people live.",
+                  poetry:
+                    "You guessed worship words. They are beautiful, but verse 8 shows they're given to change how people live.",
+                  change:
+                    "You guessed right: verse 8 confirms the words are meant to change how people live.",
+                },
+              },
+              next: "See the logic",
+            },
+
+            {
+              type: "slots",
+              tag: "Think",
+              ref: "Gospel logic",
+              outline: ["Flip the logic", "Grace and good works"],
+              t: 233,
+              title: [
+                "Where do good works go?",
+                "Drag them before or after being saved.",
+              ],
+              note: "You can also tap the card, then tap a slot.",
+              chip: "Good works",
+              core: ["Saved", "by His mercy"],
+              slots: [
+                ["before", "Before"],
+                ["after", "After"],
+              ],
+              correct: "after",
+              feedback: {
+                before: [
+                  "warn",
+                  "That's the carrot and the stick",
+                  "It works on a dog: behave, and you get the carrot. Plenty of people assume God works like that, so you behave and earn eternal life. Paul says no. He saved us “not by the righteous deeds we had done, but according to His mercy.” Try the other slot.",
+                ],
+                after: [
+                  "good",
+                  "Grace first, then good works",
+                  "Salvation is a free gift, not a reward. Yet being saved by grace and renewed by the Spirit is the thing that really changes a person. Saved not because of works, so that we devote ourselves to good works. That is why Paul wants Titus to insist on it.",
+                ],
+              },
+              next: "Your turn",
+            },
+
+            {
+              type: "highlight",
+              tag: "Practice",
+              ref: "Use the tool yourself",
+              outline: ["Your turn", "Three passages to try"],
+              title: [
+                "Find the author's reason.",
+                "Tap the words that tell you why this was written.",
+              ],
+              success:
+                "{author} tells you his purpose in so many words. Look for “written”, “so that”, and what follows.",
+              missHint:
+                "Look for where {author} talks about his own writing, and for “so that”.",
+              write: {
+                prompt: "In one sentence, why did {author} write this?",
+                label: "Start with “So that…”",
+                placeholder: "So that…",
+              },
+              sowhat: true,
+              passages: [
+                {
+                  id: "john",
+                  label: "John 20:30–31",
+                  author: "John",
+                  ref: "John 20:30–31 · BSB",
+                  chunks: [
+                    "Jesus performed many other signs",
+                    "in the presence of His disciples,",
+                    "which are not written in this book.",
+                    "But these are written",
+                    "so that you may believe",
+                    "that Jesus is the Christ, the Son of God,",
+                    "and that by believing",
+                    "you may have life in His name.",
+                  ],
+                  keys: [3, 4],
+                  model:
+                    "John chose which signs to record so that readers would believe Jesus is the Christ, the Son of God, and by believing have life. He writes to bring people to faith.",
+                },
+                {
+                  id: "1john",
+                  label: "1 John 5:13",
+                  author: "John",
+                  ref: "1 John 5:13 · BSB",
+                  chunks: [
+                    "I have written these things to you",
+                    "who believe in the name of the Son of God,",
+                    "so that you may know",
+                    "that you have eternal life.",
+                  ],
+                  keys: [0, 2],
+                  model:
+                    "John writes to people who already believe, so that they can be sure they have eternal life. His purpose is assurance.",
+                },
+                {
+                  id: "luke",
+                  label: "Luke 1:1–4",
+                  author: "Luke",
+                  ref: "Luke 1:1–4 · BSB",
+                  chunks: [
+                    "Many have undertaken to compose an account",
+                    "of the things that have been fulfilled among us,",
+                    "just as they were handed down to us",
+                    "by the initial eyewitnesses and servants of the word.",
+                    "Therefore, having carefully investigated everything from the beginning,",
+                    "it seemed good also to me to write an orderly account for you,",
+                    "most excellent Theophilus,",
+                    "so that you may know the certainty",
+                    "of the things you have been taught.",
+                  ],
+                  keys: [5, 7],
+                  model:
+                    "Luke writes a careful, ordered account so that Theophilus can be certain that what he has been taught is true.",
+                },
+              ],
+              next: "Finish",
+            },
+          ],
+          finish: {
+            title: [
+              "Not just what the Bible says.",
+              "But why the author says it.",
+            ],
+            lede: "Ask “Why did the author write this?” of every passage you read. Look for “so that”, “I write these things”, and what comes straight after the big statements.",
+            takeaways: [
+              [
+                "Titus 3",
+                "Paul gives the gospel summary (vv.4–7) so that Titus will insist on it, so that believers devote themselves to good deeds (v.8).",
+              ],
+            ],
+          },
+        },
+
+        /* ---------------- CONTEXT ---------------- */
+        context: {
+          minutes: 8,
+          headline: [
+            "If you take a text out of context,",
+            "you're left with a con.",
+          ],
+          lede: "Words come within sentences, sentences within paragraphs, paragraphs within chapters. Zoom out from two famous verses and see what they really say.",
+          steps: [
+            {
+              type: "zoom",
+              tag: "Warm-up",
+              ref: "A film poster",
+              outline: ["The poster quote", "Warm-up"],
+              title: [
+                "Spotted on a film poster.",
+                "What did the reviewer think?",
+              ],
+              rings: ["Fragment", "Sentence", "Review"],
+              layers: [
+                {
+                  html: `“…<mark class="focus">the best film of the year</mark>…”`,
+                  ref: "On the poster",
+                },
+                {
+                  html: `Some will call it “<mark class="focus">the best film of the year</mark>.” They are wrong.`,
+                  ref: "The sentence",
+                },
+                {
+                  html: `Two hours of noise, a plot with holes you could drive a bus through, and a lead who looks bored from start to finish. Some will call it “<mark class="focus">the best film of the year</mark>.” They are wrong. One star.`,
+                  ref: "The full review",
+                },
+              ],
+              options: [
+                [
+                  "loved",
+                  "They loved it",
+                  "Best film of the year. It says so.",
+                ],
+                ["hated", "They hated it", "Something about it feels off."],
+                ["cant", "You can't tell yet", "It's only a few words."],
+              ],
+              verdict: {
+                loved:
+                  "That's what the poster wants you to think. The reviewer gave it one star.",
+                hated:
+                  "Good suspicion. The reviewer gave it one star. The poster quoted their words, but not their meaning.",
+                cant: "Exactly. A fragment can make words mean the opposite of what the writer said.",
+              },
+              takeaway:
+                "The words on the poster were accurate. The meaning was a con. Verses can be quoted the same way.",
+              next: "Try it on a famous verse",
+            },
+
+            {
+              type: "zoom",
+              tag: "Zoom out",
+              ref: "Philippians 4:13",
+              outline: ["Philippians 4:13", "A verse on a gym wall"],
+              title: [
+                "You'll see this one on sports shirts.",
+                "What is Paul promising?",
+              ],
+              rings: ["Verse", "Paragraph", "Letter"],
+              layers: [
+                {
+                  html: `<span class="v">13</span><mark class="focus">I can do all things through Christ who gives me strength.</mark>`,
+                  ref: "Philippians 4:13 · BSB",
+                },
+                {
+                  html: `<span class="v">11</span>I am not saying this out of need, for I have learned to be content regardless of my circumstances. <span class="v">12</span>I know how to live humbly, and I know how to abound. I am accustomed to any and every situation—to being filled and being hungry, to having plenty and having need. <span class="v">13</span><mark class="focus">I can do all things through Christ who gives me strength.</mark>`,
+                  ref: "Philippians 4:11–13 · BSB",
+                },
+                {
+                  html: `<span class="v">11</span>I am not saying this out of need, for I have learned to be content regardless of my circumstances. <span class="v">12</span>I know how to live humbly, and I know how to abound. I am accustomed to any and every situation—to being filled and being hungry, to having plenty and having need. <span class="v">13</span><mark class="focus">I can do all things through Christ who gives me strength.</mark>`,
+                  ref: "Philippians 4:11–13 · BSB",
+                  note: "Paul is in prison as he writes (1:13). In 4:10–18 he thanks the Philippians for the gift they sent him, while making clear that his contentment doesn't depend on it.",
+                },
+              ],
+              options: [
+                [
+                  "win",
+                  "Christ will help me succeed",
+                  "Whatever I set out to achieve, I can do it.",
+                ],
+                [
+                  "content",
+                  "Christ gives strength to be content",
+                  "Whether I have plenty or nothing at all.",
+                ],
+                [
+                  "cant",
+                  "You can't tell from one verse",
+                  "I'd need to read more.",
+                ],
+              ],
+              correct: "content",
+              verdict: {
+                win: "That's how it's often used. But zoom out and “all things” means every circumstance: hungry or full, in need or with plenty. Paul is talking about contentment, not achievement.",
+                content:
+                  "Right. “All things” means every situation in verse 12. Christ gives Paul the strength to be content whether he has plenty or nothing.",
+                cant: "Wise. And once you read verses 11–12, “all things” turns out to mean every circumstance, hungry or full. It's about contentment, not achievement.",
+              },
+              takeaway:
+                "Context doesn't make the verse smaller. Strength to be content in prison is a bigger promise than strength to win a match.",
+              next: "One more",
+            },
+
+            {
+              type: "zoom",
+              tag: "Zoom out",
+              ref: "Matthew 18:20",
+              outline: ["Matthew 18:20", "A verse about meetings?"],
+              title: [
+                "Often quoted at small prayer meetings.",
+                "What is this verse about?",
+              ],
+              rings: ["Verse", "Paragraph", "Chapter"],
+              layers: [
+                {
+                  html: `<span class="v">20</span><mark class="focus">For where two or three gather together in My name, there I am with them.</mark>`,
+                  ref: "Matthew 18:20 · BSB",
+                },
+                {
+                  html: `<span class="v">15</span>If your brother sins against you, go and confront him privately. If he listens to you, you have won your brother over. <span class="v">16</span>But if he will not listen, take one or two others along, so that ‘every matter may be established by the testimony of two or three witnesses.’ <span class="v">17</span>If he refuses to listen to them, tell it to the church. … <span class="v">20</span><mark class="focus">For where two or three gather together in My name, there I am with them.</mark>`,
+                  ref: "Matthew 18:15–20 · BSB",
+                },
+                {
+                  html: `<span class="v">15</span>If your brother sins against you, go and confront him privately. If he listens to you, you have won your brother over. <span class="v">16</span>But if he will not listen, take one or two others along, so that ‘every matter may be established by the testimony of two or three witnesses.’ <span class="v">17</span>If he refuses to listen to them, tell it to the church. … <span class="v">20</span><mark class="focus">For where two or three gather together in My name, there I am with them.</mark>`,
+                  ref: "Matthew 18:15–20 · BSB",
+                  note: "The whole chapter is about life together in Jesus' community: humility (vv.1–5), not causing others to stumble (vv.6–9), seeking the one who wanders (vv.10–14), dealing with sin (vv.15–20), and forgiving (vv.21–35).",
+                },
+              ],
+              options: [
+                [
+                  "meeting",
+                  "Jesus is with small prayer meetings",
+                  "Even if only a few turn up.",
+                ],
+                [
+                  "discipline",
+                  "Jesus backs his church in dealing with sin",
+                  "When it acts carefully, with witnesses.",
+                ],
+                [
+                  "cant",
+                  "You can't tell from one verse",
+                  "I'd need to read more.",
+                ],
+              ],
+              correct: "discipline",
+              verdict: {
+                meeting:
+                  "Jesus is with his people when they pray, but this verse isn't the place to prove it. The “two or three” are the witnesses of verse 16, in a passage about dealing with a brother's sin.",
+                discipline:
+                  "Right. The “two or three” are the witnesses of verse 16. When the church handles sin carefully and in His name, Jesus stands behind its judgement.",
+                cant: "Wise. Verse 16 shows who the “two or three” are: witnesses, called in when a brother won't listen. The verse is about church discipline.",
+              },
+              takeaway:
+                "The “For” at the start of verse 20 was a clue. It links the verse to what came before.",
+              next: "Your turn",
+            },
+
+            {
+              type: "reflect",
+              tag: "Practice",
+              ref: "Use the tool yourself",
+              outline: ["Your turn", "A verse you know"],
+              title: [
+                "Think of a verse you often hear on its own.",
+                "Now read the paragraph around it.",
+              ],
+              note: "Some to try: Jeremiah 29:11, Revelation 3:20, Romans 8:28, 2 Chronicles 7:14.",
+              fields: [
+                ["verse", "Which verse?", 2],
+                ["adds", "What does the paragraph around it add?", 4],
+                ["changes", "Does it change how you'd use the verse?", 4],
+              ],
+              sowhat: true,
+              next: "Finish",
+            },
+          ],
+          finish: {
+            title: [
+              "Words come within sentences.",
+              "Sentences within paragraphs, paragraphs within chapters.",
+            ],
+            lede: "Before you decide what a verse means, zoom out. Read the paragraph, then the chapter, then ask where it sits in the whole book.",
+            takeaways: [
+              [
+                "Philippians 4:13",
+                "“All things” means every circumstance. Christ gives strength to be content (vv.11–12).",
+              ],
+              [
+                "Matthew 18:20",
+                "The “two or three” are the witnesses in church discipline (v.16).",
+              ],
+            ],
+          },
+        },
+
+        /* ---------------- LINKING WORDS ---------------- */
+        "linking-words": {
+          minutes: 10,
+          headline: [
+            "Whenever you see a “therefore”,",
+            "ask what it's there for.",
+          ],
+          lede: "Small words like “because”, “so that” and “for” show how an author's ideas fit together. Learn to spot them, then follow where they point.",
+          steps: [
+            {
+              type: "gaps",
+              tag: "Warm-up",
+              ref: "An umbrella",
+              outline: ["Small words, big jobs", "Warm-up"],
+              title: [
+                "Small words, big jobs.",
+                "Drop each linking word into place.",
+              ],
+              note: "Drag a word into a gap, or tap a word and then a gap. Tap a filled gap to empty it.",
+              text: "I took an umbrella [[0]] it was raining. <br>It was raining, [[1]] I took an umbrella. <br>I took an umbrella [[2]] I would stay dry.",
+              answers: ["because", "so", "so that"],
+              bank: ["so that", "because", "so"],
+              good: "Three small words, three different jobs.",
+              explain: [
+                "“Because” gives a <b>reason</b>.",
+                "“So” gives a <b>result</b>.",
+                "“So that” gives a <b>purpose</b>.",
+              ],
+              next: "Now a famous “therefore”",
+            },
+
+            {
+              type: "choice",
+              tag: "Read",
+              ref: "Romans 12:1",
+              outline: ["Romans 12:1", "What's it there for?"],
+              title: [
+                "Paul's letter turns a corner here.",
+                "What is the “therefore” there for?",
+              ],
+              note: "Romans 1–11 sets out the gospel: we are sinners, and God shows mercy through Jesus. Chapter 11 ends in praise.",
+              passage: {
+                html: `<span class="v">1</span><mark class="focus">Therefore</mark> I urge you, brothers, on account of God's mercy, to offer your bodies as living sacrifices, holy and pleasing to God, which is your spiritual service of worship.`,
+                ref: "Romans 12:1 · BSB",
+              },
+              options: [
+                [
+                  "new",
+                  "It starts a new topic",
+                  "So you can read chapter 12 on its own.",
+                ],
+                [
+                  "back",
+                  "It points back to God's mercy",
+                  "Everything in chapters 1–11 calls for a response.",
+                ],
+                [
+                  "filler",
+                  "It's just old-fashioned style",
+                  "A way of starting a sentence.",
+                ],
+              ],
+              correct: "back",
+              gate: "correct",
+              feedback: {
+                new: [
+                  "warn",
+                  "Look again",
+                  "It does start a new section. But a “therefore” always looks back. Paul is building on everything before it.",
+                ],
+                filler: [
+                  "warn",
+                  "Look again",
+                  "Linking words are never just filler. This one tells you how chapter 12 connects to chapters 1–11.",
+                ],
+                back: [
+                  "good",
+                  "That's what it's there for",
+                  "Paul has spent eleven chapters on God's mercy in the gospel. Now he says: in view of all that, give your whole life back to God. The “therefore” turns doctrine into a life of worship.",
+                ],
+              },
+              next: "Fill the gaps in Ephesians",
+            },
+
+            {
+              type: "gaps",
+              tag: "Build",
+              ref: "Ephesians 2:8–10",
+              outline: ["Ephesians 2:8–10", "Put the links back"],
+              title: [
+                "The linking words have gone missing.",
+                "Put them back where Paul had them.",
+              ],
+              note: "One word in the bank doesn't belong.",
+              text: `<span class="v">8</span>[[0]] it is by grace you have been saved through faith, and this not from yourselves; it is the gift of God, <span class="v">9</span>not by works, [[1]] no one can boast. <span class="v">10</span>[[2]] we are God's workmanship, created in Christ Jesus to do good works, which God prepared in advance as our way of life.`,
+              ref: "Ephesians 2:8–10 · BSB",
+              answers: ["For", "so that", "For"],
+              bank: ["so that", "For", "Therefore", "For"],
+              good: "Now ask what each one is doing.",
+              explain: [
+                "“For” (v.8) gives the <b>reason</b> for what came before: God raised us with Christ, and it was all grace (vv.4–7).",
+                "“So that” gives God's <b>purpose</b> in saving by grace: no one gets to boast.",
+                "“For” (v.10) gives another <b>reason</b>: we are His workmanship, made for good works. It's the same logic as Titus 3.",
+              ],
+              next: "Your turn",
+            },
+
+            {
+              type: "highlight",
+              tag: "Practice",
+              ref: "Use the tool yourself",
+              outline: ["Your turn", "Three passages to try"],
+              title: [
+                "Find the linking words.",
+                "Tap them, then say what they're there for.",
+              ],
+              success:
+                "You found the linking words. Now ask what each one is doing: giving a reason, a result, or a purpose, and what it points back to.",
+              missHint:
+                "Look for small words that join ideas, like “therefore”, “since” and “for”.",
+              write: {
+                prompt: "What is the “therefore” there for?",
+                label: "What does it point back to, and what follows from it?",
+                placeholder: "It points back to…",
+              },
+              sowhat: true,
+              passages: [
+                {
+                  id: "rom5",
+                  label: "Romans 5:1",
+                  author: "Paul",
+                  ref: "Romans 5:1 · BSB",
+                  chunks: [
+                    "Therefore,",
+                    "since",
+                    "we have been justified through faith,",
+                    "we have peace with God",
+                    "through our Lord Jesus Christ.",
+                  ],
+                  keys: [0, 1],
+                  model:
+                    "“Therefore” looks back to Romans 4: Abraham was counted righteous by faith, and so are we. “Since” gives the ground: because we have been justified, we have peace with God.",
+                },
+                {
+                  id: "heb12",
+                  label: "Hebrews 12:1",
+                  author: "the writer",
+                  ref: "Hebrews 12:1 · BSB",
+                  chunks: [
+                    "Therefore,",
+                    "since",
+                    "we are surrounded by such a great cloud of witnesses,",
+                    "let us throw off every encumbrance",
+                    "and the sin that so easily entangles,",
+                    "and let us run with endurance",
+                    "the race set out for us.",
+                  ],
+                  keys: [0, 1],
+                  model:
+                    "“Therefore” points back to the heroes of faith in chapter 11. They are the “cloud of witnesses”. Since they ran by faith, we should run too.",
+                },
+                {
+                  id: "phil2",
+                  label: "Philippians 2:12–13",
+                  author: "Paul",
+                  ref: "Philippians 2:12–13 · BSB",
+                  chunks: [
+                    "Therefore,",
+                    "my beloved, just as you have always obeyed,",
+                    "not only in my presence,",
+                    "but now even more in my absence,",
+                    "continue to work out your salvation",
+                    "with fear and trembling.",
+                    "For",
+                    "it is God who works in you",
+                    "to will and to act",
+                    "on behalf of His good purpose.",
+                  ],
+                  keys: [0, 6],
+                  model:
+                    "“Therefore” looks back to Christ's humility and exaltation in 2:5–11. “For” gives the reason we can work hard at living it out: God himself is at work in us.",
+                },
+              ],
+              next: "Finish",
+            },
+          ],
+          finish: {
+            title: [
+              "Whenever you see a “therefore”,",
+              "ask what it's there for.",
+            ],
+            lede: "The same goes for “because”, “so that” and “for”. These small words show how the author's ideas fit together, and they often point you back to the key idea.",
+            takeaways: [
+              [
+                "Romans 12:1",
+                "“Therefore” points back to God's mercy in chapters 1–11. Doctrine becomes a life of worship.",
+              ],
+              [
+                "Ephesians 2:8–10",
+                "Saved by grace (reason), so that no one can boast (purpose), for we are made for good works (reason).",
+              ],
+            ],
+          },
+        },
+      };
+
+      /* ============================================================
+   ENGINE
+   ============================================================ */
+      (() => {
+        const $ = (s, r = document) => r.querySelector(s);
+        const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+        const esc = (s) =>
+          String(s).replace(
+            /[&<>"]/g,
+            (c) =>
+              ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+          );
+        const h = (html) => {
+          const t = document.createElement("template");
+          t.innerHTML = html.trim();
+          return t.content.firstElementChild;
+        };
+        const css = (v) =>
+          getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+        const fill = (s, p) => s.replace(/\{author\}/g, p.author);
+        const shapeOf = (id) => (CATALOG.find((c) => c[0] === id) || [])[3];
+        const toolIndex = (id) => CATALOG.findIndex((c) => c[0] === id);
+        const toolMeta = (id) => CATALOG[toolIndex(id)];
+
+        // ---------- state ----------
+        const KEY = "bible-toolkit-v2";
+        let S = { tools: {} };
+        try {
+          const raw = localStorage.getItem(KEY);
+          if (raw) S = Object.assign({ tools: {} }, JSON.parse(raw));
+        } catch (e) {}
+        const save = () => {
+          try {
+            localStorage.setItem(KEY, JSON.stringify(S));
+          } catch (e) {}
+        };
+        const TS = (id) => (S.tools[id] ||= { step: 0, done: {}, a: {} });
+        const A = (id, i) => (TS(id).a[i] ||= {});
+
+        let curTool = null,
+          curStep = 0,
+          onResize = null;
+
+        // ---------- routing ----------
+        function route() {
+          const id = location.hash.replace(/^#/, "");
+          if (TOOLS[id]) openTool(id);
+          else openHub();
+        }
+        window.addEventListener("hashchange", route);
+        $("#home").addEventListener("click", (e) => {
+          e.preventDefault();
+          if (location.hash) location.hash = "";
+          else openHub();
+        });
+
+        const view = $("#view");
+        function mount(el, focus = true) {
+          view.innerHTML = "";
+          view.appendChild(el);
+          el.classList.add("reveal-in");
+          if (focus) {
+            window.scrollTo(0, 0);
+            const hd = el.querySelector("h1,h2");
+            if (hd) {
+              hd.setAttribute("tabindex", "-1");
+              hd.focus({ preventScroll: true });
+            }
+          }
+        }
+
+        // ---------- hub ----------
+        function openHub() {
+          curTool = null;
+          onResize = null;
+          view.classList.add("wide");
+          $("#headWrap").classList.add("wide");
+          $("#crumb").textContent = "";
+          $("#track").innerHTML = "";
+          $("#counter").textContent = `${CATALOG.length} tools`;
+          const live = CATALOG.filter((c) => TOOLS[c[0]]).length;
+          const shapes = CATALOG.map(
+            (c, i) =>
+              `<div class="sh ${c[3]}${TOOLS[c[0]] ? "" : " dim"}" style="animation-delay:${i * 0.03}s"></div>`,
+          ).join("");
+          const tiles = CATALOG.map(([id, name, desc, shape], i) => {
+            const n = String(i + 1).padStart(2, "0");
+            const sh = `<span class="sh ${shape}"></span>`;
+            if (!TOOLS[id])
+              return `<div class="tile soon" aria-disabled="true"><div class="top">${sh}<span class="num">${n}</span></div><b>${esc(name)}</b><p>${esc(desc)}</p><div class="status">Coming soon</div></div>`;
+            const t = TOOLS[id],
+              st = S.tools[id],
+              total = t.steps.length;
+            const done = st
+              ? Object.keys(st.done).filter((k) => st.done[k]).length
+              : 0;
+            const label =
+              done >= total
+                ? "Complete"
+                : done
+                  ? `${done} / ${total} steps`
+                  : `${total} steps · ${t.minutes} min`;
+            return `<a class="tile" href="#${id}"><div class="top">${sh}<span class="num">${n}</span></div><b>${esc(name)}</b><p>${esc(desc)}</p><div class="status"><span>${label}</span><span class="bar"><i style="width:${Math.round((done / total) * 100)}%"></i></span></div></a>`;
+          }).join("");
+          mount(
+            h(`<section class="step">
+      <div class="hero-shapes" aria-hidden="true">${shapes}</div>
+      <div class="hub-head">
+        <div class="eyebrow"><span class="tag">${live} of ${CATALOG.length} ready</span> Interactive Bible study tools</div>
+        <h1>Sixteen questions to ask of any passage. <em>Pick a tool and work it through.</em></h1>
+        <p class="lede">Each tool takes about ten minutes. You learn it on a worked example, then try it on passages of your own. Your progress is kept in this browser.</p>
+      </div>
+      <div class="tiles">${tiles}</div>
+    </section>`),
+            false,
+          );
+        }
+
+        // ---------- tool shell ----------
+        function openTool(id) {
+          curTool = id;
+          view.classList.remove("wide");
+          $("#headWrap").classList.remove("wide");
+          $("#crumb").textContent = "/ " + toolMeta(id)[1];
+          const t = TOOLS[id],
+            track = $("#track");
+          track.innerHTML = "";
+          t.steps.forEach((st, i) => {
+            const b = document.createElement("button");
+            b.className = "sh " + shapeOf(id);
+            b.setAttribute("aria-label", `Step ${i + 1}: ${st.outline[0]}`);
+            b.addEventListener("click", () => go(i + 1));
+            track.appendChild(b);
+          });
+          const s = TS(id).step || 0;
+          go(unlocked(s) ? s : 0);
+        }
+
+        const N = () => TOOLS[curTool].steps.length;
+        function unlocked(n) {
+          const st = TS(curTool);
+          for (let k = 1; k < n; k++) if (!st.done[k]) return false;
+          return n <= N() + 1;
+        }
+        function markDone(i, v = true) {
+          const st = TS(curTool);
+          if (!!st.done[i] === v) return;
+          st.done[i] = v;
+          save();
+          refreshChrome();
+        }
+        function refreshChrome() {
+          const n = curStep,
+            tot = N();
+          $("#counter").textContent =
+            n === 0
+              ? "Intro"
+              : n > tot
+                ? "Complete"
+                : `Step ${String(n).padStart(2, "0")} / ${String(tot).padStart(2, "0")}`;
+          $$("button", $("#track")).forEach((b, i) => {
+            const k = i + 1;
+            b.classList.toggle("now", k === n);
+            b.classList.toggle("done", !!TS(curTool).done[k]);
+            b.disabled = !unlocked(k);
+          });
+          const next = $("#nextBtn");
+          if (next) next.disabled = !unlocked(n + 1);
+        }
+
+        function go(n) {
+          if (!unlocked(n)) return;
+          curStep = n;
+          TS(curTool).step = n;
+          save();
+          onResize = null;
+          const t = TOOLS[curTool];
+          let el;
+          if (n === 0) el = renderIntro(t);
+          else if (n > N()) el = renderFinish(t);
+          else el = renderStep(t, n);
+          mount(el);
+          refreshChrome();
+          el._after && el._after();
+        }
+
+        function navBar(n, label) {
+          const nav = h(
+            `<div class="nav"><button class="btn ghost" data-back>Back</button><button class="btn wide" id="nextBtn">${esc(label || "Continue")} <span class="arr">›</span></button></div>`,
+          );
+          $("[data-back]", nav).addEventListener("click", () => go(n - 1));
+          $("#nextBtn", nav).addEventListener("click", () => go(n + 1));
+          return nav;
+        }
+        function fbEl(spec) {
+          const [kind, verdict, text] = spec;
+          return `<span class="verdict">${verdict}</span><p>${text}</p>`;
+        }
+        function setFb(el, spec) {
+          el.className = "feedback " + spec[0];
+          el.innerHTML = fbEl(spec);
+          el.hidden = false;
+        }
+        const watch = (t, secs) =>
+          t.video && secs != null
+            ? `<a class="watch" href="${t.video}?t=${secs}" target="_blank" rel="noopener"><span class="play"></span>Watch this bit · ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}</a>`
+            : "";
+
+        // ---------- intro ----------
+        function renderIntro(t) {
+          const i = toolIndex(curTool);
+          const outline = t.steps
+            .map(
+              (st, k) =>
+                `<li><span class="t">${String(k + 1).padStart(2, "0")}</span><span><b>${esc(st.outline[0])}</b> <span class="small">· ${esc(st.outline[1])}</span></span><span class="t">${t.video && st.t != null ? "▶ " + Math.floor(st.t / 60) + ":" + String(st.t % 60).padStart(2, "0") : ""}</span></li>`,
+            )
+            .join("");
+          const el = h(`<section class="step">
+      <div class="step-head">
+        <div class="eyebrow"><span class="tag"><span class="sh ${shapeOf(curTool)}" style="display:inline-block;width:9px;height:9px;margin-right:6px"></span>Tool ${String(i + 1).padStart(2, "0")}</span> ${esc(toolMeta(curTool)[1])} · about ${t.minutes} minutes</div>
+        <h1>${t.headline[0]} <em>${t.headline[1]}</em></h1>
+        <p class="lede">${t.lede}</p>
+      </div>
+      <ol class="outline">${outline}</ol>
+      <div class="nav"><button class="btn ghost" data-hub>All tools</button><button class="btn wide" id="nextBtn">${TS(curTool).done[1] ? "Continue" : "Start"} <span class="arr">›</span></button>${t.video ? `<a class="btn ghost" href="${t.video}" target="_blank" rel="noopener">Video</a>` : ""}</div>
+    </section>`);
+          $("[data-hub]", el).addEventListener("click", () => {
+            location.hash = "";
+          });
+          $("#nextBtn", el).addEventListener("click", () => {
+            let k = 1;
+            while (k <= N() && TS(curTool).done[k]) k++;
+            go(Math.min(k, N() + 1));
+          });
+          return el;
+        }
+
+        // ---------- step ----------
+        function renderStep(t, n) {
+          const st = t.steps[n - 1];
+          const el = h(`<section class="step">
+      <div class="step-head">
+        <div class="eyebrow"><span class="tag">${esc(st.tag)}</span>${st.ref ? " " + esc(st.ref) : ""}</div>
+        <h2>${st.title[0]} <em>${st.title[1]}</em></h2>
+        ${st.note ? `<p class="small">${st.note}</p>` : ""}
+      </div>
+    </section>`);
+          const body = document.createDocumentFragment();
+          const a = A(curTool, n);
+          const done = (v) => markDone(n, v);
+          ({ choice, scratch, slots, gaps, zoom, highlight, reflect })[st.type](
+            st,
+            a,
+            body,
+            done,
+            el,
+            n,
+          );
+          el.appendChild(body);
+          const w = watch(t, st.t);
+          if (w) el.appendChild(h(w));
+          el.appendChild(navBar(n, st.next));
+          return el;
+        }
+
+        function passageBlock(p, extraClass = "") {
+          return `<div class="quote ${extraClass}"><p>${p.html}</p>${p.ref ? `<span class="ref">${esc(p.ref)}</span>` : ""}${p.note ? `<span class="note">${p.note}</span>` : ""}</div>`;
+        }
+
+        /* choice */
+        function choice(st, a, body, done) {
+          if (st.quote)
+            body.appendChild(
+              h(
+                `<div class="quote">${st.quote.map((q, i) => `<p class="${i ? "echo" : ""}">${q}</p>`).join("")}</div>`,
+              ),
+            );
+          if (st.passage) body.appendChild(h(passageBlock(st.passage)));
+          const group = h(
+            `<div class="choices">${st.options.map(([v, b, d], i) => `<button class="choice" data-v="${v}" aria-pressed="${a.v === v}"><span class="k">${"ABC"[i]}</span><span><b>${b}</b><span class="d">${d}</span></span></button>`).join("")}</div>`,
+          );
+          const fb = h(`<div class="feedback" hidden></div>`);
+          const paint = () => {
+            $$(".choice", group).forEach((c) =>
+              c.setAttribute("aria-pressed", String(c.dataset.v === a.v)),
+            );
+            if (a.v) setFb(fb, st.feedback[a.v]);
+          };
+          group.addEventListener("click", (e) => {
+            const c = e.target.closest(".choice");
+            if (!c) return;
+            a.v = c.dataset.v;
+            save();
+            paint();
+            done(st.gate === "any" || a.v === st.correct);
+          });
+          paint();
+          body.append(group, fb);
+        }
+
+        /* scratch */
+        function scratch(st, a, body, done, el, n) {
+          const wrap = h(
+            `<div class="scratch">${passageBlock(st.passage)}<canvas aria-hidden="true"></canvas></div>`,
+          );
+          const btn = h(
+            `<button class="btn ghost" style="align-self:flex-start">Reveal without scratching</button>`,
+          );
+          const prior = st.callback && A(curTool, st.callback.from).v;
+          const after =
+            h(`<div hidden style="display:flex;flex-direction:column;gap:20px">
+      <div class="feedback ${st.reveal[0]}">${fbEl(st.reveal)}</div>
+      ${st.flow ? `<div class="flow">${st.flow.map(([l, v, c]) => `<div style="--c:var(${c})"><span class="lab">${l}</span><span class="val">${v}</span></div>`).join("")}</div>` : ""}
+      ${prior ? `<div class="feedback"><span class="verdict">Your guess</span><p>${st.callback.map[prior]}</p></div>` : ""}
+    </div>`);
+          const canvas = $("canvas", wrap);
+          let ctx,
+            drawing = false,
+            last = null,
+            moves = 0,
+            sized = "";
+          function reveal() {
+            wrap.classList.add("clear");
+            btn.hidden = true;
+            after.hidden = false;
+            after.style.display = "flex";
+            a.v = true;
+            save();
+            done(true);
+          }
+          function init() {
+            if (a.v) {
+              reveal();
+              return;
+            }
+            const r = wrap.getBoundingClientRect();
+            const key = Math.round(r.width) + "x" + Math.round(r.height);
+            if (key === sized || !r.width) return;
+            sized = key;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = r.width * dpr;
+            canvas.height = r.height * dpr;
+            ctx = canvas.getContext("2d");
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = css("--scratch");
+            ctx.fillRect(0, 0, r.width, r.height);
+            ctx.strokeStyle = css("--line");
+            ctx.lineWidth = 1;
+            for (let x = -r.height; x < r.width; x += 7) {
+              ctx.beginPath();
+              ctx.moveTo(x, r.height);
+              ctx.lineTo(x + r.height, 0);
+              ctx.stroke();
+            }
+            ctx.fillStyle = css("--muted");
+            ctx.font = `500 12px ${css("--mono")}`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(st.label, r.width / 2, r.height / 2);
+            ctx.globalCompositeOperation = "destination-out";
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.lineWidth = 44;
+          }
+          const pt = (e) => {
+            const r = canvas.getBoundingClientRect();
+            return { x: e.clientX - r.left, y: e.clientY - r.top };
+          };
+          function stroke(p) {
+            ctx.beginPath();
+            ctx.moveTo((last || p).x, (last || p).y);
+            ctx.lineTo(p.x + 0.01, p.y);
+            ctx.stroke();
+            last = p;
+            if (++moves % 12 === 0) {
+              const d = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height,
+              ).data;
+              let clear = 0,
+                total = 0;
+              for (let i = 3; i < d.length; i += 96) {
+                total++;
+                if (d[i] < 40) clear++;
+              }
+              if (clear / total > 0.45) reveal();
+            }
+          }
+          canvas.addEventListener("pointerdown", (e) => {
+            if (!ctx) return;
+            drawing = true;
+            last = null;
+            canvas.setPointerCapture(e.pointerId);
+            stroke(pt(e));
+          });
+          canvas.addEventListener("pointermove", (e) => {
+            if (drawing) stroke(pt(e));
+          });
+          ["pointerup", "pointercancel"].forEach((ev) =>
+            canvas.addEventListener(ev, () => {
+              drawing = false;
+              last = null;
+            }),
+          );
+          btn.addEventListener("click", reveal);
+          el._after = () => requestAnimationFrame(init);
+          onResize = () => {
+            if (!a.v) {
+              sized = "";
+              init();
+            }
+          };
+          body.append(wrap, btn, after);
+        }
+
+        /* shared drag-or-tap */
+        function dnd(getTargets, onDrop) {
+          let picked = null;
+          const arm = (on) =>
+            getTargets().forEach((t) => t.classList.toggle("armed", on));
+          const clearPick = () => {
+            picked = null;
+            $$(".chip.picked").forEach((c) => c.classList.remove("picked"));
+            arm(false);
+          };
+          function bind(chip, payload) {
+            let start = null,
+              moved = false,
+              off = null;
+            chip.addEventListener("pointerdown", (e) => {
+              start = { x: e.clientX, y: e.clientY };
+              moved = false;
+              const r = chip.getBoundingClientRect();
+              off = { x: e.clientX - r.left, y: e.clientY - r.top, w: r.width };
+              chip.setPointerCapture(e.pointerId);
+            });
+            chip.addEventListener("pointermove", (e) => {
+              if (!start) return;
+              if (
+                !moved &&
+                Math.hypot(e.clientX - start.x, e.clientY - start.y) < 6
+              )
+                return;
+              if (!moved) {
+                moved = true;
+                chip.classList.add("dragging");
+                chip.style.width = off.w + "px";
+              }
+              chip.style.left = e.clientX - off.x + "px";
+              chip.style.top = e.clientY - off.y + "px";
+              const under = document.elementFromPoint(e.clientX, e.clientY);
+              getTargets().forEach((t) =>
+                t.classList.toggle("over", !!under && t.contains(under)),
+              );
+            });
+            const end = (e) => {
+              if (!start) return;
+              start = null;
+              if (!moved) return;
+              chip.classList.remove("dragging");
+              chip.style.left = chip.style.top = chip.style.width = "";
+              const under =
+                e.type === "pointerup"
+                  ? document.elementFromPoint(e.clientX, e.clientY)
+                  : null;
+              const t = getTargets().find((x) => under && x.contains(under));
+              getTargets().forEach((x) => x.classList.remove("over"));
+              clearPick();
+              if (t) onDrop(t, payload);
+            };
+            chip.addEventListener("pointerup", end);
+            chip.addEventListener("pointercancel", end);
+            chip.addEventListener("click", (e) => {
+              e.stopPropagation();
+              if (moved) {
+                moved = false;
+                return;
+              }
+              const same = picked === payload;
+              clearPick();
+              if (!same) {
+                picked = payload;
+                chip.classList.add("picked");
+                arm(true);
+              }
+            });
+          }
+          return {
+            bind,
+            take: () => {
+              const p = picked;
+              clearPick();
+              return p;
+            },
+            has: () => picked !== null,
+          };
+        }
+
+        /* slots */
+        function slots(st, a, body, done) {
+          const tray = h(`<div class="tray"></div>`);
+          const chip = h(
+            `<button class="chip" aria-label="${esc(st.chip)}. Pick up, then choose a slot.">${esc(st.chip)}</button>`,
+          );
+          const board = h(`<div class="board">
+      <button class="slot" data-slot="${st.slots[0][0]}" aria-label="${st.slots[0][1]}"><span class="lab">${st.slots[0][1]}</span><span class="ph">Drop here</span></button>
+      <div class="core"><b>${st.core[0]}</b><small>${st.core[1]}</small></div>
+      <button class="slot" data-slot="${st.slots[1][0]}" aria-label="${st.slots[1][1]}"><span class="lab">${st.slots[1][1]}</span><span class="ph">Drop here</span></button>
+    </div>`);
+          const fb = h(`<div class="feedback" hidden></div>`);
+          const targets = () => $$(".slot", board);
+          function place(where) {
+            a.v = where;
+            save();
+            targets().forEach((s) => {
+              s.classList.remove("filled-good", "filled-bad", "armed", "over");
+              const ph = $(".ph", s);
+              if (s.dataset.slot === where) {
+                ph.hidden = true;
+                s.appendChild(chip);
+                s.classList.add(
+                  where === st.correct ? "filled-good" : "filled-bad",
+                );
+              } else ph.hidden = false;
+            });
+            setFb(fb, st.feedback[where]);
+            done(where === st.correct);
+          }
+          const d = dnd(targets, (t) => place(t.dataset.slot));
+          d.bind(chip, "chip");
+          targets().forEach((s) =>
+            s.addEventListener("click", () => {
+              d.take();
+              place(s.dataset.slot);
+            }),
+          );
+          tray.appendChild(chip);
+          body.append(tray, board, fb);
+          if (a.v) place(a.v);
+        }
+
+        /* gaps */
+        function gaps(st, a, body, done) {
+          a.fill ||= st.answers.map(() => null);
+          const card = h(
+            `<div class="quote gaptext"><p></p>${st.ref ? `<span class="ref">${esc(st.ref)}</span>` : ""}</div>`,
+          );
+          const p = $("p", card);
+          p.innerHTML = st.text.replace(
+            /\[\[(\d+)\]\]/g,
+            (_, g) =>
+              `<button class="gap" data-g="${g}" aria-label="Gap ${+g + 1}, empty">&nbsp;</button>`,
+          );
+          const bank = h(`<div class="tray" aria-label="Word bank"></div>`);
+          const row = h(
+            `<div class="row"><button class="btn">Check</button><button class="btn ghost">Clear</button></div>`,
+          );
+          const [checkBtn, clearBtn] = $$("button", row);
+          const fb = h(`<div class="feedback" hidden></div>`);
+          const gapEls = () => $$(".gap", p);
+          const d = dnd(gapEls, (t, bi) => put(+t.dataset.g, bi));
+          function put(g, bi) {
+            a.fill = a.fill.map((x) => (x === bi ? null : x));
+            a.fill[g] = bi;
+            a.checked = false;
+            save();
+            paint();
+          }
+          function paint() {
+            gapEls().forEach((gEl) => {
+              const bi = a.fill[+gEl.dataset.g];
+              gEl.classList.remove("ok", "bad");
+              gEl.classList.toggle("filled", bi !== null);
+              gEl.textContent = bi !== null ? st.bank[bi] : " ";
+              gEl.setAttribute(
+                "aria-label",
+                `Gap ${+gEl.dataset.g + 1}, ${bi !== null ? st.bank[bi] : "empty"}`,
+              );
+            });
+            bank.innerHTML = "";
+            st.bank.forEach((w, bi) => {
+              if (a.fill.includes(bi)) return;
+              const c = h(`<button class="chip">${esc(w)}</button>`);
+              d.bind(c, bi);
+              bank.appendChild(c);
+            });
+            if (!bank.children.length)
+              bank.appendChild(
+                h(
+                  `<span class="small" style="align-self:center">All words placed</span>`,
+                ),
+              );
+            if (a.checked) mark(false);
+          }
+          gapEls().forEach((gEl) =>
+            gEl.addEventListener("click", () => {
+              const g = +gEl.dataset.g;
+              if (d.has()) put(g, d.take());
+              else if (a.fill[g] !== null) {
+                a.fill[g] = null;
+                a.checked = false;
+                save();
+                paint();
+                fb.hidden = true;
+              }
+            }),
+          );
+          function mark(announce = true) {
+            if (a.fill.some((x) => x === null)) {
+              setFb(fb, ["warn", "Not finished", "Fill every gap first."]);
+              return;
+            }
+            const wrong = a.fill.map((bi, g) => st.bank[bi] !== st.answers[g]);
+            gapEls().forEach((gEl) => {
+              const g = +gEl.dataset.g;
+              gEl.classList.toggle("bad", wrong[g]);
+              gEl.classList.toggle("ok", !wrong[g]);
+            });
+            const nWrong = wrong.filter(Boolean).length;
+            if (!nWrong) {
+              fb.className = "feedback good";
+              fb.hidden = false;
+              fb.innerHTML = `<span class="verdict">All correct</span><p>${st.good}</p><ol>${st.explain.map((x) => `<li>${x}</li>`).join("")}</ol>`;
+              a.checked = true;
+              save();
+              done(true);
+            } else {
+              setFb(fb, [
+                "warn",
+                "Look again",
+                `${nWrong === 1 ? "One gap isn't" : nWrong + " gaps aren't"} right yet, marked in amber. Tap a gap to empty it and try another word.`,
+              ]);
+            }
+          }
+          checkBtn.addEventListener("click", () => mark());
+          clearBtn.addEventListener("click", () => {
+            a.fill = st.answers.map(() => null);
+            a.checked = false;
+            save();
+            fb.hidden = true;
+            paint();
+          });
+          paint();
+          body.append(bank, card, row, fb);
+        }
+
+        /* zoom */
+        function zoom(st, a, body, done) {
+          a.level ||= 0;
+          const rings = h(
+            `<div class="rings" aria-hidden="true">${st.rings.map((r) => `<span>${r}</span>`).join("")}</div>`,
+          );
+          const holder = h(`<div></div>`);
+          const group = h(
+            `<div class="choices">${st.options.map(([v, b, d], i) => `<button class="choice" data-v="${v}" aria-pressed="${a.v === v}"><span class="k">${"ABC"[i]}</span><span><b>${b}</b><span class="d">${d}</span></span></button>`).join("")}</div>`,
+          );
+          const zbtn = h(
+            `<button class="btn" style="align-self:flex-start">Zoom out <span class="arr">›</span></button>`,
+          );
+          const fb = h(`<div class="feedback" hidden></div>`);
+          const hint = h(
+            `<p class="small">Make a guess first, then zoom out.</p>`,
+          );
+          function paint(animate) {
+            const L = st.layers[a.level];
+            holder.innerHTML = passageBlock(
+              L,
+              "zoomcard" + (animate ? " grow" : ""),
+            );
+            $$("span", rings).forEach((s, i) => {
+              s.classList.toggle("on", i === a.level);
+              s.classList.toggle("seen", i < a.level);
+            });
+            $$(".choice", group).forEach((c) => {
+              c.setAttribute("aria-pressed", String(c.dataset.v === a.v));
+              c.disabled = !!a.v;
+            });
+            const last = a.level >= st.layers.length - 1;
+            zbtn.hidden = last;
+            zbtn.disabled = !a.v;
+            hint.hidden = !!a.v;
+            if (last && a.v) {
+              const ok = st.correct
+                ? a.v === st.correct || a.v === "cant"
+                : a.v !== "loved";
+              const label = !st.correct
+                ? "Here's the full review"
+                : ok
+                  ? "Context confirms it"
+                  : "Context changes it";
+              fb.className = "feedback " + (ok ? "good" : "warn");
+              fb.hidden = false;
+              fb.innerHTML = `<span class="verdict">${label}</span><p>${st.verdict[a.v]}</p><p style="color:var(--muted)">${st.takeaway}</p>`;
+              done(true);
+            } else fb.hidden = true;
+          }
+          group.addEventListener("click", (e) => {
+            const c = e.target.closest(".choice");
+            if (!c || a.v) return;
+            a.v = c.dataset.v;
+            save();
+            paint();
+          });
+          zbtn.addEventListener("click", () => {
+            a.level = Math.min(a.level + 1, st.layers.length - 1);
+            save();
+            paint(true);
+          });
+          paint();
+          body.append(rings, holder, group, hint, zbtn, fb);
+        }
+
+        /* highlight */
+        function highlight(st, a, body, done) {
+          a.cur ||= st.passages[0].id;
+          a.sel ||= {};
+          a.checked ||= {};
+          a.why ||= {};
+          a.model ||= {};
+          const tabs = h(`<div class="tabs" role="tablist"></div>`);
+          const card = h(`<div class="quote chunks"></div>`);
+          const row = h(
+            `<div class="row"><button class="btn">Check my highlights</button><button class="btn ghost">Clear</button></div>`,
+          );
+          const [checkBtn, clearBtn] = $$("button", row);
+          const fb = h(`<div class="feedback" hidden></div>`);
+          const wb = h(
+            `<div class="block"><h3></h3><label class="field"><span></span><textarea rows="3"></textarea></label><button class="btn ghost" style="align-self:flex-start">Compare with ours</button><div class="model" hidden><div class="eyebrow">One way to put it</div><p></p></div></div>`,
+          );
+          const why = $("textarea", wb),
+            modelBox = $(".model", wb);
+          const cur = () =>
+            st.passages.find((p) => p.id === a.cur) || st.passages[0];
+          function paintTabs() {
+            tabs.innerHTML = st.passages
+              .map(
+                (p) =>
+                  `<button role="tab" data-id="${p.id}" aria-selected="${p.id === a.cur}">${p.label}${a.checked[p.id] ? '<span class="ok">✓</span>' : ""}</button>`,
+              )
+              .join("");
+          }
+          function render() {
+            const p = cur(),
+              sel = a.sel[p.id] || [];
+            paintTabs();
+            card.innerHTML = `<p>${p.chunks.map((c, i) => `<button class="chunk" data-i="${i}" aria-pressed="${sel.includes(i)}">${c}</button>`).join(" ")}</p><span class="ref">${p.ref}</span>`;
+            fb.hidden = true;
+            $("h3", wb).textContent = fill(st.write.prompt, p);
+            $("label span", wb).textContent = fill(st.write.label, p);
+            why.placeholder = st.write.placeholder;
+            why.value = a.why[p.id] || "";
+            modelBox.hidden = !a.model[p.id];
+            $("p", modelBox).textContent = p.model;
+            if (a.checked[p.id]) check();
+          }
+          tabs.addEventListener("click", (e) => {
+            const b = e.target.closest("button");
+            if (!b) return;
+            a.cur = b.dataset.id;
+            save();
+            render();
+          });
+          card.addEventListener("click", (e) => {
+            const c = e.target.closest(".chunk");
+            if (!c) return;
+            const p = cur(),
+              i = +c.dataset.i,
+              sel = new Set(a.sel[p.id] || []);
+            sel.has(i) ? sel.delete(i) : sel.add(i);
+            a.sel[p.id] = [...sel];
+            save();
+            c.setAttribute("aria-pressed", String(sel.has(i)));
+            $$(".chunk", card).forEach((x) =>
+              x.classList.remove("miss", "wrong"),
+            );
+          });
+          function check() {
+            const p = cur(),
+              sel = new Set(a.sel[p.id] || []);
+            const missed = p.keys.filter((k) => !sel.has(k)),
+              extra = [...sel].filter((k) => !p.keys.includes(k));
+            $$(".chunk", card).forEach((x) => {
+              const i = +x.dataset.i;
+              x.classList.toggle("miss", missed.includes(i));
+              x.classList.toggle("wrong", extra.includes(i));
+            });
+            if (!sel.size) {
+              setFb(fb, [
+                "warn",
+                "Nothing picked yet",
+                "Tap the phrases you think are the clues.",
+              ]);
+              return;
+            }
+            if (!missed.length) {
+              const note = extra.length
+                ? " The amber phrases are part of the passage's content rather than the clue you're looking for."
+                : "";
+              setFb(fb, ["good", "You found it", fill(st.success, p) + note]);
+              if (!a.checked[p.id]) {
+                a.checked[p.id] = true;
+                save();
+                paintTabs();
+              }
+              done(true);
+            } else {
+              setFb(fb, [
+                "warn",
+                "Look again",
+                `You've missed ${missed.length === 1 ? "a phrase" : "some phrases"}, underlined in amber. ${fill(st.missHint, p)}`,
+              ]);
+            }
+          }
+          checkBtn.addEventListener("click", check);
+          clearBtn.addEventListener("click", () => {
+            a.sel[cur().id] = [];
+            save();
+            render();
+          });
+          why.addEventListener("input", () => {
+            a.why[cur().id] = why.value;
+            save();
+          });
+          $(".btn", wb).addEventListener("click", () => {
+            a.model[cur().id] = true;
+            save();
+            modelBox.hidden = false;
+          });
+          render();
+          body.append(tabs, card, row, fb, wb);
+          if (st.sowhat) body.appendChild(soWhat(a));
+        }
+
+        function soWhat(a) {
+          a.sw ||= {};
+          const el =
+            h(`<div class="block"><h3>So what? <em>If that's what it means, what follows for…</em></h3><div class="cols3">
+      ${[
+        ["me", "Me"],
+        ["church", "My church"],
+        ["world", "An unbeliever"],
+      ]
+        .map(
+          ([k, l]) =>
+            `<label class="field"><span>${l}</span><textarea rows="4" data-k="${k}"></textarea></label>`,
+        )
+        .join("")}
+    </div></div>`);
+          $$("textarea", el).forEach((t) => {
+            t.value = a.sw[t.dataset.k] || "";
+            t.addEventListener("input", () => {
+              a.sw[t.dataset.k] = t.value;
+              save();
+            });
+          });
+          return el;
+        }
+
+        /* reflect */
+        function reflect(st, a, body, done) {
+          a.f ||= {};
+          const el = h(
+            `<div style="display:flex;flex-direction:column;gap:16px">${st.fields.map(([k, l, r]) => `<label class="field"><span>${l}</span><textarea rows="${r}" data-k="${k}"></textarea></label>`).join("")}</div>`,
+          );
+          $$("textarea", el).forEach((t) => {
+            t.value = a.f[t.dataset.k] || "";
+            t.addEventListener("input", () => {
+              a.f[t.dataset.k] = t.value;
+              save();
+            });
+          });
+          body.appendChild(el);
+          if (st.sowhat) body.appendChild(soWhat(a));
+          done(true);
+        }
+
+        // ---------- finish ----------
+        function notes(t) {
+          const rows = [
+            ["Tool", toolMeta(curTool)[1] + ": " + t.headline.join(" ")],
+          ];
+          t.finish.takeaways.forEach((r) => rows.push(r));
+          t.steps.forEach((st, k) => {
+            const a = TS(curTool).a[k + 1] || {};
+            if (st.type === "highlight")
+              st.passages.forEach((p) => {
+                const v = (a.why || {})[p.id];
+                if (v && v.trim()) rows.push([p.label, v.trim()]);
+              });
+            if (st.type === "reflect")
+              st.fields.forEach(([key, label]) => {
+                const v = (a.f || {})[key];
+                if (v && v.trim())
+                  rows.push([label.replace(/\?$/, ""), v.trim()]);
+              });
+            if (st.sowhat)
+              [
+                ["me", "So what · me"],
+                ["church", "So what · church"],
+                ["world", "So what · unbeliever"],
+              ].forEach(([key, label]) =>
+                rows.push([label, ((a.sw || {})[key] || "").trim()]),
+              );
+          });
+          return rows;
+        }
+        function renderFinish(t) {
+          const rows = notes(t);
+          const others = CATALOG.filter((c) => TOOLS[c[0]] && c[0] !== curTool);
+          const el = h(`<section class="step">
+      <div class="step-head">
+        <div class="eyebrow"><span class="tag" >Done</span> ${esc(toolMeta(curTool)[1])}</div>
+        <h2>${t.finish.title[0]} <em>${t.finish.title[1]}</em></h2>
+        <p class="lede">${t.finish.lede}</p>
+      </div>
+      <div class="summary">${rows.map(([l, v]) => `<div class="r"><span class="lab">${esc(l)}</span><span class="val${v ? "" : " empty"}">${v ? esc(v) : "Not filled in"}</span></div>`).join("")}</div>
+      <div class="row"><button class="btn" data-copy>Copy my notes</button><button class="btn ghost" data-restart>Start this tool again</button></div>
+      <textarea class="copyFallback" readonly hidden aria-label="Your notes as text"></textarea>
+      <div class="block"><h3>Next tool</h3><div class="row">${others.map((c) => `<a class="btn ghost" href="#${c[0]}">${esc(c[1])} <span class="arr">›</span></a>`).join("")}<a class="btn ghost" href="#">All tools</a></div></div>
+    </section>`);
+          const copyBtn = $("[data-copy]", el);
+          copyBtn.addEventListener("click", () => {
+            const text = rows.map(([l, v]) => `${l}: ${v || "-"}`).join("\n");
+            const fallback = () => {
+              const ta = $(".copyFallback", el);
+              ta.value = text;
+              ta.hidden = false;
+              ta.focus();
+              ta.select();
+              copyBtn.textContent = "Select and copy below";
+            };
+            try {
+              navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = "Copied";
+                setTimeout(() => (copyBtn.textContent = "Copy my notes"), 1800);
+              }, fallback);
+            } catch (e) {
+              fallback();
+            }
+          });
+          $("[data-restart]", el).addEventListener("click", () => {
+            delete S.tools[curTool];
+            save();
+            go(0);
+          });
+          return el;
+        }
+
+        window.addEventListener("resize", () => onResize && onResize());
+        route();
+      })();
+    </script>
+  </body>
+</html>
