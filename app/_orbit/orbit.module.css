@@ -76,14 +76,14 @@
 
 .name {
   display: block;
-  font-weight: 550;
+  font-weight: 500;
 }
 
 .role {
   display: block;
   margin-top: 4px;
   color: var(--muted);
-  font: 450 0.8125rem / 1.35 var(--ui);
+  font: 400 0.8125rem / 1.35 var(--ui);
   letter-spacing: -0.005em;
 }
 
@@ -230,7 +230,7 @@
 }
 
 .avisPrice {
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .avisChange {
@@ -257,7 +257,7 @@
 }
 
 .avisBio {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .avisBrands {
@@ -266,7 +266,7 @@
 
 .avisBrands strong {
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .avisMe {

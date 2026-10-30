@@ -262,8 +262,7 @@ export function SystemSheet() {
         </h2>
         <p className={styles.text}>
           Under the cards is a small system: one 16px rhythm, 8px corners and a
-          28px row pitch. Drawing it out also caught a checkbox sitting 3px off
-          the line.
+          28px row pitch.
         </p>
       </div>
       <Image

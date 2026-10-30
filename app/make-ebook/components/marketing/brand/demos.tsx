@@ -1,5 +1,6 @@
 "use client";
 
+import { media } from "@/lib/media";
 import type React from "react";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -666,19 +667,19 @@ const SOUNDS = [
   {
     id: "rain",
     label: "Rain",
-    src: "/audio/rain-medium.mp3",
+    src: media("/audio/rain-medium.mp3"),
     path: "M6 11h8.5a3 3 0 0 0 .4-5.97A4.5 4.5 0 0 0 6.2 6.1 2.5 2.5 0 0 0 6 11zM7 14l-1 3M10.5 14l-1 3M14 14l-1 3",
   },
   {
     id: "waves",
     label: "Waves",
-    src: "/audio/waves.mp3",
+    src: media("/audio/waves.mp3"),
     path: "M2 8c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1M2 13c2-2 4-2 6 0s4 2 6 0 3-1.5 4-1",
   },
   {
     id: "fire",
     label: "Fire",
-    src: "/audio/fire.mp3",
+    src: media("/audio/fire.mp3"),
     path: "M10 18c3 0 5-2 5-5 0-3-2-4-3-7-1 2-2 3-3 3 0-2-1-4-2-6-1 3-4 5-4 10 0 3 3 5 7 5z",
   },
 ] as const;

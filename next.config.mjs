@@ -54,6 +54,22 @@ const nextConfig = {
     return [
       { source: "/kids-alphabet", destination: "/kids-alphabet/index.html" },
       { source: "/kids-alphabet/", destination: "/kids-alphabet/index.html" },
+      {
+        source: "/logo-animator-studio",
+        destination: "/logo-animator-studio/index.html",
+      },
+      {
+        source: "/logo-animator-studio/",
+        destination: "/logo-animator-studio/index.html",
+      },
+      {
+        source: "/bible-toolkit-demo",
+        destination: "/bible-toolkit-demo/index.html",
+      },
+      {
+        source: "/bible-toolkit-demo/",
+        destination: "/bible-toolkit-demo/index.html",
+      },
       ...(speakui
         ? [
             { source: "/speakui", destination: `${speakui}/speakui` },
@@ -67,6 +83,11 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      {
+        source: "/time-teacher/ybo",
+        destination: "/time-teacher",
+        permanent: true,
+      },
       {
         source: "/explorations/orbit",
         destination: "/",
@@ -132,6 +153,18 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/bible-toolkit-demo/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
+      {
+        source: "/bible-toolkit-demo",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
       ...(isDev
         ? [
             {

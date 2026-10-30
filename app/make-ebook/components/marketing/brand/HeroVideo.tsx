@@ -1,9 +1,10 @@
 "use client";
 
+import { media } from "@/lib/media";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./brand.module.css";
 
-const SRC = "/make-ebook/brand/writer-video-bg.mp4";
+const SRC = media("/make-ebook/brand/writer-video-bg.mp4");
 const POSTER = "/make-ebook/brand/hero-writer.jpg";
 const THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
 const MAX_VOLUME = 0.9;

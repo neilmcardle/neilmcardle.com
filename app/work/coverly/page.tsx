@@ -1,3 +1,4 @@
+import { media } from "@/lib/media";
 import type { Metadata } from "next";
 import { CoverMarquee } from "../../coverly/CoverMarquee";
 import { fetchLandingCovers } from "../../coverly/landing-data";
@@ -56,7 +57,7 @@ export default async function CoverlyCase() {
       frames={[
         {
           kind: "film",
-          src: "/home/coverly-promo.mp4",
+          src: media("/home/coverly-promo.mp4"),
           poster: "/home/coverly-promo.jpg",
           label: "coverly product film",
         },

@@ -88,7 +88,7 @@
   min-width: 0;
   color: inherit;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .work {
@@ -143,7 +143,6 @@
 
   .brand {
     flex: 1;
-    font-size: 1rem;
   }
 
   .work {
@@ -270,7 +269,7 @@
   position: absolute;
   top: 50%;
   right: calc(100% + 14px);
-  color: rgba(17, 17, 17, 0.5);
+  color: var(--muted);
   font: 500 0.8125rem / 1.2 var(--ui);
   white-space: nowrap;
   transform: translateY(-50%);
@@ -279,7 +278,7 @@
 }
 
 .railNode[data-on] .railLabel {
-  color: rgba(17, 17, 17, 0.72);
+  color: var(--ink);
 }
 
 .railNode[aria-current="true"] .railLabel {
@@ -484,7 +483,7 @@
   width: var(--hw);
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: 8px;
   background: #0b0b0b;
 }
 

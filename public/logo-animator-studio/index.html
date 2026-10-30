@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<base href="/logo-animator-studio/">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Logos Coming to Life</title>
+<meta name="description" content="A studio for animating a logo with dials on a circular timeline, in glass and chrome. An exploration by Neil McArdle.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Neil McArdle">
+<meta property="og:title" content="Logos Coming to Life">
+<meta property="og:description" content="A studio for animating a logo with dials on a circular timeline, in glass and chrome.">
+<meta property="og:url" content="https://neilmcardle.com/logo-animator-studio">
+<meta property="og:image" content="https://neilmcardle.com/og/logo-animator-studio.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logos coming to life: a glass logo at the centre of rings of dials on a dark canvas.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@BetterNeil">
+<meta name="twitter:image" content="https://neilmcardle.com/og/logo-animator-studio.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+  <aside class="panel left" aria-label="Layers and presets">
+    <div class="file">
+      <div class="file-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="9" cy="9" r="2.2" fill="currentColor" stroke="none"/><circle cx="9" cy="9" r="5"/><circle cx="9" cy="9" r="8" stroke-dasharray="2 2.2"/></svg>
+      </div>
+      <div style="min-width:0">
+        <div class="file-name">Logos coming to life</div>
+        <div class="file-sub">Drafts</div>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabRoster" aria-selected="true" aria-controls="rosterPane">Agents</button>
+      <button class="tab" role="tab" id="tabBranches" aria-selected="false" aria-controls="branchesPane">Branches</button>
+      <button class="tab" role="tab" id="tabLayers" aria-selected="false" aria-controls="layersPane">Layers</button>
+      <button class="tab" role="tab" id="tabPresets" aria-selected="false" aria-controls="presetsPane">Presets</button>
+    </div>
+    <div class="scroll">
+      <div id="rosterPane" role="tabpanel" aria-labelledby="tabRoster"></div>
+      <div id="branchesPane" role="tabpanel" aria-labelledby="tabBranches" hidden></div>
+      <div id="layersPane" role="tabpanel" aria-labelledby="tabLayers" hidden></div>
+      <div id="presetsPane" role="tabpanel" aria-labelledby="tabPresets" hidden></div>
+    </div>
+  </aside>
+
+  <main class="stage" id="stage" aria-label="Logo stage">
+    <div class="frame-label"><b id="frameName">Bloom</b><span id="frameMeta">6 parts</span><span id="frameAgents"></span></div>
+    <div id="logo"><div id="logoInner"></div></div>
+    <canvas id="glass" aria-hidden="true" hidden></canvas>
+    <div id="logoFrame" tabindex="0" role="slider" aria-label="Logo size" aria-valuemin="40" aria-valuemax="150" title="Drag a corner or scroll to resize. Double-click to reset."><i class="h tl"></i><i class="h tr"></i><i class="h bl"></i><i class="h br"></i><span class="size-chip"></span></div>
+    <svg id="rings" aria-label="Animation dials"></svg>
+    <div id="cursors" aria-hidden="true"></div>
+    <div id="notes"></div>
+    <div id="explore" hidden></div>
+    <div class="stage-top-r">
+      <div class="segmented" id="modeSwitch" role="radiogroup" aria-label="Who is working"><button role="radio" data-mode="manual" aria-checked="false">Manual</button><button role="radio" data-mode="agents" aria-checked="true">Agents</button></div>
+      <button class="presence" id="presence" title="Show agents"></button>
+    </div>
+    <div class="composer" id="composer">
+      <form class="input-row" id="promptForm">
+        <label class="picker"><span id="pickAvatar"></span><span id="pickName"></span><span class="muted" id="pickModel"></span><select id="agentPick" aria-label="Agent"></select></label>
+        <input id="promptInput" autocomplete="off" aria-label="Prompt">
+        <button class="send" id="sendBtn" aria-label="Send" title="Send (Enter)"><img src="assets/send.svg" alt="" width="16" height="16"></button>
+      </form>
+      <div class="chips-row">
+        <div class="chips" id="chips"></div>
+        <div class="loop-tools" role="toolbar" aria-label="History and loop">
+          <button type="button" class="play" id="undoBtn" aria-label="Undo" title="Undo (⌘Z)" disabled><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3 2.5 6l3 3"/><path d="M2.8 6H9a3.6 3.6 0 0 1 0 7.2H6.5"/></svg></button>
+          <button type="button" class="play" id="redoBtn" aria-label="Redo" title="Redo (⇧⌘Z)" disabled><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 3 3 3-3 3"/><path d="M13.2 6H7a3.6 3.6 0 0 0 0 7.2h2.5"/></svg></button>
+          <span class="tsep"></span>
+          <button type="button" class="play" id="shuffleBtn" aria-label="Shuffle dials" title="Shuffle the unlocked dials"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4.5h2.5c3 0 4 7 7 7H14M2 11.5h2.5c1.3 0 2.2-1.3 2.9-2.8M9.6 7.3c.7-1.5 1.6-2.8 2.9-2.8H14"/><path d="M12.3 2.8 14 4.5l-1.7 1.7M12.3 9.8 14 11.5l-1.7 1.7"/></svg></button>
+          <button type="button" class="play lock-all" id="lockAllBtn" aria-pressed="false" aria-label="Lock every dial" title="Lock every dial"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><rect class="body" x="3.5" y="7.2" width="9" height="6.3" rx="1.3"/><path class="shut" d="M5.5 7.2V5.3a2.5 2.5 0 0 1 5 0v1.9"/><path class="open" d="M5.5 7.2V5.3a2.5 2.5 0 0 1 4.8-1"/></svg></button>
+          <button type="button" class="play text" id="resetAllBtn" title="Set every unlocked dial back to its default">Reset</button>
+          <button type="button" class="play live-btn" id="liveBtn" aria-pressed="true" aria-label="Live dials"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="8" cy="9" r="4.2"/><path d="M8 9 10 7"/><path class="wave" d="M3 3.2c.7-.8 1.6-.8 2.3 0M10.7 3.2c.7-.8 1.6-.8 2.3 0"/></svg></button>
+          <span class="tsep"></span>
+          <button type="button" class="play" id="restartBtn" aria-label="Restart" title="Play the loop from the start"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.5v9" fill="none"/><path d="M12 4v8L6.2 8z"/></svg></button>
+        <button type="button" class="play" id="playBtn" aria-label="Pause" title="Play / pause (Space)"></button>
+        <span class="time" id="timeReadout" aria-live="off"><b>0.00</b> / 2.40s</span>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <aside class="panel right" aria-label="Properties">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabDesign" aria-selected="false" aria-controls="designPane">Design</button>
+      <button class="tab" role="tab" id="tabAgent" aria-selected="true" aria-controls="agentPane">Agent</button>
+      <button class="tab" role="tab" id="tabExport" aria-selected="false" aria-controls="exportPane">Export</button>
+      <button class="tab" role="tab" id="tabHistory" aria-selected="false" aria-controls="historyPane">History</button>
+    </div>
+    <div class="scroll">
+      <div id="designPane" role="tabpanel" aria-labelledby="tabDesign" hidden>
+        <section class="section" aria-label="Selected dial">
+          <div class="sec-title"><span class="dial-title" id="selName">Bounce</span><span class="row" style="gap:6px"><span class="chip" id="selRing">Motion</span><button class="ibtn" id="lockBtn" title="Lock this dial (L)" aria-pressed="false">Lock</button></span></div>
+          <div class="muted" id="selDesc"></div>
+          <div class="row" id="numRow">
+            <label class="field" title="Drag the icon to scrub">
+              <span class="scrub" id="scrub" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="4.5"/><path d="M6 6 8.6 3.4"/></svg>
+              </span>
+              <input id="valInput" inputmode="decimal" autocomplete="off" aria-label="Dial value">
+              <span class="unit" id="valUnit"></span>
+            </label>
+            <button class="ibtn" id="resetBtn" title="Reset to default">Reset</button>
+          </div>
+          <div class="row" id="selRow" hidden>
+            <label class="field"><select id="easeSelect" aria-label="Easing"></select></label>
+          </div>
+          <div class="meter" aria-hidden="true"><i id="selMeter"></i></div>
+          <div class="row muted" style="justify-content:space-between"><span id="selMin"></span><span id="selDef"></span><span id="selMax"></span></div>
+          <div class="row" id="atRow">
+            <span class="muted" style="flex:none;width:52px">Keyframe</span>
+            <label class="field" title="When in the loop this effect is strongest. Same as dragging the dial along its ring."><input id="atInput" inputmode="decimal" autocomplete="off" aria-label="Keyframe time"><span class="unit" id="atUnit">s</span></label>
+          </div>
+          <div class="hint" id="atHint"></div>
+        </section>
+        <section class="section" aria-label="Material">
+          <div class="sec-title">Material <span class="muted" id="lookName" style="font-weight:400"></span></div>
+          <div class="segmented" id="lookSeg" role="radiogroup" aria-label="Material look">
+            <button role="radio" data-look="glass">Glass</button><button role="radio" data-look="chrome">Chrome</button><button role="radio" data-look="pearl">Pearl</button><button role="radio" data-look="flat">Flat</button>
+          </div>
+          <div class="row">
+            <span class="muted" style="flex:none;width:52px">Intensity</span>
+            <input type="range" id="lookK" min="0" max="100" step="1" aria-label="Material intensity">
+            <span class="muted" id="lookKVal" style="flex:none;width:30px;text-align:right"></span>
+          </div>
+        </section>
+        <section class="section" aria-label="Logo">
+          <div class="sec-title">Logo <span class="muted" id="partsInfo" style="font-weight:400"></span></div>
+          <div class="logos" id="logoGrid"></div>
+          <input type="file" id="fileInput" accept=".svg,image/svg+xml,image/png,image/jpeg,image/webp,image/gif" hidden>
+          <div class="row">
+            <label class="field color-field" title="Logo colour (applies to currentColor fills)">
+              <input type="color" id="colorPick" value="#7B61FF" aria-label="Logo colour">
+              <input id="colorHex" value="7B61FF" maxlength="7" aria-label="Logo colour hex" spellcheck="false">
+              <span class="unit">100%</span>
+            </label>
+          </div>
+          <div class="row">
+            <span class="muted" style="flex:none;width:36px">Size</span>
+            <label class="field"><input id="logoScale" inputmode="numeric" autocomplete="off" aria-label="Logo size"><span class="unit">%</span></label>
+          </div>
+          <div class="hint">Drop an SVG on the canvas to use your own. Each top-level shape or group becomes a part that can be staggered.</div>
+        </section>
+        <section class="section" aria-label="How to use">
+          <div class="sec-title">Controls</div>
+          <div class="hint" style="display:grid;gap:6px">
+            <div>Drag a <b style="color:var(--fg);font-weight:500">dial</b> up or right to raise it, or grab its blue arc and turn it round. Hold <kbd>Shift</kbd> for fine steps. Double-click to reset.</div>
+            <div>It is a keyframe <b style="color:var(--fg);font-weight:500">timeline</b> in a circle. On the outer rings, Motion and Look, a dial's place is when its effect is strongest. Each one glows as much as its effect is acting now: blue one way, amber the other.</div>
+            <div>The dotted inner circles, Timing and Material, are <b style="color:var(--fg);font-weight:500">specs</b>. They do not change over the loop, so they never glow. Arrange them however you like.</div>
+            <div>Drag a dial by its name to move it, or use <kbd>⌥←</kbd> <kbd>⌥→</kbd>. Turn a ring to move all its unlocked dials together. Locked dials hold their place.</div>
+            <div>The wave button in the bottom bar turns <b style="color:var(--fg);font-weight:500">live dials</b> on or off: each timeline dial acts out its own effect.</div>
+            <div>Drag the dotted timer round the outside to scrub. <kbd>Space</kbd> plays or pauses, <kbd>⌘Z</kbd> undoes.</div>
+          </div>
+        </section>
+      </div>
+      <div id="agentPane" role="tabpanel" aria-labelledby="tabAgent"><div id="directPane"></div><div id="comparePane" hidden></div></div>
+      <div id="historyPane" role="tabpanel" aria-labelledby="tabHistory" hidden></div>
+      <div id="exportPane" role="tabpanel" aria-labelledby="tabExport" hidden>
+        <section class="section">
+          <div class="sec-title">Export kit</div>
+          <div class="hint">Everything needed to use this logo elsewhere, with the material: video, a transparent frame sequence, posters, the vector, a live web component and the shader source.</div>
+          <div class="row">
+            <label class="field"><select id="kitSize" aria-label="Size"><option value="1080">1080 px</option><option value="720">720 px</option><option value="2160">2160 px</option></select></label>
+            <label class="field"><select id="kitFps" aria-label="Frame rate"><option value="60">60 fps</option><option value="30">30 fps</option></select></label>
+          </div>
+          <div class="row">
+            <label class="field"><select id="kitFrame" aria-label="Framing"><option value="fit">Framing: fit to the motion</option><option value="canvas">Framing: as on the canvas</option></select></label>
+          </div>
+          <label class="row check"><input type="checkbox" id="kitSeq" checked> Include the PNG sequence (large)</label>
+          <button class="btn blue" id="kitBtn">Download kit (.zip)</button>
+          <div class="meter" id="kitMeter" hidden><i id="kitBar" style="width:0"></i></div>
+          <div class="muted" id="kitStatus"></div>
+        </section>
+        <section class="section">
+          <div class="sec-title">Animated SVG</div>
+          <div class="hint">A standalone SVG with the loop baked into CSS keyframes. Paste it into a page or open it in a browser.</div>
+          <button class="btn blue" id="copySvgBtn">Copy animated SVG</button>
+          <div class="muted" id="svgSize"></div>
+        </section>
+        <section class="section">
+          <div class="sec-title">Dial settings</div>
+          <div class="code" id="settingsCode"></div>
+          <button class="btn" id="copyJsonBtn">Copy settings JSON</button>
+        </section>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

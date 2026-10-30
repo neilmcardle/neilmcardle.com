@@ -1,3 +1,4 @@
+import { media } from "@/lib/media";
 import type { Metadata } from "next";
 import { Mark } from "../../make-ebook/components/marketing/brand/BrandMark";
 import brand from "../../make-ebook/components/marketing/brand/brand.module.css";
@@ -37,7 +38,7 @@ export default function MakeebookCase() {
       frames={[
         {
           kind: "film",
-          src: "/home/makeebook-promo.mp4",
+          src: media("/home/makeebook-promo.mp4"),
           poster: "/home/makeebook-promo-logo.jpg",
           label: "makeebook product film",
         },

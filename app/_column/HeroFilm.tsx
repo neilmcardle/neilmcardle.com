@@ -1,5 +1,6 @@
 "use client";
 
+import { media } from "@/lib/media";
 import { useEffect, useRef, useState } from "react";
 import AutoVideo from "@/app/_home/AutoVideo";
 import styles from "./column.module.css";
@@ -53,8 +54,8 @@ export default function HeroFilm() {
       <div ref={ref} className={styles.heroFrame}>
         <AutoVideo
           className={styles.heroFilm}
-          src="/home/hero-film.mp4"
-          poster="/home/hero-film.jpg"
+          src={media("/home/hero-film-v9.mp4")}
+          poster="/home/hero-film-v9.jpg"
           aria-label="Showreel: an N made of particles splits into rounded squares, then zooms through nine pieces of work, from the Avis checkout to book covers, and back into the N"
           autoPlay={!still}
           controls={still}

@@ -1,3 +1,4 @@
+import { media } from "@/lib/media";
 import { Fragment } from "react";
 import Image, { getImageProps } from "next/image";
 import Link from "next/link";
@@ -243,7 +244,7 @@ function AvisWork() {
       >
         <video
           className={styles.film}
-          src="/work/avis/avis-3-step-c.mp4"
+          src={media("/work/avis/avis-3-step-c.mp4")}
           poster={POSTERS.avis}
           aria-label="Booking an Avis car in three steps, ending on the review and checkout page"
           controls
@@ -404,7 +405,7 @@ function ShowcaseFilm({ title }: { title: string }) {
     return (
       <video
         className={styles.film}
-        src="/home/makeebook-promo.mp4"
+        src={media("/home/makeebook-promo.mp4")}
         poster={POSTERS.makeebook}
         aria-label="makeebook product film"
         controls
@@ -417,7 +418,7 @@ function ShowcaseFilm({ title }: { title: string }) {
       <>
         <video
           className={styles.film}
-          src="/home/spark-promo.mp4"
+          src={media("/home/spark-promo.mp4")}
           poster={POSTERS.spark}
           aria-label="Spark course film"
           controls
@@ -431,7 +432,7 @@ function ShowcaseFilm({ title }: { title: string }) {
       <>
         <video
           className={styles.film}
-          src="/home/podium/trailer-02.mp4"
+          src={media("/home/podium/trailer-02.mp4")}
           poster={POSTERS.podium}
           aria-label="Podium trailer"
           controls
@@ -444,7 +445,7 @@ function ShowcaseFilm({ title }: { title: string }) {
     return (
       <video
         className={styles.film}
-        src="/home/coverly-promo.mp4"
+        src={media("/home/coverly-promo.mp4")}
         poster={POSTERS.coverly}
         aria-label="coverly product film"
         controls
@@ -722,7 +723,7 @@ export function Demo() {
         </div>
         <AutoVideo
           className={styles.film}
-          src="/home/dive-radio-jit.mp4"
+          src={media("/home/dive-radio-jit.mp4")}
           poster={POSTERS.diveRadio}
           aria-label="Dive Radio, Just-in-Time Interfaces"
           controls
@@ -774,6 +775,9 @@ export function ExplorationCard({ work }: { work: Work }) {
   if (work.title === "Record player") return <RecordPlayerCard work={work} />;
   if (work.title === "Self-healing checkout")
     return <CheckoutCard work={work} />;
+  if (work.title === "Creature capture") return <CaptureCard work={work} />;
+  if (work.title === "Logo Animator Studio")
+    return <LogoStudioCard work={work} />;
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
@@ -828,6 +832,71 @@ export function ExplorationCard({ work }: { work: Work }) {
   );
 }
 
+function CaptureCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <p className={styles.what}>
+          One AI video of a dragon, turned into a rigged 3D animation.
+        </p>
+        <GoLink
+          href={work.href}
+          label="Open the creature capture exploration"
+          caption="Explore"
+        />
+      </div>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
+      <Lead
+        src="/home/leads/creature-capture.jpg"
+        action="Play preview"
+        label="Play the creature capture preview"
+      >
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label="Open the creature capture exploration, full screen"
+        >
+          <AutoVideo
+            className={`${styles.film} ${styles.filmLight}`}
+            src={media("/home/creature-capture.mp4")}
+            poster="/home/creature-capture.jpg"
+            aria-label="The rigged 3D dragon roaring, its motion fitted from an AI video"
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </a>
+      </Lead>
+      <p className={styles.caption}>
+        Made with{" "}
+        <a
+          className={styles.handle}
+          href="https://github.com/Patch-gg/anymove"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          anymove
+        </a>{" "}
+        by{" "}
+        <a
+          className={styles.handle}
+          href="https://x.com/patch_gg"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Patch
+        </a>
+      </p>
+    </article>
+  );
+}
+
 function GameBoyCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
@@ -859,7 +928,7 @@ function GameBoyCard({ work }: { work: Work }) {
         >
           <AutoVideo
             className={styles.film}
-            src="/home/gameboy-portfolio.mp4"
+            src={media("/home/gameboy-portfolio.mp4")}
             poster="/home/gameboy-portfolio.jpg"
             aria-label="Scrolling through the portfolio menu on the Game Boy"
             muted
@@ -923,7 +992,7 @@ function RecordPlayerCard({ work }: { work: Work }) {
         >
           <AutoVideo
             className={styles.film}
-            src="/home/record-player.mp4"
+            src={media("/home/record-player.mp4")}
             poster="/home/record-player.jpg"
             aria-label="Opening the record player, putting on an LP and looking inside"
             muted
@@ -953,6 +1022,51 @@ function RecordPlayerCard({ work }: { work: Work }) {
           April Zhu
         </a>
       </p>
+    </article>
+  );
+}
+
+function LogoStudioCard({ work }: { work: Work }) {
+  return (
+    <article className={styles.showcase} data-item={slug(work.title)}>
+      <div className={styles.showcaseHead}>
+        <p className={styles.what}>
+          A studio for animating a logo with dials on a circular timeline.
+        </p>
+        <GoLink
+          href={work.href}
+          label="Open Logo Animator Studio"
+          caption="Explore"
+        />
+      </div>
+      <dl className={styles.facts}>
+        <div>
+          <dt>Type</dt>
+          <dd>{work.pills.join(", ")}</dd>
+        </div>
+      </dl>
+      <Lead
+        src="/home/leads/logo-animator-studio.jpg"
+        action="Play preview"
+        label="Play the Logo Animator Studio preview"
+      >
+        <a
+          className={styles.previewLink}
+          href={work.href}
+          aria-label="Open Logo Animator Studio, full screen"
+        >
+          <AutoVideo
+            className={styles.film}
+            src={media("/home/logo-animator-studio.mp4")}
+            poster="/home/logo-animator-studio.jpg"
+            aria-label="A glass logo animating at the centre of rings of dials, with simulated agents listed beside it"
+            muted
+            loop
+            playsInline
+            preload="none"
+          />
+        </a>
+      </Lead>
     </article>
   );
 }
@@ -988,7 +1102,7 @@ function CheckoutCard({ work }: { work: Work }) {
         >
           <AutoVideo
             className={`${styles.film} ${styles.filmLight}`}
-            src="/home/self-healing-checkout-v2.mp4"
+            src={media("/home/self-healing-checkout-v2.mp4")}
             poster="/home/self-healing-checkout-v2.jpg"
             aria-label="A checkout pay button hidden under the browser toolbar, then the fix being approved and the button sliding into view"
             muted

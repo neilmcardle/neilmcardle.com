@@ -78,7 +78,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
   const [loggingOut, setLoggingOut] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  const showUpgradeRow = false;
+  const showUpgradeRow = tier === "free" && !isGrandfathered;
 
   const handleLogout = async () => {
     setLoggingOut(true);

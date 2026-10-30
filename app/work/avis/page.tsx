@@ -1,3 +1,4 @@
+import { media } from "@/lib/media";
 import type { Metadata } from "next";
 import Image from "next/image";
 import styles from "../case.module.css";
@@ -17,19 +18,33 @@ export default function AvisCase() {
         <section className={styles.hero} aria-label="Avis checkout">
           <Image
             className={styles.heroImage}
-            src="/work/avis/hero-logo.jpg"
-            alt="The Avis logo in red on a light grey background"
+            src="/work/avis/hero-cover.jpg"
+            alt="Five steps. Now three. Over Avis red, the protection bundle card beside the new review and checkout page"
             fill
             priority
             sizes="100vw"
           />
         </section>
       }
+      title="3-Step Checkout"
       overview="At Avis Budget Group I redesigned the booking flow, taking it from five steps to three: make a reservation, pick your vehicle, then review and checkout. I designed the review and checkout page, now live on avis.com. Conversion rose by 5% during testing."
+      facts={[
+        { label: "Company", value: "Avis Budget Group" },
+        { label: "Role", value: "Product design, checkout" },
+        { label: "Result", value: "Conversion up 5% in testing" },
+        {
+          label: "Live",
+          value: (
+            <a href="https://www.avis.com" target="_blank" rel="noreferrer">
+              avis.com
+            </a>
+          ),
+        },
+      ]}
       frames={[
         {
           kind: "film",
-          src: "/work/avis/avis-3-step-c.mp4",
+          src: media("/work/avis/avis-3-step-c.mp4"),
           poster: "/work/avis/three-steps-start.jpg",
           label:
             "Booking an Avis car in three steps: searching, picking a vehicle and rate, then reviewing the booking and adding protection",

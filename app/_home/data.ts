@@ -163,7 +163,7 @@ export const WORKS: Work[] = [
     title: "Time Teacher",
     group: "kids",
     sub: "Learning",
-    href: "/time-teacher/ybo",
+    href: "/time-teacher",
     icon: "timeTeacher",
     pills: ["Telling the time"],
   },
@@ -221,6 +221,25 @@ export const WORKS: Work[] = [
     href: "/explorations/self-healing-checkout",
     pills: ["Interactive concept", "Sample data"],
   },
+  {
+    title: "Logo Animator Studio",
+    group: "explorations",
+    sub: "Lab",
+    href: "/logo-animator-studio",
+    plain: true,
+    pills: ["Interactive", "WebGL", "Motion tool"],
+  },
+  ...(process.env.NODE_ENV === "development"
+    ? [
+        {
+          title: "Creature capture",
+          group: "explorations" as const,
+          sub: "Lab",
+          href: "/explorations/creature-capture",
+          pills: ["Interactive", "3D", "Made with anymove"],
+        },
+      ]
+    : []),
 ];
 
 export const MULTI_SUB = new Set(

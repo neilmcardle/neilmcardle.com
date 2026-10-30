@@ -9,15 +9,21 @@ export type Frame =
   | { kind: "film"; src: string; poster: string; label: string }
   | { kind: "custom"; id: string; node: ReactNode };
 
+export type Fact = { label: string; value: ReactNode };
+
 const SIZES = "(max-width: 1440px) 100vw, 1400px";
 
 export default function CaseStudy({
   hero,
+  title,
   overview,
+  facts,
   frames,
 }: {
   hero: ReactNode;
+  title?: string;
   overview: string;
+  facts?: Fact[];
   frames: Frame[];
 }) {
   return (
@@ -28,10 +34,31 @@ export default function CaseStudy({
 
       {hero}
 
-      <section className={styles.overview}>
-        <h2 className={styles.label}>Overview</h2>
-        <p className={styles.text}>{overview}</p>
-      </section>
+      {title ? (
+        <section className={styles.rows} aria-labelledby="case-title">
+          <div className={`${styles.row} ${styles.lead}`}>
+            <h1 id="case-title" className={styles.title}>
+              {title}
+            </h1>
+            <p className={styles.text}>{overview}</p>
+          </div>
+          {facts ? (
+            <dl className={styles.facts}>
+              {facts.map((fact) => (
+                <div key={fact.label} className={styles.row}>
+                  <dt className={styles.label}>{fact.label}</dt>
+                  <dd className={styles.fact}>{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </section>
+      ) : (
+        <section className={styles.overview}>
+          <h2 className={styles.label}>Overview</h2>
+          <p className={styles.text}>{overview}</p>
+        </section>
+      )}
 
       <div className={styles.frames}>
         {frames.map((frame) => {
