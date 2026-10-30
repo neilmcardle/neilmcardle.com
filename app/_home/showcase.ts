@@ -51,4 +51,11 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
     role: "Branding and visual design",
     status: "In development",
   },
+  "Chess Path": {
+    what: "Teach yourself chess, from your first move to grandmaster ideas.",
+    label: "Open",
+    type: "Chess course, web",
+    role: "Solo, design and build",
+    status: "In progress",
+  },
 };

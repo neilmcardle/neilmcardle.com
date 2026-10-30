@@ -38,6 +38,7 @@ const POSTERS = {
   coverly: poster("/home/coverly-promo.jpg"),
   podium: poster("/home/podium/trailer-02-poster.jpg"),
   avis: poster("/work/avis/three-steps-start.jpg"),
+  chessPath: poster("/home/chess-path.jpg"),
 };
 
 const GROUP_MARK: Partial<Record<string, OrbitMark>> = {
@@ -375,6 +376,7 @@ const LEADS: Partial<
   },
   Spark: { action: "Play film", label: "Play the Spark film" },
   Podium: { action: "Play trailer", label: "Play the Podium trailer" },
+  "Chess Path": { action: "Play film", label: "Play the Chess Path film" },
   coverly: { action: "Play film", label: "Play the coverly film" },
   DoodleWire: {
     action: "See the screens",
@@ -454,6 +456,18 @@ function ShowcaseFilm({ title }: { title: string }) {
       />
     );
   if (title === "DoodleWire") return <DoodleWireShots />;
+  if (title === "Chess Path")
+    return (
+      <video
+        className={styles.film}
+        src="/home/chess-path.mp4"
+        poster={POSTERS.chessPath}
+        aria-label="Chess Path film: the home page, the path of seven stages, then a lesson where a pawn forks a knight and a rook"
+        controls
+        playsInline
+        preload="none"
+      />
+    );
   return null;
 }
 
@@ -532,7 +546,7 @@ export function Showcase({ work, level = 3 }: { work: Work; level?: 3 | 4 }) {
                     ? undefined
                     : study
                       ? `Use ${work.title}`
-                      : work.title === "Spark"
+                      : work.title === "Spark" || work.title === "Chess Path"
                         ? "Open"
                         : undefined
               }
@@ -781,19 +795,13 @@ export function ExplorationCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>N mark that scatters and reforms.</p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label={`Open the ${work.title} lab`}
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/n-particles.jpg"
         action="Play preview"
@@ -836,21 +844,13 @@ function CaptureCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>
-          One AI video of a dragon, turned into a rigged 3D animation.
-        </p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label="Open the creature capture exploration"
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/creature-capture.jpg"
         action="Play preview"
@@ -901,21 +901,13 @@ function GameBoyCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>
-          A 3D Game Boy as navigation for my portfolio.
-        </p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label="Open the Game Boy navigation exploration"
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/game-boy.jpg"
         action="Play preview"
@@ -966,19 +958,13 @@ function RecordPlayerCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>Put on some neilmcardle.com sounds</p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label="Open the record player exploration"
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/record-player.jpg"
         action="Play preview"
@@ -1030,21 +1016,13 @@ function LogoStudioCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>
-          A studio for animating a logo with dials on a circular timeline.
-        </p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label="Open Logo Animator Studio"
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/logo-animator-studio.jpg"
         action="Play preview"
@@ -1075,21 +1053,13 @@ function CheckoutCard({ work }: { work: Work }) {
   return (
     <article className={styles.showcase} data-item={slug(work.title)}>
       <div className={styles.showcaseHead}>
-        <p className={styles.what}>
-          A self-healing console that spots a broken checkout and ships the fix.
-        </p>
+        <p className={styles.what}>{work.title}</p>
         <GoLink
           href={work.href}
           label="Open the self-healing checkout exploration"
           caption="Explore"
         />
       </div>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Type</dt>
-          <dd>{work.pills.join(", ")}</dd>
-        </div>
-      </dl>
       <Lead
         src="/home/leads/self-healing-checkout.jpg"
         action="Play preview"

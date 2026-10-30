@@ -54,16 +54,22 @@ export default function HeroFilm() {
       <div ref={ref} className={styles.heroFrame}>
         <AutoVideo
           className={styles.heroFilm}
-          src={media("/home/hero-film-v9.mp4")}
-          poster="/home/hero-film-v9.jpg"
-          aria-label="Showreel: an N made of particles splits into rounded squares, then zooms through nine pieces of work, from the Avis checkout to book covers, and back into the N"
+          poster="/home/hero-film-v10.jpg"
+          aria-label="Showreel: an N made of particles splits into rounded squares, then zooms through six pieces of work, from the Avis checkout to Chess Path, and back into the N"
           autoPlay={!still}
           controls={still}
           muted
           loop
           playsInline
           preload="metadata"
-        />
+        >
+          <source
+            media="(max-width: 599px)"
+            src={media("/home/hero-film-v10-square.mp4")}
+            type="video/mp4"
+          />
+          <source src={media("/home/hero-film-v10.mp4")} type="video/mp4" />
+        </AutoVideo>
         {still ? null : (
           <button
             type="button"

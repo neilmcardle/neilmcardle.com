@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <base href="/chess/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chess Path</title>
+    <meta
+      name="description"
+      content="Teach yourself chess, from the rules to grandmaster ideas. Runs offline."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="#/"
+        ><span class="logo">♞&#xFE0E;</span> Chess Path</a
+      >
+      <nav class="nav">
+        <a href="#/" data-view="learn">Learn</a>
+        <a href="#/puzzles" data-view="puzzles">Puzzles</a>
+        <a href="#/play" data-view="play">Play</a>
+        <a href="#/analyze" data-view="analyze">Analyse</a>
+      </nav>
+      <button
+        id="settings-btn"
+        class="icon-btn"
+        title="Progress and settings"
+        aria-label="Progress and settings"
+      >
+        ⚙&#xFE0E;
+      </button>
+    </header>
+    <main id="app"></main>
+    <noscript>Chess Path needs JavaScript to run.</noscript>
+
+    <script src="js/chess.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/board.js"></script>
+    <script src="content/curriculum.js"></script>
+    <script src="content/puzzles.js"></script>
+    <script src="content/puzzles-extra.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

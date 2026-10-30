@@ -70,6 +70,14 @@ const nextConfig = {
         source: "/bible-toolkit-demo/",
         destination: "/bible-toolkit-demo/index.html",
       },
+      {
+        source: "/chess",
+        destination: "/chess/index.html",
+      },
+      {
+        source: "/chess/",
+        destination: "/chess/index.html",
+      },
       ...(speakui
         ? [
             { source: "/speakui", destination: `${speakui}/speakui` },

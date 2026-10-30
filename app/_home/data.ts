@@ -107,6 +107,13 @@ export const WORKS: Work[] = [
     href: "",
     pills: ["Indie game", "Godot"],
   },
+  {
+    title: "Chess Path",
+    group: "products",
+    sub: "In progress",
+    href: "/chess",
+    pills: ["Chess course", "Web"],
+  },
   ...COVERS.map((cover) => ({
     title: cover.title,
     group: "covers" as const,
