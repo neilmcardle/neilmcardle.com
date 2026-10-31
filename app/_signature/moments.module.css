@@ -11,7 +11,7 @@
   display: grid;
   grid-template-columns: 1.15fr 1fr;
   gap: clamp(20px, 4vw, 56px);
-  align-items: center;
+  align-items: start;
 }
 
 .frame {
@@ -95,13 +95,8 @@
 }
 
 .app {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 6px;
+  margin: 0 0 2px;
   color: var(--ink);
-  font-size: 15px;
-  font-weight: 500;
 }
 
 .lede {

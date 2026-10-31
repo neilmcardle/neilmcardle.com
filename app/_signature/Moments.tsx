@@ -1,5 +1,3 @@
-import BedsideMark from "./BedsideMark";
-import SpeakMark from "./SpeakMark";
 import shell from "./signature.module.css";
 import styles from "./moments.module.css";
 
@@ -43,10 +41,7 @@ export default function Moments() {
             <span className={styles.tag}>Watch the clip</span>
           </a>
           <div>
-            <p className={styles.app}>
-              <SpeakMark className={styles.appMark} />
-              SpeakUI
-            </p>
+            <p className={styles.app}>SpeakUI</p>
             <p className={styles.lede}>My voice-driven UI editor.</p>
             <p className={styles.quote}>“Demo available?”</p>
             <Who
@@ -78,10 +73,7 @@ export default function Moments() {
             />
           </a>
           <div>
-            <p className={styles.app}>
-              <BedsideMark className={`${styles.appMark} ${styles.bunny}`} />
-              Bedside Books
-            </p>
+            <p className={styles.app}>Bedside Books</p>
             <p className={styles.lede}>
               Where a parent and child make a picture book together.
             </p>

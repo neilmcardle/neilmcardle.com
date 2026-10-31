@@ -15,8 +15,9 @@ export type Project = {
   image: string;
   alt: string;
   film?: string;
-  proof: { value: string; label: string; live?: boolean };
+  proof?: { value: string; label: string };
   wide?: boolean;
+  product?: { label: string; href: string };
 };
 
 export const PROJECTS: Project[] = [
@@ -37,7 +38,7 @@ export const PROJECTS: Project[] = [
     image: "/home/leads/makeebook.jpg",
     alt: "makeebook on a Kindle",
     film: "/home/makeebook-promo.mp4",
-    proof: { value: "Live", label: "makeebook.ink", live: true },
+    product: { label: "makeebook.ink", href: "https://makeebook.ink" },
   },
   {
     title: "coverly",
@@ -46,7 +47,7 @@ export const PROJECTS: Project[] = [
     image: "/home/leads/coverly.jpg",
     alt: "coverly, a search of book covers",
     film: "/home/coverly-promo.mp4",
-    proof: { value: "Live", label: "coverly", live: true },
+    product: { label: "coverly", href: "/coverly" },
   },
   {
     title: "DoodleWire",
@@ -54,7 +55,10 @@ export const PROJECTS: Project[] = [
     line: "Wireframe from your phone.",
     image: "/home/leads/doodlewire.jpg",
     alt: "DoodleWire wireframes on iPhone",
-    proof: { value: "Live", label: "App Store", live: true },
+    product: {
+      label: "App Store",
+      href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
+    },
     wide: true,
   },
 ];
@@ -71,7 +75,7 @@ function Card({
   const href = `${base}${project.href}`;
   const router = useRouter();
   const video = useRef<HTMLVideoElement>(null);
-  const card = useRef<HTMLAnchorElement>(null);
+  const card = useRef<HTMLDivElement>(null);
 
   const play = () => {
     const v = video.current;
@@ -158,13 +162,11 @@ function Card({
   };
 
   return (
-    <a
+    <div
       ref={card}
       className={`${styles.card} ${project.wide ? styles.wide : ""}`}
-      href={href}
       onPointerEnter={play}
       onPointerLeave={stop}
-      onClick={fly}
     >
       <div className={styles.frame}>
         <div className={styles.media}>
@@ -200,17 +202,34 @@ function Card({
       </div>
       <div className={styles.caption}>
         <div>
-          <h3>{project.title}</h3>
+          <h3>
+            <a className={styles.open} href={href} onClick={fly}>
+              {project.title}
+            </a>
+          </h3>
           <p>{project.line}</p>
         </div>
-        <div
-          className={`${styles.proof} ${project.proof.live ? styles.live : ""}`}
-        >
-          <b>{project.proof.value}</b>
-          <span>{project.proof.label}</span>
-        </div>
+        {project.product ? (
+          <a
+            className={styles.product}
+            href={project.product.href}
+            {...(project.product.href.startsWith("http")
+              ? { rel: "noopener" }
+              : {})}
+          >
+            {project.product.label}
+            <svg viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+            </svg>
+          </a>
+        ) : project.proof ? (
+          <div className={styles.proof}>
+            <b>{project.proof.value}</b>
+            <span>{project.proof.label}</span>
+          </div>
+        ) : null}
       </div>
-    </a>
+    </div>
   );
 }
 

@@ -32,16 +32,32 @@
 }
 
 .title {
+  position: relative;
   margin: 0;
+  color: transparent;
   font: 800 clamp(64px, 13vw, 184px) / 0.86 var(--heavy);
   text-transform: uppercase;
   letter-spacing: -0.005em;
-  clip-path: polygon(0 0, 0 0, -14% 100%, 0 100%);
-  transition: clip-path 0.48s var(--ease);
+  transition: color 0.42s var(--ease);
 }
 
-.shown .title {
-  clip-path: polygon(0 0, 114% 0, 100% 100%, 0 100%);
+.title.formed {
+  color: var(--ink);
+}
+
+.dust {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.dust.flying {
+  opacity: 1;
+}
+
+.dust.settled {
+  opacity: 0;
+  transition: opacity 0.42s var(--ease);
 }
 
 .row {
@@ -258,9 +274,9 @@
 .cap {
   clip-path: circle(25.5px at 50% 50%);
   transition:
-    scale 240ms var(--ease),
-    translate 240ms var(--ease),
-    filter 240ms var(--ease);
+    scale 200ms var(--ease),
+    translate 200ms var(--ease),
+    filter 200ms var(--ease);
 }
 
 .capLabel {
@@ -288,23 +304,19 @@
   }
 }
 
-.start:active:not(:disabled) .cap,
-.start:active:not(:disabled) .capLabel {
-  scale: 0.94;
-  translate: 0 1.5px;
-  transition:
-    scale 80ms ease-out,
-    translate 80ms ease-out,
-    filter 80ms ease-out,
-    opacity 80ms ease-out;
+.start.pressed .cap,
+.start.pressed .capLabel {
+  scale: 0.98;
+  translate: 0 0.5px;
+  transition: none;
 }
 
-.start:active:not(:disabled) .cap {
-  filter: brightness(0.8);
+.start.pressed .cap {
+  filter: brightness(0.9);
 }
 
-.start:active:not(:disabled) .capLabel {
-  opacity: 0.8;
+.start.pressed .capLabel {
+  opacity: 0.9;
 }
 
 .start:disabled {
@@ -454,7 +466,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .title {
-    clip-path: none;
     transition: none;
   }
 

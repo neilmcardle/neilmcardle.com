@@ -3,6 +3,7 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { media } from "@/lib/media";
+import ParticleTitle from "./ParticleTitle";
 import shell from "./signature.module.css";
 import styles from "./finale.module.css";
 
@@ -46,6 +47,25 @@ export default function Finale() {
   const [said, setSaid] = useState("");
   const [subject, setSubject] = useState(false);
   const [copied, setCopied] = useState("");
+  const [pressed, setPressed] = useState(false);
+  const pressedAt = useRef(0);
+  const pressTimer = useRef(0);
+
+  const press = (e: React.PointerEvent) => {
+    if (e.button !== 0 || running) return;
+    window.clearTimeout(pressTimer.current);
+    pressedAt.current = performance.now();
+    setPressed(true);
+  };
+
+  const release = () => {
+    const held = performance.now() - pressedAt.current;
+    window.clearTimeout(pressTimer.current);
+    pressTimer.current = window.setTimeout(
+      () => setPressed(false),
+      Math.max(0, 140 - held),
+    );
+  };
 
   useEffect(() => {
     const target = inner.current;
@@ -67,6 +87,7 @@ export default function Finale() {
     () => () => {
       window.clearTimeout(closeTimer.current);
       window.clearTimeout(copyTimer.current);
+      window.clearTimeout(pressTimer.current);
     },
     [],
   );
@@ -254,9 +275,12 @@ export default function Finale() {
     >
       <canvas ref={exhaust} className={styles.exhaust} aria-hidden="true" />
       <div ref={inner} className={`${shell.wrap} ${styles.inner}`}>
-        <h2 ref={title} className={styles.title}>
-          Tell me more.
-        </h2>
+        <ParticleTitle
+          ref={title}
+          text="Tell me more."
+          shown={shown}
+          className={styles.title}
+        />
         <div className={styles.row}>
           <div
             ref={ign}
@@ -291,17 +315,21 @@ export default function Finale() {
             </svg>
             <button
               ref={start}
-              className={styles.start}
+              className={`${styles.start} ${pressed ? styles.pressed : ""}`}
               type="button"
               tabIndex={open ? 0 : -1}
               disabled={running}
               aria-label="Reveal my email address"
               onClick={ignite}
+              onPointerDown={press}
+              onPointerUp={release}
+              onPointerLeave={release}
+              onPointerCancel={release}
             >
               <img className={styles.bezel} src="/home/lid/button.svg" alt="" />
               <img className={styles.cap} src="/home/lid/button.svg" alt="" />
               <span className={styles.capLabel} aria-hidden="true">
-                Reveal
+                Do it
               </span>
             </button>
             <button
