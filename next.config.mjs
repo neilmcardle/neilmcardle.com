@@ -92,6 +92,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/next",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/next/:path*",
+        destination: "/:path*",
+        permanent: true,
+      },
+      {
         source: "/time-teacher/ybo",
         destination: "/time-teacher",
         permanent: true,

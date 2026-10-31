@@ -8,10 +8,9 @@ import {
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 
-export default function MakeebookCase({ variant }: { variant?: "signature" }) {
+export default function MakeebookCase() {
   return (
     <CaseStudy
-      variant={variant}
       hero={
         <section
           className={`${brand.intro} ${styles.hero}`}

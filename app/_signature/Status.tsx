@@ -17,7 +17,7 @@ export default function Status({
 }) {
   return (
     <Shell>
-      <Header home="/next" contact="/next#contact" />
+      <Header contact="/#contact" />
       <main className={`${shell.wrap} ${styles.main}`}>
         <p className={`${shell.heavy} ${styles.code}`} aria-hidden="true">
           {code}

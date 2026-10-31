@@ -14,7 +14,7 @@ export default function CaseLayout({
   overview,
   facts,
   frames,
-  home = "/next",
+  home = "/",
   children,
 }: {
   hero: ReactNode;

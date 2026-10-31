@@ -1,15 +1,11 @@
-import Gallery, { type GalleryItem } from "./Gallery";
+import type { Still } from "../Stills";
 
-type Item = GalleryItem;
-
-const still = (name: string, alt: string): Item => ({
+const still = (name: string, alt: string): Still => ({
   src: `/home/podium/stills/${name}.jpg`,
   alt,
-  width: 1600,
-  height: 904,
 });
 
-export const ITEMS: Item[] = [
+export const PODIUM_STILLS: Still[] = [
   still(
     "01-wake",
     "A boy wakes in the only pool of light in the car park under the podium",
@@ -27,8 +23,6 @@ export const ITEMS: Item[] = [
   {
     src: "/home/podium/tower.jpg",
     alt: "The boy alone on the deck below Petticoat Tower, the City's towers in the fog behind",
-    width: 1600,
-    height: 905,
   },
   still("20-looking-up", "Behind his head, looking up at the tower"),
   still("12-bin-puzzle", "He shoulders a wheelie bin under the wall"),
@@ -52,7 +46,3 @@ export const ITEMS: Item[] = [
     "A door at the foot of the tower opens and warm light floods the wet concrete",
   ),
 ];
-
-export default function PodiumGallery() {
-  return <Gallery items={ITEMS} label="View gallery" name="Podium stills" />;
-}

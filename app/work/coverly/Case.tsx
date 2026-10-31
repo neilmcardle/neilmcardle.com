@@ -7,11 +7,7 @@ import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 import SimilarRow from "./SimilarRow";
 
-export default async function CoverlyCase({
-  variant,
-}: {
-  variant?: "signature";
-}) {
+export default async function CoverlyCase() {
   const { covers } = await fetchLandingCovers();
   const domestic = covers.filter((c) =>
     /wife|husband|wives|family|marri|dollhouse|mistress/i.test(c.title),
@@ -31,7 +27,6 @@ export default async function CoverlyCase({
 
   return (
     <CaseStudy
-      variant={variant}
       hero={
         <section
           className={`${coverly.page} ${coverly.intro} ${styles.hero}`}

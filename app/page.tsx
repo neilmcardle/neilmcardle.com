@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import ColumnHome from "./_column/ColumnHome";
+import Shell from "./_signature/Shell";
+import Header from "./_signature/Header";
+import Hero from "./_signature/Hero";
+import Work from "./_signature/Work";
+import Moments from "./_signature/Moments";
+import Playground from "./_signature/Playground";
+import Index from "./_signature/Index";
+import Finale from "./_signature/Finale";
 import { SITE_DESCRIPTION, SITE_TITLE, share } from "./shared-metadata";
 
 export const metadata: Metadata = share({
@@ -10,18 +16,18 @@ export const metadata: Metadata = share({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#fafafa",
+  themeColor: "#0d0d0c",
 };
 
 export default function Homepage() {
   return (
-    <div className={GeistSans.variable}>
-      <style>
-        {
-          "html,body{background:#fafafa}html{scrollbar-color:#d4d4d4 #fafafa}@media(min-width:1200px){html,body{overscroll-behavior-y:none}}"
-        }
-      </style>
-      <ColumnHome />
-    </div>
+    <Shell>
+      <Header brand={false} />
+      <Hero />
+      <Work />
+      <Moments />
+      <Playground more={<Index rest />} />
+      <Finale />
+    </Shell>
   );
 }

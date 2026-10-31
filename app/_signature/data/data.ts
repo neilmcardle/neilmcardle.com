@@ -1,6 +1,5 @@
 import { COVERS } from "./covers";
 import { PAINTINGS } from "./paintings";
-import type { AppIconKey } from "./AppIcon";
 
 export type GroupKey =
   | "products"
@@ -18,7 +17,7 @@ export type Work = {
   sub: string;
   href: string;
   plain?: boolean;
-  icon?: AppIconKey;
+  icon?: string;
   pills: string[];
 };
 

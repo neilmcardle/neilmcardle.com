@@ -74,8 +74,6 @@ doodlewire-app/
 # Coverly working backlog: local planning notes, not part of the app.
 app/coverly/BACKLOG.md
 
-# Old work list page stays local; case studies under app/work/<brand> are published
-app/work/page.tsx
 .impeccable/surfaces/app-v2-page-tsx.md
 PRODUCT.md
 

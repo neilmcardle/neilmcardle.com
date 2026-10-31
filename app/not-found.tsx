@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import StatusPage from "./_orbit/StatusPage";
+import Link from "next/link";
+import Status from "./_signature/Status";
 
 export const metadata: Metadata = {
   title: "Page not found · Neil McArdle",
@@ -8,13 +8,11 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className={GeistSans.variable}>
-      <style>{"html,body{background:#ffffff}"}</style>
-      <StatusPage
-        line="Not all those who wander are lost."
-        note="J.R.R. Tolkien"
-        code="404"
-      />
-    </div>
+    <Status
+      code="404"
+      line="Not all those who wander are lost."
+      note="J.R.R. Tolkien"
+      actions={<Link href="/">Back to the homepage</Link>}
+    />
   );
 }

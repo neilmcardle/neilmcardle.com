@@ -15,56 +15,7 @@ type Look = Record<
   Part
 >;
 
-const SITE: Look = {
-  h1: {
-    className: "text-site-ink mb-6",
-    style: {
-      fontFamily: "var(--font-inter)",
-      fontSize: "clamp(2rem, 5vw, 2.75rem)",
-      fontWeight: 400,
-      letterSpacing: "-0.02em",
-      lineHeight: 1.1,
-    },
-  },
-  date: {
-    className: "text-site-muted mb-2",
-    style: { fontFamily: "var(--font-inter)", fontSize: "0.875rem" },
-  },
-  note: {
-    className: "text-site-ink/60 mb-12",
-    style: {
-      fontFamily: "var(--font-inter)",
-      fontSize: "0.875rem",
-      lineHeight: 1.6,
-    },
-  },
-  link: {
-    className:
-      "text-site-accent hover:text-site-accent-strong transition-colors",
-  },
-  strong: { className: "text-site-ink/85" },
-  list: { className: "list-disc pl-5 space-y-2 mt-1" },
-  section: { className: "mb-9" },
-  h2: {
-    className: "text-site-ink mb-3",
-    style: {
-      fontFamily: "var(--font-inter)",
-      fontSize: "1.125rem",
-      fontWeight: 600,
-      letterSpacing: "-0.01em",
-    },
-  },
-  text: {
-    className: "text-site-ink/70",
-    style: {
-      fontFamily: "var(--font-inter)",
-      fontSize: "0.9375rem",
-      lineHeight: 1.7,
-    },
-  },
-};
-
-const SIGNATURE: Look = {
+const LOOK: Look = {
   h1: { className: styles.title },
   date: { className: styles.date },
   note: { className: styles.note },
@@ -76,8 +27,8 @@ const SIGNATURE: Look = {
   text: { className: styles.text },
 };
 
-export default function Policy({ variant }: { variant?: "signature" }) {
-  const look = variant === "signature" ? SIGNATURE : SITE;
+export default function Policy() {
+  const look = LOOK;
   return (
     <>
       <h1 {...look.h1}>Privacy Policy</h1>

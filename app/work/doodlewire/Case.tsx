@@ -2,10 +2,9 @@ import Image from "next/image";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 
-export default function DoodleWireCase({ variant }: { variant?: "signature" }) {
+export default function DoodleWireCase() {
   return (
     <CaseStudy
-      variant={variant}
       hero={
         <section className={styles.hero} aria-label="DoodleWire">
           <Image

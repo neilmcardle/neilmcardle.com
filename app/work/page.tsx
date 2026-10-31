@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import Shell from "../../_signature/Shell";
-import Header from "../../_signature/Header";
-import Work from "../../_signature/Work";
-import Index from "../../_signature/Index";
-import Finale from "../../_signature/Finale";
-import shell from "../../_signature/signature.module.css";
-import styles from "../../_signature/index.module.css";
+import Shell from "../_signature/Shell";
+import Header from "../_signature/Header";
+import Work from "../_signature/Work";
+import Index from "../_signature/Index";
+import Finale from "../_signature/Finale";
+import shell from "../_signature/signature.module.css";
+import styles from "../_signature/index.module.css";
 
 export const metadata: Metadata = {
   title: "Work · Neil McArdle",
@@ -16,10 +16,10 @@ export const viewport: Viewport = {
   themeColor: "#0d0d0c",
 };
 
-export default function NextWork() {
+export default function WorkPage() {
   return (
     <Shell>
-      <Header home="/next" />
+      <Header />
       <div className={`${shell.wrap} ${styles.opening}`}>
         <h1 className={styles.title}>All work</h1>
         <p className={styles.intro}>
@@ -27,8 +27,8 @@ export default function NextWork() {
           make for fun.
         </p>
       </div>
-      <Work base="/next" />
-      <Index base="/next" />
+      <Work />
+      <Index />
       <Finale />
     </Shell>
   );

@@ -1,7 +1,5 @@
-import type { MarkKey } from "./ProductMark";
-
 export type ShowcaseInfo = {
-  mark?: MarkKey;
+  mark?: string;
   markImage?: string;
   what: string;
   label?: string;

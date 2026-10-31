@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { GeistSans } from "geist/font/sans";
-import StatusPage, { StatusButton, StatusLink } from "./_orbit/StatusPage";
+import Link from "next/link";
+import Status from "./_signature/Status";
 import "./globals.css";
 
 export default function GlobalError({
@@ -17,15 +17,18 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en" className={GeistSans.variable}>
-      <body style={{ margin: 0, background: "#ffffff" }}>
-        <StatusPage
+    <html lang="en">
+      <body style={{ margin: 0, background: "#0d0d0c" }}>
+        <Status
+          code="Error"
           line="Something went wrong on this page."
           note="It’s not you. Try again, or head back to the homepage."
           actions={
             <>
-              <StatusButton onClick={reset}>Try again</StatusButton>
-              <StatusLink href="/">Back to the homepage</StatusLink>
+              <button type="button" onClick={reset}>
+                Try again
+              </button>
+              <Link href="/">Back to the homepage</Link>
             </>
           }
         />

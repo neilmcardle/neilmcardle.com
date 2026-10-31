@@ -4,10 +4,9 @@ import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 import { CoverageParts, PagesFlow, StepsDiagram, SystemSheet } from "./Parts";
 
-export default function AvisCase({ variant }: { variant?: "signature" }) {
+export default function AvisCase() {
   return (
     <CaseStudy
-      variant={variant}
       hero={
         <section className={styles.hero} aria-label="Avis checkout">
           <Image

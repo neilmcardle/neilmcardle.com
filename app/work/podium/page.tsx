@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import Image from "next/image";
 import { media } from "@/lib/media";
-import { ITEMS } from "../../../_home/PodiumGallery";
-import { SHOWCASE } from "../../../_home/showcase";
-import CaseLayout from "../../../_signature/CaseLayout";
-import Stills from "../../../_signature/Stills";
-import styles from "../../../_signature/podium.module.css";
+import { PODIUM_STILLS } from "../../_signature/data/podium";
+import { SHOWCASE } from "../../_signature/data/showcase";
+import CaseLayout from "../../_signature/CaseLayout";
+import Stills from "../../_signature/Stills";
+import styles from "../../_signature/podium.module.css";
 
 export const metadata: Metadata = {
   title: "Podium · Neil McArdle",
@@ -60,7 +60,7 @@ export default function PodiumPage() {
         <h2 className={styles.heading} id="podium-stills">
           Stills
         </h2>
-        <Stills items={ITEMS} label="Podium stills" />
+        <Stills items={PODIUM_STILLS} label="Podium stills" />
       </section>
     </CaseLayout>
   );

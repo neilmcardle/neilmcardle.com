@@ -1,16 +1,16 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { COVERS } from "@/app/_home/covers";
+import { COVERS } from "./data/covers";
 import {
   GROUP_LABEL,
   WORKS,
   slug,
   type GroupKey,
   type Work,
-} from "@/app/_home/data";
-import { PAINTINGS, SAATCHI_URL } from "@/app/_home/paintings";
-import { SHOWCASE } from "@/app/_home/showcase";
+} from "./data/data";
+import { PAINTINGS, SAATCHI_URL } from "./data/paintings";
+import { SHOWCASE } from "./data/showcase";
 import shell from "./signature.module.css";
 import styles from "./index.module.css";
 
