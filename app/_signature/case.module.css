@@ -77,15 +77,16 @@
 }
 
 .plate {
-  --ink: #111111;
-  --muted: #73736f;
-  --line: #e8e8e6;
-  --line-strong: #b9b9b5;
-  --edge: 48px;
-  --gap: 40px;
-  overflow: hidden;
-  background: #ffffff;
-  color: #111111;
+  --case-line: var(--line);
+  --case-muted: var(--muted);
+  --case-ink: var(--ink);
+  --case-label: 15px;
+  --case-text: clamp(19px, 1.9vw, 22px);
+  --case-cols: minmax(0, 1fr) minmax(0, 1.35fr);
+  --case-col-gap: clamp(28px, 6vw, 96px);
+  --case-space: clamp(32px, 5vw, 64px);
+  --case-gap: clamp(20px, 2.4vw, 28px);
+  min-width: 0;
 }
 
 .frames a.back {
