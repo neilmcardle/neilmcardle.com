@@ -24,6 +24,7 @@ export type NSettings = {
   rotateSpeed: number;
   sway?: number;
   follow?: number;
+  faceHold?: number;
 };
 
 export const N_DEFAULTS: NSettings = {

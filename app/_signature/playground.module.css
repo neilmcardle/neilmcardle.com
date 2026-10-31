@@ -1,0 +1,128 @@
+.section {
+  padding-top: clamp(80px, 11vw, 140px);
+}
+
+.play {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px clamp(16px, 2.4vw, 28px);
+}
+
+.play a,
+.toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+}
+
+.play a span:last-child,
+.toggle span:last-child {
+  color: var(--muted);
+}
+
+.play a:hover span:first-child,
+.toggle:hover span:first-child {
+  text-decoration: underline;
+  text-decoration-color: var(--underline);
+  text-underline-offset: 4px;
+}
+
+.toggle {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toggle span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transition: transform 0.32s var(--ease);
+}
+
+.toggle[aria-expanded="true"] svg {
+  transform: rotate(45deg);
+}
+
+.more {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.42s var(--ease),
+    opacity 0.2s var(--ease);
+}
+
+.more > div {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.more.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 0.48s var(--ease),
+    opacity 0.32s var(--ease) 0.08s;
+}
+
+.peek {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 240px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.96;
+  transition:
+    opacity 0.16s var(--ease),
+    scale 0.24s var(--ease);
+}
+
+.peek.on {
+  opacity: 1;
+  scale: 1;
+}
+
+@media (hover: none), (max-width: 720px) {
+  .peek {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .play {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle svg,
+  .more,
+  .more.open {
+    transition: opacity 0.16s var(--ease);
+  }
+
+  .peek {
+    transition: none;
+  }
+}

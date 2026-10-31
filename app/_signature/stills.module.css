@@ -1,0 +1,281 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--frame);
+  cursor: zoom-in;
+  transition: transform 0.24s var(--ease);
+}
+
+.card img {
+  object-fit: cover;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: scale(1.02);
+  }
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+}
+
+.middle {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 72px clamp(16px, 9vw, 120px) 132px;
+  touch-action: pan-y;
+}
+
+.stage {
+  position: relative;
+  width: min(1120px, 100%, calc((100svh - 204px) * 16 / 9));
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--frame);
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.shot {
+  position: absolute;
+  inset: 0;
+}
+
+.shot img {
+  object-fit: cover;
+}
+
+.sharp {
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.sharp[data-on] {
+  opacity: 1;
+}
+
+.chrome {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.chrome button,
+.track {
+  pointer-events: auto;
+}
+
+.icon,
+.round {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s var(--ease);
+}
+
+.icon svg,
+.round svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon:hover,
+.round:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.back {
+  top: 16px;
+  left: clamp(8px, 2vw, 24px);
+}
+
+.all {
+  top: 16px;
+  right: clamp(8px, 2vw, 24px);
+}
+
+.round {
+  top: calc(50% - 32px);
+}
+
+.round::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--frame-hover);
+  transition: transform 0.15s var(--ease);
+}
+
+.round svg {
+  position: relative;
+}
+
+.round:active:not(:disabled)::before {
+  transform: scale(0.92);
+}
+
+.round:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.prev {
+  left: clamp(8px, 3vw, 40px);
+}
+
+.next {
+  right: clamp(8px, 3vw, 40px);
+}
+
+.chrome button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.caption {
+  max-width: 48ch;
+  min-height: 3em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.track {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(320px, 70vw);
+  height: 44px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.tick {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--muted);
+  opacity: 0.6;
+}
+
+.rail {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.32s var(--ease);
+  pointer-events: none;
+}
+
+.knob {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .card {
+    border-radius: 10px;
+  }
+
+  .middle {
+    padding: 72px 16px 148px;
+  }
+
+  .stage {
+    border-radius: 12px;
+  }
+
+  .round {
+    top: auto;
+    bottom: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .rail,
+  .round::before {
+    transition: none;
+  }
+}

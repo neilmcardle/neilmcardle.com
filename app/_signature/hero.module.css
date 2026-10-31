@@ -1,0 +1,66 @@
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(28px, 5vw, 72px);
+  padding-top: clamp(40px, 7vw, 96px);
+  padding-bottom: clamp(64px, 9vw, 112px);
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero > .stage {
+  position: absolute;
+  z-index: 0;
+  top: -96px;
+  bottom: -48px;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 14%,
+    #000 78%,
+    transparent
+  );
+}
+
+.mark {
+  width: clamp(150px, 21vw, 240px);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.who {
+  pointer-events: none;
+}
+
+.who h1,
+.role {
+  margin: 0;
+  font-size: clamp(30px, 4.2vw, 54px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
+.role {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.site {
+  margin: 20px 0 0;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}

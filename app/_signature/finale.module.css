@@ -1,0 +1,488 @@
+.finale {
+  --flare: 0;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(120px, 18vw, 220px) 0 clamp(40px, 6vw, 64px);
+}
+
+.finale::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    45% 45% at 50% 45%,
+    rgb(255 248 236 / 0.14),
+    transparent 70%
+  );
+  opacity: var(--flare);
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+.exhaust {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.title {
+  margin: 0;
+  font: 800 clamp(64px, 13vw, 184px) / 0.86 var(--heavy);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  clip-path: polygon(0 0, 0 0, -14% 100%, 0 100%);
+  transition: clip-path 0.48s var(--ease);
+}
+
+.shown .title {
+  clip-path: polygon(0 0, 114% 0, 100% 100%, 0 100%);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 36px;
+}
+
+.said {
+  min-height: 1.3em;
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.24s var(--ease);
+}
+
+.said.on {
+  opacity: 1;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  visibility: hidden;
+  mask-image: linear-gradient(90deg, #000 40%, transparent 60%);
+  mask-size: 250% 100%;
+  mask-position: 100% 0;
+  mask-repeat: no-repeat;
+}
+
+.contact.on {
+  visibility: visible;
+  mask-position: 0 0;
+  transition: mask-position 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.15s;
+}
+
+.contact .mail {
+  display: inline-block;
+  padding: 8px 0;
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--underline);
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+.contact .mail:hover {
+  text-decoration-color: currentColor;
+}
+
+.copy {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+
+@media (hover: hover) {
+  .copy:hover {
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.06);
+  }
+}
+
+.copy svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.copy .tick {
+  display: none;
+}
+
+.copied {
+  color: var(--ink);
+}
+
+.copied .sheets {
+  display: none;
+}
+
+.copied .tick {
+  display: inline;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.ignition {
+  position: relative;
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  perspective: 420px;
+}
+
+.glass {
+  --c: 29.3%;
+  position: absolute;
+  left: -7.5px;
+  top: -7.5px;
+  width: 87px;
+  height: 87px;
+  pointer-events: none;
+  clip-path: polygon(
+    var(--c) 0,
+    calc(100% - var(--c)) 0,
+    100% var(--c),
+    100% calc(100% - var(--c)),
+    calc(100% - var(--c)) 100%,
+    var(--c) 100%,
+    0 calc(100% - var(--c)),
+    0 var(--c)
+  );
+  background:
+    linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.1) 0%,
+      rgb(255 255 255 / 0) 30%,
+      rgb(255 255 255 / 0) 74%,
+      rgb(255 255 255 / 0.05) 100%
+    ),
+    linear-gradient(
+      118deg,
+      transparent 18%,
+      rgb(255 255 255 / 0.06) 19%,
+      rgb(255 255 255 / 0.01) 31%,
+      transparent 32%
+    );
+}
+
+.tach {
+  position: absolute;
+  left: -11px;
+  top: -11px;
+  width: 94px;
+  height: 94px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tach polygon {
+  fill: none;
+  stroke-width: 2;
+}
+
+.fill {
+  stroke: var(--ink);
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.start {
+  position: absolute;
+  inset: 11px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.start::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #120707, #050202);
+}
+
+.start img {
+  position: absolute;
+  left: -16px;
+  top: -16px;
+  width: 82.25px;
+  height: 82.25px;
+  max-width: none;
+  pointer-events: none;
+}
+
+.bezel {
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 24.5px,
+    #000 25.5px
+  );
+}
+
+.cap {
+  clip-path: circle(25.5px at 50% 50%);
+  transition:
+    scale 240ms var(--ease),
+    translate 240ms var(--ease),
+    filter 240ms var(--ease);
+}
+
+.capLabel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font:
+    700 10px / 1 var(--font-inter),
+    sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff8ed;
+  text-shadow: 0 1px 1px rgb(69 0 0 / 0.7);
+  transition:
+    scale 240ms var(--ease),
+    translate 240ms var(--ease),
+    opacity 240ms var(--ease);
+}
+
+@media (hover: hover) {
+  .start:hover:not(:disabled) .cap {
+    filter: brightness(1.12);
+  }
+}
+
+.start:active:not(:disabled) .cap,
+.start:active:not(:disabled) .capLabel {
+  scale: 0.94;
+  translate: 0 1.5px;
+  transition:
+    scale 80ms ease-out,
+    translate 80ms ease-out,
+    filter 80ms ease-out,
+    opacity 80ms ease-out;
+}
+
+.start:active:not(:disabled) .cap {
+  filter: brightness(0.8);
+}
+
+.start:active:not(:disabled) .capLabel {
+  opacity: 0.8;
+}
+
+.start:disabled {
+  cursor: default;
+}
+
+.cover {
+  --t: 6px;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transform-origin: 50% 0;
+  transition: transform 460ms
+    linear(
+      0,
+      0.05 8%,
+      0.22 17%,
+      0.52 28%,
+      1 40%,
+      0.92 49%,
+      0.89 54%,
+      0.92 59%,
+      1 68%,
+      0.975 76%,
+      1 85%,
+      1
+    );
+}
+
+.cover > span {
+  position: absolute;
+  inset: 0;
+}
+
+.cover img {
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
+.face {
+  backface-visibility: hidden;
+}
+
+.face img {
+  left: -4.97px;
+  top: -3.72px;
+  width: 82.14px;
+  height: 82.14px;
+}
+
+.lidLabel {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font:
+    700 15px / 1 var(--font-inter),
+    sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #161616;
+  text-shadow:
+    0 1px 0 rgb(255 255 255 / 0.55),
+    0 -1px 0 rgb(0 0 0 / 0.25);
+}
+
+.slab {
+  --c: 32.2%;
+  clip-path: polygon(
+    var(--c) 0,
+    calc(100% - var(--c)) 0,
+    100% var(--c),
+    100% calc(100% - var(--c)),
+    calc(100% - var(--c)) 100%,
+    var(--c) 100%,
+    0 calc(100% - var(--c)),
+    0 var(--c)
+  );
+  background: hsl(0 0% calc(46% - var(--i) * 4%));
+  transform: translateZ(calc(var(--i) * -1px));
+}
+
+.under {
+  backface-visibility: hidden;
+  transform: translateZ(calc(var(--t) * -1)) rotateX(180deg);
+}
+
+.under img {
+  left: -6px;
+  top: -9.97px;
+  width: 84px;
+  height: 98.58px;
+}
+
+.open .cover {
+  transform: rotateX(112deg);
+  pointer-events: none;
+  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.instant .cover {
+  transition: none;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-top: 24px;
+  padding-bottom: 48px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.footer div {
+  display: flex;
+  gap: 4px;
+}
+
+.footer a {
+  padding: 12px;
+  transition: color 0.15s var(--ease);
+}
+
+.footer a:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .row {
+    gap: 20px;
+  }
+
+  .said {
+    font-size: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title {
+    clip-path: none;
+    transition: none;
+  }
+
+  .contact {
+    mask-image: none;
+    opacity: 0;
+  }
+
+  .contact.on {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .cover,
+  .open .cover {
+    transform: none;
+    transition: opacity 200ms ease;
+  }
+
+  .open .cover {
+    opacity: 0;
+  }
+
+  .start .cap,
+  .capLabel,
+  .copy,
+  .contact .mail,
+  .footer a {
+    transition: none;
+  }
+}

@@ -172,6 +172,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${cantarell.variable} ${inter.variable} ${playfair.variable} ${ebGaramond.variable} ${jetbrainsMono.variable} ${zillaSlab.variable} ${cormorant.variable} ${libreBaskerville.variable} ${archivo.variable} ${bigShoulders.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >

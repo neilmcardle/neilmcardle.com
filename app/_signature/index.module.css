@@ -1,0 +1,159 @@
+.index {
+  padding-top: clamp(80px, 11vw, 140px);
+}
+
+.index > h2 {
+  scroll-margin-top: 24px;
+}
+
+.group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: clamp(16px, 4vw, 56px);
+  padding: 24px 0 clamp(32px, 5vw, 56px);
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 24px;
+}
+
+.groupTitle {
+  margin: 0;
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px clamp(16px, 2.4vw, 28px);
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+}
+
+.name {
+  display: block;
+}
+
+.line {
+  display: block;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+a.row:hover .name {
+  text-decoration: underline;
+  text-decoration-color: var(--underline);
+  text-underline-offset: 4px;
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.4vw, 28px);
+  align-items: end;
+  padding-top: 10px;
+}
+
+.plate {
+  margin: 0;
+}
+
+.plate figcaption {
+  padding-top: 12px;
+}
+
+.cover,
+.canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--frame);
+  outline: 1px solid rgb(255 255 255 / 0.06);
+  outline-offset: -1px;
+}
+
+.canvas {
+  position: relative;
+}
+
+.canvas img {
+  object-fit: cover;
+}
+
+.group a.more {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 10px 0;
+  color: var(--muted);
+  transition: color 0.15s var(--ease);
+}
+
+.group a.more:hover {
+  color: var(--ink);
+}
+
+.group > a.more {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: -24px;
+}
+
+@media (max-width: 720px) {
+  .group {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .rows {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .shelf {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .group > a.more {
+    grid-column: 1;
+    margin-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group a.more {
+    transition: none;
+  }
+}
+
+.opening {
+  padding-top: clamp(64px, 9vw, 120px);
+  padding-bottom: clamp(56px, 8vw, 104px);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(30px, 4.2vw, 54px);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
+.intro {
+  max-width: 34ch;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: clamp(19px, 1.9vw, 22px);
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+}
+
+.others {
+  padding-top: clamp(32px, 5vw, 56px);
+}

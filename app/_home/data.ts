@@ -208,13 +208,6 @@ export const WORKS: Work[] = [
     pills: ["Interactive", "WebGL"],
   },
   {
-    title: "Game Boy",
-    group: "explorations",
-    sub: "Lab",
-    href: "/explorations/handheld",
-    pills: ["Interactive", "3D", "Made with Jig"],
-  },
-  {
     title: "Record player",
     group: "explorations",
     sub: "Lab",
@@ -234,7 +227,7 @@ export const WORKS: Work[] = [
     sub: "Lab",
     href: "/logo-animator-studio",
     plain: true,
-    pills: ["Interactive", "WebGL", "Motion tool"],
+    pills: ["Interactive concept", "Agentic logo studio", "Simulated agents"],
   },
   ...(process.env.NODE_ENV === "development"
     ? [

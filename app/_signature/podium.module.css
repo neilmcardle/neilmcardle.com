@@ -1,0 +1,31 @@
+.hero {
+  position: relative;
+  height: min(56.25vw, calc(100svh - 76px));
+  overflow: hidden;
+  background: #1a1a1a;
+}
+
+.art {
+  object-fit: cover;
+  object-position: 50% 72%;
+}
+
+.logo {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  width: clamp(140px, 22vw, 320px);
+  height: auto;
+  translate: -50% 0;
+}
+
+.stills {
+  padding-top: clamp(40px, 6vw, 72px);
+}
+
+.heading {
+  margin: 0 0 20px;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}

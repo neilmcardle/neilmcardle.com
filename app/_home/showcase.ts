@@ -30,7 +30,7 @@ export const SHOWCASE: Record<string, ShowcaseInfo> = {
   },
   coverly: {
     mark: "coverly",
-    what: "Be inspired to design your next book cover.",
+    what: "Inspiration for your next book cover.",
     label: "Visit",
     type: "Design research tool",
     role: "Solo, design and build",

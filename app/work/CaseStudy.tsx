@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Image from "next/image";
 import styles from "./case.module.css";
 import NMark from "./NMark";
+import CaseLayout from "../_signature/CaseLayout";
 
 export type Frame =
   | { kind: "full"; src: string; alt: string }
@@ -19,13 +20,25 @@ export default function CaseStudy({
   overview,
   facts,
   frames,
+  variant,
 }: {
   hero: ReactNode;
   title?: string;
   overview: string;
   facts?: Fact[];
   frames: Frame[];
+  variant?: "signature";
 }) {
+  if (variant === "signature")
+    return (
+      <CaseLayout
+        hero={hero}
+        title={title}
+        overview={overview}
+        facts={facts}
+        frames={frames}
+      />
+    );
   return (
     <div className={styles.page}>
       <header className={styles.bar}>

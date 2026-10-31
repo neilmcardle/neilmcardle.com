@@ -9,7 +9,7 @@ const still = (name: string, alt: string): Item => ({
   height: 904,
 });
 
-const ITEMS: Item[] = [
+export const ITEMS: Item[] = [
   still(
     "01-wake",
     "A boy wakes in the only pool of light in the car park under the podium",
