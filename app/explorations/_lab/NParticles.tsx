@@ -61,13 +61,14 @@ const POINT_VERTEX = /* glsl */ `
 ${SHARED}
 uniform float uSize;
 uniform float uPixelRatio;
+uniform float uFloor;
 
 void main() {
   float e = progress(uPhase);
   vec4 view = modelViewMatrix * vec4(place(e, uTime), 1.0);
   gl_Position = projectionMatrix * view;
   gl_PointSize = uSize * uPixelRatio * (4.0 / -view.z);
-  vAlpha = mix(0.85, 0.08, e) * mix(1.0, tone, uMorph);
+  vAlpha = mix(0.85, uFloor, e) * mix(1.0, tone, uMorph);
 }
 `;
 
@@ -412,6 +413,7 @@ export default function NParticles({
         uPixelRatio: { value: renderer.getPixelRatio() },
         uInk: { value: new THREE.Color("#1f1d1a") },
         uMorph: { value: 0 },
+        uFloor: { value: 0.08 },
       };
       const pointMaterial = new THREE.ShaderMaterial({
         uniforms,
@@ -504,6 +506,8 @@ export default function NParticles({
       let form = 0;
       let morphFrom = 0;
       let morphTo = 0;
+      let morphBegin = 0;
+      let morphEnd = 1;
       let onScreen = true;
       let frame = 0;
 
@@ -594,19 +598,36 @@ export default function NParticles({
           if (cycle.stage === "hold" && !loop) return { phase: 0, dir: 0 };
           cycle.stage = next[cycle.stage];
           cycle.start = now;
-          if (data.face && cycle.stage === "drift") {
+          if (data.face && cycle.stage === "out") {
             morphFrom = form;
             morphTo = 1 - form;
+            morphBegin = now + v.scatterTime * 0.35;
+            morphEnd =
+              now +
+              v.scatterTime +
+              (v.driftTime ?? v.hold * 0.6) +
+              v.returnTime * 0.65;
           }
-          if (data.face && cycle.stage === "back") form = morphTo;
+          if (data.face && cycle.stage === "hold") form = morphTo;
         }
         const t = Math.min(
           1,
           (now - cycle.start) / Math.max(0.001, lengths[cycle.stage]),
         );
         uniforms.uMorph.value =
-          data.face && cycle.stage === "drift"
-            ? morphFrom + (morphTo - morphFrom) * ease(t)
+          data.face && cycle.stage !== "hold"
+            ? morphFrom +
+              (morphTo - morphFrom) *
+                ease(
+                  Math.min(
+                    1,
+                    Math.max(
+                      0,
+                      (now - morphBegin) /
+                        Math.max(0.001, morphEnd - morphBegin),
+                    ),
+                  ),
+                )
             : form;
         if (cycle.stage === "out") return { phase: ease(t), dir: 1 };
         if (cycle.stage === "drift") return { phase: 1, dir: 0 };
@@ -630,6 +651,7 @@ export default function NParticles({
         uniforms.uTurb.value = v.turbulence;
         uniforms.uTrail.value = v.trail;
         uniforms.uSize.value = v.dotSize;
+        uniforms.uFloor.value = v.flightAlpha ?? 0.08;
         uniforms.uLineAlpha.value = v.strokes;
         uniforms.uInk.value.set(v.ink);
         dustMaterial.color.set(v.ink);

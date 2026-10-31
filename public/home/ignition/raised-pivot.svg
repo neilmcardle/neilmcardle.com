@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="185" height="10.8" viewBox="0 0 185 10.8" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="pivot-barrel">
+<path id="Vector" d="M0.5 0.8H184.5V10.3H0.5V0.8Z" fill="#17171C" stroke="#07070A"/>
+<path id="Vector_2" d="M169.5 0.3H15.5C13.2909 0.3 11.5 2.09086 11.5 4.3V6.3C11.5 8.50914 13.2909 10.3 15.5 10.3H169.5C171.709 10.3 173.5 8.50914 173.5 6.3V4.3C173.5 2.09086 171.709 0.3 169.5 0.3Z" fill="url(#paint0_linear_0_712)" stroke-width="0.6" stroke="#38343A"/>
+<path id="Vector_3" opacity="0.75" d="M23.5 2.90001H161.5" stroke-width="0.7" stroke="#E6E2D8"/>
+<path id="Vector_4" d="M29.5 1.3V9.3M33.5 1.3V9.3M151.5 1.3V9.3M155.5 1.3V9.3" stroke="#3F4147"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_712" x1="-75.5" y1="0.3" x2="-75.5" y2="10.3" gradientUnits="userSpaceOnUse">
+<stop stop-color="#44474C"/>
+<stop offset="0.18" stop-color="#A6ADB2"/>
+<stop offset="0.32" stop-color="#F4F1E9"/>
+<stop offset="0.47" stop-color="#A5A6A4"/>
+<stop offset="0.66" stop-color="#555A61"/>
+<stop offset="0.87" stop-color="#85898B"/>
+<stop offset="1" stop-color="#292D32"/>
+</linearGradient>
+</defs>
+</svg>

@@ -1,3 +1,4 @@
+import type React from "react";
 import Link from "next/link";
 import shell from "./signature.module.css";
 import styles from "./header.module.css";
@@ -6,14 +7,20 @@ export default function Header({
   home = "/",
   brand = true,
   contact = "#contact",
+  mark,
 }: {
   home?: string;
   brand?: boolean;
   contact?: string;
+  mark?: React.ReactNode;
 }) {
   return (
     <header className={`${shell.wrap} ${styles.header}`}>
-      {brand ? (
+      {mark ? (
+        <Link className={styles.brand} href={home} aria-label="Neil McArdle">
+          {mark}
+        </Link>
+      ) : brand ? (
         <Link className={styles.brand} href={home} aria-label="Neil McArdle">
           <svg viewBox="18 18 27 27" aria-hidden="true">
             <path d="M45 45L32 31.2985V18H45V45Z" />

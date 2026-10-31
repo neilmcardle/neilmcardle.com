@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Shell from "./_signature/Shell";
 import Header from "./_signature/Header";
+import NavMark from "./_signature/NavMark";
 import Hero from "./_signature/Hero";
 import Work from "./_signature/Work";
 import Moments from "./_signature/Moments";
@@ -22,7 +23,7 @@ export const viewport: Viewport = {
 export default function Homepage() {
   return (
     <Shell>
-      <Header brand={false} />
+      <Header mark={<NavMark />} />
       <Hero />
       <Work />
       <Moments />

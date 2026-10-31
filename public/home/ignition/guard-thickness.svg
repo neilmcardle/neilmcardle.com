@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="289.195" height="306" viewBox="0 0 289.195 306" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="cover-thickness">
+<path id="Vector" d="M55.8692 0C40.8692 0 31.8692 7 25.8692 21C14.8692 47 4.86918 87 0.869177 125C-3.13082 157 6.86918 186 26.8692 212C49.8692 243 88.8692 275 120.869 298C129.869 305 140.869 306 155.869 306L169.869 302C201.869 280 237.869 250 261.869 220C283.869 192 290.869 165 288.869 137C285.869 95 272.869 50 256.869 19C250.869 6 240.869 2 225.869 2L55.8692 0ZM54.8692 122L101.869 108C115.203 110 125.869 113.333 133.869 118L144.869 138C148.202 142 151.869 141.667 155.869 137L169.869 118L218.869 113L243.869 131L231.869 162C221.202 171.333 205.202 179.667 183.869 187H106.869C87.5358 179.667 70.2025 170.333 54.8692 159L48.8692 134C47.5358 129.333 49.5358 125.333 54.8692 122Z" fill-rule="evenodd" clip-rule="evenodd" fill="url(#paint0_linear_0_677)"/>
+<path id="Vector_2" d="M283.869 146C285.869 173 275.869 197 255.869 222C230.869 252 196.869 280 166.869 300C156.203 303.333 146.536 303.667 137.869 301" stroke-width="1.2" stroke="#F33C34" stroke-opacity="0.65"/>
+<path id="Vector_3" d="M275.869 187C258.869 228 206.869 274 169.869 300" stroke-width="2" stroke="#57040C" stroke-opacity="0.65"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_677" x1="11.8692" y1="50" x2="275.869" y2="248" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF493C"/>
+<stop offset="0.32" stop-color="#A90912"/>
+<stop offset="0.7" stop-color="#74030D"/>
+<stop offset="0.87" stop-color="#CC101A"/>
+<stop offset="1" stop-color="#48030B"/>
+</linearGradient>
+</defs>
+</svg>

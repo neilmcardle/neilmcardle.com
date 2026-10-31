@@ -3,11 +3,11 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { media } from "@/lib/media";
-import ParticleTitle from "./ParticleTitle";
 import shell from "./signature.module.css";
 import styles from "./finale.module.css";
 
 const ENGINE = media("/audio/engine.mp3");
+const ART = "/home/ignition";
 const OFFSET = 0.6;
 const OCTAGON =
   "29.3,0 70.7,0 100,29.3 100,70.7 70.7,100 29.3,100 0,70.7 0,29.3";
@@ -275,12 +275,9 @@ export default function Finale() {
     >
       <canvas ref={exhaust} className={styles.exhaust} aria-hidden="true" />
       <div ref={inner} className={`${shell.wrap} ${styles.inner}`}>
-        <ParticleTitle
-          ref={title}
-          text="Tell me more."
-          shown={shown}
-          className={styles.title}
-        />
+        <h2 ref={title} className={styles.title}>
+          Tell me more.
+        </h2>
         <div className={styles.row}>
           <div
             ref={ign}
@@ -288,24 +285,36 @@ export default function Finale() {
             onPointerEnter={() => hoverable() && openCover()}
             onPointerLeave={() => hoverable() && !running && setOpen(false)}
           >
-            <span className={styles.glass} aria-hidden="true" />
+            <span className={styles.shadow} aria-hidden="true">
+              <img src={`${ART}/contact-shadow.svg`} alt="" />
+            </span>
+            <span className={styles.housing} aria-hidden="true">
+              <span className={styles.consoleSpin}>
+                <span className={styles.consoleBody}>
+                  <span className={styles.consoleClip}>
+                    <span className={styles.weave}>
+                      <img
+                        src={`${ART}/carbon-weave.svg`}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                    <span className={styles.consoleEdge}>
+                      <img src={`${ART}/carbon-edge.svg`} alt="" />
+                    </span>
+                  </span>
+                </span>
+              </span>
+            </span>
+            <span className={styles.ring} aria-hidden="true">
+              <img src={`${ART}/ring.svg`} alt="" />
+            </span>
             <svg
               className={styles.tach}
               viewBox="-4 -4 108 108"
               aria-hidden="true"
             >
-              <defs>
-                <linearGradient id="glass-rim" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stopColor="#fff" stopOpacity=".42" />
-                  <stop offset=".45" stopColor="#fff" stopOpacity=".1" />
-                  <stop offset="1" stopColor="#fff" stopOpacity=".22" />
-                </linearGradient>
-              </defs>
-              <polygon
-                points={OCTAGON}
-                pathLength={100}
-                stroke="url(#glass-rim)"
-              />
               <polygon
                 ref={tach}
                 className={styles.fill}
@@ -313,6 +322,7 @@ export default function Finale() {
                 pathLength={100}
               />
             </svg>
+            <span className={styles.spindle} aria-hidden="true" />
             <button
               ref={start}
               className={`${styles.start} ${pressed ? styles.pressed : ""}`}
@@ -326,10 +336,11 @@ export default function Finale() {
               onPointerLeave={release}
               onPointerCancel={release}
             >
-              <img className={styles.bezel} src="/home/lid/button.svg" alt="" />
-              <img className={styles.cap} src="/home/lid/button.svg" alt="" />
+              <img className={styles.cap} src={`${ART}/button.svg`} alt="" />
               <span className={styles.capLabel} aria-hidden="true">
-                Do it
+                <b>Tell</b>
+                <small>me</small>
+                <b>More</b>
               </span>
             </button>
             <button
@@ -339,23 +350,40 @@ export default function Finale() {
               aria-expanded={open}
               onClick={onCoverClick}
             >
-              <span className={styles.under}>
-                <img src="/home/lid/lid-open.svg" alt="" />
-              </span>
-              {[6, 5, 4, 3, 2, 1].map((i) => (
-                <span
-                  key={i}
-                  className={styles.slab}
-                  style={{ "--i": i } as React.CSSProperties}
-                />
-              ))}
               <span className={styles.face}>
-                <img src="/home/lid/lid-closed.svg" alt="" />
-                <span className={styles.lidLabel} aria-hidden="true">
-                  Email
+                <span className={styles.thickness}>
+                  <img src={`${ART}/guard-thickness.svg`} alt="" />
+                </span>
+                <span className={styles.aperture}>
+                  <img src={`${ART}/guard-aperture.svg`} alt="" />
+                </span>
+                <span className={styles.front}>
+                  <img src={`${ART}/guard-front.svg`} alt="" />
+                </span>
+                <span className={styles.reflections}>
+                  <span>
+                    <img src={`${ART}/guard-reflections.svg`} alt="" />
+                  </span>
                 </span>
               </span>
             </button>
+            <span className={styles.raised} aria-hidden="true">
+              <span className={styles.pivot}>
+                <span>
+                  <img src={`${ART}/raised-pivot.svg`} alt="" />
+                </span>
+              </span>
+              <span className={styles.arms}>
+                <span>
+                  <img src={`${ART}/raised-arms.svg`} alt="" />
+                </span>
+              </span>
+              <span className={styles.shield}>
+                <span>
+                  <img src={`${ART}/raised-shield.svg`} alt="" />
+                </span>
+              </span>
+            </span>
           </div>
           <p
             className={`${styles.said} ${said ? styles.on : ""}`}

@@ -26,6 +26,7 @@ export type NSettings = {
   follow?: number;
   faceHold?: number;
   driftTime?: number;
+  flightAlpha?: number;
 };
 
 export const N_DEFAULTS: NSettings = {

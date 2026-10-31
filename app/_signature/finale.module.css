@@ -32,32 +32,16 @@
 }
 
 .title {
-  position: relative;
   margin: 0;
-  color: transparent;
   font: 800 clamp(64px, 13vw, 184px) / 0.86 var(--heavy);
   text-transform: uppercase;
   letter-spacing: -0.005em;
-  transition: color 0.42s var(--ease);
+  clip-path: polygon(0 0, 0 0, -14% 100%, 0 100%);
+  transition: clip-path 0.48s var(--ease);
 }
 
-.title.formed {
-  color: var(--ink);
-}
-
-.dust {
-  position: absolute;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.dust.flying {
-  opacity: 1;
-}
-
-.dust.settled {
-  opacity: 0;
-  transition: opacity 0.42s var(--ease);
+.shown .title {
+  clip-path: polygon(0 0, 114% 0, 100% 100%, 0 100%);
 }
 
 .row {
@@ -174,105 +158,145 @@
 .ignition {
   position: relative;
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-  perspective: 420px;
+  width: 112px;
+  height: 112px;
+  margin: 24px 6px 30px 18px;
 }
 
-.glass {
-  --c: 29.3%;
-  position: absolute;
-  left: -7.5px;
-  top: -7.5px;
-  width: 87px;
-  height: 87px;
-  pointer-events: none;
-  clip-path: polygon(
-    var(--c) 0,
-    calc(100% - var(--c)) 0,
-    100% var(--c),
-    100% calc(100% - var(--c)),
-    calc(100% - var(--c)) 100%,
-    var(--c) 100%,
-    0 calc(100% - var(--c)),
-    0 var(--c)
-  );
-  background:
-    linear-gradient(
-      135deg,
-      rgb(255 255 255 / 0.1) 0%,
-      rgb(255 255 255 / 0) 30%,
-      rgb(255 255 255 / 0) 74%,
-      rgb(255 255 255 / 0.05) 100%
-    ),
-    linear-gradient(
-      118deg,
-      transparent 18%,
-      rgb(255 255 255 / 0.06) 19%,
-      rgb(255 255 255 / 0.01) 31%,
-      transparent 32%
-    );
-}
-
-.tach {
-  position: absolute;
-  left: -11px;
-  top: -11px;
-  width: 94px;
-  height: 94px;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.tach polygon {
-  fill: none;
-  stroke-width: 2;
-}
-
-.fill {
-  stroke: var(--ink);
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-}
-
-.start {
-  position: absolute;
-  inset: 11px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
-  cursor: pointer;
-}
-
-.start::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 40%, #120707, #050202);
-}
-
-.start img {
-  position: absolute;
-  left: -16px;
-  top: -16px;
-  width: 82.25px;
-  height: 82.25px;
+.ignition img {
+  display: block;
+  width: 100%;
+  height: 100%;
   max-width: none;
   pointer-events: none;
 }
 
-.bezel {
-  mask-image: radial-gradient(
-    circle at 50% 50%,
-    transparent 24.5px,
-    #000 25.5px
+.ignition > span,
+.cover > span,
+.face > span,
+.raised > span {
+  position: absolute;
+}
+
+.shadow {
+  left: -3.33px;
+  top: 85.67px;
+  width: 118.67px;
+  height: 16px;
+}
+
+.shadow img {
+  position: absolute;
+  left: -6.74%;
+  top: -50%;
+  width: 113.48%;
+  height: 200%;
+}
+
+.housing {
+  left: -11.33px;
+  top: -17px;
+  width: 134.67px;
+  height: 134.67px;
+}
+
+.consoleSpin {
+  position: absolute;
+  inset: -27.89px;
+  display: grid;
+  place-items: center;
+}
+
+.consoleBody {
+  position: relative;
+  width: 134.67px;
+  height: 134.67px;
+  rotate: 45deg;
+  filter: drop-shadow(0 4px 3.33px rgb(0 0 0 / 0.69));
+}
+
+.consoleClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.48;
+}
+
+.weave {
+  position: absolute;
+  inset: 0;
+  mask-image: url("/home/ignition/carbon-mask.svg");
+  mask-size: 144px 144px;
+  mask-repeat: no-repeat;
+}
+
+.consoleEdge {
+  position: absolute;
+  inset: -0.69%;
+}
+
+.ring {
+  left: -17.33px;
+  top: -23px;
+  width: 146.67px;
+  height: 146.67px;
+}
+
+.tach {
+  position: absolute;
+  left: -17.33px;
+  top: -23px;
+  width: 146.67px;
+  height: 146.67px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.fill {
+  fill: none;
+  stroke: #ef2b25;
+  stroke-width: 1.4;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.spindle {
+  left: 29.33px;
+  top: 2.67px;
+  width: 53.33px;
+  height: 4px;
+  border-radius: 1.33px;
+  background: linear-gradient(
+    180deg,
+    rgb(9 11 13) 0%,
+    rgb(162 167 170) 25%,
+    rgb(229 231 231) 34%,
+    rgb(59 66 71) 45%,
+    rgb(17 20 24) 80%,
+    rgb(90 95 99) 100%
   );
+  transition: opacity 80ms linear 60ms;
+}
+
+.open .spindle {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+.start {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  clip-path: polygon(30% 12%, 70% 12%, 90% 40%, 84% 88%, 16% 88%, 10% 40%);
 }
 
 .cap {
-  clip-path: circle(25.5px at 50% 50%);
+  position: absolute;
+  inset: 0;
+  filter: drop-shadow(0 2.33px 2px rgb(0 0 0 / 0.8));
   transition:
     scale 200ms var(--ease),
     translate 200ms var(--ease),
@@ -281,26 +305,45 @@
 
 .capLabel {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  font:
-    700 10px / 1 var(--font-inter),
-    sans-serif;
-  letter-spacing: 0.04em;
+  left: calc(50% + 0.17px);
+  top: calc(50% + 1.67px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.33px;
+  color: #f4f4f2;
+  font-family: var(--font-inter), sans-serif;
   text-transform: uppercase;
-  color: #fff8ed;
-  text-shadow: 0 1px 1px rgb(69 0 0 / 0.7);
+  line-height: 0.86;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.737);
   transition:
-    scale 240ms var(--ease),
-    translate 240ms var(--ease),
-    opacity 240ms var(--ease);
+    transform 220ms var(--ease) 90ms,
+    scale 200ms var(--ease),
+    translate 200ms var(--ease),
+    opacity 200ms var(--ease);
+}
+
+.open .capLabel {
+  transform: translate(-50%, -50%);
+}
+
+.capLabel b {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.19px;
+}
+
+.capLabel small {
+  font-size: 5.5px;
+  font-weight: 600;
+  letter-spacing: 0.44px;
 }
 
 @media (hover: hover) {
   .start:hover:not(:disabled) .cap {
-    filter: brightness(1.12);
+    filter: drop-shadow(0 2.33px 2px rgb(0 0 0 / 0.8)) brightness(1.2);
   }
 }
 
@@ -312,7 +355,7 @@
 }
 
 .start.pressed .cap {
-  filter: brightness(0.9);
+  filter: drop-shadow(0 2.33px 2px rgb(0 0 0 / 0.8)) brightness(0.88);
 }
 
 .start.pressed .capLabel {
@@ -324,7 +367,6 @@
 }
 
 .cover {
-  --t: 6px;
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -332,8 +374,11 @@
   border: 0;
   background: none;
   cursor: pointer;
-  transform-style: preserve-3d;
-  transform-origin: 50% 0;
+}
+
+.face {
+  inset: 0;
+  transform-origin: 50% 2.4%;
   transition: transform 460ms
     linear(
       0,
@@ -348,84 +393,94 @@
       0.975 76%,
       1 85%,
       1
-    );
-}
-
-.cover > span {
-  position: absolute;
-  inset: 0;
-}
-
-.cover img {
-  position: absolute;
-  max-width: none;
-  pointer-events: none;
-  filter: grayscale(1);
-}
-
-.face {
-  backface-visibility: hidden;
-}
-
-.face img {
-  left: -4.97px;
-  top: -3.72px;
-  width: 82.14px;
-  height: 82.14px;
-}
-
-.lidLabel {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  font:
-    700 15px / 1 var(--font-inter),
-    sans-serif;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  color: #161616;
-  text-shadow:
-    0 1px 0 rgb(255 255 255 / 0.55),
-    0 -1px 0 rgb(0 0 0 / 0.25);
-}
-
-.slab {
-  --c: 32.2%;
-  clip-path: polygon(
-    var(--c) 0,
-    calc(100% - var(--c)) 0,
-    100% var(--c),
-    100% calc(100% - var(--c)),
-    calc(100% - var(--c)) 100%,
-    var(--c) 100%,
-    0 calc(100% - var(--c)),
-    0 var(--c)
-  );
-  background: hsl(0 0% calc(46% - var(--i) * 4%));
-  transform: translateZ(calc(var(--i) * -1px));
-}
-
-.under {
-  backface-visibility: hidden;
-  transform: translateZ(calc(var(--t) * -1)) rotateX(180deg);
-}
-
-.under img {
-  left: -6px;
-  top: -9.97px;
-  width: 84px;
-  height: 98.58px;
+    )
+    110ms;
 }
 
 .open .cover {
-  transform: rotateX(112deg);
   pointer-events: none;
-  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.instant .cover {
+.open .face {
+  transform: perspective(360px) rotateX(90deg);
+  transition: transform 110ms cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+.thickness {
+  inset: 4.46% 7.05% 4.46% 6.88%;
+}
+
+.aperture {
+  inset: 32.14% 17.56% 36.31% 17.07%;
+}
+
+.front {
+  inset: 4.46% 9.44% 7.29% 7.66%;
+}
+
+.reflections {
+  inset: 5.36% 11.9% 7.96% 9.52%;
+}
+
+.reflections > span {
+  position: absolute;
+  inset: -0.29% -0.21% -0.17% -0.23%;
+}
+
+.raised {
+  left: 0;
+  top: -36.67px;
+  z-index: 3;
+  width: 112px;
+  height: 61.67px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: 50% 90%;
+  transition:
+    transform 110ms cubic-bezier(0.55, 0, 1, 0.45),
+    opacity 40ms linear 70ms;
+}
+
+.open .raised {
+  opacity: 1;
+  transform: none;
+  transition:
+    transform 240ms cubic-bezier(0.16, 1, 0.3, 1) 90ms,
+    opacity 40ms linear 90ms;
+}
+
+.pivot {
+  inset: 87.57% 22.62% 7.03% 22.62%;
+}
+
+.pivot > span {
+  position: absolute;
+  inset: -3% -0.27% -5% -0.27%;
+}
+
+.arms {
+  inset: 64.32% 17.26% 4.05% 17.26%;
+}
+
+.arms > span {
+  position: absolute;
+  inset: -1.26% -0.26% -0.68% -0.26%;
+}
+
+.shield {
+  inset: 4.59% 6.21% 18.92% 6.21%;
+}
+
+.shield > span {
+  position: absolute;
+  inset: -0.35% -0.17%;
+}
+
+.instant .face,
+.instant .raised,
+.instant .spindle,
+.instant .capLabel {
   transition: none;
 }
 
@@ -466,6 +521,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .title {
+    clip-path: none;
     transition: none;
   }
 
@@ -489,8 +545,11 @@
     opacity: 0;
   }
 
-  .start .cap,
+  .cap,
   .capLabel,
+  .face,
+  .raised,
+  .spindle,
   .copy,
   .contact .mail,
   .footer a {

@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="336" height="336" viewBox="0 0 336 336" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Hex button">
+<path id="Vector" d="M100.8 40.32H235.2C244.16 40.32 250.88 43.68 255.36 50.4L295.68 120.96C300.16 129.92 301.28 138.88 299.04 147.84L282.24 268.8C280 286.72 269.92 295.68 252 295.68H84C66.08 295.68 56 286.72 53.76 268.8L36.96 147.84C34.72 138.88 35.84 129.92 40.32 120.96L80.64 50.4C85.12 43.68 91.84 40.32 100.8 40.32Z" fill="url(#paint0_linear_0_698)" stroke-width="8" stroke="#050607"/>
+<path id="Vector_2" d="M104.16 50.4H231.84C238.56 50.4 244.16 53.76 248.64 60.48L282.24 120.96" stroke-width="4.032" stroke-linecap="round" stroke="#E1E6E8" stroke-opacity="0.223529"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_698" x1="88.704" y1="40.32" x2="88.704" y2="295.68" gradientUnits="userSpaceOnUse">
+<stop stop-color="#44484A"/>
+<stop offset="0.18" stop-color="#303336"/>
+<stop offset="0.55" stop-color="#1B1D20"/>
+<stop offset="1" stop-color="#0C0D10"/>
+</linearGradient>
+</defs>
+</svg>

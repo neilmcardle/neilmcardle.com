@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="219.643" height="106" viewBox="0 0 219.643 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="aperture-resin-walls">
+<path id="Vector" d="M8.64286 15L64.6429 0C79.3095 0.666667 91.3095 4.66667 100.643 12L113.643 33L127.643 13C131.643 8.33333 136.976 6.33333 143.643 7H188.643L219.643 31L207.643 76C195.643 87.3333 177.31 97.3333 152.643 106H68.6429C44.6429 97.3333 24.9762 86.3333 9.64286 73L0.642857 37C-1.35714 27.6667 1.30952 20.3333 8.64286 15ZM20.6429 29L67.6429 15C80.9762 17 91.6429 20.3333 99.6429 25L110.643 45C113.976 49 117.643 48.6667 121.643 44L135.643 25L184.643 20L209.643 38L197.643 69C186.976 78.3333 170.976 86.6667 149.643 94H72.6429C53.3095 86.6667 35.9762 77.3333 20.6429 66L14.6429 41C13.3095 36.3333 15.3095 32.3333 20.6429 29Z" fill-rule="evenodd" clip-rule="evenodd" fill="url(#paint0_linear_0_694)"/>
+<path id="Vector_2" d="M18.6429 29L67.6429 15C80.3095 16.3333 90.9762 19.6667 99.6429 25L110.643 45C113.976 49 117.643 48.6667 121.643 44L135.643 25L184.643 20L207.643 37" stroke-width="2" stroke-linecap="round" stroke="#57020C"/>
+<path id="Vector_3" d="M22.6429 68C38.6429 78.6667 55.3095 87.6667 72.6429 95H149.643C168.976 88.3333 184.31 80.3333 195.643 71" stroke-width="1.2" stroke="#FF7660" stroke-opacity="0.7"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_694" x1="98.6428" y1="6" x2="105.643" y2="109" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4C020B"/>
+<stop offset="0.23" stop-color="#8C0710"/>
+<stop offset="0.54" stop-color="#BD1019"/>
+<stop offset="0.8" stop-color="#FF4636"/>
+<stop offset="1" stop-color="#6F030D"/>
+</linearGradient>
+</defs>
+</svg>
