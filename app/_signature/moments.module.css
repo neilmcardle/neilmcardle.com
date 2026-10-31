@@ -94,6 +94,32 @@
   font-size: 15px;
 }
 
+.app {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.lede {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.appMark {
+  width: auto;
+  height: 28px;
+}
+
+.bunny {
+  height: 36px;
+  margin-block: -4px;
+}
+
 .reply {
   margin-top: 24px;
   padding-top: 20px;

@@ -581,7 +581,7 @@ export default function NParticles({
         const lengths = {
           hold: form && v.faceHold ? v.faceHold : v.hold,
           out: v.scatterTime,
-          drift: v.hold * 0.6,
+          drift: v.driftTime ?? v.hold * 0.6,
           back: v.returnTime,
         };
         if (elapsed >= lengths[cycle.stage]) {

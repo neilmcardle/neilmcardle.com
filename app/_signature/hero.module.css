@@ -30,7 +30,7 @@
 }
 
 .mark {
-  width: clamp(150px, 21vw, 240px);
+  width: clamp(124px, 17vw, 200px);
   aspect-ratio: 1;
   pointer-events: none;
 }

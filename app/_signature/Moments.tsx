@@ -1,3 +1,5 @@
+import BedsideMark from "./BedsideMark";
+import SpeakMark from "./SpeakMark";
 import shell from "./signature.module.css";
 import styles from "./moments.module.css";
 
@@ -41,6 +43,11 @@ export default function Moments() {
             <span className={styles.tag}>Watch the clip</span>
           </a>
           <div>
+            <p className={styles.app}>
+              <SpeakMark className={styles.appMark} />
+              SpeakUI
+            </p>
+            <p className={styles.lede}>My voice-driven UI editor.</p>
             <p className={styles.quote}>“Demo available?”</p>
             <Who
               href="https://x.com/designertom/status/2103142665445605845"
@@ -55,7 +62,6 @@ export default function Moments() {
                 handle="@ridd_design, co-host"
               />
             </div>
-            <p className={styles.on}>On SpeakUI, my voice-driven UI editor.</p>
           </div>
         </div>
         <div className={styles.moment}>
@@ -72,16 +78,19 @@ export default function Moments() {
             />
           </a>
           <div>
+            <p className={styles.app}>
+              <BedsideMark className={`${styles.appMark} ${styles.bunny}`} />
+              Bedside Books
+            </p>
+            <p className={styles.lede}>
+              Where a parent and child make a picture book together.
+            </p>
             <p className={styles.quote}>“This is magical dude.”</p>
             <Who
               href="https://x.com/designertom/status/2107851337434087724"
               name="Tommy Geoco"
               handle="@designertom on X"
             />
-            <p className={styles.on}>
-              On Bedside Books, where a parent and child make a picture book
-              together.
-            </p>
           </div>
         </div>
       </div>
