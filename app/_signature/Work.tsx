@@ -18,6 +18,8 @@ export type Project = {
   proof?: { value: string; label: string };
   wide?: boolean;
   product?: { label: string; href: string };
+  hero?: string;
+  darkCue?: boolean;
 };
 
 export const PROJECTS: Project[] = [
@@ -30,6 +32,8 @@ export const PROJECTS: Project[] = [
     film: "/work/avis/avis-3-step-c.mp4",
     proof: { value: "+5%", label: "conversion in testing" },
     wide: true,
+    hero: "/work/avis/hero-cover.jpg",
+    darkCue: true,
   },
   {
     title: "makeebook",
@@ -59,6 +63,7 @@ export const PROJECTS: Project[] = [
       label: "App Store",
       href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
     },
+    hero: "/work/doodlewire/hero.jpg",
     wide: true,
   },
 ];
@@ -76,6 +81,7 @@ function Card({
   const router = useRouter();
   const video = useRef<HTMLVideoElement>(null);
   const card = useRef<HTMLDivElement>(null);
+  const warmed = useRef(false);
 
   const play = () => {
     const v = video.current;
@@ -97,6 +103,15 @@ function Card({
     v.pause();
   };
 
+  const warm = () => {
+    router.prefetch(href);
+    if (project.hero && !warmed.current) {
+      warmed.current = true;
+      const img = new window.Image();
+      img.src = project.hero;
+    }
+  };
+
   const fly = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
@@ -108,64 +123,113 @@ function Card({
       event.altKey
     )
       return;
-    const img = card.current?.querySelector("img");
-    if (!img) return;
+    const frame = card.current?.querySelector<HTMLElement>(`.${styles.media}`);
+    const still = frame?.querySelector("img");
+    if (!frame || !still) return;
     event.preventDefault();
-    const r = img.getBoundingClientRect();
-    const gutter =
-      parseFloat(
-        getComputedStyle(card.current?.closest("section") ?? document.body)
-          .paddingLeft,
-      ) || 16;
-    let w = Math.min(window.innerWidth - gutter * 2, 1120 - gutter * 2);
-    let h = (w * 9) / 16;
-    if (h > window.innerHeight - 48) {
-      h = window.innerHeight - 48;
-      w = (h * 16) / 9;
-    }
-    const x = (window.innerWidth - w) / 2;
-    const y = 24;
+    const from = frame.getBoundingClientRect();
+    const top = document.querySelector("header")?.offsetHeight ?? 0;
+    const to = {
+      left: 0,
+      top,
+      width: document.documentElement.clientWidth,
+      height: Math.min(window.innerWidth * 0.5625, window.innerHeight - 64),
+    };
+    const box = (r: {
+      left: number;
+      top: number;
+      width: number;
+      height: number;
+    }) => ({
+      left: `${r.left}px`,
+      top: `${r.top}px`,
+      width: `${r.width}px`,
+      height: `${r.height}px`,
+    });
     const veil = document.createElement("div");
     veil.className = styles.veil;
-    const flyer = img.cloneNode() as HTMLImageElement;
+    const flyer = document.createElement("div");
     flyer.className = styles.flyer;
-    flyer.removeAttribute("loading");
-    Object.assign(flyer.style, {
-      left: `${x}px`,
-      top: `${y}px`,
-      width: `${w}px`,
-      height: `${h}px`,
-    });
+    Object.assign(flyer.style, box(from));
+    const v = video.current;
+    let first: HTMLElement = still.cloneNode() as HTMLImageElement;
+    if (v?.classList.contains(styles.on) && v.videoWidth) {
+      const c = document.createElement("canvas");
+      c.width = v.videoWidth;
+      c.height = v.videoHeight;
+      c.getContext("2d")?.drawImage(v, 0, 0);
+      first = c;
+    }
+    first.removeAttribute("loading");
+    first.removeAttribute("style");
+    flyer.append(first);
+    let next: HTMLImageElement | null = null;
+    if (project.hero) {
+      next = document.createElement("img");
+      next.src = project.hero;
+      next.alt = "";
+      next.style.opacity = "0";
+      flyer.append(next);
+    }
     document.body.append(veil, flyer);
+    const ease = "cubic-bezier(0.16, 1, 0.3, 1)";
     veil.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: 240,
-      easing: "cubic-bezier(.16,1,.3,1)",
+      duration: 200,
+      easing: "linear",
       fill: "forwards",
     });
-    flyer
-      .animate(
-        [
-          {
-            transform: `translate(${r.left - x}px, ${r.top - y}px) scale(${r.width / w}, ${r.height / h})`,
-          },
-          { transform: "none" },
-        ],
-        { duration: 320, easing: "cubic-bezier(.16,1,.3,1)", fill: "forwards" },
-      )
-      .finished.then(() => {
-        router.push(href);
-        window.setTimeout(() => {
-          veil.remove();
-          flyer.remove();
-        }, 600);
+    const flight = flyer.animate([box(from), box(to)], {
+      duration: 460,
+      easing: ease,
+      fill: "forwards",
+    });
+    next?.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 200,
+      delay: 60,
+      easing: "linear",
+      fill: "forwards",
+    });
+    router.push(href);
+    const landed = () =>
+      new Promise<void>((resolve) => {
+        const begun = performance.now();
+        const check = () => {
+          const hero =
+            location.pathname === href &&
+            document.querySelector("main section, section");
+          const img = hero ? hero.querySelector("img") : null;
+          if (
+            (hero && (!img || img.complete)) ||
+            performance.now() - begun > 2000
+          )
+            resolve();
+          else requestAnimationFrame(check);
+        };
+        check();
       });
+    Promise.all([flight.finished, landed()]).then(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      const out = {
+        duration: 220,
+        easing: "linear",
+        fill: "forwards" as const,
+      };
+      veil.animate([{ opacity: 1 }, { opacity: 0 }], out);
+      flyer.animate([{ opacity: 1 }, { opacity: 0 }], out).finished.then(() => {
+        veil.remove();
+        flyer.remove();
+      });
+    });
   };
 
   return (
     <div
       ref={card}
       className={`${styles.card} ${project.wide ? styles.wide : ""}`}
-      onPointerEnter={play}
+      onPointerEnter={() => {
+        warm();
+        play();
+      }}
       onPointerLeave={stop}
     >
       <div className={styles.frame}>
@@ -198,6 +262,12 @@ function Card({
               }}
             />
           ) : null}
+          <span
+            className={`${styles.cue} ${project.darkCue ? styles.dark : ""}`}
+            aria-hidden="true"
+          >
+            View case study
+          </span>
         </div>
       </div>
       <div className={styles.caption}>

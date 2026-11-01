@@ -293,7 +293,13 @@
       rgb(17 20 24) 80%,
       rgb(90 95 99) 100%
     );
-  transition: opacity 80ms linear 60ms;
+  transition:
+    opacity 80ms linear 60ms,
+    filter 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.open .spindle {
+  filter: brightness(0.5);
 }
 
 .start {

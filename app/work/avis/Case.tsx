@@ -2,7 +2,7 @@ import { media } from "@/lib/media";
 import Image from "next/image";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
-import { CoverageParts, PagesFlow, StepsDiagram, SystemSheet } from "./Parts";
+import { CoverageParts, PagesFlow, StepsDiagram } from "./Parts";
 
 export default function AvisCase() {
   return (
@@ -45,7 +45,6 @@ export default function AvisCase() {
         { kind: "custom", id: "steps", node: <StepsDiagram /> },
         { kind: "custom", id: "pages", node: <PagesFlow /> },
         { kind: "custom", id: "parts", node: <CoverageParts /> },
-        { kind: "custom", id: "system", node: <SystemSheet /> },
         {
           kind: "full",
           src: "/work/avis/end-logo.jpg",
