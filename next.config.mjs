@@ -63,14 +63,6 @@ const nextConfig = {
         destination: "/logo-animator-studio/index.html",
       },
       {
-        source: "/bible-toolkit-demo",
-        destination: "/bible-toolkit-demo/index.html",
-      },
-      {
-        source: "/bible-toolkit-demo/",
-        destination: "/bible-toolkit-demo/index.html",
-      },
-      {
         source: "/chess",
         destination: "/chess/index.html",
       },
@@ -171,18 +163,6 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: "/bible-toolkit-demo/:path*",
-        headers: [
-          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
-        ],
-      },
-      {
-        source: "/bible-toolkit-demo",
-        headers: [
-          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
-        ],
-      },
       ...(isDev
         ? [
             {
