@@ -1,0 +1,320 @@
+.outer {
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.bezel {
+  width: min(100cqw, calc(100cqh * 1.42));
+  aspect-ratio: 1.42;
+  padding: clamp(14px, 3%, 28px);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #e9e3d3, #d6cfbc);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.06),
+    0 30px 60px -34px rgba(40, 30, 10, 0.55);
+}
+
+.screen {
+  --fill: #fff;
+  position: relative;
+  width: 640px;
+  height: 420px;
+  overflow: hidden;
+  background: #8f8f8f;
+  font-family: var(--font-bitmap), ui-monospace, monospace;
+  font-size: 13px;
+  color: #000;
+  user-select: none;
+  touch-action: none;
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px #2a2823;
+  cursor: default;
+}
+
+.screen[data-fine] {
+  background-color: #fff;
+  background-image: conic-gradient(#000 25%, #fff 0 50%, #000 0 75%, #fff 0);
+  background-size: 2px 2px;
+}
+
+.menuTitle[data-open] svg,
+.menuTitle:focus-visible svg {
+  --hole: #000;
+}
+
+.menubar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 22px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+  display: flex;
+  align-items: stretch;
+  padding: 0 8px;
+  z-index: 100;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.menuTitle {
+  font: inherit;
+  font-weight: 600;
+  height: 100%;
+  padding: 0 10px;
+  border: 0;
+  background: #fff;
+  color: #000;
+  cursor: default;
+}
+
+.menuTitle[data-open],
+.menuTitle:focus-visible {
+  background: #000;
+  color: #fff;
+  outline: none;
+}
+
+.menu {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  min-width: 170px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.menuItem {
+  font: inherit;
+  text-align: left;
+  border: 0;
+  background: #fff;
+  color: #000;
+  padding: 2px 14px 2px 4px;
+  display: flex;
+  cursor: default;
+}
+
+.menuItem[data-hover]:not(:disabled),
+.menuItem:focus-visible {
+  background: #000;
+  color: #fff;
+  outline: none;
+}
+
+.menuItem:disabled {
+  color: #9a9a9a;
+}
+
+.check {
+  width: 16px;
+  flex: none;
+}
+
+.rule {
+  height: 0;
+  border-top: 1px dotted #000;
+  margin: 3px 0;
+}
+
+.icon {
+  position: absolute;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font: inherit;
+  font-size: 12px;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #000;
+  cursor: default;
+  touch-action: none;
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: #000;
+}
+
+.label {
+  background: #fff;
+  padding: 0 3px;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.icon[data-selected] .glyph {
+  --fill: #000;
+  color: #fff;
+}
+
+.icon[data-selected] .glyph svg {
+  filter: drop-shadow(0 0 0 #000);
+}
+
+.icon[data-selected] .label {
+  background: #000;
+  color: #fff;
+}
+
+.icon:focus-visible {
+  outline: 1px dotted #000;
+}
+
+.win {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 #000;
+  display: grid;
+  grid-template-rows: 20px minmax(0, 1fr);
+}
+
+.titlebar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid #000;
+  touch-action: none;
+}
+
+.win[data-active] .titlebar {
+  background: repeating-linear-gradient(180deg, #fff 0 2px, #000 2px 3px);
+  background-clip: content-box;
+  padding: 3px 2px;
+}
+
+.winTitle {
+  background: #fff;
+  padding: 0 8px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+.closeBox {
+  position: absolute;
+  left: 9px;
+  top: 4px;
+  width: 12px;
+  height: 11px;
+  background: #fff;
+  border: 1px solid #000;
+  padding: 0;
+  box-shadow: 0 0 0 2px #fff;
+  cursor: default;
+}
+
+.win:not([data-active]) .closeBox {
+  display: none;
+}
+
+.closeBox:active {
+  background: repeating-linear-gradient(45deg, #000 0 1px, #fff 1px 3px);
+}
+
+.winBody {
+  position: relative;
+  overflow: hidden;
+}
+
+.iconField {
+  position: relative;
+  height: 100%;
+}
+
+.list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.list th {
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid #000;
+  padding: 3px 10px;
+}
+
+.list td {
+  padding: 2px 10px;
+}
+
+.list tr[data-selected] td {
+  background: #000;
+  color: #fff;
+}
+
+.text {
+  padding: 8px 14px;
+  line-height: 1.35;
+  font-size: 13px;
+}
+
+.text p {
+  margin: 0 0 8px;
+}
+
+.notes {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  resize: none;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #000;
+  background: #fff;
+  outline: none;
+  cursor: text;
+  user-select: text;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: #000;
+}
+
+.grow {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  border-left: 1px solid #000;
+  border-top: 1px solid #000;
+  background:
+    linear-gradient(#000, #000) 4px 4px / 6px 1px no-repeat,
+    linear-gradient(#000, #000) 4px 4px / 1px 6px no-repeat,
+    #fff;
+}
+
+.ghost,
+.zoom {
+  position: absolute;
+  pointer-events: none;
+  outline: 1px dotted #000;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+  z-index: 200;
+}
+
+.ghost {
+  outline: 2px dotted #000;
+}

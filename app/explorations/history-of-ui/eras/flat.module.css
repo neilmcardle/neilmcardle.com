@@ -1,0 +1,34 @@
+.wrap {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+}
+
+.phone {
+  min-height: 0;
+}
+
+.control {
+  justify-self: center;
+  width: min(100%, 420px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.control input {
+  width: 100%;
+  accent-color: var(--ink);
+  height: 28px;
+  cursor: pointer;
+}
+
+.end {
+  font-variant-numeric: tabular-nums;
+}
