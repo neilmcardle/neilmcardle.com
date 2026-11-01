@@ -25,7 +25,7 @@ export const PROJECTS: Project[] = [
     title: "Avis checkout",
     href: "/work/avis",
     line: "Rebuilding how people book a rental car.",
-    image: "/home/leads/avis.jpg",
+    image: "/home/leads/avis-card.jpg",
     alt: "Avis checkout, five steps cut to three",
     film: "/work/avis/avis-3-step-c.mp4",
     proof: { value: "+5%", label: "conversion in testing" },

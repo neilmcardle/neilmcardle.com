@@ -188,14 +188,18 @@ export default function Finale() {
       const oy = at.top + at.height / 2 - here.top;
       for (let i = 0; i < n; i++) {
         const side = Math.random() < 0.5 ? -1 : 1;
+        const push = bright ? 0.5 + Math.random() * 0.8 : 0.6 + Math.random();
+        const lift = bright
+          ? 0.2 + Math.random() * 0.5
+          : 0.1 + Math.random() * 0.3;
         puffs.push({
           x: ox + side * (at.width / 2 + Math.random() * 8),
           y: oy + (Math.random() - 0.5) * 12,
-          vx: side * speed * (0.6 + Math.random()),
-          vy: -speed * 0.35 * Math.random() - 0.6,
+          vx: side * speed * push,
+          vy: -speed * lift - 0.6,
           life: 1,
           decay: 0.012 + Math.random() * 0.02,
-          s: bright ? 2.4 : 1 + Math.random() * 1.6,
+          s: bright ? 4.2 : 1.8 + Math.random() * 2.8,
           bright,
         });
       }
@@ -217,8 +221,8 @@ export default function Finale() {
         if (title.current)
           title.current.style.translate = `${(Math.random() - 0.5) * shake}px ${(Math.random() - 0.5) * shake}px`;
         stage.style.setProperty("--flare", String(Math.min(1, level * 1.2)));
-        if (level > 0.04) emit(Math.round(level * 10), 2 + level * 14, false);
-        if (target > 0.3 && target > last * 1.5) emit(24, 16, true);
+        if (level > 0.04) emit(Math.round(level * 34), 2 + level * 14, false);
+        if (target > 0.3 && target > last * 1.5) emit(80, 16, true);
         last = target;
         ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
         puffs = puffs.filter((p) => p.life > 0);
@@ -337,10 +341,11 @@ export default function Finale() {
               onPointerCancel={release}
             >
               <img className={styles.cap} src={`${ART}/button.svg`} alt="" />
+              <span className={styles.cast} aria-hidden="true" />
               <span className={styles.capLabel} aria-hidden="true">
-                <b>Tell</b>
-                <small>me</small>
-                <b>More</b>
+                <b>Start</b>
+                <small>your</small>
+                <b>Project</b>
               </span>
             </button>
             <button
@@ -351,39 +356,23 @@ export default function Finale() {
               onClick={onCoverClick}
             >
               <span className={styles.face}>
-                <span className={styles.thickness}>
-                  <img src={`${ART}/guard-thickness.svg`} alt="" />
-                </span>
-                <span className={styles.aperture}>
-                  <img src={`${ART}/guard-aperture.svg`} alt="" />
-                </span>
-                <span className={styles.front}>
-                  <img src={`${ART}/guard-front.svg`} alt="" />
-                </span>
-                <span className={styles.reflections}>
-                  <span>
-                    <img src={`${ART}/guard-reflections.svg`} alt="" />
+                {Array.from({ length: 11 }, (_, i) => i + 1).map((n) => (
+                  <span
+                    key={n}
+                    className={styles.edge}
+                    style={{ "--z": n } as React.CSSProperties}
+                  >
+                    <img src={`${ART}/guard.svg`} alt="" />
                   </span>
+                ))}
+                <span className={styles.front}>
+                  <img src={`${ART}/guard.svg`} alt="" />
+                </span>
+                <span className={styles.back}>
+                  <img src={`${ART}/guard.svg`} alt="" />
                 </span>
               </span>
             </button>
-            <span className={styles.raised} aria-hidden="true">
-              <span className={styles.pivot}>
-                <span>
-                  <img src={`${ART}/raised-pivot.svg`} alt="" />
-                </span>
-              </span>
-              <span className={styles.arms}>
-                <span>
-                  <img src={`${ART}/raised-arms.svg`} alt="" />
-                </span>
-              </span>
-              <span className={styles.shield}>
-                <span>
-                  <img src={`${ART}/raised-shield.svg`} alt="" />
-                </span>
-              </span>
-            </span>
           </div>
           <p
             className={`${styles.said} ${said ? styles.on : ""}`}

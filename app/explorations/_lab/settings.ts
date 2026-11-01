@@ -27,6 +27,9 @@ export type NSettings = {
   faceHold?: number;
   driftTime?: number;
   flightAlpha?: number;
+  depth?: number;
+  faceCrop?: [number, number, number, number];
+  faceContrast?: number;
 };
 
 export const N_DEFAULTS: NSettings = {

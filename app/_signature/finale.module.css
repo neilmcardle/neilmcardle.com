@@ -45,6 +45,8 @@
 }
 
 .row {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 28px;
@@ -160,7 +162,7 @@
   flex-shrink: 0;
   width: 112px;
   height: 112px;
-  margin: 24px 6px 30px 18px;
+  margin: 30px 6px 18.67px 18px;
 }
 
 .ignition img {
@@ -173,8 +175,7 @@
 
 .ignition > span,
 .cover > span,
-.face > span,
-.raised > span {
+.face > span {
   position: absolute;
 }
 
@@ -215,6 +216,16 @@
   filter: drop-shadow(0 4px 3.33px rgb(0 0 0 / 0.69));
 }
 
+.consoleBody::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  mask-image: url("/home/ignition/carbon-mask.svg");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
 .consoleClip {
   position: absolute;
   inset: 0;
@@ -226,7 +237,7 @@
   position: absolute;
   inset: 0;
   mask-image: url("/home/ignition/carbon-mask.svg");
-  mask-size: 144px 144px;
+  mask-size: 100% 100%;
   mask-repeat: no-repeat;
 }
 
@@ -262,30 +273,32 @@
 
 .spindle {
   left: 29.33px;
-  top: 2.67px;
+  top: -1.33px;
   width: 53.33px;
   height: 4px;
   border-radius: 1.33px;
-  background: linear-gradient(
-    180deg,
-    rgb(9 11 13) 0%,
-    rgb(162 167 170) 25%,
-    rgb(229 231 231) 34%,
-    rgb(59 66 71) 45%,
-    rgb(17 20 24) 80%,
-    rgb(90 95 99) 100%
-  );
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 5.9px,
+      rgb(0 0 0 / 0.65) 5.9px 6.3px,
+      rgb(255 255 255 / 0.28) 6.3px 6.67px
+    ),
+    linear-gradient(
+      180deg,
+      rgb(9 11 13) 0%,
+      rgb(162 167 170) 25%,
+      rgb(229 231 231) 34%,
+      rgb(59 66 71) 45%,
+      rgb(17 20 24) 80%,
+      rgb(90 95 99) 100%
+    );
   transition: opacity 80ms linear 60ms;
-}
-
-.open .spindle {
-  opacity: 0;
-  transition-delay: 0ms;
 }
 
 .start {
   position: absolute;
-  inset: 0;
+  inset: -4px 0 4px;
   padding: 0;
   border: 0;
   background: none;
@@ -303,7 +316,60 @@
     filter 200ms var(--ease);
 }
 
+.start::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  mask-image: url("/home/ignition/button.svg");
+  mask-size: 100% 100%;
+  pointer-events: none;
+  transition:
+    scale 200ms var(--ease),
+    translate 200ms var(--ease),
+    opacity 200ms var(--ease);
+}
+
+.start::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.45' numOctaves='3' stitchTiles='stitch'/%3E%3CfeDiffuseLighting surfaceScale='1.6' lighting-color='%23fff'%3E%3CfeDistantLight azimuth='235' elevation='55'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+  mix-blend-mode: soft-light;
+  opacity: 0.32;
+}
+
+.cast {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  filter: blur(1.6px);
+  opacity: 0;
+  pointer-events: none;
+  transform-origin: 50% 2.4%;
+  transform: scaleY(0.2);
+  transition:
+    transform 200ms var(--ease),
+    opacity 140ms linear;
+}
+
+.cast::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.7);
+  mask-image: url("/home/ignition/guard.svg");
+  mask-size: 100% 100%;
+}
+
+.open .cast {
+  opacity: 1;
+  transform: scaleY(0.58);
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms var(--ease) 40ms;
+}
+
 .capLabel {
+  z-index: 2;
   position: absolute;
   left: calc(50% + 0.17px);
   top: calc(50% + 1.67px);
@@ -317,16 +383,11 @@
   line-height: 0.86;
   white-space: nowrap;
   pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.737);
+  transform: translate(-50%, -50%) scale(0.86);
   transition:
-    transform 220ms var(--ease) 90ms,
     scale 200ms var(--ease),
     translate 200ms var(--ease),
     opacity 200ms var(--ease);
-}
-
-.open .capLabel {
-  transform: translate(-50%, -50%);
 }
 
 .capLabel b {
@@ -348,6 +409,8 @@
 }
 
 .start.pressed .cap,
+.start.pressed::before,
+.start.pressed .cast,
 .start.pressed .capLabel {
   scale: 0.98;
   translate: 0 0.5px;
@@ -368,7 +431,7 @@
 
 .cover {
   position: absolute;
-  inset: 0;
+  inset: -4px 0 4px;
   z-index: 2;
   padding: 0;
   border: 0;
@@ -379,6 +442,7 @@
 .face {
   inset: 0;
   transform-origin: 50% 2.4%;
+  transform-style: preserve-3d;
   transition: transform 460ms
     linear(
       0,
@@ -393,8 +457,7 @@
       0.975 76%,
       1 85%,
       1
-    )
-    110ms;
+    );
 }
 
 .open .cover {
@@ -402,83 +465,46 @@
 }
 
 .open .face {
-  transform: perspective(360px) rotateX(90deg);
-  transition: transform 110ms cubic-bezier(0.55, 0, 1, 0.45);
+  transform: perspective(360px) rotateX(104deg);
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.thickness {
-  inset: 4.46% 7.05% 4.46% 6.88%;
-}
-
-.aperture {
-  inset: 32.14% 17.56% 36.31% 17.07%;
+.front,
+.back {
+  inset: 0;
+  backface-visibility: hidden;
 }
 
 .front {
-  inset: 4.46% 9.44% 7.29% 7.66%;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.38))
+    drop-shadow(0 6.67px 8px rgb(0 0 0 / 0.63));
 }
 
-.reflections {
-  inset: 5.36% 11.9% 7.96% 9.52%;
-}
-
-.reflections > span {
+.front::after {
+  content: "";
   position: absolute;
-  inset: -0.29% -0.21% -0.17% -0.23%;
-}
-
-.raised {
-  left: 0;
-  top: -36.67px;
-  z-index: 3;
-  width: 112px;
-  height: 61.67px;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 40px 40px;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+  mask-image: url("/home/ignition/guard.svg");
+  mask-size: 100% 100%;
   pointer-events: none;
-  opacity: 0;
-  transform: scaleY(0);
-  transform-origin: 50% 90%;
-  transition:
-    transform 110ms cubic-bezier(0.55, 0, 1, 0.45),
-    opacity 40ms linear 70ms;
 }
 
-.open .raised {
-  opacity: 1;
-  transform: none;
-  transition:
-    transform 240ms cubic-bezier(0.16, 1, 0.3, 1) 90ms,
-    opacity 40ms linear 90ms;
+.back {
+  transform: translateZ(-3px) rotateY(180deg);
+  filter: brightness(0.3) saturate(0.85);
 }
 
-.pivot {
-  inset: 87.57% 22.62% 7.03% 22.62%;
-}
-
-.pivot > span {
-  position: absolute;
-  inset: -3% -0.27% -5% -0.27%;
-}
-
-.arms {
-  inset: 64.32% 17.26% 4.05% 17.26%;
-}
-
-.arms > span {
-  position: absolute;
-  inset: -1.26% -0.26% -0.68% -0.26%;
-}
-
-.shield {
-  inset: 4.59% 6.21% 18.92% 6.21%;
-}
-
-.shield > span {
-  position: absolute;
-  inset: -0.35% -0.17%;
+.edge {
+  inset: 0;
+  transform: translateZ(calc(var(--z) * -0.25px));
+  filter: brightness(0.55) saturate(0.8);
 }
 
 .instant .face,
-.instant .raised,
 .instant .spindle,
 .instant .capLabel {
   transition: none;
@@ -548,7 +574,6 @@
   .cap,
   .capLabel,
   .face,
-  .raised,
   .spindle,
   .copy,
   .contact .mail,

@@ -1,6 +1,6 @@
 .hero {
   padding-top: clamp(40px, 7vw, 96px);
-  padding-bottom: clamp(64px, 9vw, 112px);
+  padding-bottom: clamp(40px, 5vw, 64px);
 }
 
 .name {
@@ -23,11 +23,6 @@
   font-size: clamp(22px, 2.6vw, 32px);
   line-height: 1.1;
   letter-spacing: -0.025em;
-}
-
-.site {
-  margin: 8px 0 0;
-  color: var(--muted);
 }
 
 @media (prefers-reduced-motion: reduce) {

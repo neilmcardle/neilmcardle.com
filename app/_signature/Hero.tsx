@@ -17,8 +17,7 @@ export default function Hero() {
       <h1 className={`${shell.heavy} ${styles.name}`} aria-label="Neil McArdle">
         NEIL McARDLE.
       </h1>
-      <p className={styles.role}>Product Designer</p>
-      <p className={styles.site}>London</p>
+      <p className={styles.role}>Product Designer, London</p>
     </section>
   );
 }

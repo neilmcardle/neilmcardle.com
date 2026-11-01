@@ -208,7 +208,12 @@ function mind(point: THREE.Vector3) {
 
 type Portrait = [number, number, number, number][];
 
-async function portrait(src: string, count: number): Promise<Portrait> {
+async function portrait(
+  src: string,
+  count: number,
+  crop: [number, number, number, number] = [0.22, 0.82, 0.16, 0.86],
+  contrast = 1,
+): Promise<Portrait> {
   const img = new Image();
   img.src = src;
   await img.decode();
@@ -223,14 +228,14 @@ async function portrait(src: string, count: number): Promise<Portrait> {
     const i = (y * size + x) * 4;
     return (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) / 255;
   };
-  const scale = 3.1;
-  const [x0, x1, y0, y1] = [0.22, 0.82, 0.16, 0.86];
+  const [x0, x1, y0, y1] = crop;
+  const scale = (3.1 * 0.6) / (x1 - x0);
   const out: Portrait = [];
   while (out.length < count) {
     const fx = (x0 + Math.random() * (x1 - x0)) * size;
     const fy = (y0 + Math.random() * (y1 - y0)) * size;
     const l = lum(Math.floor(fx), Math.floor(fy));
-    const w = Math.max(0, Math.min(1, (l - 0.34) / 0.56)) ** 2;
+    const w = Math.max(0, Math.min(1, (l - 0.34) / 0.56)) ** (2 * contrast);
     if (Math.random() > w) continue;
     out.push([
       ((x0 + x1) / 2 - fx / size) * scale,
@@ -242,7 +247,12 @@ async function portrait(src: string, count: number): Promise<Portrait> {
   return out;
 }
 
-function sample(shape: Shape, count: number, face: Portrait | null = null) {
+function sample(
+  shape: Shape,
+  count: number,
+  face: Portrait | null = null,
+  depth = 1,
+) {
   const n = shape === "mind" ? null : glyph();
   const source = n && shape === "coin" ? mergeGeometries([n, tile()]) : n;
   const sampler = source
@@ -259,6 +269,7 @@ function sample(shape: Shape, count: number, face: Portrait | null = null) {
   for (let i = 0; i < count; i += 1) {
     if (sampler) sampler.sample(point);
     else mind(point);
+    if (sampler) point.z *= depth;
     home.set([point.x, point.y, point.z], i * 3);
     if (face) {
       home2.set(face[i].slice(0, 3), i * 3);
@@ -369,6 +380,9 @@ export default function NParticles({
 
   const shape = settings.shape;
   const count = settings.particles;
+  const depth = settings.depth ?? 1;
+  const faceCrop = settings.faceCrop?.join(",");
+  const faceContrast = settings.faceContrast ?? 1;
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -430,7 +444,7 @@ export default function NParticles({
         depthWrite: false,
       });
 
-      const data = sample(shape, count, faceData);
+      const data = sample(shape, count, faceData, depth);
       uniforms.uMinX.value = data.minX;
       uniforms.uMaxX.value = data.maxX;
       const geometry = buffers(data);
@@ -726,7 +740,14 @@ export default function NParticles({
       };
     };
     if (!face) return setup(null);
-    portrait(face, count)
+    portrait(
+      face,
+      count,
+      faceCrop
+        ? (faceCrop.split(",").map(Number) as [number, number, number, number])
+        : undefined,
+      faceContrast,
+    )
       .then((faceData) => {
         if (!off) stop = setup(faceData);
       })
@@ -737,7 +758,18 @@ export default function NParticles({
       off = true;
       stop?.();
     };
-  }, [shape, count, interactive, face, anchor, momentum, touchAction]);
+  }, [
+    shape,
+    count,
+    depth,
+    faceCrop,
+    faceContrast,
+    interactive,
+    face,
+    anchor,
+    momentum,
+    touchAction,
+  ]);
 
   useEffect(() => {
     if (assemble) assembleRef.current(assemble.angle);
