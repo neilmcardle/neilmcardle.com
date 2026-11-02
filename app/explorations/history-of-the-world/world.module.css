@@ -1,0 +1,578 @@
+.root {
+  --paper: #f4f3ef;
+  --ink: #0d0d0c;
+  --muted: #6c6963;
+  --rule: #dfddd7;
+  --red: #c2412b;
+  --sea: #e6e3db;
+  --sea-lit: #fbfaf7;
+  --land: #cfc9bc;
+  --coast: #8f897c;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sans: var(--font-inter), system-ui, sans-serif;
+  --heavy: var(--font-heavy), "Arial Narrow", sans-serif;
+
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "panel stage"
+    "time time";
+  height: 100svh;
+  min-height: 560px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Panel */
+
+.panel {
+  grid-area: panel;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-height: 0;
+  padding: 28px 28px 20px;
+  border-right: 1px solid var(--rule);
+  overflow-y: auto;
+}
+
+.masthead {
+  display: grid;
+  gap: 10px;
+}
+
+.home {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.home:hover {
+  color: var(--ink);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--heavy);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.lede {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 34ch;
+}
+
+.card {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  flex: 1;
+  animation: rise 600ms var(--ease) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.era {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.when {
+  margin: 4px 0 0;
+  font-family: var(--heavy);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--red);
+}
+
+.event {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.place {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.body {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 40ch;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step,
+.play {
+  height: 40px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background 150ms,
+    color 150ms;
+}
+
+.step {
+  width: 40px;
+}
+
+.play {
+  min-width: 84px;
+  padding: 0 18px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.step:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.play:hover,
+.play[aria-pressed="true"] {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.step:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.step:focus-visible,
+.play:focus-visible,
+.tick:focus-visible,
+.eraBand:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Globe */
+
+.stage {
+  grid-area: stage;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+.globe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.globe:active {
+  cursor: grabbing;
+}
+
+.sphere {
+  stroke: var(--coast);
+  stroke-width: 1;
+}
+
+.graticule {
+  fill: none;
+  stroke: var(--coast);
+  stroke-width: 0.5;
+  stroke-opacity: 0.25;
+}
+
+.land {
+  fill: var(--land);
+  stroke: var(--coast);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+
+.routeTrail {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 1;
+  stroke-opacity: 0.25;
+  stroke-dasharray: 2 4;
+}
+
+.route {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.routeHead {
+  fill: var(--red);
+}
+
+.marker {
+  cursor: pointer;
+}
+
+.hit {
+  fill: transparent;
+}
+
+.dot {
+  transition: r 300ms var(--ease);
+}
+
+.marker[data-state="past"] .dot {
+  fill: var(--ink);
+  stroke: var(--sea-lit);
+  stroke-width: 1;
+}
+
+.marker[data-state="future"] .dot {
+  fill: var(--sea-lit);
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.marker[data-state="active"] .dot {
+  fill: var(--red);
+  stroke: var(--sea-lit);
+  stroke-width: 1.5;
+}
+
+.marker:hover .dot {
+  stroke: var(--red);
+  stroke-width: 2;
+}
+
+.pulse {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.label {
+  pointer-events: none;
+}
+
+.label text {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: var(--sea-lit);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.hint {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Timeline */
+
+.timeline {
+  grid-area: time;
+  padding: 14px 28px 16px;
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.track {
+  position: relative;
+  touch-action: none;
+  cursor: ew-resize;
+  user-select: none;
+}
+
+.eras {
+  position: relative;
+  height: 26px;
+}
+
+.eraBand {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--a) * 100%);
+  width: calc((var(--b) - var(--a)) * 100%);
+  padding: 0 6px;
+  border: 0;
+  border-left: 1px solid var(--rule);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.eraBand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eraBand:hover {
+  color: var(--ink);
+}
+
+.eraBand[data-on] {
+  color: var(--ink);
+  font-weight: 600;
+  background: linear-gradient(var(--ink), var(--ink)) bottom / 100% 2px no-repeat;
+}
+
+.ticks {
+  position: relative;
+  height: 38px;
+  margin-top: 6px;
+  background: linear-gradient(var(--rule), var(--rule)) center / 100% 1px
+    no-repeat;
+}
+
+.tick {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p) * 100%);
+  width: 14px;
+  height: 24px;
+  margin: -12px 0 0 -7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tick::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--muted);
+  opacity: 0.45;
+  transition:
+    height 200ms var(--ease),
+    top 200ms var(--ease),
+    background 200ms;
+}
+
+.tick[data-state="past"]::after {
+  background: var(--ink);
+  opacity: 1;
+}
+
+.tick[data-state="active"]::after {
+  top: 0;
+  height: 24px;
+  background: var(--red);
+  opacity: 1;
+}
+
+.tick:hover::after {
+  background: var(--red);
+  opacity: 1;
+}
+
+.playhead {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: calc(var(--p) * 100%);
+  width: 0;
+  border-left: 1px solid var(--red);
+  pointer-events: none;
+  transition: left 500ms var(--ease);
+}
+
+.playhead[data-scrub] {
+  transition: none;
+}
+
+.playhead span {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  transform: translateX(-50%);
+  margin-bottom: 2px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.playhead[data-scrub] span {
+  opacity: 1;
+}
+
+.scale {
+  position: relative;
+  height: 14px;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.scale span {
+  position: absolute;
+  top: 0;
+  left: calc(var(--p) * 100%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.scale span:first-child {
+  left: 0;
+  transform: none;
+}
+
+.scale span:last-child {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+/* Small screens: globe on top, timeline, then the story. */
+
+@media (max-width: 760px) {
+  .root {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 52svh auto auto auto;
+    grid-template-areas:
+      "head"
+      "stage"
+      "time"
+      "controls"
+      "card";
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .panel {
+    display: contents;
+  }
+
+  .masthead {
+    grid-area: head;
+    padding: 20px 16px 0;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .card {
+    grid-area: card;
+    padding: 4px 16px 40px;
+  }
+
+  .controls {
+    grid-area: controls;
+    padding: 16px;
+  }
+
+  .timeline {
+    padding: 10px 16px 12px;
+  }
+
+  .eras {
+    height: 14px;
+  }
+
+  .eraBand span {
+    display: none;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  .scale span:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .pulse {
+    animation: none;
+  }
+
+  .playhead {
+    transition: none;
+  }
+}
