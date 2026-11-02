@@ -389,6 +389,10 @@ export default function Architecture() {
       <main className={styles.content}>
         <header className={styles.intro}>
           <Link href="/" className={styles.home}>
+            <svg viewBox="18 18 27 27" aria-hidden="true">
+              <path d="M45 45L32 31.2985V18H45V45Z" />
+              <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" />
+            </svg>
             Neil McArdle
           </Link>
           <h1 className={styles.title}>

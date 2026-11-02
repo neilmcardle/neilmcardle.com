@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { share } from "../../shared-metadata";
+import { heavy } from "../../_signature/fonts";
 import Architecture from "./Architecture";
 
 const DESCRIPTION =
@@ -17,14 +18,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f0ece3",
+  themeColor: "#f4f3ef",
 };
 
 export default function ArchitecturePage() {
   return (
-    <>
-      <style>{"html,body{background:#f0ece3}"}</style>
+    <div className={heavy.variable}>
+      <style>{"html,body{background:#f4f3ef}"}</style>
       <Architecture />
-    </>
+    </div>
   );
 }
