@@ -1,0 +1,123 @@
+name: Build a suggestion
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: Suggestion id
+        required: true
+        type: string
+      request:
+        description: Suggestion text
+        required: true
+        type: string
+
+concurrency:
+  group: suggest-build
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUGGESTION_ID: ${{ inputs.id }}
+      SUGGESTION: ${{ inputs.request }}
+      MAX_BUDGET_USD: "0.06"
+    steps:
+      - name: Check the id
+        run: |
+          if ! [[ "$SUGGESTION_ID" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+            echo "Bad suggestion id" >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code@2.1.306
+
+      - name: Run the agent
+        id: agent
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.SUGGEST_ANTHROPIC_API_KEY }}
+        run: |
+          {
+            cat .github/suggest/prompt.md
+            printf '%s\n</suggestion>\n' "${SUGGESTION:0:500}"
+          } > "$RUNNER_TEMP/prompt.md"
+          claude -p "$(cat "$RUNNER_TEMP/prompt.md")" \
+            --model claude-haiku-5-5 \
+            --max-budget-usd "$MAX_BUDGET_USD" \
+            --permission-mode dontAsk \
+            --allowedTools "Read" "Edit" "Write" "Glob" "Grep" "Bash(npx tsc --noEmit)" \
+            --disallowedTools "WebFetch" "WebSearch" "Task" \
+            --output-format json > "$RUNNER_TEMP/result.json"
+
+      - name: Keep only safe changes
+        run: |
+          git checkout -- .github package.json package-lock.json 2>/dev/null || true
+          git ls-files --others --exclude-standard -z | grep -zE '^(\.github/|\.env)' | xargs -0 -r rm -f
+          git diff --stat
+
+      - name: Open a pull request
+        id: pr
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to open."
+            exit 0
+          fi
+          branch="suggest/${SUGGESTION_ID:0:8}-$GITHUB_RUN_ID"
+          git config user.name "suggest-bot"
+          git config user.email "suggest-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git commit -m "Suggestion: ${SUGGESTION:0:60}"
+          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
+          summary=$(jq -r '.result // ""' "$RUNNER_TEMP/result.json" 2>/dev/null | head -c 1000)
+          {
+            printf 'A visitor suggested:\n\n> %s\n\n' "${SUGGESTION:0:500}"
+            printf 'What the agent did:\n\n%s\n' "$summary"
+          } > "$RUNNER_TEMP/body.md"
+          url=$(gh pr create --base main --head "$branch" \
+            --title "Suggestion: ${SUGGESTION:0:60}" \
+            --body-file "$RUNNER_TEMP/body.md")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Report back
+        if: always()
+        env:
+          REPORT_SECRET: ${{ secrets.SUGGEST_REPORT_SECRET }}
+          REPORT_URL: ${{ vars.SUGGEST_REPORT_URL || 'https://neilmcardle.com/api/suggest/report' }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          cost=$(jq -r '.total_cost_usd // 0' "$RUNNER_TEMP/result.json" 2>/dev/null || echo 0)
+          note=$(jq -r '.result // ""' "$RUNNER_TEMP/result.json" 2>/dev/null | head -c 400)
+          if [ -z "$note" ] && [ "${{ steps.agent.outcome }}" != "success" ]; then
+            note="The agent stopped before finishing."
+          fi
+          jq -n --arg id "$SUGGESTION_ID" --arg pr "$PR_URL" --arg note "$note" --argjson cost "${cost:-0}" \
+            '{id: $id, prUrl: (if $pr == "" then null else $pr end), costUsd: $cost, note: $note}' \
+            | curl -sS --fail-with-body -X POST "$REPORT_URL" \
+                -H "Authorization: Bearer $REPORT_SECRET" \
+                -H "Content-Type: application/json" \
+                --data-binary @-

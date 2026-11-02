@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Skim stones across a tiny isometric pixel pond. Bounce off lily pads, startle the ducks, reach the far bank."
+    />
+    <title>Plink Pond</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Silkscreen&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+    <style>
+      :root {
+        --bg: #eef1ea;
+        --fg: #26302a;
+        --muted: #6c786f;
+        --track: #d7ddd2;
+        --power: #d9573b;
+        --sweet: #6aa83a;
+        --marker: #26302a;
+        --pixel: "Silkscreen", "Courier New", monospace;
+        --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #131915;
+          --fg: #e3e9df;
+          --muted: #8b978d;
+          --track: #2a332d;
+          --power: #ec6c4f;
+          --sweet: #7fbf4c;
+          --marker: #e3e9df;
+          color-scheme: dark;
+        }
+      }
+      :root[data-theme="dark"] {
+        --bg: #131915;
+        --fg: #e3e9df;
+        --muted: #8b978d;
+        --track: #2a332d;
+        --power: #ec6c4f;
+        --sweet: #7fbf4c;
+        --marker: #e3e9df;
+        color-scheme: dark;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--mono);
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        padding-left: max(16px, env(safe-area-inset-left, 0px));
+        padding-right: max(16px, env(safe-area-inset-right, 0px));
+        padding-block: 12px;
+        box-sizing: border-box;
+        overflow: hidden;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      header,
+      .controls,
+      footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      h1 {
+        font-family: var(--pixel);
+        font-weight: 400;
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.02em;
+      }
+      .score {
+        font-family: var(--pixel);
+        font-size: 12px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .score b {
+        font-weight: 400;
+        color: var(--power);
+      }
+      .stage {
+        flex: 1;
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        touch-action: none;
+        cursor: crosshair;
+      }
+      canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        display: block;
+        max-width: 100%;
+      }
+      .controls {
+        justify-content: center;
+        gap: 24px;
+      }
+      .meter {
+        display: grid;
+        grid-template-columns: 48px 160px;
+        align-items: center;
+        gap: 8px;
+      }
+      .meter span {
+        font-family: var(--pixel);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+      .meter.on span {
+        color: var(--fg);
+      }
+      .track {
+        position: relative;
+        height: 8px;
+        background: var(--track);
+      }
+      .fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 0;
+        background: var(--power);
+      }
+      .sweet {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 31%;
+        width: 27%;
+        background: var(--sweet);
+        opacity: 0.55;
+      }
+      .mark {
+        position: absolute;
+        top: -3px;
+        bottom: -3px;
+        width: 2px;
+        left: 0;
+        background: var(--marker);
+      }
+      .hint {
+        text-align: center;
+        min-height: 18px;
+        margin-top: 8px;
+        color: var(--muted);
+      }
+      .hint strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      footer {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      footer a {
+        color: inherit;
+      }
+      button {
+        font: inherit;
+        font-family: var(--pixel);
+        font-size: 10px;
+        color: var(--muted);
+        background: none;
+        border: 0;
+        cursor: pointer;
+        padding: 4px 0;
+      }
+      button:focus-visible,
+      .stage:focus-visible {
+        outline: 2px solid var(--power);
+        outline-offset: 2px;
+      }
+      @media (max-width: 520px) {
+        .meter {
+          grid-template-columns: 40px 110px;
+        }
+        .controls {
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Plink Pond</h1>
+      <div class="score">
+        <div>Skips <b id="now">0</b></div>
+        <div>Best <b id="best">0</b></div>
+        <div>Far <b id="far">0.0m</b></div>
+      </div>
+    </header>
+
+    <div
+      class="stage"
+      id="stage"
+      tabindex="0"
+      aria-label="Pond diorama. Point to aim, click once to set power, click again to set tilt and throw. Arrow keys aim, space throws."
+    >
+      <canvas id="c" width="380" height="244"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="meter" id="pm">
+        <span>POWER</span>
+        <div class="track"><div class="fill" id="pfill"></div></div>
+      </div>
+      <div class="meter" id="tm">
+        <span>TILT</span>
+        <div class="track">
+          <div class="sweet"></div>
+          <div class="mark" id="tmark"></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="hint">
+      Point at the water to aim, then <strong>click</strong> to wind up.
+    </div>
+
+    <footer>
+      <span
+        >Style nod to
+        <a
+          href="https://pixel-plays-ruby.vercel.app"
+          target="_blank"
+          rel="noopener"
+          >Pixel Plays</a
+        >
+        by AmirMušić &amp; abhi</span
+      >
+      <button id="snd" aria-pressed="true">Sound on</button>
+    </footer>
+
+    <script>
+      (() => {
+        const W = 380,
+          H = 244,
+          OX = 114,
+          OY = 64;
+        const cv = document.getElementById("c");
+        const ctx = cv.getContext("2d");
+        const stage = document.getElementById("stage");
+        const $ = (id) => document.getElementById(id);
+
+        function hash(x, y) {
+          let h =
+            (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0;
+          h = Math.imul(h ^ (h >>> 13), 1274126177);
+          return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+        }
+        function vnoise(x, y) {
+          const xi = Math.floor(x),
+            yi = Math.floor(y),
+            xf = x - xi,
+            yf = y - yi;
+          const u = xf * xf * (3 - 2 * xf),
+            v = yf * yf * (3 - 2 * yf);
+          const a = hash(xi, yi),
+            b = hash(xi + 1, yi),
+            c = hash(xi, yi + 1),
+            d = hash(xi + 1, yi + 1);
+          return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+        }
+        function sdRound(x, y, x0, y0, x1, y1, r) {
+          const cx = (x0 + x1) / 2,
+            cy = (y0 + y1) / 2;
+          const dx = Math.abs(x - cx) - ((x1 - x0) / 2 - r),
+            dy = Math.abs(y - cy) - ((y1 - y0) / 2 - r);
+          return (
+            Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) +
+            Math.min(Math.max(dx, dy), 0) -
+            r
+          );
+        }
+        const islandSD = (x, y) =>
+          sdRound(x, y, -30, -26, 232, 78, 26) +
+          (vnoise(x * 0.12, y * 0.12) - 0.5) * 7;
+        const pondSD = (x, y) =>
+          sdRound(x, y, -6, 0, 208, 52, 20) +
+          (vnoise(x * 0.09 + 50, y * 0.09) - 0.5) * 5;
+        const DOCK = { x0: -14, x1: 22, y0: 22, y1: 30, z: 2 };
+        const inDock = (x, y) =>
+          x >= DOCK.x0 && x <= DOCK.x1 && y >= DOCK.y0 && y <= DOCK.y1;
+
+        const iso = (x, y, z) => [OX + x - y, OY + (x + y) / 2 - z];
+        function unIso(sx, sy, z) {
+          const a = sx - OX,
+            b = 2 * (sy - OY + z);
+          return [(a + b) / 2, (b - a) / 2];
+        }
+
+        function c32(hex) {
+          const n = parseInt(hex.slice(1), 16);
+          return (
+            (0xff000000 |
+              ((n & 0xff) << 16) |
+              (n & 0xff00) |
+              ((n >> 16) & 0xff)) >>>
+            0
+          );
+        }
+        const GRASS = [
+          "#2a4f22",
+          "#386a2c",
+          "#4a8334",
+          "#609d40",
+          "#80b852",
+        ].map(c32);
+        const BANK = ["#8f7f58", "#a8956a", "#b9a77b"].map(c32);
+        const DIRT = ["#7a5638", "#6b4a30", "#5a3d27", "#47301f"].map(c32);
+        const WOOD = ["#a8774a", "#8c5f37", "#6a4527", "#4c311c"].map(c32);
+        const PAD = ["#3c7536", "#4f8d40", "#68a84c"].map(c32);
+        const WATER = {
+          shore: c32("#3c6a5e"),
+          shallow: c32("#4f9ea6"),
+          mid: c32("#3b879c"),
+          deep: c32("#2e6f8a"),
+          hi: c32("#c4ecea"),
+          lo: c32("#265f78"),
+        };
+
+        const pads = [
+          { x: 74, y: 12, r: 4.5, frog: true },
+          { x: 112, y: 40, r: 5, frog: true },
+          { x: 152, y: 18, r: 4, frog: false, flower: true },
+          { x: 58, y: 42, r: 3.5, frog: false },
+          { x: 182, y: 34, r: 4.5, frog: true },
+        ];
+        pads.forEach((p) => {
+          p.home = true;
+          p.away = 0;
+          p.notch = hash(p.x, p.y) * Math.PI * 2;
+        });
+
+        const trees = [
+          { x: 34, y: -16, s: 11 },
+          { x: 92, y: -18, s: 13 },
+          { x: 160, y: -15, s: 10 },
+          { x: 214, y: -6, s: 12 },
+          { x: -20, y: 2, s: 10 },
+          { x: 222, y: 40, s: 9 },
+        ];
+        const bushes = [];
+        for (let i = 0; i < 16; i++) {
+          const t = i / 16;
+          bushes.push({
+            x: -6 + t * 214 + hash(i, 3) * 8,
+            y: 66 + hash(i, 9) * 6,
+            s: 3 + Math.floor(hash(i, 5) * 3),
+          });
+        }
+        [
+          [60, -10],
+          [128, -12],
+          [190, -11],
+          [-22, 40],
+          [-18, 54],
+        ].forEach(([x, y], i) => bushes.push({ x, y, s: 4 + (i % 2) }));
+        const reeds = [];
+        [
+          [4, 48],
+          [12, 51],
+          [196, 46],
+          [204, 12],
+          [-2, 6],
+          [96, 52],
+          [140, 51],
+        ].forEach(([x, y], g) => {
+          for (let k = 0; k < 5; k++)
+            reeds.push({
+              x: x + hash(g, k) * 6 - 3,
+              y: y + hash(k, g) * 3 - 1,
+              h: 5 + Math.floor(hash(g * 7, k) * 5),
+              tip: hash(k * 3, g) > 0.5,
+            });
+        });
+        const rocks = [
+          [-24, 20],
+          [226, 20],
+          [70, 70],
+          [176, -20],
+        ].map(([x, y]) => ({ x, y }));
+
+        function makeCanopy(seed, size, trunk) {
+          const w = size * 2 + 6,
+            h = size * 2 + (trunk ? 7 : 3);
+          const cnv = document.createElement("canvas");
+          cnv.width = w;
+          cnv.height = h;
+          const g = cnv.getContext("2d");
+          const cx = w / 2,
+            cy = size + 2;
+          const blobs = [];
+          for (let i = 0; i < 8; i++) {
+            const a = hash(seed, i) * Math.PI * 2,
+              d = hash(i, seed) * size * 0.45;
+            blobs.push([
+              cx + Math.cos(a) * d,
+              cy + Math.sin(a) * d * 0.8,
+              size * (0.55 + hash(seed + i, 7) * 0.3),
+            ]);
+          }
+          const inside = (px, py) =>
+            blobs.some(
+              ([bx, by, br]) => (px - bx) ** 2 + (py - by) ** 2 < br * br,
+            );
+          if (trunk) {
+            for (let y = Math.floor(cy + size * 0.4); y < h; y++) {
+              g.fillStyle = "#5b3c22";
+              g.fillRect(cx - 1, y, 2, 1);
+              g.fillStyle = "#3e2816";
+              g.fillRect(cx + 1, y, 1, 1);
+            }
+          }
+          const greens = [
+            "#1f3d1c",
+            "#2d5a26",
+            "#3f7731",
+            "#57923f",
+            "#7cb255",
+          ];
+          for (let py = 0; py < h; py++)
+            for (let px = 0; px < w; px++) {
+              if (!inside(px + 0.5, py + 0.5)) continue;
+              const lx = (px - cx) / size,
+                ly = (py - cy) / size;
+              let v =
+                0.5 -
+                (lx * 0.55 + ly * 0.85) * 0.6 +
+                (vnoise(px * 0.45 + seed, py * 0.45) - 0.5) * 0.9 +
+                (hash(px + seed * 31, py) - 0.5) * 0.3;
+              if (!inside(px + 1.5, py + 0.5) || !inside(px + 0.5, py + 1.5))
+                v = -1;
+              const idx = Math.max(0, Math.min(4, Math.floor(v * 5)));
+              g.fillStyle = greens[idx];
+              g.fillRect(px, py, 1, 1);
+            }
+          return { cnv, ax: Math.floor(w / 2), ay: h - 1 };
+        }
+        trees.forEach((t, i) => (t.spr = makeCanopy(11 + i * 17, t.s, true)));
+        bushes.forEach(
+          (b, i) => (b.spr = makeCanopy(301 + i * 13, b.s, false)),
+        );
+
+        const N = W * H;
+        const bg = new Uint32Array(N);
+        const waterIdx = [],
+          waterX = [],
+          waterY = [],
+          waterBase = [];
+        function bake() {
+          const treeShadow = (x, y) =>
+            trees.some(
+              (t) =>
+                ((x - t.x - 5) / (t.s + 2)) ** 2 +
+                  ((y - t.y - 5) / (t.s + 2)) ** 2 <
+                1,
+            ) ||
+            bushes.some(
+              (b) =>
+                ((x - b.x - 2) / (b.s + 1)) ** 2 +
+                  ((y - b.y - 2) / (b.s + 1)) ** 2 <
+                1,
+            );
+          for (let sy = 0; sy < H; sy++)
+            for (let sx = 0; sx < W; sx++) {
+              const i = sy * W + sx,
+                cx = sx + 0.5,
+                cy = sy + 0.5;
+              let [x, y] = unIso(cx, cy, DOCK.z);
+              if (inDock(x, y)) {
+                const plank = Math.floor(x - DOCK.x0) % 4;
+                bg[i] =
+                  plank === 3
+                    ? WOOD[2]
+                    : hash(sx, sy) > 0.85
+                      ? WOOD[1]
+                      : WOOD[0];
+                continue;
+              }
+              let side = false;
+              for (let z = 1; z >= 0; z -= 0.5) {
+                [x, y] = unIso(cx, cy, z);
+                if (inDock(x, y)) {
+                  side = true;
+                  break;
+                }
+              }
+              if (side) {
+                bg[i] = WOOD[3];
+                continue;
+              }
+              [x, y] = unIso(cx, cy, 0);
+              const isd = islandSD(x, y);
+              if (isd < 0) {
+                const psd = pondSD(x, y);
+                if (psd < 0) {
+                  const pad = pads.find((p) => {
+                    const dx = x - p.x,
+                      dy = y - p.y;
+                    if (dx * dx + dy * dy > p.r * p.r) return false;
+                    let a = Math.atan2(dy, dx) - p.notch;
+                    a = Math.atan2(Math.sin(a), Math.cos(a));
+                    return Math.abs(a) > 0.35;
+                  });
+                  if (pad) {
+                    const d = Math.hypot(x - pad.x, y - pad.y) / pad.r;
+                    bg[i] =
+                      d > 0.8 ? PAD[0] : hash(sx, sy) > 0.7 ? PAD[2] : PAD[1];
+                    if (
+                      pad.flower &&
+                      Math.hypot(x - pad.x - 1, y - pad.y + 1) < 1.3
+                    )
+                      bg[i] = c32(hash(sx, sy) > 0.5 ? "#f4bccb" : "#e98fa8");
+                    continue;
+                  }
+                  const pd = -psd,
+                    j = hash(sx * 3, sy * 7) * 1.5;
+                  const base =
+                    pd + j < 1.6
+                      ? WATER.shore
+                      : pd + j < 6
+                        ? WATER.shallow
+                        : pd + j < 14
+                          ? WATER.mid
+                          : WATER.deep;
+                  waterIdx.push(i);
+                  waterX.push(x);
+                  waterY.push(y);
+                  waterBase.push(base);
+                  bg[i] = base;
+                } else if (psd < 1.8) {
+                  bg[i] = BANK[Math.floor(hash(sx, sy) * 3)];
+                } else {
+                  let v = vnoise(x * 0.18, y * 0.18) * 3 + hash(sx, sy) * 2.2;
+                  if (treeShadow(x, y)) v -= 1.6;
+                  if (isd > -2.2) v -= 1;
+                  bg[i] = GRASS[Math.max(0, Math.min(4, Math.floor(v)))];
+                  if (hash(sx + 11, sy) > 0.985) bg[i] = GRASS[4];
+                }
+                continue;
+              }
+              const depth = 13 + Math.floor(vnoise(sx * 0.15, 3) * 6);
+              for (let d = 1; d <= depth; d++) {
+                [x, y] = unIso(cx, cy, -d);
+                if (islandSD(x, y) < 0) {
+                  const lip = 1 + Math.floor(hash(sx, 77) * 3);
+                  const gx = islandSD(x + 1, y) - islandSD(x - 1, y),
+                    gy = islandSD(x, y + 1) - islandSD(x, y - 1);
+                  const right = gx > gy;
+                  if (d <= lip) bg[i] = GRASS[right ? 1 : 0];
+                  else {
+                    let k = d < 5 ? 0 : d < 9 ? 1 : d < 12 ? 2 : 3;
+                    if (!right) k = Math.min(3, k + 1);
+                    if (hash(sx, sy) > 0.9) k = Math.max(0, k - 1);
+                    bg[i] = DIRT[k];
+                  }
+                  break;
+                }
+              }
+            }
+        }
+        bake();
+
+        const G = 280;
+        const HAND = { x: 19, y: 26, z: 5 };
+        let state = "aim",
+          aim = 0,
+          power = 0,
+          tilt = 0,
+          phaseT = 0,
+          doneT = 0,
+          throwAnim = 0;
+        let stone = null,
+          skips = 0,
+          bonus = 0,
+          farthest = 0;
+        let best = 0,
+          bestFar = 0;
+        try {
+          best = +localStorage.getItem("plink.best") || 0;
+          bestFar = +localStorage.getItem("plink.far") || 0;
+        } catch (e) {}
+        const ripples = [],
+          parts = [],
+          pops = [];
+        const ducks = [makeDuck(90, 28), makeDuck(140, 14)];
+        let duckRespawn = 0;
+
+        function makeDuck(x, y) {
+          return {
+            x,
+            y,
+            tx: x,
+            ty: y,
+            z: 0,
+            vz: 0,
+            vx: 0,
+            vy: 0,
+            fly: false,
+            face: 1,
+            wake: 0,
+            ph: Math.random() * 6,
+          };
+        }
+        function pickTarget(d) {
+          for (let k = 0; k < 20; k++) {
+            const x = 30 + Math.random() * 165,
+              y = 6 + Math.random() * 40;
+            if (
+              pondSD(x, y) < -6 &&
+              !pads.some((p) => Math.hypot(p.x - x, p.y - y) < p.r + 4)
+            ) {
+              d.tx = x;
+              d.ty = y;
+              return;
+            }
+          }
+        }
+
+        let actx = null,
+          soundOn = true;
+        function audio() {
+          if (!soundOn) return null;
+          try {
+            if (!actx)
+              actx = new (window.AudioContext || window.webkitAudioContext)();
+            if (actx.state === "suspended") actx.resume();
+          } catch (e) {
+            return null;
+          }
+          return actx;
+        }
+        function tone(f0, f1, dur, type, vol, delay = 0) {
+          const a = audio();
+          if (!a) return;
+          const t = a.currentTime + delay,
+            o = a.createOscillator(),
+            g = a.createGain();
+          o.type = type;
+          o.frequency.setValueAtTime(f0, t);
+          o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+          g.gain.setValueAtTime(vol, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+          o.connect(g).connect(a.destination);
+          o.start(t);
+          o.stop(t + dur + 0.02);
+        }
+        function hiss(dur, vol, freq) {
+          const a = audio();
+          if (!a) return;
+          const buf = a.createBuffer(
+              1,
+              Math.floor(a.sampleRate * dur),
+              a.sampleRate,
+            ),
+            d = buf.getChannelData(0);
+          for (let i = 0; i < d.length; i++)
+            d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+          const s = a.createBufferSource(),
+            f = a.createBiquadFilter(),
+            g = a.createGain();
+          f.type = "bandpass";
+          f.frequency.value = freq;
+          g.gain.value = vol;
+          s.buffer = buf;
+          s.connect(f).connect(g).connect(a.destination);
+          s.start();
+        }
+        const sfx = {
+          plip: (n) => tone(760 + n * 55, 1400 + n * 70, 0.07, "sine", 0.16),
+          plunk: () => {
+            tone(240, 70, 0.28, "sine", 0.3);
+            hiss(0.22, 0.25, 900);
+          },
+          whoosh: () => hiss(0.16, 0.12, 2400),
+          quack: () => {
+            tone(560, 380, 0.11, "sawtooth", 0.06);
+            tone(540, 360, 0.11, "sawtooth", 0.06, 0.14);
+          },
+          ribbit: () => {
+            tone(170, 260, 0.07, "square", 0.05);
+            tone(180, 280, 0.07, "square", 0.05, 0.1);
+          },
+          thud: () => tone(120, 60, 0.12, "triangle", 0.25),
+        };
+
+        function splash(x, y, n, spd) {
+          for (let i = 0; i < n; i++) {
+            const a = Math.random() * Math.PI * 2,
+              s = Math.random() * spd;
+            parts.push({
+              x,
+              y,
+              z: 0,
+              vx: Math.cos(a) * s,
+              vy: Math.sin(a) * s,
+              vz: 20 + Math.random() * spd * 2.2,
+              life: 1,
+            });
+          }
+        }
+        function pop(x, y, text, color) {
+          const [sx, sy] = iso(x, y, 6);
+          pops.push({ sx, sy, text, color, life: 1 });
+        }
+
+        const pm = $("pm"),
+          tm = $("tm"),
+          hint = $("hint");
+        function setHint(html) {
+          hint.innerHTML = html;
+        }
+        function press() {
+          audio();
+          if (state === "aim") {
+            state = "power";
+            phaseT = 0;
+            pm.classList.add("on");
+            setHint("Click to lock <strong>power</strong>.");
+          } else if (state === "power") {
+            state = "tilt";
+            phaseT = 0;
+            tm.classList.add("on");
+            setHint(
+              "Click to lock <strong>tilt</strong> and throw. The green band skims best.",
+            );
+          } else if (state === "tilt") throwStone();
+          else if (state === "done" && doneT > 0.4) reset();
+        }
+        function reset() {
+          state = "aim";
+          stone = null;
+          power = 0;
+          tilt = 0;
+          pm.classList.remove("on");
+          tm.classList.remove("on");
+          $("pfill").style.width = "0%";
+          $("tmark").style.left = "0%";
+          $("now").textContent = "0";
+          setHint(
+            "Point at the water to aim, then <strong>click</strong> to wind up.",
+          );
+        }
+        function aimAt(clientX, clientY) {
+          const r = cv.getBoundingClientRect();
+          const sx = ((clientX - r.left) / r.width) * W,
+            sy = ((clientY - r.top) / r.height) * H;
+          const [x, y] = unIso(sx, sy, 0);
+          if (
+            x > HAND.x + 6 &&
+            (state === "aim" || state === "power" || state === "tilt")
+          )
+            aim = Math.max(
+              -0.2,
+              Math.min(0.2, Math.atan2(y - HAND.y, x - HAND.x)),
+            );
+        }
+        stage.addEventListener("pointermove", (e) =>
+          aimAt(e.clientX, e.clientY),
+        );
+        stage.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          if (state === "aim") aimAt(e.clientX, e.clientY);
+          press();
+        });
+        window.addEventListener("keydown", (e) => {
+          if (e.code === "Space" || e.code === "Enter") {
+            e.preventDefault();
+            press();
+          } else if (e.code === "ArrowLeft" || e.code === "ArrowDown") {
+            aim = Math.min(0.2, aim + 0.025);
+            e.preventDefault();
+          } else if (e.code === "ArrowRight" || e.code === "ArrowUp") {
+            aim = Math.max(-0.2, aim - 0.025);
+            e.preventDefault();
+          }
+        });
+        $("snd").addEventListener("click", (e) => {
+          soundOn = !soundOn;
+          e.currentTarget.textContent = soundOn ? "Sound on" : "Sound off";
+          e.currentTarget.setAttribute("aria-pressed", soundOn);
+        });
+
+        function throwStone() {
+          const s = 60 + power * 100;
+          stone = {
+            x: HAND.x,
+            y: HAND.y,
+            z: HAND.z,
+            vx: Math.cos(aim) * s,
+            vy: Math.sin(aim) * s,
+            vz: -2,
+            spin: 0,
+          };
+          skips = 0;
+          bonus = 0;
+          state = "fly";
+          throwAnim = 0.35;
+          sfx.whoosh();
+          setHint("Skimming...");
+        }
+        const tiltQ = () => Math.max(0, 1 - Math.abs(tilt - 20) / 18);
+
+        function finish(msg) {
+          state = "done";
+          doneT = 0;
+          const total = skips + bonus;
+          const dist = Math.max(0, (stone.x - HAND.x) / 10);
+          let rec = "";
+          if (total > best) {
+            best = total;
+            rec = " New best!";
+          }
+          if (dist > bestFar && total > 0) bestFar = dist;
+          try {
+            localStorage.setItem("plink.best", best);
+            localStorage.setItem("plink.far", bestFar);
+          } catch (e) {}
+          $("now").textContent = total;
+          $("best").textContent = best;
+          $("far").textContent = bestFar.toFixed(1) + "m";
+          setHint(
+            `<strong>${msg}</strong> ${total} skip${total === 1 ? "" : "s"}, ${dist.toFixed(1)} m.${rec} Click to throw again.`,
+          );
+        }
+
+        function update(dt, t) {
+          phaseT += dt;
+          if (state === "power") {
+            const p = (phaseT / 1.1) % 2;
+            power = p < 1 ? p : 2 - p;
+            $("pfill").style.width = power * 100 + "%";
+          }
+          if (state === "tilt") {
+            const p = (phaseT / 0.9) % 2;
+            tilt = (p < 1 ? p : 2 - p) * 45;
+            $("tmark").style.left = `calc(${(tilt / 45) * 100}% - 1px)`;
+          }
+          if (state === "done") doneT += dt;
+          if (throwAnim > 0) throwAnim -= dt;
+
+          if (state === "fly" && stone) {
+            const steps = 4,
+              h = dt / steps;
+            for (let k = 0; k < steps && state === "fly"; k++) {
+              stone.x += stone.vx * h;
+              stone.y += stone.vy * h;
+              stone.z += stone.vz * h;
+              stone.vz -= G * h;
+              stone.spin += h * 30;
+              if (stone.z <= 0) contact();
+              if (state === "fly" && stone.z < -40) {
+                finish("Overboard!");
+              }
+            }
+          }
+
+          for (const d of ducks) {
+            d.ph += dt;
+            if (d.fly) {
+              d.x += d.vx * dt;
+              d.y += d.vy * dt;
+              d.vz -= 10 * dt;
+              d.z += (30 + d.vz) * dt;
+              continue;
+            }
+            const dx = d.tx - d.x,
+              dy = d.ty - d.y,
+              dist = Math.hypot(dx, dy);
+            if (dist < 2) pickTarget(d);
+            else {
+              d.x += (dx / dist) * 6 * dt;
+              d.y += (dy / dist) * 6 * dt;
+              const sxd = dx - dy;
+              if (Math.abs(sxd) > 0.3) d.face = sxd > 0 ? 1 : -1;
+            }
+            d.wake -= dt;
+            if (d.wake <= 0) {
+              d.wake = 0.9;
+              ripples.push({ x: d.x, y: d.y, r: 1, life: 0.6, max: 4 });
+            }
+            if (
+              stone &&
+              state === "fly" &&
+              stone.z < 8 &&
+              Math.hypot(stone.x - d.x, stone.y - d.y) < 9
+            ) {
+              d.fly = true;
+              d.vx = (d.x - stone.x) * 2 + 10;
+              d.vy = -14;
+              d.vz = 0;
+              splash(d.x, d.y, 8, 12);
+              sfx.quack();
+              pop(d.x, d.y, "QUACK", "#fff3c4");
+            }
+          }
+          for (let i = ducks.length - 1; i >= 0; i--)
+            if (ducks[i].fly && ducks[i].z > 140) {
+              ducks.splice(i, 1);
+              duckRespawn = 6;
+            }
+          if (ducks.length < 2) {
+            duckRespawn -= dt;
+            if (duckRespawn <= 0) {
+              const d = makeDuck(196, 26 + (Math.random() - 0.5) * 20);
+              pickTarget(d);
+              ducks.push(d);
+              duckRespawn = 6;
+            }
+          }
+
+          for (const p of pads)
+            if (p.frog && !p.home) {
+              p.away -= dt;
+              if (p.away <= 0) {
+                p.home = true;
+                splash(p.x, p.y, 4, 6);
+              }
+            }
+
+          for (let i = ripples.length - 1; i >= 0; i--) {
+            const r = ripples[i];
+            r.r += dt * 12;
+            r.life -= dt * (0.8 / (r.max / 12));
+            if (r.life <= 0 || r.r > r.max) ripples.splice(i, 1);
+          }
+          for (let i = parts.length - 1; i >= 0; i--) {
+            const p = parts[i];
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.z += p.vz * dt;
+            p.vz -= G * 0.6 * dt;
+            p.life -= dt * 1.5;
+            if (p.z < 0 || p.life <= 0) parts.splice(i, 1);
+          }
+          for (let i = pops.length - 1; i >= 0; i--) {
+            const p = pops[i];
+            p.sy -= dt * 14;
+            p.life -= dt * 0.9;
+            if (p.life <= 0) pops.splice(i, 1);
+          }
+        }
+
+        function contact() {
+          const s = stone;
+          if (islandSD(s.x, s.y) >= 0) return;
+          if (pondSD(s.x, s.y) >= 0) {
+            s.z = 0;
+            s.vx = s.vy = s.vz = 0;
+            sfx.thud();
+            splash(s.x, s.y, 3, 4);
+            if (s.x > 200) {
+              bonus += 5;
+              pop(s.x, s.y, "FAR BANK +5", "#ffe08a");
+              finish("Across the pond!");
+            } else finish("Ashore.");
+            return;
+          }
+          const vh = Math.hypot(s.vx, s.vy),
+            inc = (Math.atan2(-s.vz, vh) * 180) / Math.PI,
+            q = tiltQ();
+          if (inc < 14 + 12 * q && vh > 28 && -s.vz > 5) {
+            skips++;
+            s.z = 0;
+            s.vz = -s.vz * (0.4 + 0.3 * q) * (0.95 + Math.random() * 0.1);
+            const f = (0.84 + 0.09 * q) * (0.97 + Math.random() * 0.05),
+              wob = (Math.random() - 0.5) * 0.06;
+            const vx = s.vx * f,
+              vy = s.vy * f;
+            s.vx = vx * Math.cos(wob) - vy * Math.sin(wob);
+            s.vy = vx * Math.sin(wob) + vy * Math.cos(wob);
+            ripples.push({ x: s.x, y: s.y, r: 0.5, life: 1, max: 12 });
+            splash(s.x, s.y, 3, 8);
+            sfx.plip(skips);
+            pop(s.x, s.y, String(skips + bonus), "#ffffff");
+            const pad = pads.find(
+              (p) => Math.hypot(p.x - s.x, p.y - s.y) < p.r + 1.5,
+            );
+            if (pad && pad.frog && pad.home) {
+              bonus++;
+              pad.home = false;
+              pad.away = 7;
+              sfx.ribbit();
+              splash(pad.x, pad.y, 6, 10);
+              pop(pad.x, pad.y - 4, "LILY HOP +1", "#c9f29b");
+            }
+            $("now").textContent = skips + bonus;
+          } else {
+            splash(s.x, s.y, 14, 18);
+            ripples.push(
+              { x: s.x, y: s.y, r: 0.5, life: 1, max: 16 },
+              { x: s.x, y: s.y, r: -3, life: 1, max: 12 },
+            );
+            sfx.plunk();
+            state = "sunk";
+            finish(
+              skips === 0
+                ? "Plunk."
+                : skips >= 10
+                  ? "Pitty-pat-plunk!"
+                  : "Glub.",
+            );
+            stone = { ...s, sunk: true };
+          }
+        }
+
+        const img = ctx.createImageData(W, H),
+          buf = new Uint32Array(img.data.buffer);
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        function px(x, y, c) {
+          ctx.fillStyle = c;
+          ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+        }
+        function rect(x, y, w, h, c) {
+          ctx.fillStyle = c;
+          ctx.fillRect(Math.round(x), Math.round(y), w, h);
+        }
+
+        function drawWater(t) {
+          buf.set(bg);
+          const tt = reduced ? 0 : t;
+          for (let k = 0; k < waterIdx.length; k++) {
+            const x = waterX[k],
+              y = waterY[k];
+            const w =
+              Math.sin(x * 0.33 - y * 0.18 + tt * 1.5) +
+              Math.sin(x * 0.11 + y * 0.43 - tt * 1.05) * 0.7 +
+              Math.sin((x + y) * 0.07 + tt * 0.6) * 0.4;
+            buf[waterIdx[k]] =
+              w > 1.72 ? WATER.hi : w < -1.75 ? WATER.lo : waterBase[k];
+          }
+          ctx.putImageData(img, 0, 0);
+        }
+
+        function drawPerson(t) {
+          const [sx, sy] = iso(15, 26, DOCK.z);
+          const x = Math.round(sx),
+            y = Math.round(sy);
+          rect(x - 2, y, 6, 1, "rgba(0,0,0,0.25)");
+          const skin = "#e3b48b",
+            shirt = "#d9573b",
+            shorts = "#2f4a6b",
+            hair = "#3a2617";
+          rect(x, y - 2, 1, 2, skin);
+          rect(x + 2, y - 2, 1, 2, skin);
+          rect(x, y, 1, 1, "#222");
+          rect(x + 2, y, 1, 1, "#222");
+          rect(x, y - 4, 3, 2, shorts);
+          rect(x, y - 8, 3, 4, shirt);
+          rect(x + 2, y - 8, 1, 4, "#b8452e");
+          rect(x, y - 11, 3, 3, skin);
+          px(x + 2, y - 10, "#222");
+          rect(x, y - 12, 3, 1, hair);
+          px(x, y - 11, hair);
+          const winding = state === "power" || state === "tilt";
+          if (throwAnim > 0) {
+            px(x + 3, y - 7, skin);
+            px(x + 4, y - 6, skin);
+          } else if (winding) {
+            px(x - 1, y - 7, skin);
+            px(x - 2, y - 8, skin);
+            px(x - 3, y - 8, "#7d8287");
+          } else {
+            rect(x + 3, y - 8, 1, 3, skin);
+            if (state === "aim") px(x + 3, y - 5, "#7d8287");
+          }
+        }
+
+        function drawDuck(d, t) {
+          const bob = d.fly ? 0 : Math.sin(d.ph * 3) * 0.4;
+          const [sx, sy] = iso(d.x, d.y, d.z + bob);
+          const x = Math.round(sx),
+            y = Math.round(sy),
+            f = d.face;
+          const at = (dx, dy, c) => px(x + dx * f, y + dy, c);
+          if (!d.fly)
+            for (let i = -3; i <= 3; i++) at(i, 0, "rgba(20,50,60,0.35)");
+          for (let i = -2; i <= 2; i++) {
+            at(i, -1, "#f1ede2");
+            at(i, -2, "#f1ede2");
+          }
+          at(-2, -1, "#c9c1ad");
+          at(-3, -2, "#6b5a45");
+          at(-1, -2, "#8a7a62");
+          at(0, -2, "#8a7a62");
+          at(2, -3, "#2f6b3a");
+          at(3, -3, "#2f6b3a");
+          at(2, -4, "#2f6b3a");
+          at(3, -4, "#3f8a4a");
+          at(4, -3, "#e8a23a");
+          at(3, -4, "#111");
+          if (d.fly) {
+            const up = Math.sin(t * 30) > 0;
+            at(-1, up ? -4 : 0, "#e6e0d0");
+            at(0, up ? -5 : 1, "#e6e0d0");
+            at(1, up ? -4 : 0, "#e6e0d0");
+          }
+        }
+
+        function drawFrog(p, t) {
+          const [sx, sy] = iso(p.x, p.y, 0.6);
+          const x = Math.round(sx),
+            y = Math.round(sy) - 1;
+          const blink = Math.sin(t * 0.7 + p.x) > 0.97;
+          rect(x - 1, y, 3, 1, "#5f9a35");
+          rect(x - 1, y - 1, 3, 1, "#7dbb47");
+          px(x - 1, y - 2, blink ? "#7dbb47" : "#e9f2c9");
+          px(x + 1, y - 2, blink ? "#7dbb47" : "#e9f2c9");
+          px(x - 1, y - 2 + (blink ? 1 : 0), "#7dbb47");
+        }
+
+        function drawReed(r, t) {
+          const [sx, sy] = iso(r.x, r.y, 0);
+          const sway = reduced
+            ? 0
+            : Math.round(Math.sin(t * 1.3 + r.x * 0.4) * 0.6);
+          for (let k = 0; k < r.h; k++)
+            px(
+              sx + (k > r.h - 3 ? sway : 0),
+              sy - k,
+              k < 2 ? "#3e6b2c" : "#5f8f3c",
+            );
+          if (r.tip) {
+            px(sx + sway, sy - r.h, "#6b4226");
+            px(sx + sway, sy - r.h - 1, "#6b4226");
+          }
+        }
+
+        function drawStone() {
+          const s = stone;
+          if (!s || s.sunk) return;
+          const [sx, sy] = iso(s.x, s.y, s.z);
+          if (s.z > 0.5) {
+            const [hx, hy] = iso(s.x, s.y, 0);
+            rect(hx - 1, hy, 3, 1, "rgba(0,0,0,0.3)");
+          }
+          const flip = Math.floor(s.spin) % 2;
+          rect(sx - 1, sy - 2, 3, 1, flip ? "#a9adb1" : "#8a8f94");
+          rect(sx - 1, sy - 1, 3, 1, flip ? "#6d7276" : "#5f6368");
+        }
+
+        function drawAim(t) {
+          if (!(state === "aim" || state === "power" || state === "tilt"))
+            return;
+          const off = (t * 18) % 6;
+          for (let d = 8 + off; d < 70; d += 6) {
+            const [sx, sy] = iso(
+              HAND.x + Math.cos(aim) * d,
+              HAND.y + Math.sin(aim) * d,
+              0,
+            );
+            px(sx, sy, `rgba(255,255,255,${0.85 - d / 90})`);
+          }
+        }
+
+        function render(t) {
+          drawWater(t);
+          for (const r of ripples) {
+            if (r.r <= 0) continue;
+            const n = Math.max(10, Math.floor(r.r * 7)),
+              a = Math.max(0, r.life) * 0.85;
+            ctx.fillStyle = `rgba(225,246,244,${a})`;
+            for (let k = 0; k < n; k++) {
+              const ang = (k / n) * Math.PI * 2,
+                wx = r.x + Math.cos(ang) * r.r,
+                wy = r.y + Math.sin(ang) * r.r;
+              if (pondSD(wx, wy) > -0.4) continue;
+              const [sx, sy] = iso(wx, wy, 0);
+              ctx.fillRect(Math.round(sx), Math.round(sy), 1, 1);
+            }
+          }
+          drawAim(t);
+
+          const list = [];
+          for (const tr of trees)
+            list.push([
+              tr.x + tr.y,
+              () => {
+                const [sx, sy] = iso(tr.x, tr.y, 0);
+                ctx.drawImage(
+                  tr.spr.cnv,
+                  Math.round(sx - tr.spr.ax),
+                  Math.round(sy - tr.spr.ay),
+                );
+              },
+            ]);
+          for (const b of bushes)
+            list.push([
+              b.x + b.y,
+              () => {
+                const [sx, sy] = iso(b.x, b.y, 0);
+                ctx.drawImage(
+                  b.spr.cnv,
+                  Math.round(sx - b.spr.ax),
+                  Math.round(sy - b.spr.ay),
+                );
+              },
+            ]);
+          for (const r of reeds) list.push([r.x + r.y, () => drawReed(r, t)]);
+          for (const r of rocks)
+            list.push([
+              r.x + r.y,
+              () => {
+                const [sx, sy] = iso(r.x, r.y, 0);
+                rect(sx - 2, sy - 2, 4, 2, "#8d9190");
+                rect(sx - 1, sy - 3, 2, 1, "#a9adab");
+                rect(sx - 2, sy, 4, 1, "#5d6260");
+              },
+            ]);
+          for (const p of pads)
+            if (p.frog && p.home)
+              list.push([p.x + p.y + 0.1, () => drawFrog(p, t)]);
+          for (const d of ducks)
+            list.push([d.x + d.y + (d.fly ? 500 : 0), () => drawDuck(d, t)]);
+          list.push([41 + 0.5, () => drawPerson(t)]);
+          list.push([
+            38,
+            () => {
+              const [sx, sy] = iso(8, 28, DOCK.z);
+              rect(sx - 1, sy - 3, 4, 3, "#4a6b80");
+              rect(sx - 1, sy - 4, 4, 1, "#7d8287");
+              px(sx, sy - 5, "#9aa0a4");
+            },
+          ]);
+          if (stone)
+            list.push([stone.x + stone.y + (stone.z > 3 ? 300 : 0), drawStone]);
+          list.sort((a, b) => a[0] - b[0]);
+          for (const [, fn] of list) fn();
+
+          for (const p of parts) {
+            const [sx, sy] = iso(p.x, p.y, p.z);
+            px(sx, sy, `rgba(236,250,250,${Math.max(0, p.life)})`);
+          }
+          ctx.font = "8px Silkscreen, monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "alphabetic";
+          for (const p of pops) {
+            ctx.globalAlpha = Math.min(1, p.life * 2);
+            ctx.fillStyle = "rgba(20,40,40,0.6)";
+            ctx.fillText(p.text, Math.round(p.sx) + 1, Math.round(p.sy) + 1);
+            ctx.fillStyle = p.color;
+            ctx.fillText(p.text, Math.round(p.sx), Math.round(p.sy));
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        function fit() {
+          const aw = stage.clientWidth,
+            ah = stage.clientHeight;
+          let s = Math.min(aw / W, ah / H);
+          if (s >= 2) s = Math.floor(s);
+          s = Math.max(0.5, s);
+          cv.style.width = Math.floor(W * s) + "px";
+          cv.style.height = Math.floor(H * s) + "px";
+        }
+        new ResizeObserver(fit).observe(stage);
+        fit();
+
+        $("best").textContent = best;
+        $("far").textContent = bestFar.toFixed(1) + "m";
+        let last = performance.now();
+        function frame(now) {
+          const dt = Math.min(0.033, (now - last) / 1000);
+          last = now;
+          update(dt, now / 1000);
+          render(now / 1000);
+          requestAnimationFrame(frame);
+        }
+        document.fonts && document.fonts.load("8px Silkscreen").catch(() => {});
+        requestAnimationFrame(frame);
+      })();
+    </script>
+  </body>
+</html>

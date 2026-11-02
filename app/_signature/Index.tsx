@@ -11,6 +11,7 @@ import {
 } from "./data/data";
 import { PAINTINGS, SAATCHI_URL } from "./data/paintings";
 import { SHOWCASE } from "./data/showcase";
+import HoverRows from "./HoverRows";
 import shell from "./signature.module.css";
 import styles from "./index.module.css";
 
@@ -73,11 +74,15 @@ export default function Index({
     <>
       {LISTS.map((key) => (
         <Group key={key} id={key} title={GROUP_LABEL[key]}>
-          <div className={styles.rows}>
-            {WORKS.filter((work) => work.group === key).map((work) => (
-              <Row key={work.title} work={work} />
-            ))}
-          </div>
+          {key === "explorations" ? (
+            <HoverRows works={WORKS.filter((work) => work.group === key)} />
+          ) : (
+            <div className={styles.rows}>
+              {WORKS.filter((work) => work.group === key).map((work) => (
+                <Row key={work.title} work={work} />
+              ))}
+            </div>
+          )}
         </Group>
       ))}
       <Group id="covers" title={GROUP_LABEL.covers}>

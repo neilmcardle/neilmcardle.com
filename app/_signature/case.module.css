@@ -16,10 +16,15 @@
 
 .overview {
   margin: 0;
+  color: var(--muted);
   font-size: clamp(19px, 1.9vw, 22px);
   line-height: 1.45;
   letter-spacing: -0.015em;
   text-wrap: pretty;
+}
+
+.lead {
+  color: var(--ink);
 }
 
 .facts {

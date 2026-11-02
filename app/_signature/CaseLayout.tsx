@@ -8,6 +8,16 @@ import Finale from "./Finale";
 import shell from "./signature.module.css";
 import styles from "./case.module.css";
 
+function Lead({ text }: { text: string }) {
+  const match = text.match(/^(.+?[.!?])\s+(\S[\s\S]*)$/);
+  if (!match) return <span className={styles.lead}>{text}</span>;
+  return (
+    <>
+      <span className={styles.lead}>{match[1]}</span> {match[2]}
+    </>
+  );
+}
+
 export default function CaseLayout({
   hero,
   title,
@@ -32,7 +42,9 @@ export default function CaseLayout({
       <section className={`${shell.wrap} ${styles.intro}`}>
         {title ? <h1 className={styles.title}>{title}</h1> : <span />}
         <div>
-          <p className={styles.overview}>{overview}</p>
+          <p className={styles.overview}>
+            <Lead text={overview} />
+          </p>
           {facts ? (
             <dl className={styles.facts}>
               {facts.map((fact) => (

@@ -19,6 +19,7 @@ export type Work = {
   plain?: boolean;
   icon?: string;
   pills: string[];
+  preview?: string;
 };
 
 export const EMAIL = "neil@neilmcardle.com";
@@ -200,10 +201,19 @@ export const WORKS: Work[] = [
     ],
   })),
   {
+    title: "A history of UI",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/history-of-ui",
+    preview: "/home/peek/history-of-ui.jpg",
+    pills: ["Interactive", "16 eras", "1963 to 2025"],
+  },
+  {
     title: "N particles",
     group: "explorations",
     sub: "Lab",
     href: "/explorations/n-particles",
+    preview: "/home/peek/n-particles.jpg",
     pills: ["Interactive", "WebGL"],
   },
   {
@@ -211,6 +221,7 @@ export const WORKS: Work[] = [
     group: "explorations",
     sub: "Lab",
     href: "/explorations/record-player",
+    preview: "/home/peek/record-player.jpg",
     pills: ["Interactive", "Illustration", "Made with Colorfigures"],
   },
   {
@@ -218,6 +229,7 @@ export const WORKS: Work[] = [
     group: "explorations",
     sub: "Lab",
     href: "/explorations/self-healing-checkout",
+    preview: "/home/peek/self-healing-checkout.jpg",
     pills: ["Interactive concept", "Sample data"],
   },
   {
@@ -226,7 +238,16 @@ export const WORKS: Work[] = [
     sub: "Lab",
     href: "/logo-animator-studio",
     plain: true,
+    preview: "/home/peek/logo-animator-studio.jpg",
     pills: ["Interactive concept", "Agentic logo studio", "Simulated agents"],
+  },
+  {
+    title: "Plink Pond",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/plink-pond",
+    preview: "/home/peek/plink-pond.jpg",
+    pills: ["Game", "Pixel art", "Canvas"],
   },
   ...(process.env.NODE_ENV === "development"
     ? [
@@ -235,6 +256,7 @@ export const WORKS: Work[] = [
           group: "explorations" as const,
           sub: "Lab",
           href: "/explorations/creature-capture",
+          preview: "/home/peek/creature-capture.jpg",
           pills: ["Interactive", "3D", "Made with anymove"],
         },
       ]

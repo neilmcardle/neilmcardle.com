@@ -157,3 +157,46 @@ a.row:hover .name {
 .others {
   padding-top: clamp(32px, 5vw, 56px);
 }
+
+.card {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: 240px;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.96;
+  transition:
+    opacity 0.16s var(--ease),
+    scale 0.24s var(--ease);
+}
+
+.card.on {
+  opacity: 1;
+  scale: 1;
+}
+
+.card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.card img[hidden] {
+  display: none;
+}
+
+@media (hover: none), (max-width: 720px) {
+  .card {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    scale: 1;
+    transition: opacity 0.12s linear;
+  }
+}

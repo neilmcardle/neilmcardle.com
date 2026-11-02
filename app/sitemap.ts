@@ -51,6 +51,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...lessons,
     {
+      url: `${base}/explorations/history-of-ui`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${base}/explorations/n-particles`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -58,6 +64,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${base}/logo-animator-studio`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${base}/explorations/plink-pond`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,

@@ -96,6 +96,22 @@ export const vectorPaintOrders = pgTable("vector_paint_orders", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const suggestions = pgTable("suggestions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  request: text("request").notNull(),
+  status: text("status")
+    .$type<"new" | "building" | "ready" | "live" | "rejected" | "failed">()
+    .default("new")
+    .notNull(),
+  prUrl: text("pr_url"),
+  costMicroUsd: integer("cost_micro_usd").default(0).notNull(),
+  note: text("note"),
+  buildStartedAt: timestamp("build_started_at"),
+  liveAt: timestamp("live_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type EBook = typeof ebooks.$inferSelect;
@@ -105,3 +121,4 @@ export type NewSparkWaitlistEntry = typeof sparkWaitlist.$inferInsert;
 export type CoverlyWaitlistEntry = typeof coverlyWaitlist.$inferSelect;
 export type NewCoverlyWaitlistEntry = typeof coverlyWaitlist.$inferInsert;
 export type VectorPaintOrder = typeof vectorPaintOrders.$inferSelect;
+export type Suggestion = typeof suggestions.$inferSelect;

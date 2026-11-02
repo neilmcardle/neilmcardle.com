@@ -6,6 +6,7 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render:coverly": "remotion render src/index.ts CoverlyFilm out/coverly-film.mp4 --codec h264 --crf 18",
+    "render:history": "remotion render src/index.ts HistoryOfUiFilm out/history-of-ui.mp4 --codec h264 --crf 17",
     "still:coverly": "remotion still src/index.ts CoverlyFilm out/coverly-poster.jpg --frame 260"
   },
   "dependencies": {

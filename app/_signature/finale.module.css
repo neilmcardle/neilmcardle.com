@@ -534,6 +534,7 @@
 
 .footer a {
   padding: 12px;
+  white-space: nowrap;
   transition: color 0.15s var(--ease);
 }
 
@@ -544,6 +545,16 @@
 @media (max-width: 720px) {
   .row {
     gap: 20px;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .footer div {
+    margin-left: -12px;
   }
 
   .said {
