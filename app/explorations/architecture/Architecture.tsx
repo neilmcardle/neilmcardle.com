@@ -134,17 +134,17 @@ function Sources({ id }: { id: string }) {
 
 function Entry({ building, index }: { building: Building; index: number }) {
   const drawings = DRAWINGS[building.id];
-  const n = String(BUILDINGS.indexOf(building) + 1).padStart(2, "0");
   return (
     <article id={building.id} className={styles.entry} data-entry>
       <header className={styles.entryHead}>
-        <p className={styles.meta}>
-          <span className={styles.number}>{n}</span>
-          <span className={styles.era}>{building.tradition}</span>
-          <span>{building.date}</span>
-          <span>{building.place}</span>
-        </p>
-        <div>
+        <div className={styles.meta}>
+          <span className={styles.number}>{building.date}</span>
+          <p className={styles.facts}>
+            <span className={styles.era}>{building.tradition}</span>
+            <span>{building.place}</span>
+          </p>
+        </div>
+        <div className={styles.headline}>
           <h3 className={styles.name}>{building.name}</h3>
           <p className={styles.idea}>{building.idea}</p>
         </div>
