@@ -43,14 +43,14 @@ export default function Moments() {
           <div>
             <p className={styles.app}>SpeakUI</p>
             <p className={styles.lede}>My voice-driven UI editor.</p>
-            <p className={styles.quote}>“Demo available?”</p>
+            <p className={styles.quote}>Demo available?</p>
             <Who
               href="https://x.com/designertom/status/2103142665445605845"
               name="Tommy Geoco"
               handle="@designertom on X"
             />
             <div className={styles.reply}>
-              <p className={styles.quote}>“Thank you for sharing!!”</p>
+              <p className={styles.quote}>Thank you for sharing!!</p>
               <Who
                 href="https://x.com/ridd_design/status/2103261131808854228"
                 name="Ridd"
@@ -77,7 +77,7 @@ export default function Moments() {
             <p className={styles.lede}>
               Where a parent and child make a picture book together.
             </p>
-            <p className={styles.quote}>“This is magical dude.”</p>
+            <p className={styles.quote}>This is magical dude.</p>
             <Who
               href="https://x.com/designertom/status/2107851337434087724"
               name="Tommy Geoco"

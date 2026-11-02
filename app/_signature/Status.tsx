@@ -9,7 +9,9 @@ export default function Status({
   line,
   note,
   actions,
+  face = false,
 }: {
+  face?: boolean;
   code: string;
   line: string;
   note?: string;
@@ -25,6 +27,15 @@ export default function Status({
         <h1 className={styles.line}>{line}</h1>
         {note ? <p className={styles.note}>{note}</p> : null}
         <div className={styles.actions}>{actions}</div>
+        {face ? (
+          <img
+            className={styles.face}
+            src="/home/face.png"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+        ) : null}
       </main>
     </Shell>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { N_DEFAULTS, type NSettings } from "@/app/explorations/_lab/settings";
 import styles from "./header.module.css";
 
@@ -9,7 +9,7 @@ const NParticles = dynamic(() => import("@/app/explorations/_lab/NParticles"), {
   ssr: false,
 });
 
-const MARK: NSettings = {
+export const MARK: NSettings = {
   ...N_DEFAULTS,
   loop: true,
   hold: 5,
@@ -36,17 +36,81 @@ const MARK: NSettings = {
   ink: "#ecebe7",
 };
 
+const HOVER: NSettings = { ...MARK, hold: 0.7, faceHold: 60 };
+
+const FADE_MS = 320;
+
 export default function NavMark() {
   const anchor = useRef<HTMLSpanElement>(null);
+  const [live, setLive] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [shown, setShown] = useState(false);
+  const unmount = useRef<number>(undefined);
+
+  useEffect(() => () => window.clearTimeout(unmount.current), []);
+
+  useEffect(() => {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
+    const near = (event: PointerEvent) => {
+      if (event.clientY > 160) return;
+      window.removeEventListener("pointermove", near);
+      import("@/app/explorations/_lab/NParticles");
+      new Image().src = "/me.png";
+    };
+    window.addEventListener("pointermove", near, { passive: true });
+    return () => window.removeEventListener("pointermove", near);
+  }, []);
+
+  const enter = () => {
+    if (
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    window.clearTimeout(unmount.current);
+    setLive(true);
+    if (ready) setShown(true);
+  };
+
+  const leave = () => {
+    setShown(false);
+    window.clearTimeout(unmount.current);
+    unmount.current = window.setTimeout(() => {
+      setLive(false);
+      setReady(false);
+    }, FADE_MS);
+  };
+
   return (
-    <span className={styles.particleMark}>
-      <NParticles
-        className={styles.particleStage}
-        settings={MARK}
-        interactive={false}
-        anchor={anchor}
-        face="/me.png"
-      />
+    <span
+      className={styles.particleMark}
+      onPointerEnter={enter}
+      onPointerLeave={leave}
+    >
+      <svg
+        className={`${styles.solid} ${shown ? styles.away : ""}`}
+        viewBox="18 18 27 27"
+        aria-hidden="true"
+      >
+        <path d="M45 45L32 31.2985V18H45V45Z" />
+        <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" />
+      </svg>
+      {live ? (
+        <span className={`${styles.fade} ${shown ? styles.on : ""}`}>
+          <NParticles
+            className={styles.particleStage}
+            settings={HOVER}
+            interactive={false}
+            anchor={anchor}
+            face="/me.png"
+            onReady={() => {
+              setReady(true);
+              setShown(true);
+            }}
+          />
+        </span>
+      ) : null}
       <span ref={anchor} className={styles.particleAnchor} />
     </span>
   );

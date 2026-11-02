@@ -23,11 +23,48 @@
   fill: currentColor;
 }
 
+.role {
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .role {
+    display: none;
+  }
+}
+
 .particleMark {
   position: relative;
   display: block;
   width: 40px;
   height: 40px;
+}
+
+.particleMark .solid {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  translate: -50% -50%;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.particleMark .fade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.particleMark .fade.on {
+  opacity: 1;
+}
+
+.particleMark .away {
+  opacity: 0;
 }
 
 .particleAnchor {

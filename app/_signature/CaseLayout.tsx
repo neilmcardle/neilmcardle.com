@@ -5,6 +5,7 @@ import type { Fact, Frame } from "@/app/work/CaseStudy";
 import Shell from "./Shell";
 import Header from "./Header";
 import Finale from "./Finale";
+import ScrollHint from "./ScrollHint";
 import shell from "./signature.module.css";
 import styles from "./case.module.css";
 
@@ -39,7 +40,8 @@ export default function CaseLayout({
     <Shell>
       <Header home={home} />
       {hero}
-      <section className={`${shell.wrap} ${styles.intro}`}>
+      <ScrollHint target="overview" />
+      <section id="overview" className={`${shell.wrap} ${styles.intro}`}>
         {title ? <h1 className={styles.title}>{title}</h1> : <span />}
         <div>
           <p className={styles.overview}>
@@ -107,9 +109,21 @@ export default function CaseLayout({
           );
         })}
         {children}
-        <Link className={styles.back} href={`${home.replace(/\/$/, "")}/work`}>
-          All work
-        </Link>
+        <div className={styles.ending}>
+          <img
+            className={styles.face}
+            src="/home/face-small.png"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          <Link
+            className={styles.back}
+            href={`${home.replace(/\/$/, "")}/work`}
+          >
+            All work
+          </Link>
+        </div>
       </div>
       <Finale />
     </Shell>

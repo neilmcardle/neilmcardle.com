@@ -30,16 +30,11 @@
 }
 
 .frame {
-  --n: clamp(14px, 2vw, 22px);
-  padding: clamp(12px, 2vw, 24px);
+  --pad: clamp(12px, 2vw, 24px);
+  --inner: 8px;
+  padding: var(--pad);
+  border-radius: calc(var(--inner) + var(--pad));
   background: var(--frame);
-  clip-path: polygon(
-    0 0,
-    calc(100% - var(--n)) 0,
-    100% var(--n),
-    100% 100%,
-    0 100%
-  );
   transition: background 0.2s var(--ease);
 }
 
@@ -50,6 +45,8 @@
 .media {
   position: relative;
   aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--inner);
 }
 
 .media img {
@@ -140,12 +137,8 @@
   gap: 6px;
   flex-shrink: 0;
   align-self: start;
-  margin-top: 2px;
-  padding: 4px 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.5;
   white-space: nowrap;
 }
 
@@ -169,15 +162,15 @@
   gap: 6px;
   flex-shrink: 0;
   align-self: start;
-  margin-top: 2px;
-  padding: 4px 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
   color: var(--ink);
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 16px;
+  line-height: 1.5;
   white-space: nowrap;
-  transition: border-color 0.15s var(--ease);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.15s var(--ease);
 }
 
 .card a.product::before {
@@ -187,7 +180,7 @@
 }
 
 .card a.product:hover {
-  border-color: var(--muted);
+  text-decoration-color: var(--underline);
 }
 
 .product svg {

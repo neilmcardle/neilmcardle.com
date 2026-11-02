@@ -1,9 +1,31 @@
 .main {
+  position: relative;
   display: grid;
   align-content: center;
   min-height: calc(100vh - 76px);
   min-height: calc(100svh - 76px);
   padding-bottom: 76px;
+}
+
+.face {
+  position: absolute;
+  right: var(--gutter);
+  top: 50%;
+  width: auto;
+  height: min(62vh, 520px);
+  translate: 0 -55%;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .face {
+    position: static;
+    height: 180px;
+    margin-top: 40px;
+    translate: none;
+    justify-self: start;
+  }
 }
 
 .code {

@@ -94,9 +94,21 @@
   min-width: 0;
 }
 
+.ending {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: clamp(40px, 6vw, 72px);
+}
+
+.face {
+  width: auto;
+  height: 72px;
+  opacity: 0.85;
+}
+
 .frames a.back {
   display: inline-flex;
-  margin-top: clamp(40px, 6vw, 72px);
   padding: 10px 0;
   color: var(--muted);
   transition: color 0.15s var(--ease);

@@ -527,6 +527,18 @@
   font-size: 15px;
 }
 
+.sign {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sign img {
+  width: auto;
+  height: 34px;
+  opacity: 0.85;
+}
+
 .footer div {
   display: flex;
   gap: 4px;

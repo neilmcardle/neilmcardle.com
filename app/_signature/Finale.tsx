@@ -408,7 +408,15 @@ export default function Finale() {
         </div>
       </div>
       <footer className={`${shell.wrap} ${styles.footer}`}>
-        <span>Neil McArdle, 2026</span>
+        <span className={styles.sign}>
+          <img
+            src="/home/face-small.png"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          Neil McArdle, 2026
+        </span>
         <div>
           <a href="/suggest">Suggest a change</a>
           <a href="https://www.linkedin.com/in/neilmcardle/">LinkedIn</a>

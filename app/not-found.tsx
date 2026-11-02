@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <Status
+      face
       code="404"
       line="Not all those who wander are lost."
       note="J.R.R. Tolkien"

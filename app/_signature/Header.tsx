@@ -17,8 +17,13 @@ export default function Header({
   return (
     <header className={`${shell.wrap} ${styles.header}`}>
       {mark ? (
-        <Link className={styles.brand} href={home} aria-label="Neil McArdle">
+        <Link
+          className={styles.brand}
+          href={home}
+          aria-label="Neil McArdle, Product Designer, London"
+        >
           {mark}
+          <span className={styles.role}>Product Designer, London</span>
         </Link>
       ) : brand ? (
         <Link className={styles.brand} href={home} aria-label="Neil McArdle">
