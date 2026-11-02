@@ -318,6 +318,91 @@ export const BUILDINGS: Building[] = [
   },
 ];
 
+export type Period = Band & { id: string; short: string; about: string };
+
+export const PERIODS: Period[] = [
+  {
+    id: "prehistory",
+    short: "Prehistory",
+    name: "Prehistory",
+    from: -9500,
+    to: -3000,
+    about:
+      "People first gathered to raise monuments, then settled into towns of mud brick. Whole communities did the work, with no sign of rulers yet.",
+  },
+  {
+    id: "first-cities",
+    short: "First cities",
+    name: "The first cities",
+    from: -3000,
+    to: -800,
+    about:
+      "Kings and cities could now organise thousands of workers. Building showed off power, and planned the streets, water and drains a whole population needed.",
+  },
+  {
+    id: "classical",
+    short: "Classical",
+    name: "The classical world",
+    from: -800,
+    to: 500,
+    about:
+      "Greece, Rome and India’s first empires turned building into rules that could be learned and repeated. Roman concrete let rooms grow wider than ever before.",
+  },
+  {
+    id: "medieval",
+    short: "Medieval",
+    name: "The medieval world",
+    from: 500,
+    to: 1400,
+    about:
+      "Religion paid for most great buildings, from cathedrals and mosques to temples and stupas. Builders across the world found new ways to raise roofs higher and let in light.",
+  },
+  {
+    id: "early-modern",
+    short: "Early modern",
+    name: "The early modern world",
+    from: 1400,
+    to: 1750,
+    about:
+      "Empires and rich patrons hired designers whose names we still know. Domes, palaces and gardens were worked out with geometry before building began.",
+  },
+  {
+    id: "industrial",
+    short: "Industrial",
+    name: "The industrial age",
+    from: 1750,
+    to: 1914,
+    about:
+      "Factories made iron, steel and glass cheap enough to build with, and trade and growing cities paid for it. Elsewhere, older ways of building carried on and were renewed.",
+  },
+  {
+    id: "modern",
+    short: "Modernism",
+    name: "Modernism",
+    from: 1914,
+    to: 1975,
+    about:
+      "Architects dropped decoration and let frames of steel and concrete shape the building. Governments and cities paid for new homes, schools and public buildings.",
+  },
+  {
+    id: "contemporary",
+    short: "Contemporary",
+    name: "Contemporary",
+    from: 1975,
+    to: 2026,
+    about:
+      "Computers let architects design shapes no drawing board could describe, and build them. Cities began to commission buildings to draw visitors and money.",
+  },
+];
+
+export function period(building: Building) {
+  return (
+    PERIODS.find(
+      (band) => building.year >= band.from && building.year < band.to,
+    ) ?? PERIODS[PERIODS.length - 1]
+  );
+}
+
 export const WEST: Band[] = [
   { name: "Neolithic", from: -9500, to: -3000 },
   { name: "Bronze Age", from: -3000, to: -800 },

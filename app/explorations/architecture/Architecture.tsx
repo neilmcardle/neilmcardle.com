@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -11,12 +12,11 @@ import {
 import {
   BUILDINGS,
   ELSEWHERE,
-  era,
-  eraLabel,
   lanes,
+  period,
+  PERIODS,
   position,
   SCALE_YEARS,
-  WEST,
   yearLabel,
   type Building,
 } from "./buildings";
@@ -27,7 +27,7 @@ import styles from "./architecture.module.css";
 
 const DRAWN = BUILDINGS.filter((b) => DRAWINGS[b.id]);
 const WAITING = BUILDINGS.filter((b) => !DRAWINGS[b.id]);
-const WEST_BANDS = lanes(WEST);
+const WEST_BANDS = lanes(PERIODS);
 const OTHER_BANDS = lanes(ELSEWHERE);
 const MAJOR = new Set([-9500, 0, 1500, 2000]);
 
@@ -140,12 +140,12 @@ function Entry({ building, index }: { building: Building; index: number }) {
       <header className={styles.entryHead}>
         <p className={styles.meta}>
           <span className={styles.number}>{n}</span>
-          <span className={styles.era}>{eraLabel(era(building))}</span>
+          <span className={styles.era}>{building.tradition}</span>
           <span>{building.date}</span>
           <span>{building.place}</span>
         </p>
         <div>
-          <h2 className={styles.name}>{building.name}</h2>
+          <h3 className={styles.name}>{building.name}</h3>
           <p className={styles.idea}>{building.idea}</p>
         </div>
       </header>
@@ -233,14 +233,20 @@ export default function Architecture() {
     };
   }, []);
 
-  const jump = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
-    event.preventDefault();
+  const goTo = (id: string) => {
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document
       .getElementById(id)
       ?.scrollIntoView({ behavior: still ? "auto" : "smooth" });
     history.replaceState(null, "", `#${id}`);
   };
+
+  const jump = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    goTo(id);
+  };
+
+  const step = DRAWN.indexOf(active);
 
   const inBand = (from: number, to: number) =>
     active.year >= from && active.year < to;
@@ -281,7 +287,7 @@ export default function Architecture() {
               title={band.name}
             />
           ))}
-          {WEST.map((band) => (
+          {PERIODS.map((band) => (
             <span
               key={`name-${band.name}`}
               className={styles.eraName}
@@ -289,7 +295,7 @@ export default function Architecture() {
               style={at((position(band.from) + position(band.to)) / 2)}
               aria-hidden
             >
-              {band.name}
+              {band.short}
             </span>
           ))}
           <span className={styles.axis} />
@@ -327,6 +333,57 @@ export default function Architecture() {
           <span className={styles.marker} style={at(position(active.year))} />
         </div>
         <p className={styles.squeeze}>Time is squeezed towards the present.</p>
+        <div className={styles.phone}>
+          <button
+            type="button"
+            className={styles.stepper}
+            aria-label="Previous building"
+            disabled={step <= 0}
+            onClick={() => goTo(DRAWN[step - 1].id)}
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M10 3 5 8l5 5" />
+            </svg>
+          </button>
+          <div className={styles.current}>
+            <span className={styles.currentMeta}>
+              {String(step + 1).padStart(2, "0")} / {DRAWN.length} ·{" "}
+              {active.date}
+            </span>
+            <span className={styles.currentName}>
+              {active.name}
+              <svg viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M3 4.5 6 7.5 9 4.5" />
+              </svg>
+            </span>
+            <select
+              className={styles.picker}
+              aria-label="Choose a building"
+              value={active.id}
+              onChange={(event) => goTo(event.target.value)}
+            >
+              {DRAWN.map((b, i) => (
+                <option key={b.id} value={b.id}>
+                  {String(i + 1).padStart(2, "0")}. {b.name}, {b.date}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="button"
+            className={styles.stepper}
+            aria-label="Next building"
+            disabled={step >= DRAWN.length - 1}
+            onClick={() => goTo(DRAWN[step + 1].id)}
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M6 3l5 5-5 5" />
+            </svg>
+          </button>
+          <span className={styles.progress} aria-hidden="true">
+            <span style={at(position(active.year))} />
+          </span>
+        </div>
       </nav>
 
       <main className={styles.content}>
@@ -338,21 +395,36 @@ export default function Architecture() {
             A history of architecture in thirty drawings
           </h1>
           <p className={styles.lede}>
-            Each building is drawn for one idea it added to how we build: a new
-            way to span a room, carry a load, let in light or lay out a plan.
-            Scroll down through 11,500 years, from carved pillars in Anatolia to
-            the frame that freed the modern wall.
-          </p>
-          <p className={styles.status}>
-            {WAITING.length
-              ? `${DRAWN.length} of ${BUILDINGS.length} drawn so far. The hollow marks on the timeline are still to come.`
-              : `${BUILDINGS.length} buildings, each with its sources listed beside it.`}
+            Each building here changed one thing about how we build. Like a new
+            way to put a roof on a wide space, hold up weight or let in light.
+            It spans over 11,500 years, from the carved stone pillars of Göbekli
+            Tepe, to the titanium curves of the Guggenheim in Bilbao. It&rsquo;s
+            all from Claude&rsquo;s AI slop cannon, but it&rsquo;s only an
+            exploration, see what you think.
           </p>
         </header>
 
-        {DRAWN.map((building, i) => (
-          <Entry key={building.id} building={building} index={i} />
-        ))}
+        {DRAWN.map((building, i) => {
+          const chapter = period(building);
+          const opens = i === 0 || period(DRAWN[i - 1]) !== chapter;
+          return (
+            <Fragment key={building.id}>
+              {opens && (
+                <header id={chapter.id} className={styles.period}>
+                  <p className={styles.periodDates}>
+                    {yearLabel(chapter.from)} to{" "}
+                    {chapter === PERIODS[PERIODS.length - 1]
+                      ? "now"
+                      : yearLabel(chapter.to)}
+                  </p>
+                  <h2 className={styles.periodName}>{chapter.name}</h2>
+                  <p className={styles.periodAbout}>{chapter.about}</p>
+                </header>
+              )}
+              <Entry building={building} index={i} />
+            </Fragment>
+          );
+        })}
 
         {WAITING.length > 0 && (
           <section className={styles.waiting} aria-labelledby="waiting">

@@ -182,6 +182,122 @@ a.tick:focus-visible {
   transition: top 700ms var(--ease);
 }
 
+.phone {
+  display: none;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 4px;
+}
+
+.stepper {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.stepper svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stepper:disabled {
+  color: var(--rule);
+  cursor: default;
+}
+
+.stepper:focus-visible,
+.current:has(.picker:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.current {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  padding: 4px 0;
+  text-align: center;
+}
+
+.currentMeta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.currentName {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.currentName svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.picker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.progress {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 1px;
+  margin: 4px 8px 0;
+  background: var(--rule);
+}
+
+.progress span {
+  position: absolute;
+  top: -3px;
+  left: calc(var(--p) * 100%);
+  width: 2px;
+  height: 7px;
+  margin-left: -1px;
+  background: var(--red);
+  transition: left 500ms var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress span {
+    transition: none;
+  }
+}
+
 .squeeze {
   margin: 0;
   padding-right: 16px;
@@ -235,18 +351,47 @@ a.tick:focus-visible {
   text-wrap: pretty;
 }
 
-.status {
-  margin: 18px 0 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--muted);
-}
-
 .entry {
   margin-top: 112px;
   padding-top: 28px;
   border-top: 1px solid var(--ink);
   scroll-margin-top: 24px;
+}
+
+.period {
+  margin-top: 176px;
+  padding-top: 24px;
+  border-top: 3px solid var(--ink);
+  scroll-margin-top: 24px;
+}
+
+.periodDates {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--red);
+}
+
+.periodName {
+  margin: 12px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(48px, 8vw, 112px);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.periodAbout {
+  max-width: 46ch;
+  margin: 24px 0 0;
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.period + .entry {
+  margin-top: 72px;
 }
 
 .entryHead {
@@ -273,7 +418,7 @@ a.tick:focus-visible {
 .name {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(38px, 4.4vw, 60px);
+  font-size: clamp(30px, 3vw, 42px);
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -654,118 +799,26 @@ a.tick:focus-visible {
 
   .ruler {
     z-index: 2;
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
+    display: block;
     height: auto;
-    padding: 10px 16px 8px;
+    padding: 6px 8px 0;
     background: var(--paper);
     border-right: 0;
     border-bottom: 1px solid var(--rule);
   }
 
-  .readout {
-    flex: 0 0 104px;
-    min-height: 0;
-  }
-
-  .readName {
-    font-size: 17px;
-  }
-
-  .eraName {
+  .readout,
+  .track,
+  .squeeze {
     display: none;
   }
 
-  .track {
-    height: 40px;
-    margin: 0;
-  }
-
-  .band,
-  .band[data-west] {
-    top: calc(4px + var(--lane, 0) * 4px);
-    left: calc(var(--a) * 100%);
-    width: calc((var(--b) - var(--a)) * 100%);
-    height: 2px;
-  }
-
-  .band[data-west] {
-    top: 0;
-    height: 3px;
-  }
-
-  .band[data-lane] {
-    top: calc(6px + var(--lane) * 3px);
-  }
-
-  .eraName {
-    position: absolute;
-    top: calc(var(--p) * 100%);
-    right: 18px;
-    transform: translateY(-50%);
-    font-family: var(--mono);
-    font-size: 10px;
-    line-height: 1;
-    color: var(--muted);
-    white-space: nowrap;
-    transition: color 300ms var(--ease);
-  }
-
-  .eraName[data-on] {
-    color: var(--red);
+  .phone {
+    display: grid;
   }
 
   .era {
     color: var(--ink);
-  }
-
-  .axis {
-    top: 22px;
-    bottom: auto;
-    left: 0;
-    right: 0;
-    width: auto;
-    height: 1px;
-  }
-
-  .tick {
-    top: 22px;
-    left: calc(var(--p) * 100%);
-    margin-top: -5.5px;
-    margin-left: -5.5px;
-  }
-
-  .tick[data-empty] {
-    top: 22px;
-    left: calc(var(--p) * 100%);
-    margin-top: -3.5px;
-    margin-left: -3.5px;
-  }
-
-  .year {
-    top: auto;
-    bottom: -2px;
-    left: calc(var(--p) * 100%);
-    transform: translateX(calc(var(--p) * -100%));
-    font-size: 9px;
-  }
-
-  .year[data-minor] {
-    display: none;
-  }
-
-  .marker {
-    top: 12px;
-    left: calc(var(--p) * 100%);
-    width: 2px;
-    height: 20px;
-    margin: 0 0 0 -1px;
-    transition: left 700ms var(--ease);
-  }
-
-  .squeeze {
-    display: none;
   }
 
   .intro {
@@ -781,6 +834,15 @@ a.tick:focus-visible {
   .entry {
     margin-top: 80px;
     scroll-margin-top: 80px;
+  }
+
+  .period {
+    margin-top: 120px;
+    scroll-margin-top: 80px;
+  }
+
+  .period + .entry {
+    margin-top: 48px;
   }
 
   .entryHead {
