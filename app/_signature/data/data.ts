@@ -1,14 +1,7 @@
 import { COVERS } from "./covers";
-import { PAINTINGS } from "./paintings";
 
 export type GroupKey =
-  | "products"
-  | "covers"
-  | "tools"
-  | "kids"
-  | "books"
-  | "paintings"
-  | "explorations";
+  "products" | "covers" | "tools" | "kids" | "explorations";
 export type Filter = "all" | GroupKey;
 
 export type Work = {
@@ -49,9 +42,7 @@ export const GROUP_ORDER: GroupKey[] = [
   "explorations",
   "tools",
   "kids",
-  "books",
   "covers",
-  "paintings",
 ];
 
 export const GROUP_LABEL: Record<GroupKey, string> = {
@@ -59,8 +50,6 @@ export const GROUP_LABEL: Record<GroupKey, string> = {
   covers: "Book covers",
   tools: "Tools",
   kids: "For my kids",
-  books: "Audiobook",
-  paintings: "Paintings",
   explorations: "Explorations",
 };
 
@@ -158,49 +147,6 @@ export const WORKS: Work[] = [
     pills: ["Two players", "iOS"],
   },
   {
-    title: "Kids Alphabet",
-    group: "kids",
-    sub: "Learning",
-    href: "/kids-alphabet/",
-    plain: true,
-    icon: "kidsAlphabet",
-    pills: ["Toddlers"],
-  },
-  {
-    title: "Time Teacher",
-    group: "kids",
-    sub: "Learning",
-    href: "/time-teacher",
-    icon: "timeTeacher",
-    pills: ["Telling the time"],
-  },
-  {
-    title: "Touchtype",
-    group: "kids",
-    sub: "Learning",
-    href: "/touchtype",
-    icon: "touchtype",
-    pills: ["Typing"],
-  },
-  {
-    title: "Sol0",
-    group: "books",
-    sub: "Fiction",
-    href: "https://elevenreader.io/audiobooks/sol0-audiobook/lDuTf0Co8szKJBdzzAnu",
-    icon: "elevenReader",
-    pills: ["Sci-fi novel", "Audiobook"],
-  },
-  ...PAINTINGS.map((painting) => ({
-    title: painting.title,
-    group: "paintings" as const,
-    sub: painting.medium,
-    href: "/work?filter=paintings",
-    pills: [
-      String(painting.year),
-      painting.status.charAt(0).toUpperCase() + painting.status.slice(1),
-    ],
-  })),
-  {
     title: "A history of UI",
     group: "explorations",
     sub: "Lab",
@@ -209,20 +155,12 @@ export const WORKS: Work[] = [
     pills: ["Interactive", "16 eras", "1963 to 2025"],
   },
   {
-    title: "N particles",
+    title: "A history of architecture",
     group: "explorations",
     sub: "Lab",
-    href: "/explorations/n-particles",
-    preview: "/home/peek/n-particles.jpg",
-    pills: ["Interactive", "WebGL"],
-  },
-  {
-    title: "Record player",
-    group: "explorations",
-    sub: "Lab",
-    href: "/explorations/record-player",
-    preview: "/home/peek/record-player.jpg",
-    pills: ["Interactive", "Illustration", "Made with Colorfigures"],
+    href: "/explorations/architecture",
+    preview: "/home/peek/architecture.jpg",
+    pills: ["Line drawings", "30 buildings", "9500 BCE to 1997"],
   },
   {
     title: "Self-healing checkout",
@@ -241,26 +179,6 @@ export const WORKS: Work[] = [
     preview: "/home/peek/logo-animator-studio.jpg",
     pills: ["Interactive concept", "Agentic logo studio", "Simulated agents"],
   },
-  {
-    title: "Plink Pond",
-    group: "explorations",
-    sub: "Lab",
-    href: "/explorations/plink-pond",
-    preview: "/home/peek/plink-pond.jpg",
-    pills: ["Game", "Pixel art", "Canvas"],
-  },
-  ...(process.env.NODE_ENV === "development"
-    ? [
-        {
-          title: "Creature capture",
-          group: "explorations" as const,
-          sub: "Lab",
-          href: "/explorations/creature-capture",
-          preview: "/home/peek/creature-capture.jpg",
-          pills: ["Interactive", "3D", "Made with anymove"],
-        },
-      ]
-    : []),
 ];
 
 export const MULTI_SUB = new Set(

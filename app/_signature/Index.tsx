@@ -1,21 +1,13 @@
 import type React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { COVERS } from "./data/covers";
-import {
-  GROUP_LABEL,
-  WORKS,
-  slug,
-  type GroupKey,
-  type Work,
-} from "./data/data";
-import { PAINTINGS, SAATCHI_URL } from "./data/paintings";
+import { GROUP_LABEL, WORKS, type GroupKey, type Work } from "./data/data";
 import { SHOWCASE } from "./data/showcase";
 import HoverRows from "./HoverRows";
 import shell from "./signature.module.css";
 import styles from "./index.module.css";
 
-const LISTS: GroupKey[] = ["explorations", "tools", "kids", "books"];
+const LISTS: GroupKey[] = ["explorations", "tools", "kids"];
 
 const PAGES: Record<string, string> = { Podium: "/work/podium" };
 
@@ -86,59 +78,17 @@ export default function Index({
         </Group>
       ))}
       <Group id="covers" title={GROUP_LABEL.covers}>
-        <div className={styles.shelf}>
-          {COVERS.map((cover) => (
-            <figure key={cover.title} className={styles.plate}>
-              <Image
-                className={styles.cover}
-                src={cover.image}
-                alt={`${cover.title} by ${cover.author}`}
-                width={cover.width}
-                height={cover.height}
-                sizes="(max-width: 720px) 50vw, 300px"
-              />
-              <figcaption>
-                <span className={styles.name}>{cover.title}</span>
-                <span className={styles.line}>
-                  {cover.author}, {cover.year}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </Group>
-      <Group id="paintings" title={GROUP_LABEL.paintings}>
-        <div className={styles.shelf}>
-          {PAINTINGS.map((painting) => (
-            <figure
-              key={painting.slug}
-              className={styles.plate}
-              id={slug(painting.title)}
-            >
-              <span
-                className={styles.canvas}
-                style={{ aspectRatio: painting.aspect ?? "4/5" }}
-              >
-                <Image
-                  src={painting.image}
-                  alt={`${painting.title}, ${painting.medium.toLowerCase()}`}
-                  fill
-                  sizes="(max-width: 720px) 50vw, 300px"
-                />
-              </span>
-              <figcaption>
-                <span className={styles.name}>{painting.title}</span>
-                <span className={styles.line}>
-                  {painting.medium}, {painting.year}.{" "}
-                  {painting.status === "sold" ? "Sold" : "Available"}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        <a className={styles.more} href={SAATCHI_URL} rel="noopener">
-          More on Saatchi Art
-        </a>
+        <HoverRows
+          portrait
+          works={COVERS.map((cover) => ({
+            title: cover.title,
+            group: "covers",
+            sub: "The Banner of Truth",
+            href: "",
+            preview: cover.image.replace("/home/covers/", "/home/peek/covers/"),
+            pills: [cover.author, String(cover.year)],
+          }))}
+        />
       </Group>
     </>
   );

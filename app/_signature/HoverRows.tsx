@@ -8,13 +8,19 @@ import styles from "./index.module.css";
 const GAP = 24;
 const EDGE = 16;
 
-export default function HoverRows({ works }: { works: Work[] }) {
+export default function HoverRows({
+  works,
+  portrait = false,
+}: {
+  works: Work[];
+  portrait?: boolean;
+}) {
   const card = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState<Work>();
   const [on, setOn] = useState(false);
   const [warm, setWarm] = useState(false);
 
-  const show = (row: HTMLAnchorElement, work: Work) => {
+  const show = (row: HTMLElement, work: Work) => {
     const el = card.current;
     if (
       !el ||
@@ -30,8 +36,8 @@ export default function HoverRows({ works }: { works: Work[] }) {
         return range.getBoundingClientRect().right;
       }),
     );
-    const w = el.offsetWidth || 240;
-    const h = el.offsetHeight || 135;
+    const w = el.offsetWidth || (portrait ? 160 : 240);
+    const h = el.offsetHeight || (portrait ? 240 : 135);
     let x = right + GAP;
     if (x + w > window.innerWidth - EDGE) x = r.left - w - GAP;
     if (x < EDGE) x = Math.min(right + GAP, window.innerWidth - w - EDGE);
@@ -55,10 +61,16 @@ export default function HoverRows({ works }: { works: Work[] }) {
             </>
           );
           const events = {
-            onPointerEnter: (e: PointerEvent<HTMLAnchorElement>) =>
+            onPointerEnter: (e: PointerEvent<HTMLElement>) =>
               show(e.currentTarget, work),
             onPointerLeave: () => setOn(false),
           };
+          if (!work.href)
+            return (
+              <div key={work.title} className={styles.row} {...events}>
+                {body}
+              </div>
+            );
           return work.href.startsWith("http") ? (
             <a
               key={work.title}
@@ -83,7 +95,7 @@ export default function HoverRows({ works }: { works: Work[] }) {
       </div>
       <div
         ref={card}
-        className={`${styles.card} ${on ? styles.on : ""}`}
+        className={`${styles.card} ${portrait ? styles.portrait : ""} ${on ? styles.on : ""}`}
         aria-hidden="true"
       >
         {works.map((work) =>

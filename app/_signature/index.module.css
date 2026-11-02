@@ -52,58 +52,6 @@ a.row:hover .name {
   text-underline-offset: 4px;
 }
 
-.shelf {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(16px, 2.4vw, 28px);
-  align-items: end;
-  padding-top: 10px;
-}
-
-.plate {
-  margin: 0;
-}
-
-.plate figcaption {
-  padding-top: 12px;
-}
-
-.cover,
-.canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  background: var(--frame);
-  outline: 1px solid rgb(255 255 255 / 0.06);
-  outline-offset: -1px;
-}
-
-.canvas {
-  position: relative;
-}
-
-.canvas img {
-  object-fit: cover;
-}
-
-.group a.more {
-  display: inline-flex;
-  margin-top: 16px;
-  padding: 10px 0;
-  color: var(--muted);
-  transition: color 0.15s var(--ease);
-}
-
-.group a.more:hover {
-  color: var(--ink);
-}
-
-.group > a.more {
-  grid-column: 2;
-  justify-self: start;
-  margin-top: -24px;
-}
-
 @media (max-width: 720px) {
   .group {
     grid-template-columns: 1fr;
@@ -113,21 +61,6 @@ a.row:hover .name {
   .rows {
     grid-template-columns: 1fr;
     gap: 4px;
-  }
-
-  .shelf {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .group > a.more {
-    grid-column: 1;
-    margin-top: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .group a.more {
-    transition: none;
   }
 }
 
@@ -182,6 +115,15 @@ a.row:hover .name {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+}
+
+.card.portrait {
+  width: 160px;
+}
+
+.card.portrait img {
+  aspect-ratio: auto;
+  height: auto;
 }
 
 .card img[hidden] {

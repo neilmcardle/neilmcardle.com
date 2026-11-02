@@ -27,7 +27,7 @@ const ROWS = [
   },
   {
     title: "Everything else",
-    line: "Explorations, tools, covers, paintings",
+    line: "Explorations, tools, book covers",
     href: "/work#play",
     local: true,
   },
