@@ -99,6 +99,11 @@
   opacity: 1;
 }
 
+.manual .card {
+  transition: opacity 0.4s var(--ease);
+  will-change: transform;
+}
+
 .cardFilm {
   position: absolute;
   inset: -2px;

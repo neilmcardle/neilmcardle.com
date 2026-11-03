@@ -21,7 +21,6 @@ const ITEMS = [
 export default function Rail() {
   const [current, setCurrent] = useState("about");
   const lock = useRef(0);
-  const first = useRef(true);
 
   useEffect(() => {
     tick.prime();
@@ -33,15 +32,6 @@ export default function Rail() {
       window.removeEventListener("keydown", unlock);
     };
   }, []);
-
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
-      tick.play(0.18);
-  }, [current]);
 
   useEffect(() => {
     const seen = new Map<string, number>();
@@ -100,6 +90,7 @@ export default function Rail() {
               window.removeEventListener("scrollend", release);
             };
             window.addEventListener("scrollend", release);
+            if (item.id !== current) tick.play(0.18);
             setCurrent(item.id);
             const calm = window.matchMedia(
               "(prefers-reduced-motion: reduce)",
