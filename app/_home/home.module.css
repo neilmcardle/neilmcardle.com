@@ -3,6 +3,12 @@
 }
 
 .page {
+  --edge:
+    0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+  --edge-hover:
+    0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
+    0 2px 4px 0 rgb(0 0 0 / 0.4);
   --col: 600px;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   width: min(var(--col), 100% - 32px);
@@ -166,7 +172,7 @@
   padding: 1px 8px 1px 3px;
   border-radius: 7px;
   background: rgb(255 255 255 / 0.06);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  box-shadow: var(--edge);
   color: var(--ink);
   line-height: 1.5;
   vertical-align: 1px;
@@ -402,10 +408,11 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 24px;
+  position: relative;
   padding: 12px 24px 12px 12px;
   border-radius: 20px;
   background: var(--frame);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  box-shadow: var(--edge);
   transition: background 0.2s var(--ease);
 }
 
@@ -436,11 +443,36 @@
 }
 
 .quoteText {
-  margin-bottom: 6px;
+  margin-bottom: -2px;
   font-size: 24px;
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--ink);
+}
+
+.moments {
+  display: grid;
+  gap: 12px;
+}
+
+.quoteReply {
+  margin-top: 16px;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.quotePlain {
+  aspect-ratio: 16 / 9;
+}
+
+.quotePlain img {
+  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform-origin: 50% 50%;
 }
 
 .quoteWho,
@@ -504,7 +536,39 @@
   overflow: hidden;
   border-radius: 20px;
   background: var(--frame);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  box-shadow: var(--edge);
+}
+
+.chip::after,
+.quoteCard::after,
+.faceCard::after,
+.ignitionCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow: var(--edge-hover);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease);
+}
+
+.faceCard::after {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.11);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover::after,
+  .quoteCard:hover::after,
+  .faceCard:hover::after,
+  .ignitionCard:hover::after {
+    opacity: 1;
+  }
+}
+
+.shown::after {
+  opacity: 1;
 }
 
 .ignitionCard {
@@ -597,6 +661,8 @@
 
 .links a,
 .links button {
+  min-width: 44px;
+  min-height: 44px;
   padding: 10px 0;
   border: 0;
   background: none;
@@ -763,6 +829,10 @@
   .mark,
   .chipCard,
   .quoteArt img,
+  .chip::after,
+  .quoteCard::after,
+  .faceCard::after,
+  .ignitionCard::after,
   .rail a,
   .rail a::after,
   .topNav a,

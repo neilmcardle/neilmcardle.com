@@ -9,6 +9,28 @@ export type Piece = {
   local?: boolean;
 };
 
+const LAB: Piece[] = [
+  {
+    id: "podium",
+    title: "Podium",
+    line: "Branding for an indie game.",
+    kind: "Brand",
+    href: "/work/podium",
+    image: "/home/leads/podium.jpg",
+    film: "/home/podium.mp4",
+    local: true,
+  },
+  {
+    id: "doodlewire",
+    title: "DoodleWire",
+    line: "Wireframe from your phone.",
+    kind: "iOS app",
+    href: "/work/doodlewire",
+    image: "/home/leads/doodlewire.jpg",
+    local: true,
+  },
+];
+
 export const WORK: Piece[] = [
   {
     id: "makeebook",
@@ -40,32 +62,14 @@ export const WORK: Piece[] = [
     film: "/home/avis.mp4",
     local: true,
   },
-  {
-    id: "podium",
-    title: "Podium",
-    line: "Branding for an indie game.",
-    kind: "Brand",
-    href: "/work/podium",
-    image: "/home/leads/podium.jpg",
-    film: "/home/podium.mp4",
-    local: true,
-  },
-  {
-    id: "doodlewire",
-    title: "DoodleWire",
-    line: "Wireframe from your phone.",
-    kind: "iOS app",
-    href: "/work/doodlewire",
-    image: "/home/leads/doodlewire.jpg",
-    local: true,
-  },
 ];
 
 export const STACK = ["doodlewire", "coverly", "makeebook", "avis", "podium"]
-  .map((id) => WORK.find((piece) => piece.id === id))
+  .map((id) => [...WORK, ...LAB].find((piece) => piece.id === id))
   .filter((piece): piece is Piece => Boolean(piece));
 
 export const PLAY: Piece[] = [
+  ...LAB,
   {
     id: "chess",
     title: "Chess Path",

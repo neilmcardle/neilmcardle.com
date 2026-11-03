@@ -80,31 +80,66 @@ export default function Homepage() {
 
           <section id="moments" className={styles.section}>
             <h2 className={styles.label}>Moments</h2>
-            <a
-              className={styles.quoteCard}
-              href="https://x.com/designertom/status/2107851337434087724"
-            >
-              <span className={styles.quoteArt}>
-                <img
-                  src="/home/moments/bedside-books.jpg"
-                  alt="A Bedside Books page: a short story beside an illustration of a boy searching under his bed"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </span>
-              <span className={styles.quoteBody}>
-                <span className={styles.quoteText}>
-                  &ldquo;This is magical dude.&rdquo;
+            <div className={styles.moments}>
+              <a
+                className={styles.quoteCard}
+                href="https://x.com/designertom/status/2107851337434087724"
+              >
+                <span className={styles.quoteArt}>
+                  <img
+                    src="/home/moments/bedside-books.jpg"
+                    alt="A Bedside Books page: a short story beside an illustration of a boy searching under his bed"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </span>
-                <span className={styles.quoteWho}>
-                  <span>Tommy Geoco</span> @designertom on X
+                <span className={styles.quoteBody}>
+                  <span className={styles.quoteText}>
+                    &ldquo;This is magical dude.&rdquo;
+                  </span>
+                  <span className={styles.quoteWho}>
+                    <span>Tommy Geoco</span> @designertom on X
+                  </span>
+                  <span className={styles.quoteOn}>
+                    On <span>Bedside Books</span>, where a parent and child make
+                    a picture book together.
+                  </span>
                 </span>
-                <span className={styles.quoteOn}>
-                  On <span>Bedside Books</span>, where a parent and child make a
-                  picture book together.
+              </a>
+              <a
+                className={styles.quoteCard}
+                href="https://x.com/BetterNeil/status/2103252962009284632"
+              >
+                <span className={`${styles.quoteArt} ${styles.quotePlain}`}>
+                  <img
+                    src="/home/dive-radio-jit.jpg"
+                    alt="SpeakUI demoed live on Dive Radio, with Neil, Ridd and Tommy Geoco on camera"
+                    width={1280}
+                    height={720}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </span>
-              </span>
-            </a>
+                <span className={styles.quoteBody}>
+                  <span className={styles.quoteText}>
+                    &ldquo;Demo available?&rdquo;
+                  </span>
+                  <span className={styles.quoteWho}>
+                    <span>Tommy Geoco</span> @designertom on X
+                  </span>
+                  <span className={`${styles.quoteText} ${styles.quoteReply}`}>
+                    &ldquo;Thank you for sharing!!&rdquo;
+                  </span>
+                  <span className={styles.quoteWho}>
+                    <span>Ridd</span> @ridd_design, co-host
+                  </span>
+                  <span className={styles.quoteOn}>
+                    On <span>SpeakUI</span>, my voice-driven UI editor, shown on
+                    Dive Radio.
+                  </span>
+                </span>
+              </a>
+            </div>
           </section>
 
           <section id="interactions" className={styles.section}>

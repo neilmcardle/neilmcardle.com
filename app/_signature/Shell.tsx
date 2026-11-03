@@ -7,6 +7,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className={`${heavy.variable} ${styles.root}`}>
       <style>{"html,body{background:#0d0d0c}"}</style>
+      <a href="#main" className={styles.skip}>
+        Skip to content
+      </a>
       <Visited />
       {children}
     </div>

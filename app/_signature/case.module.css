@@ -49,9 +49,12 @@
   align-items: center;
   gap: 6px;
   margin: 0;
-  padding: 4px 10px;
-  border: 1px solid var(--line);
+  padding: 5px 11px;
   border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
   font-size: 13px;
   line-height: 1.4;
 }

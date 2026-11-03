@@ -27,6 +27,23 @@
   text-decoration: none;
 }
 
+.skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg) !important;
+  font-size: 13px;
+  translate: 0 -200%;
+}
+
+.skip:focus-visible {
+  translate: 0 0;
+}
+
 .root a:focus-visible,
 .root button:focus-visible {
   outline: 2px solid var(--ink);
