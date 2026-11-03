@@ -24,6 +24,23 @@ export default function Stack({ base = "" }: { base?: string }) {
   const [playing, setPlaying] = useState<string | null>(null);
   const touch = useRef(false);
   const self = useRef<HTMLDivElement>(null);
+  const mid = (STACK.length - 1) / 2;
+  const [centre, setCentre] = useState(mid);
+  const [dragging, setDragging] = useState(false);
+  const swipe = useRef<{
+    x: number;
+    y: number;
+    from: number;
+    step: number;
+    moved: boolean;
+  } | null>(null);
+  const swiped = useRef(false);
+
+  const pick = (i: number) => {
+    setCentre(i);
+    setOpen(true);
+    setActive(STACK[i].id);
+  };
 
   useEffect(() => {
     if (!active) return;
@@ -59,7 +76,6 @@ export default function Stack({ base = "" }: { base?: string }) {
   }, []);
 
   const current = STACK.find((piece) => piece.id === active);
-  const mid = (STACK.length - 1) / 2;
 
   return (
     <div className={styles.stackWrap}>
@@ -74,9 +90,59 @@ export default function Stack({ base = "" }: { base?: string }) {
           setOpen(false);
           setActive(null);
         }}
+        onPointerDown={(event) => {
+          if (event.pointerType === "mouse") return;
+          const stage = self.current;
+          const scale = stage
+            ? stage.getBoundingClientRect().width / stage.offsetWidth
+            : 1;
+          swipe.current = {
+            x: event.clientX,
+            y: event.clientY,
+            from: centre,
+            step: 118 * scale,
+            moved: false,
+          };
+        }}
+        onPointerMove={(event) => {
+          const gesture = swipe.current;
+          if (!gesture) return;
+          const dx = event.clientX - gesture.x;
+          const dy = event.clientY - gesture.y;
+          if (!gesture.moved) {
+            if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
+            gesture.moved = true;
+            setDragging(true);
+            setOpen(true);
+          }
+          const next = gesture.from - dx / gesture.step;
+          setCentre(Math.max(-0.3, Math.min(STACK.length - 0.7, next)));
+        }}
+        onPointerUp={() => {
+          const gesture = swipe.current;
+          swipe.current = null;
+          if (!gesture?.moved) return;
+          swiped.current = true;
+          setDragging(false);
+          setCentre((value) => {
+            const i = Math.max(
+              0,
+              Math.min(STACK.length - 1, Math.round(value)),
+            );
+            setActive(STACK[i].id);
+            return i;
+          });
+        }}
+        onPointerCancel={() => {
+          swipe.current = null;
+          setDragging(false);
+          setCentre((value) =>
+            Math.max(0, Math.min(STACK.length - 1, Math.round(value))),
+          );
+        }}
       >
         {STACK.map((piece, i) => {
-          const d = i - mid;
+          const d = i - (touch.current ? centre : mid);
           const lifted = active === piece.id;
           return (
             <Link
@@ -90,6 +156,7 @@ export default function Stack({ base = "" }: { base?: string }) {
                 zIndex: lifted ? 20 : 10 - Math.abs(d),
                 transitionDelay:
                   ready && !open ? `${Math.abs(d) * 40}ms` : "0ms",
+                transitionDuration: dragging ? "0s" : undefined,
               }}
               onPointerDown={(event) => {
                 touch.current = event.pointerType !== "mouse";
@@ -98,10 +165,14 @@ export default function Stack({ base = "" }: { base?: string }) {
                 if (event.pointerType === "mouse") setActive(piece.id);
               }}
               onClick={(event) => {
+                if (swiped.current) {
+                  swiped.current = false;
+                  event.preventDefault();
+                  return;
+                }
                 if (!touch.current || active === piece.id) return;
                 event.preventDefault();
-                setOpen(true);
-                setActive(piece.id);
+                pick(i);
               }}
               onFocus={() => {
                 if (touch.current) return;

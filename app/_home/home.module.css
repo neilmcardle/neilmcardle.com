@@ -73,6 +73,7 @@
 .stack {
   position: relative;
   height: 196px;
+  touch-action: pan-y;
 }
 
 .card {

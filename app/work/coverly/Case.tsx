@@ -47,7 +47,7 @@ export default async function CoverlyCase({ home }: { home?: string }) {
           </div>
         </section>
       }
-      overview="coverly is a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting. The brand borrows from the print viewing booth, where proofs are judged under neutral grey and even light, and lets the covers carry all the colour."
+      overview="Coverly is a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting. The brand borrows from the print viewing booth, where proofs are judged under neutral grey and even light, and lets the covers carry all the colour."
       frames={[
         {
           kind: "film",
