@@ -1,12 +1,13 @@
-import { media } from "@/lib/media";
 import Image from "next/image";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
-import { CoverageParts, PagesFlow, StepsDiagram } from "./Parts";
+import Story from "../Story";
+import { AVIS } from "./chapters";
 
-export default function AvisCase() {
+export default function AvisCase({ home }: { home?: string }) {
   return (
     <CaseStudy
+      home={home}
       hero={
         <section className={styles.hero} aria-label="Avis checkout">
           <Image
@@ -34,23 +35,8 @@ export default function AvisCase() {
           ),
         },
       ]}
-      frames={[
-        {
-          kind: "film",
-          src: media("/work/avis/avis-3-step-c.mp4"),
-          poster: "/work/avis/three-steps-start.jpg",
-          label:
-            "Booking an Avis car in three steps: searching, picking a vehicle and rate, then reviewing the booking and adding protection",
-        },
-        { kind: "custom", id: "steps", node: <StepsDiagram /> },
-        { kind: "custom", id: "pages", node: <PagesFlow /> },
-        { kind: "custom", id: "parts", node: <CoverageParts /> },
-        {
-          kind: "full",
-          src: "/work/avis/end-logo.jpg",
-          alt: "The Avis logo in red on white",
-        },
-      ]}
+      brief={<Story chapters={AVIS} />}
+      frames={[]}
     />
   );
 }

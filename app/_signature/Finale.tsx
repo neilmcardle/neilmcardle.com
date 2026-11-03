@@ -24,7 +24,7 @@ type Spark = {
   bright: boolean;
 };
 
-export default function Finale() {
+export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
   const finale = useRef<HTMLElement>(null);
   const inner = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
@@ -47,6 +47,8 @@ export default function Finale() {
   const [said, setSaid] = useState("");
   const [subject, setSubject] = useState(false);
   const [copied, setCopied] = useState("");
+  const [footCopied, setFootCopied] = useState(false);
+  const footTimer = useRef(0);
   const [pressed, setPressed] = useState(false);
   const pressedAt = useRef(0);
   const pressTimer = useRef(0);
@@ -88,6 +90,7 @@ export default function Finale() {
       window.clearTimeout(closeTimer.current);
       window.clearTimeout(copyTimer.current);
       window.clearTimeout(pressTimer.current);
+      window.clearTimeout(footTimer.current);
     },
     [],
   );
@@ -137,6 +140,17 @@ export default function Finale() {
     }
     window.clearTimeout(copyTimer.current);
     copyTimer.current = window.setTimeout(() => setCopied(""), 1800);
+  };
+
+  const copyFromFooter = async () => {
+    try {
+      await navigator.clipboard.writeText(address());
+      setFootCopied(true);
+      window.clearTimeout(footTimer.current);
+      footTimer.current = window.setTimeout(() => setFootCopied(false), 1800);
+    } catch {
+      window.location.href = `mailto:${address()}`;
+    }
   };
 
   const ignite = async () => {
@@ -418,6 +432,16 @@ export default function Finale() {
           Neil McArdle, 2026
         </span>
         <div>
+          {copyEmail ? (
+            <button
+              type="button"
+              className={styles.footCopy}
+              onClick={copyFromFooter}
+              aria-live="polite"
+            >
+              {footCopied ? "Email copied" : "Copy email"}
+            </button>
+          ) : null}
           <a href="/suggest">Suggest a change</a>
           <a href="https://www.linkedin.com/in/neilmcardle/">LinkedIn</a>
           <a href="https://x.com/BetterNeil">X</a>

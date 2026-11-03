@@ -4,12 +4,17 @@ import Header from "../_signature/Header";
 import Work from "../_signature/Work";
 import Index from "../_signature/Index";
 import Finale from "../_signature/Finale";
+import { share } from "../shared-metadata";
 import shell from "../_signature/signature.module.css";
 import styles from "../_signature/index.module.css";
 
+const description =
+  "Products I design and build, the work behind them, and the things I make for fun.";
+
 export const metadata: Metadata = {
   title: "Work · Neil McArdle",
-  robots: { index: false, follow: false },
+  description,
+  ...share({ title: "Work · Neil McArdle", description, path: "/work" }),
 };
 
 export const viewport: Viewport = {
@@ -29,7 +34,7 @@ export default function WorkPage() {
       </div>
       <Work />
       <Index />
-      <Finale />
+      <Finale copyEmail />
     </Shell>
   );
 }

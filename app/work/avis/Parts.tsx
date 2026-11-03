@@ -13,58 +13,47 @@ const AFTER = ["Make a reservation", "Pick your vehicle", "Review & Checkout"];
 
 export function StepsDiagram() {
   return (
-    <section className={styles.section} aria-labelledby="avis-steps">
-      <div className={styles.head}>
-        <h2 id="avis-steps" className={styles.label}>
-          Five steps to three
-        </h2>
-        <p className={styles.text}>
-          Protections and add-ons each had their own step. Now both sit on the
-          review and checkout page.
-        </p>
+    <div className={styles.plate}>
+      <div className={styles.flow}>
+        <p className={styles.flowName}>Before</p>
+        <ol className={`${styles.steps} ${styles.five}`}>
+          {BEFORE.map((step, i) => (
+            <li
+              key={step.name}
+              className={styles.step}
+              data-moved={step.moved || undefined}
+            >
+              <span className={styles.num}>{i + 1}</span>
+              {step.name}
+            </li>
+          ))}
+        </ol>
       </div>
-      <div className={styles.plate}>
-        <div className={styles.flow}>
-          <p className={styles.flowName}>Before</p>
-          <ol className={`${styles.steps} ${styles.five}`}>
-            {BEFORE.map((step, i) => (
-              <li
-                key={step.name}
-                className={styles.step}
-                data-moved={step.moved || undefined}
-              >
-                <span className={styles.num}>{i + 1}</span>
-                {step.name}
-              </li>
-            ))}
-          </ol>
-        </div>
-        <div className={styles.flow}>
-          <p className={styles.flowName}>After</p>
-          <ol className={`${styles.steps} ${styles.three}`}>
-            {AFTER.map((name, i) => (
-              <li key={name} className={styles.step}>
-                <span className={styles.num}>{i + 1}</span>
-                <span className={styles.stepBody}>
-                  {name}
-                  {i === 2 ? (
-                    <span className={styles.inside}>
-                      <span className={styles.chip} data-moved>
-                        Protections
-                      </span>
-                      <span className={styles.chip} data-moved>
-                        Add-ons
-                      </span>
-                      <span className={styles.chip}>Payment</span>
+      <div className={styles.flow}>
+        <p className={styles.flowName}>After</p>
+        <ol className={`${styles.steps} ${styles.three}`}>
+          {AFTER.map((name, i) => (
+            <li key={name} className={styles.step}>
+              <span className={styles.num}>{i + 1}</span>
+              <span className={styles.stepBody}>
+                {name}
+                {i === 2 ? (
+                  <span className={styles.inside}>
+                    <span className={styles.chip} data-moved>
+                      Protections
                     </span>
-                  ) : null}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
+                    <span className={styles.chip} data-moved>
+                      Add-ons
+                    </span>
+                    <span className={styles.chip}>Payment</span>
+                  </span>
+                ) : null}
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -214,41 +203,41 @@ const PARTS: Part[] = [
   },
 ];
 
-export function CoverageParts() {
+export function CoverageParts({
+  only,
+}: {
+  only?: { name: string; span?: Part["span"] }[];
+}) {
+  const parts = only
+    ? only.flatMap(({ name, span }) =>
+        PARTS.filter((part) => part.src.endsWith(`/${name}.jpg`)).map((part) =>
+          span ? { ...part, span } : part,
+        ),
+      )
+    : PARTS;
   return (
-    <section className={styles.section} aria-labelledby="avis-parts">
-      <div className={styles.head}>
-        <h2 id="avis-parts" className={styles.label}>
-          Protections and add-ons
-        </h2>
-        <p className={styles.text}>
-          On the new checkout, protections and add-ons had to sit alongside the
-          booking form. Each became a small component with its own states.
-        </p>
-      </div>
-      <ul className={styles.parts}>
-        {PARTS.map((part) => (
-          <li
-            key={part.src}
-            className={styles.part}
-            data-span={part.span}
-            data-tall={part.tall || undefined}
-          >
-            <span className={styles.partArt}>
-              <Image
-                className={styles.partImage}
-                src={part.src}
-                alt={part.alt}
-                width={part.width}
-                height={part.height}
-                style={{ width: `calc(var(--z) * ${part.width}px)` }}
-                sizes="(max-width: 899px) 90vw, 1000px"
-              />
-            </span>
-            <span className={styles.caption}>{part.caption}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <ul className={styles.parts}>
+      {parts.map((part) => (
+        <li
+          key={part.src}
+          className={styles.part}
+          data-span={part.span}
+          data-tall={part.tall || undefined}
+        >
+          <span className={styles.partArt}>
+            <Image
+              className={styles.partImage}
+              src={part.src}
+              alt={part.alt}
+              width={part.width}
+              height={part.height}
+              style={{ width: `calc(var(--z) * ${part.width}px)` }}
+              sizes="(max-width: 899px) 90vw, 1000px"
+            />
+          </span>
+          <span className={styles.caption}>{part.caption}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

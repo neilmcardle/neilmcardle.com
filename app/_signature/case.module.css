@@ -66,6 +66,19 @@
   gap: clamp(16px, 2.4vw, 28px);
 }
 
+.card {
+  --pad: clamp(12px, 2vw, 24px);
+  --inner: 8px;
+  padding: var(--pad);
+  border-radius: calc(var(--inner) + var(--pad));
+  background: var(--frame);
+}
+
+.card > * {
+  border-radius: var(--inner);
+  overflow: hidden;
+}
+
 .frame {
   display: block;
   width: 100%;
@@ -98,13 +111,7 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-top: clamp(40px, 6vw, 72px);
-}
-
-.face {
-  width: auto;
-  height: 72px;
-  opacity: 0.85;
+  margin-top: clamp(32px, 4vw, 48px);
 }
 
 .frames a.back {

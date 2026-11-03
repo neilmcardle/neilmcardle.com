@@ -2,9 +2,10 @@ import Image from "next/image";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 
-export default function DoodleWireCase() {
+export default function DoodleWireCase({ home }: { home?: string }) {
   return (
     <CaseStudy
+      home={home}
       hero={
         <section className={styles.hero} aria-label="DoodleWire">
           <Image

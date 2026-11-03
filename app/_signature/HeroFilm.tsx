@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { media } from "@/lib/media";
+import HeroCard from "./HeroCard";
 import styles from "./heroFilm.module.css";
 
 const SLIDE_MS = 7000;
@@ -34,7 +35,23 @@ const SLIDES = [
   },
 ];
 
-export default function HeroFilm() {
+export default function HeroFilm({
+  base = "",
+  lead,
+  headline,
+  card,
+}: {
+  base?: string;
+  lead?: string[];
+  headline?: string;
+  card?: { name: string; line: string; place: string };
+}) {
+  const ORDER = lead
+    ? [
+        ...lead.flatMap((id) => SLIDES.filter((s) => s.id === id)),
+        ...SLIDES.filter((s) => !lead.includes(s.id)),
+      ]
+    : SLIDES;
   const root = useRef<HTMLElement>(null);
   const films = useRef<(HTMLVideoElement | null)[]>([]);
   const [index, setIndex] = useState(0);
@@ -92,8 +109,8 @@ export default function HeroFilm() {
     if (after) after.scrollIntoView({ behavior: still ? "auto" : "smooth" });
   };
 
-  const slide = SLIDES[index];
-  const next = (index + 1) % SLIDES.length;
+  const slide = ORDER[index];
+  const next = (index + 1) % ORDER.length;
 
   return (
     <section
@@ -102,11 +119,19 @@ export default function HeroFilm() {
       aria-roledescription="carousel"
       aria-label="Selected work"
     >
-      <h1 className={styles.hidden}>
-        Neil McArdle, Product Designer in London
-      </h1>
+      {card ? (
+        <h1 className={styles.hidden}>
+          {`${card.name}, ${card.line.replace(/\.$/, "").toLowerCase()}, ${card.place}`}
+        </h1>
+      ) : headline ? (
+        <h1 className={styles.headline}>{headline}</h1>
+      ) : (
+        <h1 className={styles.hidden}>
+          Neil McArdle, Product Designer in London
+        </h1>
+      )}
       <div className={styles.films} aria-hidden="true">
-        {SLIDES.map((s, i) => (
+        {ORDER.map((s, i) => (
           <video
             key={s.id}
             ref={(el) => {
@@ -128,30 +153,61 @@ export default function HeroFilm() {
       </div>
       <div className={styles.shade} />
 
-      <div className={styles.foot}>
-        <div
-          className={styles.copy}
-          key={slide.id}
-          data-first={moved ? undefined : ""}
-          aria-live="polite"
-        >
-          <p className={styles.kind}>{slide.kind}</p>
-          <h2 className={styles.title}>{slide.title}</h2>
-          <Link className={styles.discover} href={slide.href}>
-            Discover
-          </Link>
+      {card ? (
+        <>
+          <div className={styles.centre}>
+            <div className={styles.enter} data-first={moved ? undefined : ""}>
+              <HeroCard {...card} />
+            </div>
+          </div>
+          <div className={styles.deck}>
+            <Link
+              key={slide.id}
+              className={styles.caption}
+              href={`${base}${slide.href}`}
+              aria-live="polite"
+            >
+              <span>{slide.title}</span>
+              <span className={styles.captionKind}>{slide.kind}</span>
+            </Link>
+            <button
+              type="button"
+              className={`${styles.down} ${styles.deckDown}`}
+              aria-label="Scroll to the work"
+              onClick={down}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 6l5 5 5-5" />
+              </svg>
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className={styles.foot}>
+          <div
+            className={styles.copy}
+            key={slide.id}
+            data-first={moved ? undefined : ""}
+            aria-live="polite"
+          >
+            <p className={styles.kind}>{slide.kind}</p>
+            <h2 className={styles.title}>{slide.title}</h2>
+            <Link className={styles.discover} href={`${base}${slide.href}`}>
+              Discover
+            </Link>
+          </div>
+          <button
+            type="button"
+            className={styles.down}
+            aria-label="Scroll to the work"
+            onClick={down}
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 6l5 5 5-5" />
+            </svg>
+          </button>
         </div>
-        <button
-          type="button"
-          className={styles.down}
-          aria-label="Scroll to the work"
-          onClick={down}
-        >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M3 6l5 5 5-5" />
-          </svg>
-        </button>
-      </div>
+      )}
 
       <button
         type="button"
