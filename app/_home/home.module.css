@@ -109,6 +109,7 @@
   inset: -2px;
   z-index: 1;
   width: calc(100% + 4px);
+  max-width: none;
   height: calc(100% + 4px);
   object-fit: cover;
   background: #0d0d0c;
