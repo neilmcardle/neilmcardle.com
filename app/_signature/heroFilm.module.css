@@ -12,6 +12,10 @@
   isolation: isolate;
 }
 
+.hero + section {
+  padding-top: clamp(80px, 11vw, 140px);
+}
+
 .hidden {
   position: absolute;
   width: 1px;
