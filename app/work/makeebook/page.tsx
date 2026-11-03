@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
 import MakeebookCase from "./Case";
+import { share } from "../../shared-metadata";
+
+const description =
+  "Designing Book Mind, the writing assistant in makeebook that only speaks when asked.";
 
 export const metadata: Metadata = {
   title: "makeebook · Neil McArdle",
-  description: "Brand and product design for makeebook.",
-  robots: { index: false, follow: false },
+  description,
+  ...share({
+    title: "makeebook · Neil McArdle",
+    description,
+    path: "/work/makeebook",
+  }),
 };
 
 export default function Page() {

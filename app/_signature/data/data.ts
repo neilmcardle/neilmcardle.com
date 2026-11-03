@@ -163,6 +163,14 @@ export const WORKS: Work[] = [
     pills: ["Line drawings", "30 buildings", "9500 BCE to 1997"],
   },
   {
+    title: "A history of the world",
+    group: "explorations",
+    sub: "Lab",
+    href: "/explorations/history-of-the-world",
+    preview: "/home/peek/history-of-the-world.jpg",
+    pills: ["Interactive globe", "65 moments", "300,000 BCE to today"],
+  },
+  {
     title: "Self-healing checkout",
     group: "explorations",
     sub: "Lab",

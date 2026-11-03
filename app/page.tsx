@@ -27,15 +27,33 @@ export default function Homepage() {
   return (
     <div className={wide.variable}>
       <Shell>
-        <Intro />
+        <Intro fast />
         <div className={styles.top}>
-          <Header mark={<NavMark />} />
+          <Header mark={<NavMark />} role={false} />
         </div>
-        <HeroFilm />
-        <Work />
+        <HeroFilm
+          lead={["makeebook", "avis"]}
+          card={{
+            name: "Neil McArdle",
+            line: "Product designer and builder.",
+            place: "London",
+          }}
+        />
+        <Work only={["/work/makeebook", "/work/coverly", "/work/avis"]} />
         <Moments />
-        <Playground more={<Index rest />} />
-        <Finale />
+        <Playground
+          lead={[
+            {
+              title: "DoodleWire",
+              line: "Wireframe from your phone",
+              href: "/work/doodlewire",
+              local: true,
+              preview: "/home/leads/doodlewire.jpg",
+            },
+          ]}
+          more={<Index rest />}
+        />
+        <Finale copyEmail />
       </Shell>
     </div>
   );

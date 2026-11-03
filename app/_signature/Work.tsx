@@ -48,7 +48,7 @@ export const PROJECTS: Project[] = [
     title: "coverly",
     href: "/work/coverly",
     line: "Inspiration for your next book cover.",
-    image: "/home/leads/coverly.jpg",
+    image: "/home/leads/coverly-books.jpg",
     alt: "coverly, a search of book covers",
     film: "/home/coverly-promo.mp4",
     product: { label: "coverly", href: "/coverly" },
@@ -303,14 +303,23 @@ function Card({
   );
 }
 
-export default function Work({ base = "" }: { base?: string }) {
+export default function Work({
+  base = "",
+  only,
+}: {
+  base?: string;
+  only?: string[];
+}) {
+  const projects = only
+    ? only.flatMap((href) => PROJECTS.filter((p) => p.href === href))
+    : PROJECTS;
   return (
     <section className={shell.wrap}>
       <h2 className={shell.label} id="work">
         Work
       </h2>
       <div className={styles.work}>
-        {PROJECTS.map((project, i) => (
+        {projects.map((project, i) => (
           <Card
             key={project.href}
             project={project}

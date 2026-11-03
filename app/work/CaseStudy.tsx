@@ -15,7 +15,13 @@ export default function CaseStudy({
   overview,
   facts,
   frames,
+  home,
+  brief,
+  children,
 }: {
+  home?: string;
+  brief?: ReactNode;
+  children?: ReactNode;
   hero: ReactNode;
   title?: string;
   overview: string;
@@ -29,6 +35,10 @@ export default function CaseStudy({
       overview={overview}
       facts={facts}
       frames={frames}
-    />
+      home={home}
+      brief={brief}
+    >
+      {children}
+    </CaseLayout>
   );
 }

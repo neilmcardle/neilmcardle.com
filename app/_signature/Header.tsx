@@ -8,7 +8,9 @@ export default function Header({
   brand = true,
   contact = "#contact",
   mark,
+  role = true,
 }: {
+  role?: boolean;
   home?: string;
   brand?: boolean;
   contact?: string;
@@ -23,7 +25,9 @@ export default function Header({
           aria-label="Neil McArdle, Product Designer, London"
         >
           {mark}
-          <span className={styles.role}>Product Designer, London</span>
+          {role ? (
+            <span className={styles.role}>Product Designer, London</span>
+          ) : null}
         </Link>
       ) : brand ? (
         <Link className={styles.brand} href={home} aria-label="Neil McArdle">

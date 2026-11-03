@@ -26,8 +26,10 @@ export default function CaseLayout({
   facts,
   frames,
   home = "/",
+  brief,
   children,
 }: {
+  brief?: ReactNode;
   hero: ReactNode;
   title?: string;
   overview: string;
@@ -59,64 +61,61 @@ export default function CaseLayout({
           ) : null}
         </div>
       </section>
+      {brief}
       <div className={`${shell.wrap} ${styles.frames}`}>
         {frames.map((frame) => {
           if (frame.kind === "pair")
             return (
               <div key={frame.items[0].src} className={styles.pair}>
                 {frame.items.map((item) => (
-                  <Image
-                    key={item.src}
-                    className={styles.frame}
-                    src={item.src}
-                    alt={item.alt}
-                    width={1360}
-                    height={1700}
-                    sizes="(max-width: 720px) 100vw, 530px"
-                  />
+                  <div key={item.src} className={styles.card}>
+                    <Image
+                      className={styles.frame}
+                      src={item.src}
+                      alt={item.alt}
+                      width={1360}
+                      height={1700}
+                      sizes="(max-width: 720px) 100vw, 530px"
+                    />
+                  </div>
                 ))}
               </div>
             );
           if (frame.kind === "custom")
             return (
-              <div key={frame.id} className={styles.plate}>
+              <div key={frame.id} className={`${styles.card} ${styles.plate}`}>
                 {frame.node}
               </div>
             );
           if (frame.kind === "film")
             return (
-              <video
-                key={frame.src}
-                className={styles.frame}
-                src={frame.src}
-                poster={frame.poster}
-                aria-label={frame.label}
-                controls
-                playsInline
-                preload="none"
-              />
+              <div key={frame.src} className={styles.card}>
+                <video
+                  className={styles.frame}
+                  src={frame.src}
+                  poster={frame.poster}
+                  aria-label={frame.label}
+                  controls
+                  playsInline
+                  preload="none"
+                />
+              </div>
             );
           return (
-            <Image
-              key={frame.src}
-              className={styles.frame}
-              src={frame.src}
-              alt={frame.alt}
-              width={2400}
-              height={1350}
-              sizes="(max-width: 1120px) 100vw, 1072px"
-            />
+            <div key={frame.src} className={styles.card}>
+              <Image
+                className={styles.frame}
+                src={frame.src}
+                alt={frame.alt}
+                width={2400}
+                height={1350}
+                sizes="(max-width: 1120px) 100vw, 1072px"
+              />
+            </div>
           );
         })}
         {children}
         <div className={styles.ending}>
-          <img
-            className={styles.face}
-            src="/home/face-small.png"
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
           <Link
             className={styles.back}
             href={`${home.replace(/\/$/, "")}/work`}

@@ -74,6 +74,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
+    "d3-geo": "^3.1.1",
     "date-fns": "^3.6.0",
     "dialkit": "^2.0.2",
     "docx": "^9.6.0",
@@ -125,6 +126,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@types/d3-geo": "^3.1.1",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^22",
     "@types/react": "^19.2.18",

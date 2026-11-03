@@ -51,7 +51,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     ...lessons,
     {
+      url: `${base}/work`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    ...["avis", "makeebook", "coverly", "doodlewire", "podium"].map((slug) => ({
+      url: `${base}/work/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+    {
       url: `${base}/explorations/history-of-ui`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${base}/explorations/history-of-the-world`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,

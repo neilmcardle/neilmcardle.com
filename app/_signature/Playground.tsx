@@ -5,7 +5,15 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import shell from "./signature.module.css";
 import styles from "./playground.module.css";
 
-const ROWS = [
+type Row = {
+  title: string;
+  line: string;
+  href: string;
+  local?: boolean;
+  preview?: string;
+};
+
+const ROWS: Row[] = [
   {
     title: "Chess Path",
     line: "Teach yourself chess",
@@ -36,10 +44,13 @@ const ROWS = [
 export default function Playground({
   base = "",
   more,
+  lead = [],
 }: {
   base?: string;
   more?: ReactNode;
+  lead?: Row[];
 }) {
+  const rows = [...lead, ...ROWS];
   const panel = useId();
   const [open, setOpen] = useState(false);
   const peek = useRef<HTMLImageElement>(null);
@@ -81,7 +92,7 @@ export default function Playground({
         Playground
       </h2>
       <div className={styles.play}>
-        {ROWS.map((row) =>
+        {rows.map((row) =>
           more && !row.preview && row.local ? (
             <button
               key={row.title}

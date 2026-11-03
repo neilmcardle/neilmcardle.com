@@ -17,6 +17,15 @@
   animation: mark 2.9s linear forwards;
 }
 
+.intro.fast {
+  animation-duration: 0.45s;
+  animation-delay: 1.3s;
+}
+
+.fast .mark {
+  animation-duration: 1.3s;
+}
+
 @keyframes mark {
   0% {
     opacity: 0;
