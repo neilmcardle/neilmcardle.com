@@ -139,7 +139,6 @@
 }
 
 .name {
-  display: grid;
   margin: 0;
   font-size: 16px;
   font-weight: 500;
@@ -169,12 +168,73 @@
     scale 0.2s var(--ease);
 }
 
-.chip > img {
+.mark {
+  display: grid;
+  place-items: center;
+  flex: none;
   width: 20px;
   height: 20px;
+  overflow: hidden;
   border-radius: 5px;
-  object-fit: cover;
   transition: rotate 0.3s var(--ease);
+}
+
+.mark img,
+.mark svg {
+  display: block;
+}
+
+.markMakeebook {
+  background: #d5ed51;
+}
+
+.markMakeebook img {
+  width: 14px;
+  height: auto;
+  filter: brightness(0);
+  opacity: 0.88;
+}
+
+.markCoverly {
+  background: #141414;
+  color: #fff;
+}
+
+.markCoverly svg {
+  width: 11px;
+  height: auto;
+  fill: currentColor;
+}
+
+.markAvis {
+  background: #d11f43;
+}
+
+.markAvis span {
+  display: block;
+  width: 16px;
+  aspect-ratio: 760 / 235;
+  overflow: hidden;
+}
+
+.markAvis span img {
+  position: relative;
+  left: -108%;
+  top: -237%;
+  width: 316%;
+  max-width: none;
+  height: auto;
+  filter: grayscale(1) contrast(12) invert(1);
+  mix-blend-mode: screen;
+}
+
+.markMobbin {
+  background: #0b0b0b;
+}
+
+.markMobbin img {
+  width: 14px;
+  height: auto;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -182,16 +242,18 @@
     background: rgb(255 255 255 / 0.1);
   }
 
-  .chip:hover > img {
+  .chip:hover > .mark {
     rotate: -8deg;
   }
 }
 
-.chip > .chipLogo {
-  padding: 5px 3px;
-  background: #0b0b0b;
-  object-fit: cover;
-  object-position: left center;
+.shown .chipCard {
+  opacity: 1;
+  transform: translate(-50%, 0) rotate(-4deg) scale(1);
+}
+
+.right.shown .chipCard {
+  transform: translate(-50%, 0) rotate(4deg) scale(1);
 }
 
 .chip:active {
@@ -231,7 +293,7 @@
     transform: translate(-50%, 0) rotate(4deg) scale(1);
   }
 
-  .right:hover > img {
+  .right:hover > .mark {
     rotate: 8deg;
   }
 }
@@ -505,8 +567,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 120px;
-  height: 120px;
+  width: 70px;
+  height: 70px;
   translate: -50% -50%;
 }
 
@@ -691,7 +753,7 @@
   .peek,
   .row,
   .chip,
-  .chip > img,
+  .mark,
   .chipCard,
   .quoteArt img,
   .rail a,

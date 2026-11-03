@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { media } from "@/lib/media";
 import Brand from "./Brand";
 import { STACK } from "./data";
@@ -22,6 +22,19 @@ export default function Stack({ base = "" }: { base?: string }) {
   const [active, setActive] = useState<string | null>(null);
   const [films, setFilms] = useState(false);
   const [playing, setPlaying] = useState<string | null>(null);
+  const touch = useRef(false);
+  const self = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const close = (event: PointerEvent) => {
+      if (self.current?.contains(event.target as Node)) return;
+      setOpen(false);
+      setActive(null);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [active]);
 
   useEffect(() => {
     if (!active || !films) return;
@@ -51,9 +64,13 @@ export default function Stack({ base = "" }: { base?: string }) {
   return (
     <div className={styles.stackWrap}>
       <div
+        ref={self}
         className={`${styles.stack} ${ready ? styles.ready : ""}`}
-        onPointerEnter={() => setOpen(true)}
-        onPointerLeave={() => {
+        onPointerEnter={(event) => {
+          if (event.pointerType === "mouse") setOpen(true);
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType !== "mouse") return;
           setOpen(false);
           setActive(null);
         }}
@@ -74,12 +91,25 @@ export default function Stack({ base = "" }: { base?: string }) {
                 transitionDelay:
                   ready && !open ? `${Math.abs(d) * 40}ms` : "0ms",
               }}
-              onPointerEnter={() => setActive(piece.id)}
+              onPointerDown={(event) => {
+                touch.current = event.pointerType !== "mouse";
+              }}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") setActive(piece.id);
+              }}
+              onClick={(event) => {
+                if (!touch.current || active === piece.id) return;
+                event.preventDefault();
+                setOpen(true);
+                setActive(piece.id);
+              }}
               onFocus={() => {
+                if (touch.current) return;
                 setOpen(true);
                 setActive(piece.id);
               }}
               onBlur={() => {
+                if (touch.current) return;
                 setOpen(false);
                 setActive(null);
               }}

@@ -30,6 +30,7 @@ export type NSettings = {
   depth?: number;
   faceCrop?: [number, number, number, number];
   faceContrast?: number;
+  faceScale?: number;
 };
 
 export const N_DEFAULTS: NSettings = {

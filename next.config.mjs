@@ -141,7 +141,7 @@ const nextConfig = {
       },
       {
         source: "/paintings",
-        destination: "/?filter=paintings",
+        destination: "/",
         permanent: true,
       },
       {

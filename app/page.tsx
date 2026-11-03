@@ -42,50 +42,31 @@ export default function Homepage() {
 
           <section id="about" className={styles.about}>
             <h1 className={styles.name}>
-              Neil McArdle
-              <span>Product designer and builder, London</span>
+              <span>I&rsquo;m</span> Neil McArdle
+              <span>, a product designer and builder based in London.</span>
             </h1>
             <p>
               I design products and build them myself, from the first sketch to
               the code that ships. Right now that&rsquo;s{" "}
-              <Chip
-                id="makeebook"
-                href="/work/makeebook"
-                image="/home/leads/makeebook.jpg"
-              >
+              <Chip id="makeebook" href="/work/makeebook">
                 makeebook
               </Chip>
               , a quiet place to write books, and{" "}
-              <Chip
-                right
-                id="coverly"
-                href="/work/coverly"
-                image="/home/leads/coverly-books.jpg"
-              >
+              <Chip right id="coverly" href="/work/coverly">
                 coverly
               </Chip>
               , a search of 3,079 book covers.
             </p>
             <p>
               Before that I took the{" "}
-              <Chip
-                id="avis"
-                href="/work/avis"
-                image="/home/leads/avis-card.jpg"
-              >
+              <Chip id="avis" href="/work/avis">
                 Avis
               </Chip>{" "}
               checkout from five steps to three. It&rsquo;s live on avis.com.
             </p>
             <p>
               I also work with{" "}
-              <Chip
-                right
-                id="mobbin"
-                href="https://mobbin.com"
-                image="/logos/mobbin.svg"
-                logo
-              >
+              <Chip right id="mobbin" href="https://mobbin.com">
                 Mobbin
               </Chip>
               , the library of real app screens designers use for reference.

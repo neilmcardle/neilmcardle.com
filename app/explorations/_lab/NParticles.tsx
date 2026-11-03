@@ -213,6 +213,7 @@ async function portrait(
   count: number,
   crop: [number, number, number, number] = [0.22, 0.82, 0.16, 0.86],
   contrast = 1,
+  zoom = 1,
 ): Promise<Portrait> {
   const img = new Image();
   img.src = src;
@@ -229,7 +230,7 @@ async function portrait(
     return (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) / 255;
   };
   const [x0, x1, y0, y1] = crop;
-  const scale = (3.1 * 0.6) / (x1 - x0);
+  const scale = (3.1 * 0.6 * zoom) / (x1 - x0);
   const out: Portrait = [];
   while (out.length < count) {
     const fx = (x0 + Math.random() * (x1 - x0)) * size;
@@ -383,6 +384,7 @@ export default function NParticles({
   const depth = settings.depth ?? 1;
   const faceCrop = settings.faceCrop?.join(",");
   const faceContrast = settings.faceContrast ?? 1;
+  const faceScale = settings.faceScale ?? 1;
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -747,6 +749,7 @@ export default function NParticles({
         ? (faceCrop.split(",").map(Number) as [number, number, number, number])
         : undefined,
       faceContrast,
+      faceScale,
     )
       .then((faceData) => {
         if (!off) stop = setup(faceData);
@@ -764,6 +767,7 @@ export default function NParticles({
     depth,
     faceCrop,
     faceContrast,
+    faceScale,
     interactive,
     face,
     anchor,

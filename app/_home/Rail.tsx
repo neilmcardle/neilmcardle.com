@@ -39,7 +39,8 @@ export default function Rail() {
       first.current = false;
       return;
     }
-    tick.play(0.18);
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      tick.play(0.18);
   }, [current]);
 
   useEffect(() => {

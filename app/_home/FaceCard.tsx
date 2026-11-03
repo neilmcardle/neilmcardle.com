@@ -10,7 +10,14 @@ const NParticles = dynamic(() => import("@/app/explorations/_lab/NParticles"), {
   ssr: false,
 });
 
-const TURN: NSettings = { ...MARK, hold: 0.5, faceHold: 1e6, particles: 7000 };
+const TURN: NSettings = {
+  ...MARK,
+  hold: 0.5,
+  faceHold: 1e6,
+  particles: 7000,
+  faceScale: 1.7,
+  faceCrop: [0.21, 0.69, 0.24, 0.78],
+};
 
 export default function FaceCard() {
   const anchor = useRef<HTMLSpanElement>(null);
