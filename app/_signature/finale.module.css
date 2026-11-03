@@ -567,6 +567,69 @@
   transition: color 0.15s var(--ease);
 }
 
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 12px 0 0 -12px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.links a {
+  padding: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: color 0.15s var(--ease);
+}
+
+.links a:focus-visible,
+.toTop:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.footer.signOff {
+  flex-direction: row;
+  align-items: center;
+  margin-top: 64px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 13px;
+}
+
+.footer.signOff .sign img {
+  height: 32px;
+}
+
+.footer .toTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: -12px;
+  border-radius: 6px;
+}
+
+.toTop svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate 0.3s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .links a:hover {
+    color: var(--ink);
+  }
+
+  .toTop:hover svg {
+    translate: 0 -2px;
+  }
+}
+
 .footCopy:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: -2px;
@@ -578,7 +641,7 @@
     gap: 20px;
   }
 
-  .footer {
+  .footer:not(.signOff) {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
@@ -629,4 +692,36 @@
   .footer a {
     transition: none;
   }
+}
+
+.asCard {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 0;
+  overflow: visible;
+}
+
+.asCard .exhaust {
+  inset: -320px -900px;
+  width: calc(100% + 1800px);
+  height: calc(100% + 640px);
+}
+
+.asCard .inner {
+  display: grid;
+  place-items: center;
+}
+
+.asCard .row {
+  margin-top: 0;
+}
+
+.asCard .ignition {
+  margin: 0;
+}
+
+.asCard .said,
+.asCard .contact {
+  display: none;
 }

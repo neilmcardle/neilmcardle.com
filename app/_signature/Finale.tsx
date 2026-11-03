@@ -3,6 +3,7 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { media } from "@/lib/media";
+import ToTop from "./ToTop";
 import shell from "./signature.module.css";
 import styles from "./finale.module.css";
 
@@ -24,7 +25,15 @@ type Spark = {
   bright: boolean;
 };
 
-export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
+export default function Finale({
+  copyEmail,
+  card,
+  signOff,
+}: {
+  copyEmail?: boolean;
+  card?: boolean;
+  signOff?: boolean;
+}) {
   const finale = useRef<HTMLElement>(null);
   const inner = useRef<HTMLDivElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
@@ -185,7 +194,7 @@ export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
     const length = buffer.duration - OFFSET;
     src.start(t0, OFFSET);
     const samples = new Float32Array(analyser.fftSize);
-    const box = stage.getBoundingClientRect();
+    const box = canvas.getBoundingClientRect();
     const k = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(box.width * k);
     canvas.height = Math.round(box.height * k);
@@ -196,7 +205,7 @@ export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
 
     const emit = (n: number, speed: number, bright: boolean) => {
       const at = ign.current?.getBoundingClientRect();
-      const here = stage.getBoundingClientRect();
+      const here = canvas.getBoundingClientRect();
       if (!at) return;
       const ox = at.left + at.width / 2 - here.left;
       const oy = at.top + at.height / 2 - here.top;
@@ -288,14 +297,19 @@ export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
   return (
     <section
       ref={finale}
-      id="contact"
-      className={`${styles.finale} ${shown ? styles.shown : ""}`}
+      id={card ? undefined : "contact"}
+      className={`${styles.finale} ${card ? styles.asCard : ""} ${shown ? styles.shown : ""}`}
     >
       <canvas ref={exhaust} className={styles.exhaust} aria-hidden="true" />
-      <div ref={inner} className={`${shell.wrap} ${styles.inner}`}>
-        <h2 ref={title} className={styles.title}>
-          Tell me more.
-        </h2>
+      <div
+        ref={inner}
+        className={card ? styles.inner : `${shell.wrap} ${styles.inner}`}
+      >
+        {card ? null : (
+          <h2 ref={title} className={styles.title}>
+            Tell me more.
+          </h2>
+        )}
         <div className={styles.row}>
           <div
             ref={ign}
@@ -420,33 +434,48 @@ export default function Finale({ copyEmail }: { copyEmail?: boolean }) {
           </button>
           <span className={styles.note}>{copied}</span>
         </div>
+        {signOff ? (
+          <div className={styles.links}>
+            <a href="/suggest">Suggest a change</a>
+            <a href="https://www.linkedin.com/in/neilmcardle/">LinkedIn</a>
+            <a href="https://x.com/BetterNeil">X</a>
+          </div>
+        ) : null}
       </div>
-      <footer className={`${shell.wrap} ${styles.footer}`}>
-        <span className={styles.sign}>
-          <img
-            src="/home/face-small.png"
-            alt=""
-            loading="lazy"
-            decoding="async"
-          />
-          Neil McArdle, 2026
-        </span>
-        <div>
-          {copyEmail ? (
-            <button
-              type="button"
-              className={styles.footCopy}
-              onClick={copyFromFooter}
-              aria-live="polite"
-            >
-              {footCopied ? "Email copied" : "Copy email"}
-            </button>
-          ) : null}
-          <a href="/suggest">Suggest a change</a>
-          <a href="https://www.linkedin.com/in/neilmcardle/">LinkedIn</a>
-          <a href="https://x.com/BetterNeil">X</a>
-        </div>
-      </footer>
+      {card ? null : (
+        <footer
+          className={`${shell.wrap} ${styles.footer} ${signOff ? styles.signOff : ""}`}
+        >
+          <span className={styles.sign}>
+            <img
+              src="/home/face-small.png"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            Neil McArdle, 2026
+          </span>
+          {signOff ? (
+            <ToTop className={styles.toTop} />
+          ) : (
+            <div>
+              {copyEmail ? (
+                <button
+                  type="button"
+                  className={styles.footCopy}
+                  onClick={copyFromFooter}
+                  aria-live="polite"
+                >
+                  {footCopied ? "Email copied" : "Copy email"}
+                </button>
+              ) : null}
+              <a href="/suggest">Suggest a change</a>
+              <a href="https://www.linkedin.com/in/neilmcardle/">LinkedIn</a>
+              <a href="https://x.com/BetterNeil">X</a>
+            </div>
+          )}
+        </footer>
+      )}
     </section>
   );
 }

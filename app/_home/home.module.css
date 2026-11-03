@@ -1,0 +1,704 @@
+.clip {
+  overflow-x: clip;
+}
+
+.page {
+  --col: 600px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  width: min(var(--col), 100% - 32px);
+  margin: 0 auto;
+  padding-bottom: 48px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  color: var(--ink);
+}
+
+.top svg {
+  fill: currentColor;
+}
+
+.top > a {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin-left: -10px;
+}
+
+.topNav {
+  display: flex;
+  margin-left: auto;
+  margin-right: -10px;
+  font-size: 13px;
+}
+
+.topNav a {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.topNav a:focus-visible,
+.top > a:focus-visible,
+.rail a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .topNav a:hover {
+    color: var(--ink);
+  }
+}
+
+.page section[id] {
+  scroll-margin-top: 24px;
+}
+
+.stackWrap {
+  margin-top: 40px;
+}
+
+.stack {
+  position: relative;
+  height: 196px;
+}
+
+.card {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: 224px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--frame);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 14px 36px rgb(0 0 0 / 0.5);
+  opacity: 0;
+  transform-origin: 50% 120%;
+  transition:
+    transform 0.5s var(--ease),
+    opacity 0.4s var(--ease);
+}
+
+.ready .card {
+  opacity: 1;
+}
+
+.cardFilm {
+  position: absolute;
+  inset: -2px;
+  z-index: 1;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  object-fit: cover;
+  background: #0d0d0c;
+}
+
+.cardFilm {
+  animation: in 0.5s var(--ease) both;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.caption {
+  min-height: 24px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.caption span {
+  margin-right: 6px;
+  color: var(--ink);
+}
+
+.about {
+  margin-top: 64px;
+}
+
+.about p {
+  margin: 16px 0 0;
+  text-wrap: pretty;
+}
+
+.name {
+  display: grid;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.name span {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 8px 1px 3px;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  color: var(--ink);
+  line-height: 1.5;
+  vertical-align: 1px;
+  transition:
+    background 0.2s var(--ease),
+    scale 0.2s var(--ease);
+}
+
+.chip > img {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  object-fit: cover;
+  transition: rotate 0.3s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  .chip:hover > img {
+    rotate: -8deg;
+  }
+}
+
+.chip > .chipLogo {
+  padding: 5px 3px;
+  background: #0b0b0b;
+  object-fit: cover;
+  object-position: left center;
+}
+
+.chip:active {
+  scale: 0.96;
+}
+
+.chipCard {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  z-index: 20;
+  width: 176px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 16px 40px rgb(0 0 0 / 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 8px) rotate(0deg) scale(0.85);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.18s var(--ease),
+    transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover .chipCard,
+  .chip:focus-visible .chipCard {
+    opacity: 1;
+    transform: translate(-50%, 0) rotate(-4deg) scale(1);
+  }
+
+  .right:hover .chipCard,
+  .right:focus-visible .chipCard {
+    transform: translate(-50%, 0) rotate(4deg) scale(1);
+  }
+
+  .right:hover > img {
+    rotate: 8deg;
+  }
+}
+
+.section {
+  margin-top: 112px;
+  scroll-margin-top: 48px;
+}
+
+.about {
+  scroll-margin-top: 48px;
+}
+
+.label {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.rowTitle {
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.rowLine {
+  overflow: hidden;
+  font-size: 15px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowKind {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rows:hover .row {
+    opacity: 0.35;
+  }
+
+  .rows .row:hover {
+    opacity: 1;
+  }
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.peek {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 280px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 18px 48px rgb(0 0 0 / 0.55);
+  opacity: 0;
+  scale: 0.94;
+  pointer-events: none;
+  transition:
+    opacity 0.18s var(--ease),
+    scale 0.25s var(--ease),
+    translate 0.25s var(--ease);
+}
+
+.peek.on {
+  opacity: 1;
+  scale: 1;
+}
+
+.quoteCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px 12px 12px;
+  border-radius: 20px;
+  background: var(--frame);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  transition: background 0.2s var(--ease);
+}
+
+.quoteArt {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  background: #2a2520;
+}
+
+.quoteArt img {
+  position: absolute;
+  top: -81%;
+  left: -239%;
+  display: block;
+  width: 370%;
+  max-width: none;
+  height: auto;
+  transform-origin: 78% 50%;
+  transition: scale 0.6s var(--ease);
+}
+
+.quoteBody {
+  display: grid;
+  gap: 6px;
+}
+
+.quoteText {
+  margin-bottom: 6px;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.quoteWho,
+.quoteOn {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.quoteWho span,
+.quoteOn span {
+  color: var(--ink);
+}
+
+.quoteOn {
+  margin-top: 8px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .quoteCard:hover {
+    background: var(--frame-hover);
+  }
+
+  .quoteCard:hover .quoteArt img {
+    scale: 1.04;
+  }
+}
+
+.quoteCard:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.shelf {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.shelf figure {
+  margin: 0;
+}
+
+.shelf figcaption {
+  margin-top: 10px;
+  font-size: 13px;
+}
+
+.shelf figcaption span {
+  margin-right: 6px;
+  color: var(--ink);
+}
+
+.faceCard,
+.ignitionCard {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--frame);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+}
+
+.ignitionCard {
+  z-index: 2;
+  overflow: visible;
+}
+
+.faceCard {
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.faceCard:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.bigN {
+  width: 72px;
+  height: 72px;
+  fill: currentColor;
+  transition: opacity 0.32s var(--ease);
+}
+
+.bigN.away {
+  opacity: 0;
+}
+
+.calmFace {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 70%;
+  width: auto;
+  translate: -50% 0;
+  opacity: 0;
+}
+
+.faceCard[aria-pressed="true"] .calmFace {
+  opacity: 1;
+}
+
+.faceFade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.32s var(--ease);
+}
+
+.faceFade.on {
+  opacity: 1;
+}
+
+.faceStage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.faceStage * {
+  pointer-events: none;
+}
+
+.faceAnchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  translate: -50% -50%;
+}
+
+.tell {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 12px 0 0;
+  font-size: 15px;
+}
+
+.links a,
+.links button {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s var(--ease);
+}
+
+.links a:hover,
+.links button:hover {
+  color: var(--ink);
+}
+
+.sign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 96px;
+  padding-top: 16px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 13px;
+}
+
+.signName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-right: -8px;
+  padding: 0 8px;
+  border-radius: 4px;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.toTop svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate 0.3s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .toTop:hover {
+    color: var(--ink);
+  }
+
+  .toTop:hover svg {
+    translate: 0 -2px;
+  }
+}
+
+.toTop:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.sign img {
+  width: auto;
+  height: 32px;
+  opacity: 0.85;
+}
+
+.rail {
+  position: fixed;
+  top: 40vh;
+  left: max(24px, calc(50% - 300px - 220px));
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.rail a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.rail a:hover,
+.rail .here {
+  color: var(--ink);
+}
+
+.rail a::after {
+  content: "";
+  width: 7px;
+  height: 10px;
+  background:
+    linear-gradient(currentColor, currentColor) 50% 30% / 100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  opacity: 0;
+  scale: 0;
+  rotate: -90deg;
+  transition:
+    opacity 0.2s var(--ease),
+    scale 0.3s var(--ease),
+    rotate 0.4s var(--ease);
+}
+
+.rail .here::after {
+  opacity: 1;
+  scale: 1;
+  rotate: 0deg;
+}
+
+@media (min-width: 1100px) {
+  .rail {
+    display: flex;
+  }
+
+  .topNav {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .stack {
+    height: 160px;
+    scale: 0.74;
+    transform-origin: 50% 0;
+  }
+
+  .rowLine {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .quoteCard {
+    grid-template-columns: 1fr;
+    padding: 12px 12px 20px;
+  }
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .peek,
+  .row,
+  .chip,
+  .chip > img,
+  .chipCard,
+  .quoteArt img,
+  .rail a,
+  .rail a::after,
+  .topNav a,
+  .toTop,
+  .toTop svg {
+    transition: none;
+  }
+}

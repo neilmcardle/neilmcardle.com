@@ -1,0 +1,151 @@
+.face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 6px;
+  overflow: hidden;
+  container-type: inline-size;
+}
+
+.face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgb(0 0 0 / var(--dots, 0.12)) 32%,
+    transparent 34%
+  );
+  background-size: 4cqw 4cqw;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 80% at 18% 30%,
+    #000 10%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 80% at 18% 30%,
+    #000 10%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.face > * {
+  position: relative;
+}
+
+.name {
+  font-size: 11cqw;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.sub {
+  font-size: 6.4cqw;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  opacity: 0.9;
+}
+
+.makeebook {
+  background: #d5ed51;
+  color: #1d1d1b;
+}
+
+.mkMark {
+  width: 22cqw;
+  height: auto;
+  filter: brightness(0);
+  opacity: 0.88;
+}
+
+.coverly {
+  --dots: 0;
+  background:
+    linear-gradient(rgb(13 13 12 / 0.72), rgb(13 13 12 / 0.72)),
+    url("/home/leads/coverly-books.jpg") 50% 18% / 170% auto;
+  color: #f3f2ee;
+}
+
+.cvMark {
+  width: 15cqw;
+  height: auto;
+  fill: currentColor;
+}
+
+.avis {
+  --dots: 0.18;
+  background: #d11f43;
+  color: #fff;
+  gap: 2px;
+}
+
+.avisLogo {
+  display: block;
+  width: 50cqw;
+  aspect-ratio: 760 / 235;
+  overflow: hidden;
+}
+
+.avisLogo img {
+  position: relative;
+  left: -108%;
+  top: -237%;
+  display: block;
+  width: 316%;
+  max-width: none;
+  height: auto;
+  filter: grayscale(1) contrast(12) invert(1);
+  mix-blend-mode: screen;
+}
+
+.podium {
+  --dots: 0;
+  background:
+    linear-gradient(rgb(20 20 20 / 0.45), rgb(20 20 20 / 0.45)),
+    url("/home/podium/keyart.jpg") center / cover;
+}
+
+.podLogo {
+  width: 58cqw;
+  height: auto;
+  filter: drop-shadow(0 1cqw 3cqw rgb(0 0 0 / 0.5));
+}
+
+.doodlewire {
+  --dots: 0.06;
+  background: #f6d6db;
+}
+
+.dwLogo {
+  display: block;
+  width: 72cqw;
+  aspect-ratio: 1076 / 138;
+  overflow: hidden;
+  mix-blend-mode: multiply;
+}
+
+.dwLogo img {
+  position: relative;
+  left: -63%;
+  top: -439%;
+  display: block;
+  width: 223%;
+  max-width: none;
+  height: auto;
+}
+
+.mobbin {
+  --dots: 0;
+  gap: 10px;
+  background: #0b0b0b;
+  color: #fbf9f3;
+}
+
+.mbLogo {
+  width: 46cqw;
+  height: auto;
+}

@@ -15,9 +15,15 @@ function audioContext() {
   return context;
 }
 
-export function createSample(src: string, enabled: () => boolean = isSoundOn) {
+export function createSample(
+  src: string,
+  enabled: () => boolean = isSoundOn,
+  { gap = 0, live = false }: { gap?: number; live?: boolean } = {},
+) {
   let buffer: AudioBuffer | null = null;
   let loading: Promise<void> | null = null;
+  let last: AudioBufferSourceNode | null = null;
+  let lastAt = 0;
 
   const ensure = () => {
     const ctx = audioContext();
@@ -38,17 +44,29 @@ export function createSample(src: string, enabled: () => boolean = isSoundOn) {
     prime() {
       ensure();
     },
+    unlock() {
+      const ctx = ensure();
+      if (ctx?.state === "suspended") void ctx.resume();
+    },
     play(volume = 0.25) {
       if (!enabled()) return;
       const ctx = ensure();
       if (!ctx || !buffer) return;
-      if (ctx.state === "suspended") void ctx.resume();
+      if (ctx.state === "suspended") {
+        void ctx.resume();
+        if (live) return;
+      }
+      const now = performance.now();
+      if (gap && now - lastAt < gap) return;
+      lastAt = now;
+      if (gap) last?.stop();
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       const gain = ctx.createGain();
       gain.gain.value = volume;
       source.connect(gain).connect(ctx.destination);
       source.start();
+      last = source;
     },
   };
 }

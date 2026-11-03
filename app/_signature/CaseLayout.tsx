@@ -126,7 +126,7 @@ export default function CaseLayout({
           </Link>
         </div>
       </div>
-      <Finale />
+      <Finale signOff />
     </Shell>
   );
 }
