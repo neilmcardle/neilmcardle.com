@@ -1,5 +1,6 @@
 import type React from "react";
 import Link from "next/link";
+import BackLink from "./BackLink";
 import shell from "./signature.module.css";
 import styles from "./header.module.css";
 
@@ -9,8 +10,10 @@ export default function Header({
   contact = "#contact",
   mark,
   role = true,
+  back,
 }: {
   role?: boolean;
+  back?: string;
   home?: string;
   brand?: boolean;
   contact?: string;
@@ -18,7 +21,9 @@ export default function Header({
 }) {
   return (
     <header className={`${shell.wrap} ${styles.header}`}>
-      {mark ? (
+      {back ? (
+        <BackLink fallback={back} label="Work" />
+      ) : mark ? (
         <Link
           className={styles.brand}
           href={home}

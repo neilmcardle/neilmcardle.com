@@ -40,7 +40,9 @@ export default function CaseLayout({
 }) {
   return (
     <Shell>
-      <Header home={home} />
+      <div className={styles.bar}>
+        <Header home={home} back={home === "/" ? "/#work" : `${home}#work`} />
+      </div>
       {hero}
       <ScrollHint target="overview" />
       <section id="overview" className={`${shell.wrap} ${styles.intro}`}>
