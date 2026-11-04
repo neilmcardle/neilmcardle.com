@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Quillmore turns the letters you write on your iPhone into real paper letters, printed and posted in 2 days."
+    />
+    <meta name="theme-color" content="#fafafa" />
+    <title>Quillmore, demo with Performance UI</title>
+    <link
+      rel="preload"
+      href="InterVariable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231d1d1f'/%3E%3Cpath d='M8 11h16v11H8z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M8 11l8 6 8-6' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E"
+    />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+    <style>
+      @font-face {
+        font-family: Inter;
+        src: url("InterVariable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Inter Fallback";
+        src: local("Arial");
+        size-adjust: 107%;
+        ascent-override: 90%;
+      }
+      :root {
+        --color-bg: #fafafa;
+        --color-surface: #ffffff;
+        --color-text: #5c5c5c;
+        --color-text-muted: #737373;
+        --color-ink: #0d1117;
+        --color-action: #1d1d1f;
+        --color-line: rgb(0 0 0 / 0.04);
+        --color-ring: rgb(0 0 0 / 0.06);
+        --color-grey-200: #e8e8e8;
+        --color-grey-400: #a3a3a3;
+        --font-family-sans: Inter, "Inter Fallback", system-ui, sans-serif;
+        --font-weight-reading: 425;
+        --font-weight-interface: 450;
+        --font-weight-button: 500;
+        --font-weight-display: 520;
+        --text-interface-size: 13px;
+        --text-interface-tracking: -0.005em;
+        --text-body-size: 16px;
+        --text-body-tracking: -0.01em;
+        --text-body-leading: 1.5;
+        --text-subhead-size: 20px;
+        --text-subhead-tracking: -0.025em;
+        --text-title-size: 24px;
+        --text-title-tracking: -0.025em;
+        --text-display-phone-size: 44px;
+        --text-display-size: 56px;
+        --text-display-tracking: -0.04em;
+        --text-display-leading: 1.02;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-12: 48px;
+        --space-16: 64px;
+        --layout-column: 648px;
+        --layout-gutter: 16px;
+        --radius-button: 999px;
+        --radius-card: 12px;
+        --shadow-card: 0px 4px 24px 0px rgb(0 0 0 / 0.08);
+        --size-icon: 16px;
+        --size-button-height: 36px;
+        --size-button-pad: 16px;
+        --size-target: 44px;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-press: 120ms;
+        --duration-enter: 240ms;
+        --press-scale: 0.97;
+        --link-rest-opacity: 0.45;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-family-sans);
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-reading);
+        letter-spacing: var(--text-body-tracking);
+        line-height: var(--text-body-leading);
+        font-feature-settings: "cv11", "ss03";
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      ::selection {
+        background: var(--color-action);
+        color: var(--color-surface);
+      }
+      h1,
+      h2,
+      h3,
+      p,
+      blockquote,
+      figure {
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        color: var(--color-ink);
+        text-wrap: balance;
+      }
+      p {
+        text-wrap: pretty;
+      }
+      a {
+        color: inherit;
+      }
+      :focus-visible {
+        outline: 2px solid var(--color-ink);
+        outline-offset: 2px;
+      }
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      .skip {
+        position: absolute;
+        left: var(--space-4);
+        top: var(--space-4);
+        transform: translateY(-200%);
+        background: var(--color-action);
+        color: var(--color-surface);
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-button);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        text-decoration: none;
+        z-index: 2;
+      }
+      .skip:focus-visible {
+        transform: none;
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: calc(var(--layout-column) + var(--layout-gutter) * 2);
+        margin: 0 auto;
+        padding-left: max(var(--layout-gutter), env(safe-area-inset-left));
+        padding-right: max(var(--layout-gutter), env(safe-area-inset-right));
+      }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: var(--size-target);
+        color: var(--color-ink);
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+        flex: none;
+      }
+
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        height: var(--size-button-height);
+        padding: 0 var(--size-button-pad);
+        border-radius: var(--radius-button);
+        font: inherit;
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        letter-spacing: var(--text-interface-tracking);
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        transition:
+          transform var(--duration-press) var(--ease-out),
+          background-color var(--duration-press) var(--ease-out);
+      }
+      .btn::before {
+        content: "";
+        position: absolute;
+        inset: calc((var(--size-target) - var(--size-button-height)) / -2) 0;
+      }
+      .btn:active {
+        transform: scale(var(--press-scale));
+      }
+      .btn svg {
+        width: var(--size-icon);
+        height: var(--size-icon);
+        flex: none;
+      }
+      .btn-fill {
+        background: var(--color-action);
+        color: var(--color-surface);
+      }
+      .btn-outline {
+        color: var(--color-action);
+        box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.14);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .btn-fill:hover {
+          background: #000;
+        }
+        .btn-outline:hover {
+          background: rgb(0 0 0 / 0.04);
+        }
+      }
+
+      .hero {
+        padding-top: var(--space-12);
+        padding-bottom: var(--space-16);
+      }
+      .hero h1 {
+        font-size: var(--text-display-phone-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-display-tracking);
+        line-height: var(--text-display-leading);
+        max-width: 12ch;
+      }
+      .lede {
+        margin-top: var(--space-4);
+        font-size: var(--text-subhead-size);
+        letter-spacing: var(--text-subhead-tracking);
+        line-height: 1.4;
+        max-width: 30ch;
+      }
+      .cta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3) var(--space-4);
+        margin-top: var(--space-8);
+      }
+      .cta-note {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+
+      .stage {
+        position: relative;
+        margin-top: var(--space-12);
+        aspect-ratio: 4 / 3.4;
+        max-height: 520px;
+        width: 100%;
+        isolation: isolate;
+      }
+      .stage::before {
+        content: "";
+        position: absolute;
+        inset: -12% -8% -6%;
+        background: radial-gradient(
+          60% 55% at 50% 55%,
+          #ffffff 0%,
+          rgb(255 255 255 / 0) 70%
+        );
+        z-index: -1;
+      }
+      .envelope {
+        position: absolute;
+        left: 4%;
+        right: 4%;
+        bottom: 0;
+        height: 58%;
+        border-radius: var(--radius-card);
+        background: #f3f3f2;
+        box-shadow:
+          var(--shadow-card),
+          inset 0 0 0 1px var(--color-ring);
+        overflow: hidden;
+        transform: rotate(1.5deg);
+      }
+      .envelope svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .address {
+        position: absolute;
+        left: 10%;
+        bottom: 14%;
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        line-height: 1.5;
+        color: var(--color-text);
+      }
+      .address strong {
+        color: var(--color-ink);
+        font-weight: var(--font-weight-button);
+      }
+      .stamp {
+        position: absolute;
+        right: 7%;
+        top: 12%;
+        width: 64px;
+        height: 76px;
+        padding: 4px;
+        background: var(--color-surface);
+        -webkit-mask: radial-gradient(
+            circle at 4px 4px,
+            transparent 2px,
+            #000 2.5px
+          ) -4px -4px /
+          8px 8px;
+        mask: radial-gradient(
+            circle at 4px 4px,
+            transparent 2px,
+            #000 2.5px
+          ) -4px -4px /
+          8px 8px;
+      }
+      .stamp-face {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding: 6px;
+        background: var(--color-action);
+        color: var(--color-surface);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        line-height: 1;
+      }
+      .stamp-face svg {
+        width: 24px;
+        height: 24px;
+      }
+      .postmark {
+        position: absolute;
+        right: 18%;
+        top: 10%;
+        width: 88px;
+        height: 88px;
+        color: var(--color-grey-400);
+      }
+
+      .letter {
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        top: 0;
+        height: 76%;
+        padding: var(--space-6);
+        border-radius: var(--radius-card);
+        background: var(--color-surface);
+        box-shadow:
+          var(--shadow-card),
+          inset 0 0 0 1px var(--color-ring);
+        transform: rotate(-2.5deg);
+        transform-origin: 50% 100%;
+        overflow: hidden;
+      }
+      .letter-date {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        color: var(--color-text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .letter-body {
+        margin-top: var(--space-4);
+        color: var(--color-ink);
+        font-size: var(--text-body-size);
+        line-height: 1.5;
+      }
+      .letter-body p + p {
+        margin-top: var(--space-3);
+      }
+      .letter-ink {
+        display: block;
+        margin-top: var(--space-4);
+        width: 96px;
+        height: 32px;
+        color: var(--color-ink);
+      }
+      .letter-ink path {
+        stroke-dasharray: 220;
+        stroke-dashoffset: 0;
+      }
+      .lines {
+        position: absolute;
+        left: var(--space-6);
+        right: var(--space-6);
+        bottom: var(--space-6);
+        display: grid;
+        gap: var(--space-3);
+      }
+      .lines span {
+        display: block;
+        height: 1px;
+        background: var(--color-grey-200);
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .js .letter {
+          animation: rise 900ms var(--ease-out) 120ms both;
+        }
+        .js .letter-ink path {
+          animation: sign 1100ms var(--ease-out) 700ms both;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .js .letter {
+          animation: fade 200ms ease both;
+        }
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(32%) rotate(0deg);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) rotate(-2.5deg);
+        }
+      }
+      @keyframes sign {
+        from {
+          stroke-dashoffset: 220;
+        }
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      section + section {
+        margin-top: var(--space-16);
+      }
+      .section-title {
+        font-size: var(--text-title-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-title-tracking);
+        line-height: 1.25;
+        max-width: 24ch;
+      }
+      .section-intro {
+        margin-top: var(--space-2);
+        max-width: 64ch;
+      }
+
+      .features {
+        list-style: none;
+        margin: var(--space-6) 0 0;
+        padding: 0;
+        display: grid;
+        gap: var(--space-3);
+      }
+      .feature {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        gap: var(--space-4);
+        align-items: start;
+        padding: var(--space-6);
+        background: var(--color-surface);
+        border-radius: var(--radius-card);
+        box-shadow: inset 0 0 0 1px var(--color-line);
+      }
+      .feature-icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-button);
+        background: var(--color-bg);
+        box-shadow: inset 0 0 0 1px var(--color-ring);
+        color: var(--color-ink);
+      }
+      .feature-icon svg {
+        width: var(--size-icon);
+        height: var(--size-icon);
+      }
+      .feature h3 {
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-body-tracking);
+        line-height: 1.5;
+        padding-top: var(--space-2);
+      }
+      .feature p {
+        margin-top: var(--space-1);
+        max-width: 52ch;
+      }
+
+      .quote {
+        padding: var(--space-8) 0;
+        border-top: 1px solid rgb(0 0 0 / 0.08);
+        border-bottom: 1px solid rgb(0 0 0 / 0.08);
+      }
+      .quote blockquote p {
+        color: var(--color-ink);
+        font-size: var(--text-title-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-title-tracking);
+        line-height: 1.35;
+        max-width: 28ch;
+      }
+      .quote figcaption {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-top: var(--space-6);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        line-height: 1.4;
+      }
+      .quote figcaption strong {
+        display: block;
+        color: var(--color-ink);
+        font-weight: var(--font-weight-button);
+      }
+      .avatar {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        flex: none;
+        border-radius: var(--radius-button);
+        background: var(--color-grey-200);
+        color: var(--color-ink);
+        font-weight: var(--font-weight-button);
+      }
+
+      .price {
+        margin-top: var(--space-6);
+        padding: 6px;
+        border-radius: 18px;
+        background: var(--color-surface);
+        box-shadow: var(--shadow-card);
+      }
+      .price-rows {
+        display: grid;
+        border-radius: var(--radius-card);
+        background: var(--color-bg);
+      }
+      .price-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding: var(--space-6);
+      }
+      .price-row + .price-row {
+        border-top: 1px solid rgb(0 0 0 / 0.06);
+      }
+      .price-row h3 {
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-body-tracking);
+      }
+      .price-row p {
+        margin-top: var(--space-1);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+      }
+      .amount {
+        flex: none;
+        color: var(--color-ink);
+        font-size: var(--text-title-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-title-tracking);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+      .amount small {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+      .price-foot {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3) var(--space-4);
+        padding: var(--space-4) 18px var(--space-3);
+      }
+      .price-foot p {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+      }
+
+      .foot {
+        margin-top: var(--space-16);
+        padding-top: var(--space-6);
+        padding-bottom: max(var(--space-12), env(safe-area-inset-bottom));
+        border-top: 1px solid rgb(0 0 0 / 0.08);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+
+      @media (min-width: 700px) {
+        .hero {
+          padding-top: var(--space-16);
+        }
+        .hero h1 {
+          font-size: var(--text-display-size);
+        }
+        .stage {
+          aspect-ratio: 4 / 3;
+        }
+        .letter {
+          padding: var(--space-8);
+        }
+        .lines {
+          left: var(--space-8);
+          right: var(--space-8);
+          bottom: var(--space-8);
+        }
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 380px) {
+        .letter {
+          left: 6%;
+          right: 6%;
+          padding: var(--space-4);
+        }
+        .lines {
+          left: var(--space-4);
+          right: var(--space-4);
+          bottom: var(--space-4);
+        }
+        .postmark {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="wrap bar">
+      <a class="brand" href="#" aria-label="Quillmore home">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect width="24" height="24" rx="6" fill="#1d1d1f" />
+          <path
+            d="M6 8.5h12v8H6z"
+            fill="none"
+            stroke="#fff"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M6 8.5l6 4.5 6-4.5"
+            fill="none"
+            stroke="#fff"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+          />
+        </svg>
+        Quillmore
+      </a>
+      <a class="btn btn-outline" href="#">Get the app</a>
+    </header>
+
+    <main id="main" class="wrap">
+      <div class="hero">
+        <h1>Write it on your phone. They open it at the door.</h1>
+        <p class="lede">
+          Quillmore turns the letters you write on your iPhone into real paper
+          letters, printed and posted for you.
+        </p>
+        <div class="cta">
+          <a class="btn btn-fill" href="#">
+            <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path
+                d="M11.2 8.5c0-1.3 1.1-2 1.2-2-.6-.9-1.6-1-2-1-.8-.1-1.7.5-2.1.5-.4 0-1.1-.5-1.8-.5-.9 0-1.8.6-2.3 1.4-1 1.7-.3 4.3.7 5.7.5.7 1 1.4 1.7 1.4.7 0 .9-.4 1.8-.4.8 0 1 .4 1.8.4.7 0 1.2-.7 1.6-1.4.5-.8.7-1.5.7-1.6 0 0-1.3-.5-1.3-2.5zM9.9 4.4c.4-.5.6-1.1.6-1.7-.5 0-1.2.4-1.6.8-.3.4-.6 1-.6 1.6.6.1 1.2-.3 1.6-.7z"
+              />
+            </svg>
+            Download on the App Store
+          </a>
+          <span class="cta-note"
+            >Free to write. £2.50 a letter, stamp included.</span
+          >
+        </div>
+
+        <div class="stage" aria-hidden="true">
+          <div class="envelope">
+            <svg viewBox="0 0 400 200" preserveAspectRatio="none">
+              <path
+                d="M0 0 L200 112 L400 0"
+                fill="none"
+                stroke="rgb(0 0 0 / 0.08)"
+                stroke-width="1"
+              />
+            </svg>
+            <svg
+              class="postmark"
+              viewBox="0 0 88 88"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <circle cx="44" cy="44" r="30" />
+              <circle cx="44" cy="44" r="22" />
+              <path
+                d="M4 30c8-6 16 6 24 0M4 44c8-6 16 6 24 0M4 58c8-6 16 6 24 0"
+              />
+            </svg>
+            <div class="stamp">
+              <div class="stamp-face">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8.3a3.8 3.8 0 0 1 7 2.2C19 15.6 12 20 12 20z"
+                  /></svg
+                ><span>1st</span>
+              </div>
+            </div>
+            <p class="address">
+              <strong>Nana Ruth</strong><br />14 Harbour Row<br />Whitby YO21
+              3PU
+            </p>
+          </div>
+          <div class="letter">
+            <p class="letter-date">Sunday 8 November</p>
+            <div class="letter-body">
+              <p>Dear Nana,</p>
+              <p>
+                The garden is finally doing what you said it would. Your
+                tomatoes are the only ones on the street that came up red.
+              </p>
+            </div>
+            <svg
+              class="letter-ink"
+              viewBox="0 0 96 32"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4 22c4-10 8-16 10-14s-4 14-2 14 6-12 9-12-1 10 2 10 5-8 8-8-1 7 2 7c4 0 6-9 10-9s0 9 4 9 8-4 12-6 10-2 14-2 6 1 8 1"
+              />
+            </svg>
+            <div class="lines"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <section aria-labelledby="how">
+        <h2 id="how" class="section-title">
+          Everything a letter should be, minus the trip to the post office.
+        </h2>
+        <ul class="features">
+          <li class="feature">
+            <span class="feature-icon"
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10.5 2.5l3 3L6 13H3v-3z" />
+                <path d="M9 4l3 3" /></svg
+            ></span>
+            <div>
+              <h3>Write by hand or type</h3>
+              <p>
+                Write with your finger or Apple Pencil and it prints in your own
+                hand. Or type, and it is set in a clean, warm letterface.
+              </p>
+            </div>
+          </li>
+          <li class="feature">
+            <span class="feature-icon"
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="3.5" width="12" height="9" rx="1.5" />
+                <path d="M2.5 4.5L8 8.5l5.5-4" /></svg
+            ></span>
+            <div>
+              <h3>Printed and posted in 2 days</h3>
+              <p>
+                We print on heavy cream paper, fold it into a real envelope and
+                post it first class. You get a note when it is on its way.
+              </p>
+            </div>
+          </li>
+          <li class="feature">
+            <span class="feature-icon"
+              ><svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 6.5a4 4 0 0 1 8 0c0 3.5 1.5 4.5 1.5 4.5h-11S4 10 4 6.5z"
+                />
+                <path d="M6.5 13.5a1.6 1.6 0 0 0 3 0" /></svg
+            ></span>
+            <div>
+              <h3>Reminders for birthdays</h3>
+              <p>
+                Add the people you love once. Quillmore reminds you a week
+                before each birthday, in time for the letter to arrive on the
+                day.
+              </p>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section aria-label="What people say">
+        <figure class="quote">
+          <blockquote>
+            <p>
+              “My dad keeps every letter in a biscuit tin by his chair. He has
+              no idea I wrote half of them on the bus.”
+            </p>
+          </blockquote>
+          <figcaption>
+            <span class="avatar" aria-hidden="true">P</span
+            ><span
+              ><strong>Priya Lennox</strong>Writes to her dad in Dundee every
+              month</span
+            >
+          </figcaption>
+        </figure>
+      </section>
+
+      <section aria-labelledby="pricing">
+        <h2 id="pricing" class="section-title">Pay only for what you post.</h2>
+        <p class="section-intro">
+          No subscription. The price you see is the price you pay.
+        </p>
+        <div class="price">
+          <div class="price-rows">
+            <div class="price-row">
+              <div>
+                <h3>Writing</h3>
+                <p>Unlimited drafts, people and reminders</p>
+              </div>
+              <span class="amount">Free</span>
+            </div>
+            <div class="price-row">
+              <div>
+                <h3>Each letter posted</h3>
+                <p>Printing, envelope and first class stamp included</p>
+              </div>
+              <span class="amount">£2.50</span>
+            </div>
+          </div>
+          <div class="price-foot">
+            <p>UK addresses. Delivered in 2 days.</p>
+            <a class="btn btn-fill" href="#">Download on the App Store</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="wrap">
+      <p class="foot">Quillmore is a made-up product for a demo.</p>
+    </footer>
+  </body>
+</html>

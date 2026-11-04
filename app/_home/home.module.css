@@ -427,13 +427,11 @@
 
 .quoteArt img {
   position: absolute;
-  top: -81%;
-  left: -239%;
+  inset: 0;
   display: block;
-  width: 370%;
-  max-width: none;
-  height: auto;
-  transform-origin: 78% 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: scale 0.6s var(--ease);
 }
 
@@ -463,16 +461,6 @@
 
 .quotePlain {
   aspect-ratio: 16 / 9;
-}
-
-.quotePlain img {
-  inset: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform-origin: 50% 50%;
 }
 
 .quoteWho,
@@ -661,6 +649,9 @@
 
 .links a,
 .links button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 44px;
   min-height: 44px;
   padding: 10px 0;

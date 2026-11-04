@@ -67,6 +67,10 @@ const nextConfig = {
         destination: "/chess/index.html",
       },
       {
+        source: "/ui-taste",
+        destination: "/ui-taste/index.html",
+      },
+      {
         source: "/chess/",
         destination: "/chess/index.html",
       },

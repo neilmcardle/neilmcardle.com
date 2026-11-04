@@ -1,0 +1,397 @@
+.hero.hero {
+  display: grid;
+  place-items: center;
+  background: #0d0d0c;
+}
+
+.hero.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(34 211 238 / 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(34 211 238 / 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(
+    ellipse 60% 70% at 50% 50%,
+    #000 15%,
+    transparent 75%
+  );
+  mask-image: radial-gradient(
+    ellipse 60% 70% at 50% 50%,
+    #000 15%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+
+.heroInner {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  position: relative;
+  padding: 48px 16px;
+  color: #fafafa;
+  text-align: center;
+}
+
+.heroMark {
+  width: clamp(44px, 5vw, 64px);
+  height: clamp(44px, 5vw, 64px);
+  color: #fafafa;
+}
+
+.heroName {
+  margin: 0;
+  font-size: clamp(44px, 7vw, 88px);
+  font-weight: 520;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.heroLine {
+  margin: 0;
+  font-size: clamp(16px, 1.6vw, 20px);
+  color: #a3a3a3;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 260px));
+  justify-content: center;
+  gap: 24px;
+  padding: 32px 24px;
+  background: #fafafa;
+}
+
+.pair figure {
+  margin: 0;
+}
+
+.pair img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 4px 24px rgb(0 0 0 / 0.08);
+}
+
+.pair figcaption {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #0d1117;
+}
+
+.pair figcaption a {
+  color: #5c5c5c;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.checks {
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.checks table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.checks th,
+.checks td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.checks thead th {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.checks tbody tr + tr {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.checks tbody th {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.checks td {
+  color: var(--muted);
+}
+
+.checks td:last-child {
+  color: var(--ink);
+}
+
+.files,
+.banned,
+.flow {
+  margin: 0;
+  padding: 24px;
+  list-style: none;
+  font-size: 13px;
+}
+
+.files li {
+  display: grid;
+  grid-template-columns: minmax(0, 11em) minmax(0, 1fr);
+  gap: 16px;
+  padding: 10px 0;
+  color: var(--muted);
+}
+
+.files li + li {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+.files span {
+  color: var(--ink);
+}
+
+.flow {
+  display: grid;
+  gap: 20px;
+  color: var(--muted);
+}
+
+.flowIntro {
+  display: grid;
+  gap: 8px;
+}
+
+.flowGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.flowSide {
+  display: grid;
+  gap: 16px;
+}
+
+.flowCell {
+  margin: 0;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.flowCell figcaption {
+  margin-bottom: 12px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.typeSpec {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  color: var(--ink);
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.spaceSpec,
+.motionSpec {
+  display: grid;
+  gap: 6px;
+}
+
+.spaceSpec span,
+.motionSpec span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.spaceSpec i,
+.motionSpec i {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(34 211 238 / 0.45);
+}
+
+.radiusSpec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.radiusSpec span {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.radiusSpec i {
+  display: block;
+  width: 48px;
+  height: 36px;
+  box-shadow: inset 0 0 0 1.5px rgb(34 211 238 / 0.55);
+}
+
+@media (max-width: 720px) {
+  .flowGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flow p {
+  margin: 0;
+}
+
+.flow .source {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.banned {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.banned li {
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: rgb(255 255 255 / 0.35);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+}
+
+@media (max-width: 720px) {
+  .pair {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .files li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
+.figma {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.shot {
+  margin: 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.shot figcaption {
+  padding: 12px 24px 16px;
+  font-size: 13px;
+}
+
+.shot figcaption a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: rgb(255 255 255 / 0.3);
+  text-underline-offset: 4px;
+}
+
+.layers {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 24px;
+  list-style: none;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.layers li {
+  display: grid;
+  gap: 2px;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+}
+
+.layers li:first-child {
+  margin: 0 16px;
+  background: #161615;
+}
+
+.layers span {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 220px));
+  justify-content: center;
+  gap: 20px;
+  padding: 32px 24px;
+  background: #fafafa;
+}
+
+.trio figure {
+  margin: 0;
+}
+
+.trio img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 4px 24px rgb(0 0 0 / 0.08);
+}
+
+.trio figcaption {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #0d1117;
+}
+
+.trio figcaption a {
+  color: #5c5c5c;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  .trio {
+    gap: 8px;
+    padding: 16px 12px;
+  }
+}

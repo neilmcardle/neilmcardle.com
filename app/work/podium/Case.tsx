@@ -33,6 +33,7 @@ export default function PodiumCase({ home }: { home?: string }) {
       title="Podium"
       overview={SHOWCASE.Podium.what}
       facts={[
+        { label: "When", value: "2025 to now" },
         { label: "Type", value: SHOWCASE.Podium.type },
         { label: "Role", value: SHOWCASE.Podium.role },
         { label: "Status", value: SHOWCASE.Podium.status },

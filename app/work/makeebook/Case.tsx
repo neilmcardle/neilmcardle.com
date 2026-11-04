@@ -25,6 +25,7 @@ export default function MakeebookCase({ home }: { home?: string }) {
           <Mark className={brand.introMark} />
         </section>
       }
+      facts={[{ label: "When", value: "2024 to now" }]}
       overview="makeebook is an eBook editor for writers. Chapters are written and revised in a quiet, private workspace, then exported as EPUB, PDF and DOCX for Kindle, Apple Books and Kobo. Book Mind reads the whole manuscript and answers questions about it, only when the writer asks."
       brief={<Story chapters={MAKEEBOOK} />}
       frames={[]}

@@ -106,7 +106,7 @@
   --dots: 0;
   background:
     linear-gradient(rgb(20 20 20 / 0.45), rgb(20 20 20 / 0.45)),
-    url("/home/podium/keyart.jpg") center / cover;
+    url("/home/podium/keyart-card.jpg") center / cover;
 }
 
 .podLogo {
@@ -148,4 +148,46 @@
 .mbLogo {
   width: 46cqw;
   height: auto;
+}
+
+.pui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0d1117;
+  color: #fafafa;
+}
+
+.pui::before {
+  background-image:
+    linear-gradient(rgb(34 211 238 / 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(34 211 238 / 0.18) 1px, transparent 1px);
+  background-size: 8cqw 8cqw;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 85% at 50% 50%,
+    #000 20%,
+    transparent 75%
+  );
+  mask-image: radial-gradient(
+    ellipse 75% 85% at 50% 50%,
+    #000 20%,
+    transparent 75%
+  );
+}
+
+.puiMark {
+  width: 11cqw;
+  height: 11cqw;
+  margin-bottom: 4cqw;
+  color: #fafafa;
+}
+
+.puiName {
+  white-space: nowrap;
+  font-size: 9.5cqw;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
 }

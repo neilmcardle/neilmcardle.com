@@ -23,6 +23,7 @@ export default function AvisCase({ home }: { home?: string }) {
       title="3-Step Checkout"
       overview="At Avis Budget Group I redesigned the booking flow, taking it from five steps to three: make a reservation, pick your vehicle, then review and checkout. I designed the review and checkout page, now live on avis.com. Conversion rose by 5% during testing."
       facts={[
+        { label: "When", value: "2026" },
         { label: "Company", value: "Avis Budget Group" },
         { label: "Role", value: "Product design, checkout" },
         { label: "Result", value: "Conversion up 5% in testing" },

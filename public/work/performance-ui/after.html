@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Larkfield Rail, demo with performance-ui</title>
+    <link
+      rel="preload"
+      href="InterVariable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      @font-face {
+        font-family: Inter;
+        src: url("InterVariable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Inter Fallback";
+        src: local("Arial");
+        size-adjust: 107%;
+        ascent-override: 90%;
+      }
+      :root {
+        --color-bg: #fafafa;
+        --color-surface: #ffffff;
+        --color-text: #5c5c5c;
+        --color-text-muted: #737373;
+        --color-ink: #0d1117;
+        --color-action: #1d1d1f;
+        --color-line: rgb(0 0 0 / 0.04);
+        --color-ring: rgb(0 0 0 / 0.06);
+        --color-field-border: #dcdcdc;
+        --color-scrollbar: #cfcfcf;
+        --color-grey-200: #e8e8e8;
+        --color-grey-400: #a3a3a3;
+        --font-family-sans: Inter, "Inter Fallback", system-ui, sans-serif;
+        --font-weight-reading: 425;
+        --font-weight-interface: 450;
+        --font-weight-button: 500;
+        --font-weight-display: 520;
+        --text-interface-size: 13px;
+        --text-interface-tracking: -0.005em;
+        --text-body-size: 16px;
+        --text-body-tracking: -0.01em;
+        --text-body-leading: 1.5;
+        --text-subhead-size: 20px;
+        --text-subhead-tracking: -0.025em;
+        --text-title-size: 24px;
+        --text-title-tracking: -0.025em;
+        --text-display-phone-size: 44px;
+        --text-display-size: 56px;
+        --text-display-tracking: -0.04em;
+        --text-display-leading: 1.02;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-12: 48px;
+        --space-16: 64px;
+        --layout-column: 648px;
+        --layout-gutter: 16px;
+        --radius-button: 999px;
+        --radius-card: 12px;
+        --radius-input: 8px;
+        --shadow-card: 0px 4px 24px 0px rgb(0 0 0 / 0.08);
+        --size-icon: 16px;
+        --size-button-height: 36px;
+        --size-button-pad: 16px;
+        --size-input-height: 40px;
+        --size-target: 44px;
+        --size-focus-width: 2px;
+        --size-focus-offset: 2px;
+        --size-underline-offset: 4px;
+        --size-underline-thickness: 1px;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-press: 120ms;
+        --duration-enter: 240ms;
+        --duration-exit: 96ms;
+        --press-scale: 0.97;
+        --link-rest-opacity: 0.45;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-scrollbar) transparent;
+        accent-color: var(--color-ink);
+      }
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-family-sans);
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-reading);
+        letter-spacing: var(--text-body-tracking);
+        line-height: var(--text-body-leading);
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+        font-feature-settings: "cv11", "ss01";
+      }
+      ::selection {
+        background: var(--color-ink);
+        color: #fff;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        color: var(--color-ink);
+        text-wrap: balance;
+      }
+      p {
+        margin: 0;
+        text-wrap: pretty;
+      }
+      button,
+      input {
+        font: inherit;
+        color: inherit;
+        letter-spacing: inherit;
+      }
+      :focus {
+        outline: none;
+      }
+      :focus-visible {
+        outline: var(--size-focus-width) solid var(--color-ink);
+        outline-offset: var(--size-focus-offset);
+      }
+      .icon {
+        width: var(--size-icon);
+        height: var(--size-icon);
+        flex: none;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--color-surface);
+        border-bottom: 1px solid var(--color-line);
+        padding-top: env(safe-area-inset-top);
+      }
+      .header-inner {
+        max-width: calc(var(--layout-column) + var(--layout-gutter) * 2);
+        margin: 0 auto;
+        padding: 0 var(--layout-gutter);
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: var(--size-target);
+        color: var(--color-ink);
+        text-decoration: none;
+        font-size: var(--text-body-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-subhead-tracking);
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+        flex: none;
+      }
+      .steps {
+        display: flex;
+        gap: var(--space-3);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .steps [aria-current] {
+        color: var(--color-ink);
+        font-weight: var(--font-weight-button);
+      }
+      .steps .phone-only {
+        display: inline;
+      }
+      .steps .wide-only {
+        display: none;
+      }
+      @media (min-width: 560px) {
+        .steps .phone-only {
+          display: none;
+        }
+        .steps .wide-only {
+          display: flex;
+          gap: var(--space-3);
+        }
+      }
+
+      main {
+        max-width: calc(var(--layout-column) + var(--layout-gutter) * 2);
+        margin: 0 auto;
+        padding: var(--space-8) var(--layout-gutter) 128px;
+      }
+      .title {
+        font-size: var(--text-display-phone-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-display-tracking);
+        line-height: var(--text-display-leading);
+      }
+      @media (min-width: 700px) {
+        .title {
+          font-size: var(--text-display-size);
+        }
+        main {
+          padding-top: var(--space-12);
+        }
+      }
+      .lede {
+        margin-top: var(--space-3);
+        max-width: 64ch;
+      }
+
+      .search {
+        margin-top: var(--space-8);
+        background: var(--color-surface);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        padding: var(--space-4);
+        display: grid;
+        gap: var(--space-4);
+      }
+      .stations {
+        position: relative;
+        display: grid;
+        gap: var(--space-4);
+      }
+      .field {
+        display: grid;
+        gap: var(--space-2);
+      }
+      .label {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-ink);
+      }
+      .input {
+        width: 100%;
+        height: var(--size-input-height);
+        padding: 0 var(--space-3);
+        font-size: var(--text-body-size);
+        color: var(--color-ink);
+        background: var(--color-surface);
+        border: 1px solid var(--color-field-border);
+        border-radius: var(--radius-input);
+        caret-color: var(--color-ink);
+        transition: border-color var(--duration-press) var(--ease-out);
+      }
+      .input:focus-visible {
+        outline-offset: 0;
+        border-color: var(--color-ink);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .input:hover {
+          border-color: var(--color-grey-400);
+        }
+      }
+      .with-icon {
+        position: relative;
+      }
+      .with-icon .icon {
+        position: absolute;
+        left: var(--space-3);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-text-muted);
+        pointer-events: none;
+      }
+      .with-icon .input {
+        padding-left: 36px;
+      }
+      .swap {
+        position: absolute;
+        right: 0;
+        top: 68px;
+        width: var(--size-target);
+        height: var(--size-target);
+        display: grid;
+        place-items: center;
+        margin-right: var(--space-1);
+        padding: 0;
+        border: 0;
+        border-radius: var(--radius-button);
+        background: transparent;
+        color: var(--color-action);
+        cursor: pointer;
+        transition: transform var(--duration-press) var(--ease-out);
+      }
+      .swap span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-button);
+        background: var(--color-surface);
+        box-shadow: 0 0 0 1px var(--color-field-border);
+      }
+      .swap:active {
+        transform: scale(var(--press-scale));
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .swap:hover span {
+          box-shadow: 0 0 0 1px var(--color-grey-400);
+        }
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+      .search-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding-top: var(--space-1);
+      }
+      .search-foot p {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        height: var(--size-button-height);
+        padding: 0 var(--size-button-pad);
+        border-radius: var(--radius-button);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        letter-spacing: var(--text-interface-tracking);
+        white-space: nowrap;
+        cursor: pointer;
+        position: relative;
+        transition:
+          transform var(--duration-press) var(--ease-out),
+          background-color var(--duration-press) var(--ease-out);
+      }
+      .button::after {
+        content: "";
+        position: absolute;
+        inset: -4px 0;
+      }
+      .button:active {
+        transform: scale(var(--press-scale));
+      }
+      .button-filled {
+        background: var(--color-action);
+        color: #fff;
+        border: 0;
+      }
+      .button-outline {
+        background: var(--color-surface);
+        color: var(--color-action);
+        border: 1px solid var(--color-field-border);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .button-filled:hover {
+          background: #000;
+        }
+        .button-outline:hover {
+          border-color: var(--color-grey-400);
+        }
+      }
+
+      .results-head {
+        margin-top: var(--space-12);
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-4);
+      }
+      .results-head h2 {
+        font-size: var(--text-title-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-title-tracking);
+        line-height: 1.2;
+      }
+      .results-head p {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+        white-space: nowrap;
+      }
+      .price-note {
+        margin-top: var(--space-2);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+
+      .results {
+        margin: var(--space-4) 0 0;
+        padding: 0;
+        border: 0;
+        background: var(--color-surface);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+      }
+      .train {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--space-3) var(--space-4);
+        padding: var(--space-4);
+        cursor: pointer;
+        border-top: 1px solid var(--color-line);
+        transition: background-color var(--duration-press) var(--ease-out);
+      }
+      .train:first-of-type {
+        border-top: 0;
+      }
+      .train input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .train:hover {
+          background: var(--color-bg);
+        }
+      }
+      .train:has(input:checked) {
+        background: var(--color-bg);
+      }
+      .train:has(input:focus-visible) {
+        outline: var(--size-focus-width) solid var(--color-ink);
+        outline-offset: -2px;
+        border-radius: var(--radius-card);
+      }
+      .times {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--color-ink);
+        font-size: var(--text-subhead-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-subhead-tracking);
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+      }
+      .times .line {
+        width: 24px;
+        height: 1px;
+        background: var(--color-grey-400);
+        flex: none;
+      }
+      .meta {
+        grid-column: 1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-1) var(--space-3);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text);
+        font-variant-numeric: tabular-nums;
+      }
+      .meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+      }
+      .meta .icon {
+        color: var(--color-text-muted);
+      }
+      .price {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        display: grid;
+        justify-items: end;
+        align-content: start;
+        gap: var(--space-1);
+        text-align: right;
+      }
+      .total {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        color: var(--color-ink);
+        font-size: var(--text-subhead-size);
+        font-weight: var(--font-weight-display);
+        letter-spacing: var(--text-subhead-tracking);
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+      }
+      .breakdown {
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      .radio {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-button);
+        box-shadow: inset 0 0 0 1.5px var(--color-grey-400);
+        display: grid;
+        place-items: center;
+        flex: none;
+        transition: box-shadow var(--duration-press) var(--ease-out);
+      }
+      .radio::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: var(--radius-button);
+        background: var(--color-action);
+        transform: scale(0);
+        opacity: 0;
+        transition:
+          transform var(--duration-exit) var(--ease-out),
+          opacity var(--duration-exit) var(--ease-out);
+      }
+      .train:has(input:checked) .radio {
+        box-shadow: inset 0 0 0 1.5px var(--color-action);
+      }
+      .train:has(input:checked) .radio::after {
+        transform: scale(1);
+        opacity: 1;
+        transition-duration: var(--duration-enter);
+      }
+      .tags {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        height: 24px;
+        padding: 0 var(--space-2);
+        border-radius: var(--radius-button);
+        background: var(--color-surface);
+        box-shadow: inset 0 0 0 1px var(--color-grey-200);
+        color: var(--color-ink);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-button);
+        letter-spacing: var(--text-interface-tracking);
+      }
+      .tag .icon {
+        width: 14px;
+        height: 14px;
+      }
+
+      .later {
+        margin-top: var(--space-4);
+        display: flex;
+        justify-content: center;
+      }
+
+      .footer {
+        max-width: calc(var(--layout-column) + var(--layout-gutter) * 2);
+        margin: 0 auto;
+        padding: var(--space-8) var(--layout-gutter)
+          calc(var(--space-8) + 72px + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--color-line);
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        color: var(--color-text-muted);
+      }
+
+      .bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-line);
+        padding: var(--space-3) var(--layout-gutter)
+          calc(var(--space-3) + env(safe-area-inset-bottom));
+        transform: translateY(100%);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          transform var(--duration-exit) var(--ease-out),
+          opacity var(--duration-exit) var(--ease-out),
+          visibility 0s linear var(--duration-exit);
+      }
+      .bar-inner {
+        max-width: var(--layout-column);
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+      }
+      .bar-summary {
+        display: grid;
+        font-size: var(--text-interface-size);
+        font-weight: var(--font-weight-interface);
+        letter-spacing: var(--text-interface-tracking);
+        line-height: 1.4;
+        font-variant-numeric: tabular-nums;
+        min-width: 0;
+      }
+      .bar-summary strong {
+        color: var(--color-ink);
+        font-weight: var(--font-weight-button);
+      }
+      .pick {
+        display: none;
+      }
+      body:has(#t0733:checked) .pick-0733,
+      body:has(#t0803:checked) .pick-0803,
+      body:has(#t0833:checked) .pick-0833 {
+        display: contents;
+      }
+      body:has(.results input:checked) .bar {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        transition:
+          transform var(--duration-enter) var(--ease-out),
+          opacity var(--duration-enter) var(--ease-out),
+          visibility 0s;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bar {
+          transform: none;
+        }
+        body:has(.results input:checked) .bar {
+          transform: none;
+        }
+        .radio::after {
+          transform: scale(1);
+        }
+        .button:active,
+        .swap:active {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a class="brand" href="#" aria-label="Larkfield Rail home">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="0" y="0" width="24" height="24" rx="12" fill="#1d1d1f" />
+            <path
+              d="M7 15.5h10M7 8.5h10"
+              stroke="#fff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <path
+              d="M9.5 6.5v11M14.5 6.5v11"
+              stroke="#fff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          Larkfield Rail
+        </a>
+        <ol class="steps" aria-label="Booking progress">
+          <li class="phone-only" aria-current="step">Step 1 of 3, journey</li>
+          <li class="wide-only">
+            <span aria-current="step">1 Journey</span><span>2 Tickets</span
+            ><span>3 Pay</span>
+          </li>
+        </ol>
+      </div>
+    </header>
+
+    <main>
+      <h1 class="title">Trains to Leeds</h1>
+      <p class="lede">
+        Friday 7 November from London Kings Cross. Every price includes the £2
+        booking fee.
+      </p>
+
+      <form
+        class="search"
+        action="#"
+        method="get"
+        role="search"
+        aria-label="Journey search"
+      >
+        <div class="stations">
+          <div class="field">
+            <label class="label" for="from">From</label>
+            <div class="with-icon">
+              <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="8" r="2.5" />
+                <circle cx="8" cy="8" r="6" />
+              </svg>
+              <input
+                class="input"
+                id="from"
+                name="from"
+                type="text"
+                value="London Kings Cross"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+          <button
+            class="swap"
+            type="button"
+            aria-label="Swap from and to stations"
+          >
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M5 2.5v11M2.5 11 5 13.5 7.5 11M11 13.5v-11M8.5 5 11 2.5 13.5 5"
+                /></svg
+            ></span>
+          </button>
+          <div class="field">
+            <label class="label" for="to">To</label>
+            <div class="with-icon">
+              <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M8 14.5s4.5-4.2 4.5-7.5a4.5 4.5 0 0 0-9 0c0 3.3 4.5 7.5 4.5 7.5Z"
+                />
+                <circle cx="8" cy="7" r="1.5" />
+              </svg>
+              <input
+                class="input"
+                id="to"
+                name="to"
+                type="text"
+                value="Leeds"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="pair">
+          <div class="field">
+            <label class="label" for="date">Date</label>
+            <div class="with-icon">
+              <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <rect x="2.5" y="3.5" width="11" height="10" rx="2" />
+                <path d="M2.5 7h11M5.5 2v3M10.5 2v3" />
+              </svg>
+              <input
+                class="input"
+                id="date"
+                name="date"
+                type="text"
+                value="Fri 7 Nov"
+                inputmode="none"
+              />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="people">Passengers</label>
+            <div class="with-icon">
+              <svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="5" r="2.5" />
+                <path d="M3 13.5c.6-2.5 2.6-4 5-4s4.4 1.5 5 4" />
+              </svg>
+              <input
+                class="input"
+                id="people"
+                name="people"
+                type="text"
+                value="1 adult"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="search-foot">
+          <p>Leaving after 07:00</p>
+          <button class="button button-outline" type="submit">
+            Update search
+          </button>
+        </div>
+      </form>
+
+      <div class="results-head">
+        <h2 id="results-title">3 trains</h2>
+        <p>Kings Cross to Leeds</p>
+      </div>
+
+      <fieldset class="results" aria-labelledby="results-title">
+        <legend class="visually-hidden">Choose a train</legend>
+
+        <label class="train" for="t0733">
+          <input type="radio" name="train" id="t0733" value="0733" />
+          <span class="times"
+            ><time>07:33</time><span class="line" aria-hidden="true"></span
+            ><time>09:47</time><span class="visually-hidden">arrive</span></span
+          >
+          <span class="price">
+            <span class="total"
+              >£41<span class="radio" aria-hidden="true"></span
+            ></span>
+            <span class="breakdown">£39 fare, £2 fee</span>
+          </span>
+          <span class="meta">
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4.5V8l2.5 1.5" /></svg
+              >2h 14m</span
+            >
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M2.5 8h11M10.5 5l3 3-3 3" /></svg
+              >Direct</span
+            >
+          </span>
+        </label>
+
+        <label class="train" for="t0803">
+          <input type="radio" name="train" id="t0803" value="0803" />
+          <span class="times"
+            ><time>08:03</time><span class="line" aria-hidden="true"></span
+            ><time>10:16</time><span class="visually-hidden">arrive</span></span
+          >
+          <span class="price">
+            <span class="total"
+              >£54<span class="radio" aria-hidden="true"></span
+            ></span>
+            <span class="breakdown">£52 fare, £2 fee</span>
+          </span>
+          <span class="meta">
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4.5V8l2.5 1.5" /></svg
+              >2h 13m</span
+            >
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M2.5 8h11M10.5 5l3 3-3 3" /></svg
+              >Direct</span
+            >
+          </span>
+          <span class="tags">
+            <span class="tag"
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8l1-5.5Z" /></svg
+              >Fastest</span
+            >
+          </span>
+        </label>
+
+        <label class="train" for="t0833">
+          <input type="radio" name="train" id="t0833" value="0833" />
+          <span class="times"
+            ><time>08:33</time><span class="line" aria-hidden="true"></span
+            ><time>11:02</time><span class="visually-hidden">arrive</span></span
+          >
+          <span class="price">
+            <span class="total"
+              >£36<span class="radio" aria-hidden="true"></span
+            ></span>
+            <span class="breakdown">£34 fare, £2 fee</span>
+          </span>
+          <span class="meta">
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" />
+                <path d="M8 4.5V8l2.5 1.5" /></svg
+              >2h 29m</span
+            >
+            <span
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M2.5 5.5h8M8 3l2.5 2.5L8 8M13.5 10.5h-8M8 8l-2.5 2.5L8 13"
+                /></svg
+              >1 change at Doncaster</span
+            >
+          </span>
+          <span class="tags">
+            <span class="tag"
+              ><svg class="icon" viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M8.6 2H13.5a.5.5 0 0 1 .5.5v4.9a1 1 0 0 1-.3.7l-6 6a1 1 0 0 1-1.4 0L2 9.7a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 .6-.3Z"
+                />
+                <circle cx="11" cy="5" r="1" /></svg
+              >Cheapest</span
+            >
+          </span>
+        </label>
+      </fieldset>
+
+      <p class="price-note">
+        Prices are for 1 adult, one way, and include the £2 booking fee.
+      </p>
+
+      <div class="later">
+        <a class="button button-outline" href="#">Show later trains</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>Larkfield Rail is a made-up company for a demo.</p>
+    </footer>
+
+    <div class="bar" role="region" aria-label="Selected train">
+      <div class="bar-inner">
+        <p class="bar-summary">
+          <span class="pick pick-0733"
+            ><strong>07:33 to 09:47</strong><span>Direct, £41 total</span></span
+          >
+          <span class="pick pick-0803"
+            ><strong>08:03 to 10:16</strong><span>Direct, £54 total</span></span
+          >
+          <span class="pick pick-0833"
+            ><strong>08:33 to 11:02</strong
+            ><span>1 change, £36 total</span></span
+          >
+        </p>
+        <a class="button button-filled" href="#">Continue to tickets</a>
+      </div>
+    </div>
+  </body>
+</html>

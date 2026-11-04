@@ -54,6 +54,13 @@ export const PROJECTS: Project[] = [
     product: { label: "coverly", href: "/coverly" },
   },
   {
+    title: "Performance UI",
+    href: "/work/performance-ui",
+    line: "A design system written for agents.",
+    image: "/work/performance-ui/with.jpg",
+    alt: "A booking page built with Performance UI",
+  },
+  {
     title: "DoodleWire",
     href: "/work/doodlewire",
     line: "Wireframe from your phone.",

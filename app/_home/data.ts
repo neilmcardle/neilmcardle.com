@@ -62,9 +62,24 @@ export const WORK: Piece[] = [
     film: "/home/avis.mp4",
     local: true,
   },
+  {
+    id: "performance-ui",
+    title: "Performance UI",
+    line: "A design system written for agents.",
+    kind: "Design system",
+    href: "/work/performance-ui",
+    image: "/work/performance-ui/with.jpg",
+    local: true,
+  },
 ];
 
-export const STACK = ["doodlewire", "coverly", "makeebook", "avis", "podium"]
+export const STACK = [
+  "doodlewire",
+  "coverly",
+  "makeebook",
+  "avis",
+  "performance-ui",
+]
   .map((id) => [...WORK, ...LAB].find((piece) => piece.id === id))
   .filter((piece): piece is Piece => Boolean(piece));
 
@@ -113,6 +128,13 @@ export const PLAY: Piece[] = [
     kind: "Lab",
     href: "/logo-animator-studio",
     image: "/home/peek/logo-animator-studio.jpg",
+  },
+  {
+    id: "ui-taste",
+    title: "UI taste",
+    line: "Decide your interface taste, one choice at a time.",
+    kind: "Tool",
+    href: "/ui-taste",
   },
   {
     id: "icons",

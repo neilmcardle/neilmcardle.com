@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0d0d0c" />
+    <meta
+      name="description"
+      content="Quillmore turns the letters you write on your iPhone into real paper letters, printed and posted in 2 days."
+    />
+    <title>Quillmore, demo with Looks UI</title>
+    <link
+      rel="preload"
+      href="InterVariable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style>
+      @font-face {
+        font-family: Inter;
+        src: url("InterVariable.woff2") format("woff2");
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Inter Fallback";
+        src: local("Arial");
+        size-adjust: 107.1%;
+        ascent-override: 90.4%;
+        descent-override: 22.5%;
+        line-gap-override: 0%;
+      }
+      :root {
+        color-scheme: dark;
+        --color-bg: #0d0d0c;
+        --color-raised: #161615;
+        --color-raised-hover: #1d1d1b;
+        --color-ink: #ecebe7;
+        --color-text: #8f8c86;
+        --color-underline: #48463f;
+        --color-line: rgb(255 255 255 / 0.06);
+        --color-image-ring: rgb(255 255 255 / 0.06);
+        --color-brand: #f0644a;
+        --color-on-brand: #0d0d0c;
+        --color-paper: #efe9dc;
+        --color-paper-ink: #2b2824;
+        --color-paper-text: #5a554d;
+        --color-paper-line: rgb(43 40 36 / 0.1);
+        --edge:
+          0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+          0 2px 4px 0 rgb(0 0 0 / 0.3);
+        --edge-hover:
+          0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
+          0 2px 4px 0 rgb(0 0 0 / 0.4);
+        --edge-lifted:
+          0 0 0 1px rgb(255 255 255 / 0.08), 0 14px 36px rgb(0 0 0 / 0.5);
+        --radius-frame: 20px;
+        --radius-media: 10px;
+        --radius-chip: 7px;
+        --radius-pill: 999px;
+        --weight-subject: 500;
+        --weight-button: 500;
+        --weight-display: 520;
+        --font-family-sans: Inter, "Inter Fallback", system-ui, sans-serif;
+        --text-interface-size: 13px;
+        --text-reading-size: 16px;
+        --text-reading-leading: 1.6;
+        --text-subhead-size: 20px;
+        --text-title-size: 24px;
+        --text-title-tracking: -0.025em;
+        --text-display-phone-size: 44px;
+        --text-display-size: 56px;
+        --text-display-tracking: -0.04em;
+        --text-display-leading: 1.02;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-12: 48px;
+        --space-16: 64px;
+        --layout-column: 600px;
+        --layout-gutter: 16px;
+        --size-button-height: 36px;
+        --size-button-pad: 16px;
+        --size-target: 44px;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --duration-enter: 240ms;
+        --duration-press: 160ms;
+        --press-scale: 0.96;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-family-sans);
+        font-size: var(--text-reading-size);
+        font-weight: 400;
+        line-height: var(--text-reading-leading);
+        font-feature-settings: "cv11", "ss01";
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+      }
+      ::selection {
+        background: var(--color-ink);
+        color: var(--color-bg);
+      }
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+      p,
+      li,
+      figcaption,
+      blockquote,
+      .lede {
+        text-wrap: pretty;
+      }
+      p,
+      blockquote {
+        max-width: 64ch;
+      }
+      h1,
+      h2,
+      h3,
+      p,
+      blockquote,
+      figure,
+      ul,
+      dl,
+      dd {
+        margin: 0;
+      }
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+      a {
+        color: inherit;
+      }
+      :focus {
+        outline: none;
+      }
+      :focus-visible {
+        outline: 2px solid var(--color-ink);
+        outline-offset: 2px;
+      }
+
+      .wrap {
+        width: 100%;
+        max-width: calc(var(--layout-column) + var(--layout-gutter) * 2);
+        margin: 0 auto;
+        padding: 0 max(var(--layout-gutter), env(safe-area-inset-right)) 0
+          max(var(--layout-gutter), env(safe-area-inset-left));
+      }
+
+      .bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: var(--size-target);
+        color: var(--color-ink);
+        font-size: var(--text-reading-size);
+        font-weight: var(--weight-subject);
+        text-decoration: none;
+        letter-spacing: -0.01em;
+      }
+      .logo svg {
+        display: block;
+        width: 24px;
+        height: 24px;
+        color: var(--color-brand);
+      }
+
+      .hero {
+        padding-top: var(--space-8);
+      }
+      h1 {
+        color: var(--color-ink);
+        font-size: var(--text-display-phone-size);
+        font-weight: var(--weight-display);
+        letter-spacing: var(--text-display-tracking);
+        line-height: var(--text-display-leading);
+      }
+      .lede {
+        margin-top: var(--space-4);
+        font-size: var(--text-subhead-size);
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+      }
+      .lede b {
+        color: var(--color-ink);
+        font-weight: var(--weight-subject);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3) var(--space-4);
+        margin-top: var(--space-6);
+      }
+      .button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        height: var(--size-button-height);
+        padding: 0 var(--size-button-pad);
+        border-radius: var(--radius-pill);
+        background: var(--color-brand);
+        color: var(--color-on-brand);
+        font-size: var(--text-interface-size);
+        font-weight: var(--weight-button);
+        text-decoration: none;
+        white-space: nowrap;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        transition: transform var(--duration-press) var(--ease-out);
+      }
+      .button::before {
+        content: "";
+        position: absolute;
+        inset: -4px 0;
+      }
+      .button::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: rgb(255 255 255 / 0.14);
+        opacity: 0;
+        transition: opacity var(--duration-enter) var(--ease-out);
+        pointer-events: none;
+      }
+      .button svg {
+        width: 14px;
+        height: 14px;
+        flex: none;
+      }
+      .button:active {
+        transform: scale(var(--press-scale));
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .button:hover::after {
+          opacity: 1;
+        }
+      }
+      .note {
+        font-size: var(--text-interface-size);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stage {
+        margin-top: var(--space-12);
+      }
+      .frame {
+        position: relative;
+        border-radius: var(--radius-frame);
+        background: var(--color-raised);
+        box-shadow: var(--edge);
+        padding: var(--space-8) var(--space-4);
+        perspective: 1200px;
+        overflow: hidden;
+      }
+      .frame::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          120% 80% at 50% 0%,
+          rgb(255 255 255 / 0.035),
+          transparent 60%
+        );
+        pointer-events: none;
+      }
+      .letter {
+        position: relative;
+        max-width: 400px;
+        margin: 0 auto;
+        aspect-ratio: 210 / 260;
+        border-radius: var(--radius-media);
+        background: var(--color-paper);
+        color: var(--color-paper-text);
+        box-shadow:
+          0 0 0 1px rgb(255 255 255 / 0.06) inset,
+          0 18px 40px rgb(0 0 0 / 0.45),
+          0 2px 6px rgb(0 0 0 / 0.3);
+        padding: var(--space-8) var(--space-6);
+        display: flex;
+        flex-direction: column;
+        transform-style: preserve-3d;
+        will-change: transform;
+        font-size: var(--text-interface-size);
+        line-height: 1.7;
+      }
+      .letter-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-4);
+      }
+      .letter-date {
+        font-variant-numeric: tabular-nums;
+      }
+      .stamp {
+        flex: none;
+        width: 52px;
+        height: 64px;
+        padding: 4px;
+        background:
+          radial-gradient(
+              circle at 50% 50%,
+              var(--color-paper) 2.4px,
+              transparent 2.6px
+            )
+            0 0 / 6px 6px,
+          #f7f3ea;
+        border-radius: 2px;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.18);
+        transform: rotate(3deg);
+      }
+      .stamp-face {
+        width: 100%;
+        height: 100%;
+        border-radius: 1px;
+        background: #2b2824;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        color: #d9d2c3;
+        font-size: 8px;
+        line-height: 1;
+        font-weight: var(--weight-subject);
+        letter-spacing: 0.02em;
+      }
+      .stamp-face svg {
+        width: 20px;
+        height: 20px;
+        color: var(--color-brand);
+      }
+      .letter-body {
+        margin-top: var(--space-6);
+        max-width: none;
+      }
+      .letter-body p + p {
+        margin-top: var(--space-3);
+      }
+      .letter-greet {
+        color: var(--color-paper-ink);
+        font-weight: var(--weight-subject);
+      }
+      .letter-sign {
+        margin-top: auto;
+        padding-top: var(--space-4);
+        color: var(--color-paper-ink);
+      }
+      .letter-sign svg {
+        display: block;
+        width: 112px;
+        height: 40px;
+        margin-top: var(--space-1);
+      }
+      .postmark {
+        position: absolute;
+        right: 64px;
+        top: 12px;
+        width: 76px;
+        height: 76px;
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .frame figcaption {
+        position: relative;
+        margin-top: var(--space-6);
+        text-align: center;
+        font-size: var(--text-interface-size);
+      }
+
+      section {
+        margin-top: var(--space-16);
+      }
+      h2 {
+        color: var(--color-ink);
+        font-size: var(--text-title-size);
+        font-weight: var(--weight-display);
+        letter-spacing: var(--text-title-tracking);
+        line-height: 1.2;
+      }
+      .features {
+        margin-top: var(--space-4);
+      }
+      .feature {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: var(--space-4);
+        padding: var(--space-4) 0;
+      }
+      .feature + .feature {
+        box-shadow: inset 0 1px 0 var(--color-line);
+      }
+      .feature svg {
+        width: 20px;
+        height: 20px;
+        margin-top: 3px;
+        color: var(--color-ink);
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .feature b {
+        color: var(--color-ink);
+        font-weight: var(--weight-subject);
+      }
+
+      .quote blockquote {
+        color: var(--color-ink);
+        font-size: var(--text-title-size);
+        font-weight: 450;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+        max-width: none;
+      }
+      .quote figcaption {
+        margin-top: var(--space-4);
+        font-size: var(--text-interface-size);
+      }
+      .quote figcaption b {
+        color: var(--color-ink);
+        font-weight: var(--weight-subject);
+      }
+
+      .price {
+        margin-top: var(--space-4);
+        border-radius: var(--radius-frame);
+        background: var(--color-raised);
+        box-shadow: var(--edge);
+        padding: var(--space-2) var(--space-6);
+      }
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: var(--space-4);
+        padding: var(--space-4) 0;
+      }
+      .price-row + .price-row {
+        box-shadow: inset 0 1px 0 var(--color-line);
+      }
+      .price-row dt b {
+        display: block;
+        color: var(--color-ink);
+        font-weight: var(--weight-subject);
+      }
+      .price-row dt span {
+        display: block;
+        font-size: var(--text-interface-size);
+      }
+      .price-row dd {
+        color: var(--color-ink);
+        font-size: var(--text-subhead-size);
+        font-weight: var(--weight-subject);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+
+      footer {
+        margin-top: var(--space-16);
+        padding: var(--space-6) 0
+          calc(var(--space-12) + env(safe-area-inset-bottom));
+        box-shadow: inset 0 1px 0 var(--color-line);
+        font-size: var(--text-interface-size);
+      }
+
+      @media (min-width: 700px) {
+        .hero {
+          padding-top: var(--space-16);
+        }
+        h1 {
+          font-size: var(--text-display-size);
+        }
+        .frame {
+          padding: var(--space-12) var(--space-8) var(--space-8);
+        }
+        .letter {
+          padding: var(--space-12) var(--space-8) var(--space-8);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .button {
+          transition: opacity 200ms linear;
+        }
+        .button:active {
+          transform: none;
+          opacity: 0.8;
+        }
+        .letter {
+          will-change: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="bar">
+        <a class="logo" href="#" aria-label="Quillmore home">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11Zm2.2.1 6.15 5.02a1 1 0 0 0 1.27 0l6.18-5.02a.6.6 0 0 0-.3-.1H5.5a.6.6 0 0 0-.3.1Z"
+            />
+          </svg>
+          Quillmore
+        </a>
+      </header>
+
+      <main>
+        <div class="hero">
+          <h1>Letters you write on your phone, delivered on paper.</h1>
+          <p class="lede">
+            <b>Quillmore</b> prints the letters you write to the people you love
+            and posts them to their door.
+          </p>
+          <div class="actions">
+            <a class="button" href="#">
+              <svg viewBox="0 0 14 14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M9.6 7.45c-.02-1.4 1.14-2.08 1.19-2.11-.65-.95-1.66-1.08-2.02-1.1-.86-.09-1.68.5-2.12.5-.44 0-1.11-.49-1.83-.48-.94.02-1.8.55-2.29 1.39-.98 1.7-.25 4.2.7 5.58.47.67 1.02 1.43 1.75 1.4.7-.03.97-.45 1.82-.45.85 0 1.09.45 1.83.44.76-.02 1.24-.69 1.7-1.37.54-.78.76-1.54.77-1.58-.02-.01-1.48-.57-1.5-2.22ZM8.2 3.32c.39-.47.65-1.12.58-1.77-.56.02-1.24.37-1.64.84-.36.41-.67 1.08-.59 1.71.62.05 1.26-.32 1.65-.78Z"
+                />
+              </svg>
+              Download on the App Store
+            </a>
+            <span class="note">Free to write. £2.50 a letter posted.</span>
+          </div>
+        </div>
+
+        <figure class="frame stage" id="stage">
+          <div
+            class="letter"
+            id="letter"
+            aria-label="A sample letter written in Quillmore"
+            role="img"
+          >
+            <svg class="postmark" viewBox="0 0 76 76" aria-hidden="true">
+              <circle
+                cx="38"
+                cy="38"
+                r="30"
+                fill="none"
+                stroke="#2b2824"
+                stroke-width="1.2"
+              />
+              <circle
+                cx="38"
+                cy="38"
+                r="22"
+                fill="none"
+                stroke="#2b2824"
+                stroke-width="0.8"
+              />
+              <path
+                d="M60 30c6 0 9 3 14 3M60 38c6 0 9 3 14 3M60 46c6 0 9 3 14 3"
+                fill="none"
+                stroke="#2b2824"
+                stroke-width="1.2"
+              />
+            </svg>
+            <div class="letter-head">
+              <span class="letter-date">Sunday, 2 November</span>
+              <div class="stamp" aria-hidden="true">
+                <div class="stamp-face">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      fill="currentColor"
+                      d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11Zm2.2.1 6.15 5.02a1 1 0 0 0 1.27 0l6.18-5.02a.6.6 0 0 0-.3-.1H5.5a.6.6 0 0 0-.3.1Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="letter-body">
+              <p class="letter-greet">Dear Gran,</p>
+              <p>
+                The tomatoes you gave me finally went red, all eleven of them. I
+                made your soup and it was nearly as good as yours, which means
+                it was very good.
+              </p>
+              <p>I'll come up on the 14th. Put the kettle on at four.</p>
+            </div>
+            <div class="letter-sign">
+              With love,
+              <svg viewBox="0 0 112 40" aria-hidden="true">
+                <path
+                  d="M4 28c6-14 10-20 12-18s-4 18-2 18 8-16 11-15-1 13 2 13 6-9 9-9 0 7 3 7 5-6 8-6-1 6 2 6 5-8 8-8c4 0 0 10 5 9 6-1 10-12 14-12 3 0-2 9 2 9 5 0 9-6 16-8"
+                  fill="none"
+                  stroke="#2b2824"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+          <figcaption>
+            <span>A letter written in Quillmore, ready to post.</span>
+          </figcaption>
+        </figure>
+
+        <section aria-labelledby="features-title">
+          <h2 id="features-title">Everything a letter needs</h2>
+          <ul class="features">
+            <li class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4 20l1.2-4.4L15.6 5.2a2 2 0 0 1 2.8 0l.4.4a2 2 0 0 1 0 2.8L8.4 18.8 4 20Z"
+                />
+                <path d="M13.5 7.3l3.2 3.2" />
+              </svg>
+              <p>
+                <b>Write by hand or type.</b> Use your finger or Apple Pencil
+                and your own handwriting goes on the page, or type and pick from
+                six letter faces.
+              </p>
+            </li>
+            <li class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2.5" />
+                <path d="M3.5 7l8.5 6 8.5-6" />
+              </svg>
+              <p>
+                <b>Printed and posted in 2 days.</b> Press send and Quillmore
+                prints your letter on heavy cream paper, folds it into an
+                envelope and puts it in the post.
+              </p>
+            </li>
+            <li class="feature">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
+                <path d="M3.5 10h17M8 3v4M16 3v4" />
+                <path d="M12 13.2v3.3l2 1.2" />
+              </svg>
+              <p>
+                <b>Reminders for birthdays.</b> Add the dates that matter and
+                Quillmore nudges you a week early, in time for your letter to
+                arrive on the day.
+              </p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="quote" aria-label="What people say">
+          <figure>
+            <blockquote>
+              “My dad keeps every one in a shoebox. He has never once kept a
+              text message.”
+            </blockquote>
+            <figcaption>
+              <b>Priya Ramsden</b>, writes to her dad in Leeds every month
+            </figcaption>
+          </figure>
+        </section>
+
+        <section aria-labelledby="price-title">
+          <h2 id="price-title">Pay only for what you post</h2>
+          <dl class="price">
+            <div class="price-row">
+              <dt>
+                <b>Writing</b
+                ><span>As many letters and drafts as you like</span>
+              </dt>
+              <dd>Free</dd>
+            </div>
+            <div class="price-row">
+              <dt>
+                <b>Each letter posted</b
+                ><span>Stamp and envelope included</span>
+              </dt>
+              <dd>£2.50</dd>
+            </div>
+          </dl>
+        </section>
+      </main>
+
+      <footer>
+        <p>Quillmore is a made-up product for a demo.</p>
+      </footer>
+    </div>
+    <script>
+      (function () {
+        var stage = document.getElementById("stage");
+        var letter = document.getElementById("letter");
+        var fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+        var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+        var max = 3,
+          ease = 0.08;
+        var tx = 0,
+          ty = 0,
+          cx = 0,
+          cy = 0,
+          raf = 0,
+          visible = false;
+
+        function frame() {
+          cx += (tx - cx) * ease;
+          cy += (ty - cy) * ease;
+          if (Math.abs(tx - cx) < 0.005 && Math.abs(ty - cy) < 0.005) {
+            cx = tx;
+            cy = ty;
+            letter.style.transform =
+              "rotateX(" +
+              cx.toFixed(3) +
+              "deg) rotateY(" +
+              cy.toFixed(3) +
+              "deg)";
+            raf = 0;
+            return;
+          }
+          letter.style.transform =
+            "rotateX(" +
+            cx.toFixed(3) +
+            "deg) rotateY(" +
+            cy.toFixed(3) +
+            "deg)";
+          raf = visible ? requestAnimationFrame(frame) : 0;
+        }
+        function kick() {
+          if (!raf && visible) raf = requestAnimationFrame(frame);
+        }
+        function enabled() {
+          return fine.matches && !still.matches;
+        }
+
+        stage.addEventListener("pointermove", function (e) {
+          if (e.pointerType !== "mouse" || !enabled()) return;
+          var r = stage.getBoundingClientRect();
+          var x = (e.clientX - r.left) / r.width - 0.5;
+          var y = (e.clientY - r.top) / r.height - 0.5;
+          ty = Math.max(-max, Math.min(max, x * 2 * max));
+          tx = Math.max(-max, Math.min(max, -y * 2 * max));
+          kick();
+        });
+        stage.addEventListener("pointerleave", function () {
+          tx = 0;
+          ty = 0;
+          kick();
+        });
+
+        if ("IntersectionObserver" in window) {
+          new IntersectionObserver(function (entries) {
+            visible = entries[0].isIntersecting;
+            if (visible) kick();
+            else if (raf) {
+              cancelAnimationFrame(raf);
+              raf = 0;
+            }
+          }).observe(stage);
+        } else {
+          visible = true;
+        }
+
+        function reset() {
+          if (!enabled()) {
+            tx = ty = cx = cy = 0;
+            if (raf) {
+              cancelAnimationFrame(raf);
+              raf = 0;
+            }
+            letter.style.transform = "";
+          }
+        }
+        if (still.addEventListener) {
+          still.addEventListener("change", reset);
+          fine.addEventListener("change", reset);
+        }
+      })();
+    </script>
+  </body>
+</html>

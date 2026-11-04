@@ -56,7 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.9,
     },
-    ...["avis", "makeebook", "coverly", "doodlewire", "podium"].map((slug) => ({
+    ...[
+      "avis",
+      "makeebook",
+      "coverly",
+      "performance-ui",
+      "doodlewire",
+      "podium",
+    ].map((slug) => ({
       url: `${base}/work/${slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
@@ -76,6 +83,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${base}/logo-animator-studio`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${base}/ui-taste`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,

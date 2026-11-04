@@ -1,4 +1,5 @@
 import { LOGOMARK_PATH, LOGOMARK_VIEWBOX } from "@/app/coverly/logomark";
+import PuiMark from "@/app/_signature/PuiMark";
 import styles from "./brand.module.css";
 
 export default function Brand({ id }: { id: string }) {
@@ -47,6 +48,13 @@ export default function Brand({ id }: { id: string }) {
         <span className={styles.dwLogo}>
           <img src="/work/doodlewire/lockup.jpg" alt="" />
         </span>
+      </span>
+    );
+  if (id === "performance-ui")
+    return (
+      <span className={`${styles.face} ${styles.pui}`}>
+        <PuiMark className={styles.puiMark} />
+        <span className={styles.puiName}>Performance UI</span>
       </span>
     );
   if (id === "mobbin")
