@@ -66,7 +66,7 @@
   --dots: 0;
   background:
     linear-gradient(rgb(13 13 12 / 0.72), rgb(13 13 12 / 0.72)),
-    url("/home/leads/coverly-books.jpg") 50% 18% / 170% auto;
+    url("/home/leads/coverly-books.jpg") 50% 10% / auto 148%;
   color: #f3f2ee;
 }
 

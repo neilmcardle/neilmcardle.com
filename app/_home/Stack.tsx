@@ -14,12 +14,23 @@ const DAMPING = 0.8;
 
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
+const ARRIVE = "translate(-50%, 40px) rotate(0deg) scale(0.9)";
+const ARRIVAL_MS = 1300;
+const ARRIVAL_STEP = 70;
+const ARRIVAL_END = ARRIVAL_MS + ARRIVAL_STEP * LAST;
+
+const layer = (d: number) => 20 - 2 * Math.abs(d);
+
+const PIVOT = 168 * 0.7;
+
 const place = (d: number, spread: number, lift: number) => {
   const a = Math.abs(d);
-  const x = d * mix(62, 118, spread);
-  const y = a * mix(10, 6, spread) - 16 * lift;
-  const r = d * mix(6, 3, spread);
-  const s = 1 - a * mix(0.07, 0.04, spread) + 0.05 * lift;
+  const r = d * mix(5, 3, spread);
+  const t = (r * Math.PI) / 180;
+  const rest = (1 - spread) * PIVOT;
+  const x = d * mix(112, 118, spread) - rest * Math.sin(t);
+  const y = a * mix(0, 6, spread) - 16 * lift - rest * (1 - Math.cos(t));
+  const s = 1 - a * mix(0, 0.04, spread) + 0.05 * lift;
   return `translate(calc(-50% + ${x}px), ${y}px) rotate(${r}deg) scale(${s})`;
 };
 
@@ -53,6 +64,7 @@ const resist = (value: number) => {
 
 export default function Stack({ base = "" }: { base?: string }) {
   const [ready, setReady] = useState(false);
+  const [arriving, setArriving] = useState(true);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [films, setFilms] = useState(false);
@@ -86,7 +98,7 @@ export default function Stack({ base = "" }: { base?: string }) {
       const d = i - pos.value;
       const near = Math.max(0, 1 - Math.abs(d));
       card.style.transform = place(d, spread.value, lift.value * near);
-      card.style.zIndex = String(Math.round(20 - Math.abs(d) * 2));
+      card.style.zIndex = String(Math.round(layer(d)));
     });
   };
 
@@ -163,19 +175,44 @@ export default function Stack({ base = "" }: { base?: string }) {
     );
     if (calm) {
       setReady(true);
+      setArriving(false);
       return;
     }
     const id = window.setTimeout(() => setReady(true), 80);
+    const done = window.setTimeout(() => setArriving(false), 80 + ARRIVAL_END);
     const m = motion.current;
     return () => {
       window.clearTimeout(id);
+      window.clearTimeout(done);
       cancelAnimationFrame(m.frame);
       m.frame = 0;
     };
   }, []);
 
   useEffect(() => {
-    if (manual && ready) paint();
+    if (!manual || !ready) return;
+    if (motion.current.calm) {
+      paint();
+      return;
+    }
+    cards.current.forEach((card, i) => {
+      if (!card) return;
+      card.style.transform = ARRIVE;
+      card.style.zIndex = String(layer(i - MID));
+    });
+    cards.current[0]?.getBoundingClientRect();
+    cards.current.forEach((card, i) => {
+      if (!card) return;
+      const wait = `${i * ARRIVAL_STEP}ms`;
+      card.style.transition = `transform ${ARRIVAL_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${wait}, opacity ${ARRIVAL_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${wait}`;
+    });
+    paint();
+    const id = window.setTimeout(() => {
+      cards.current.forEach((card) => {
+        if (card) card.style.transition = "";
+      });
+    }, ARRIVAL_END);
+    return () => window.clearTimeout(id);
   }, [manual, ready]);
 
   const current = STACK.find((piece) => piece.id === active);
@@ -286,10 +323,18 @@ export default function Stack({ base = "" }: { base?: string }) {
                   : {
                       transform: ready
                         ? place(d, open ? 1 : 0, lifted ? 1 : 0)
-                        : "translate(-50%, 24px) scale(0.9)",
-                      zIndex: lifted ? 20 : 10 - Math.abs(d),
+                        : ARRIVE,
+                      zIndex: lifted ? 30 : layer(d),
+                      transitionDuration:
+                        ready && arriving
+                          ? `${ARRIVAL_MS}ms, ${ARRIVAL_MS}ms`
+                          : undefined,
                       transitionDelay:
-                        ready && !open ? `${Math.abs(d) * 40}ms` : "0ms",
+                        ready && arriving
+                          ? `${i * ARRIVAL_STEP}ms, ${i * ARRIVAL_STEP}ms`
+                          : ready && !open
+                            ? `${Math.abs(d) * 40}ms`
+                            : "0ms",
                     }
               }
               onPointerDown={(event) => {

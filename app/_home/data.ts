@@ -74,8 +74,8 @@ export const WORK: Piece[] = [
 ];
 
 export const STACK = [
-  "doodlewire",
   "coverly",
+  "doodlewire",
   "makeebook",
   "avis",
   "performance-ui",

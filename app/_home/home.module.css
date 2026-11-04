@@ -78,7 +78,7 @@
 
 .stack {
   position: relative;
-  height: 196px;
+  height: 236px;
   touch-action: pan-y;
 }
 
@@ -86,8 +86,8 @@
   position: absolute;
   top: 24px;
   left: 50%;
-  width: 224px;
-  aspect-ratio: 16 / 9;
+  width: 168px;
+  aspect-ratio: 1;
   overflow: hidden;
   border-radius: 10px;
   background: var(--frame);
@@ -787,7 +787,7 @@
 
 @media (max-width: 560px) {
   .stack {
-    height: 160px;
+    height: 190px;
     scale: 0.74;
     transform-origin: 50% 0;
   }
