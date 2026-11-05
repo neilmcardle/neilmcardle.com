@@ -116,6 +116,13 @@ export const PLAY: Piece[] = [
     image: "/home/peek/architecture.jpg",
   },
   {
+    id: "architecture-pixel",
+    title: "Architecture in pixels",
+    kind: "Lab",
+    href: "/explorations/architecture-pixel",
+    image: "/home/peek/architecture-pixel.jpg",
+  },
+  {
     id: "checkout",
     title: "Self-healing checkout",
     kind: "Lab",
