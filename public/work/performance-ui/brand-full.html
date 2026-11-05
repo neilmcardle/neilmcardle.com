@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="robots" content="noindex" />
+    <meta
+      name="description"
+      content="Quillmore turns the letters you write on your iPhone into real paper letters, printed and posted in two days."
+    />
+    <meta name="theme-color" content="#fafafa" />
+    <title>Quillmore</title>
+    <style>
+      @font-face {
+        font-family: "Inter Fallback";
+        src: local("Arial");
+        size-adjust: 107.4%;
+        ascent-override: 90.2%;
+        descent-override: 22.5%;
+        line-gap-override: 0%;
+      }
+      :root {
+        --color-bg: #fafafa;
+        --color-surface: #ffffff;
+        --color-text: #5c5c5c;
+        --color-ink: #0d1117;
+        --color-action: #1d1d1f;
+        --color-line: rgb(0 0 0 / 0.04);
+        --color-ring: rgb(0 0 0 / 0.06);
+        --font-family-sans: Inter, "Inter Fallback", system-ui, sans-serif;
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-12: 48px;
+        --space-16: 64px;
+        --radius-card: 12px;
+        --shadow-card: 0px 4px 24px 0px rgb(0 0 0 / 0.08);
+        --shadow-image-ring: 0px 0px 0px 1px rgb(0 0 0 / 0.06);
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-family-sans);
+        font-size: 16px;
+        font-weight: 425;
+        letter-spacing: -0.01em;
+        line-height: 1.5;
+        font-variant-numeric: tabular-nums;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+      }
+      h1,
+      h2,
+      h3,
+      p,
+      figure,
+      blockquote,
+      ul {
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        color: var(--color-ink);
+        font-weight: 520;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 0 var(--space-4);
+      }
+      p {
+        max-width: 64ch;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--color-action);
+        outline-offset: 2px;
+      }
+
+      /* Header */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: max(var(--space-3), env(safe-area-inset-top));
+        padding-bottom: var(--space-3);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        min-height: 44px;
+        color: var(--color-ink);
+        font-size: 16px;
+        font-weight: 520;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+      .brand svg {
+        width: 24px;
+        height: 24px;
+      }
+      .top .link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        color: var(--color-action);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+      }
+
+      /* Buttons */
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        height: 36px;
+        padding: 0 var(--space-4);
+        border-radius: 999px;
+        background: var(--color-action);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: -0.005em;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: transform 120ms var(--ease-out);
+        -webkit-tap-highlight-color: transparent;
+      }
+      .btn::after {
+        content: "";
+        position: absolute;
+        inset: -4px 0;
+      }
+      .btn svg {
+        width: 16px;
+        height: 16px;
+        flex: none;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      @media (hover: hover) {
+        .btn:hover {
+          background: #000;
+        }
+      }
+
+      /* Hero */
+      .hero {
+        padding-top: var(--space-12);
+        padding-bottom: var(--space-16);
+      }
+      .hero h1 {
+        font-size: 44px;
+        letter-spacing: -0.04em;
+        line-height: 1.02;
+        text-wrap: balance;
+        margin-bottom: var(--space-4);
+      }
+      .hero h1 em {
+        font-style: normal;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 4px;
+      }
+      .lede {
+        font-size: 20px;
+        letter-spacing: -0.025em;
+        line-height: 1.4;
+        margin-bottom: var(--space-6);
+        text-wrap: pretty;
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3) var(--space-4);
+      }
+      .cta-note {
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        color: #737373;
+      }
+
+      /* Phone mockup */
+      .stage {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        margin-top: var(--space-12);
+        padding-bottom: var(--space-16);
+      }
+      .phone {
+        width: 232px;
+        aspect-ratio: 9 / 17;
+        padding: var(--space-2);
+        border-radius: 32px;
+        background: var(--color-ink);
+        box-shadow: var(--shadow-card);
+      }
+      .screen {
+        position: relative;
+        height: 100%;
+        border-radius: 24px;
+        background: var(--color-surface);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .island {
+        position: absolute;
+        top: var(--space-2);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 72px;
+        height: 20px;
+        border-radius: 999px;
+        background: var(--color-ink);
+      }
+      .app-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 32px var(--space-4) var(--space-2);
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        border-bottom: 1px solid var(--color-line);
+      }
+      .app-bar b {
+        color: var(--color-ink);
+        font-weight: 500;
+      }
+      .app-bar .send {
+        background: var(--color-action);
+        color: #fff;
+        font-weight: 500;
+        padding: var(--space-1) var(--space-2);
+        border-radius: 999px;
+      }
+      .letter {
+        flex: 1;
+        padding: var(--space-4);
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        line-height: 24px;
+        color: var(--color-ink);
+        background-image: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 23px,
+          var(--color-line) 23px,
+          var(--color-line) 24px
+        );
+        background-position: 0 var(--space-4);
+        background-size: 100% 24px;
+      }
+      .letter p {
+        min-height: 24px;
+      }
+      .caret {
+        display: inline-block;
+        width: 2px;
+        height: 14px;
+        background: var(--color-ink);
+        vertical-align: -2px;
+        margin-left: 1px;
+      }
+      .app-tools {
+        display: flex;
+        justify-content: space-around;
+        padding: var(--space-3) var(--space-2);
+        border-top: 1px solid var(--color-line);
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        color: #737373;
+      }
+      .app-tools span {
+        display: grid;
+        justify-items: center;
+        gap: var(--space-1);
+      }
+      .app-tools span.on {
+        color: var(--color-ink);
+        font-weight: 500;
+      }
+      .app-tools svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .envelope {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 200px;
+        aspect-ratio: 1.4;
+        background: var(--color-surface);
+        border-radius: var(--radius-card);
+        box-shadow: var(--shadow-card), var(--shadow-image-ring);
+        overflow: hidden;
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        line-height: 20px;
+        color: var(--color-ink);
+      }
+      .envelope::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(
+            to bottom right,
+            transparent 49.6%,
+            var(--color-line) 50%,
+            transparent 50.4%
+          ),
+          linear-gradient(
+            to bottom left,
+            transparent 49.6%,
+            var(--color-line) 50%,
+            transparent 50.4%
+          );
+        height: 55%;
+      }
+      .envelope .addr {
+        position: absolute;
+        left: var(--space-4);
+        top: 72px;
+      }
+      .stamp {
+        position: absolute;
+        top: var(--space-2);
+        right: var(--space-2);
+        width: 32px;
+        height: 40px;
+        border-radius: 4px;
+        border: 1px solid var(--color-action);
+        display: grid;
+        place-items: center;
+        color: var(--color-action);
+      }
+      .stamp svg {
+        width: 16px;
+        height: 16px;
+      }
+      .postmark {
+        position: absolute;
+        top: var(--space-2);
+        right: 48px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: 1px solid var(--color-action);
+        display: grid;
+        place-items: center;
+        text-align: center;
+        line-height: 1.1;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--color-action);
+        background: var(--color-surface);
+      }
+
+      /* Sections */
+      .section {
+        padding-top: var(--space-16);
+      }
+      .section h2 {
+        font-size: 24px;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        margin-bottom: var(--space-6);
+        max-width: 28ch;
+        text-wrap: balance;
+      }
+      .features {
+        display: grid;
+        gap: var(--space-4);
+        list-style: none;
+        padding: 0;
+      }
+      .card,
+      .feature,
+      .price {
+        background: var(--color-surface);
+        border-radius: var(--radius-card);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-card);
+      }
+      .feature svg {
+        display: block;
+        width: 16px;
+        height: 16px;
+        margin-bottom: var(--space-3);
+        color: var(--color-action);
+      }
+      .feature h3,
+      .price h3 {
+        font-size: 20px;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        margin-bottom: var(--space-2);
+      }
+
+      .quote blockquote {
+        color: var(--color-ink);
+        font-size: 24px;
+        font-weight: 520;
+        letter-spacing: -0.025em;
+        line-height: 1.25;
+        max-width: 28ch;
+        text-wrap: pretty;
+        margin-bottom: var(--space-6);
+      }
+      .quote blockquote::before {
+        content: "\201C";
+      }
+      .quote blockquote::after {
+        content: "\201D";
+      }
+      .quote figcaption {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+      }
+      .quote figcaption b {
+        display: block;
+        color: var(--color-ink);
+        font-weight: 500;
+      }
+      .avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--color-action);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+        font-weight: 500;
+        flex: none;
+      }
+
+      .pricing {
+        display: grid;
+        gap: var(--space-4);
+      }
+      .price .amount {
+        color: var(--color-ink);
+        font-size: 44px;
+        font-weight: 520;
+        letter-spacing: -0.04em;
+        line-height: 1.02;
+        margin-bottom: var(--space-3);
+      }
+      .price .amount small {
+        font-size: 16px;
+        font-weight: 425;
+        letter-spacing: -0.01em;
+        color: var(--color-text);
+        margin-left: var(--space-2);
+      }
+
+      .closing {
+        padding-top: var(--space-16);
+        padding-bottom: var(--space-16);
+      }
+      .closing h2 {
+        font-size: 24px;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+        margin-bottom: var(--space-6);
+        max-width: 28ch;
+        text-wrap: balance;
+      }
+
+      footer {
+        border-top: 1px solid var(--color-line);
+        padding: var(--space-6) 0
+          max(var(--space-6), env(safe-area-inset-bottom));
+        font-size: 13px;
+        font-weight: 450;
+        letter-spacing: -0.005em;
+        color: #737373;
+      }
+
+      @media (min-width: 700px) {
+        .hero h1 {
+          font-size: 56px;
+        }
+        .pricing {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .btn {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="wrap top">
+      <a class="brand" href="#" aria-label="Quillmore home">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="#1d1d1f" />
+          <path d="M10 22c4-1 9-6 12-13-5 2-9 6-11 11l-1 2z" fill="#ffffff" />
+          <path
+            d="M10 22l3-4"
+            stroke="#1d1d1f"
+            stroke-width="1.2"
+            stroke-linecap="round"
+          />
+        </svg>
+        Quillmore
+      </a>
+      <a class="link" href="#pricing">Pricing</a>
+    </header>
+
+    <main>
+      <section class="wrap hero">
+        <div>
+          <h1>Write it on your phone. They open it <em>on paper.</em></h1>
+          <p class="lede">
+            Quillmore turns the letters you write on your iPhone into real
+            letters, printed and posted to the people you love.
+          </p>
+          <div class="cta-row">
+            <a class="btn" href="#">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.68-1.28z"
+                />
+              </svg>
+              Download on the App Store
+            </a>
+            <span class="cta-note">Free for iPhone</span>
+          </div>
+        </div>
+
+        <div class="stage" aria-hidden="true">
+          <div class="phone">
+            <div class="screen">
+              <div class="island"></div>
+              <div class="app-bar">
+                <span>Drafts</span><b>To Gran</b><span class="send">Post</span>
+              </div>
+              <div class="letter" id="letter">
+                <p>Dear Gran,</p>
+                <p></p>
+                <p>The daffodils are out</p>
+                <p>in the park again and</p>
+                <p>I thought of you.</p>
+                <p>Love always, Sam x</p>
+              </div>
+              <div class="app-tools">
+                <span class="on">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path d="M4 20c3-1 8-6 12-14-6 2-10 7-11 12z" />
+                  </svg>
+                  Pen
+                </span>
+                <span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <rect x="3" y="6" width="18" height="12" rx="2" />
+                    <path d="M7 10h1M11 10h1M15 10h1M8 14h8" />
+                  </svg>
+                  Type
+                </span>
+                <span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="M3 15l5-4 4 3 3-2 6 4" />
+                  </svg>
+                  Photo
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="envelope">
+            <div class="postmark">
+              <span>Posted<br />2 days</span>
+            </div>
+            <div class="stamp">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 21s-7-4.5-9.5-9C1 9 2.8 5 6.5 5c2.2 0 3.7 1.3 5.5 3.3C13.8 6.3 15.3 5 17.5 5 21.2 5 23 9 21.5 12c-2.5 4.5-9.5 9-9.5 9z"
+                />
+              </svg>
+            </div>
+            <div class="addr">
+              Mrs J. Hartley<br />14 Orchard Row<br />Keswick CA12
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <h2>
+            Everything a letter should be, without the trip to the post office.
+          </h2>
+          <ul class="features">
+            <li class="feature">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 20c3-1 9-7 13-15-7 2-11 8-12 13z" />
+                <path d="M4 20l4-5" />
+              </svg>
+              <h3>Write by hand, or type</h3>
+              <p>
+                Use your finger or Apple Pencil and we print your own
+                handwriting. In a hurry? Type it and pick a paper and a font.
+              </p>
+            </li>
+            <li class="feature">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="6" width="18" height="13" rx="2" />
+                <path d="M3 8l9 6 9-6" />
+              </svg>
+              <h3>On their doormat in 2 days</h3>
+              <p>
+                Tap Post and we print it on thick cream paper, fold it into an
+                envelope and put it in the post. You get a note when it goes.
+              </p>
+            </li>
+            <li class="feature">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <path d="M3 10h18M8 3v4M16 3v4" />
+                <path d="M12 13.5v4M10 15.5h4" />
+              </svg>
+              <h3>Never miss a birthday</h3>
+              <p>
+                Add the dates that matter and Quillmore reminds you five days
+                before, so the letter lands on the day, not after it.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <figure class="quote">
+            <blockquote>
+              My dad keeps every letter in his kitchen drawer. He has never kept
+              a single text.
+            </blockquote>
+            <figcaption>
+              <span class="avatar" aria-hidden="true">P</span>
+              <span
+                ><b>Priya Shah</b>Writes to her dad in Leicester every
+                month</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section" id="pricing">
+        <div class="wrap">
+          <h2>Simple pricing. You only pay when it posts.</h2>
+          <div class="pricing">
+            <div class="price">
+              <h3>Writing</h3>
+              <p class="amount">Free</p>
+              <p>
+                Write as many letters as you like, keep drafts and set
+                reminders. No subscription.
+              </p>
+            </div>
+            <div class="price">
+              <h3>Each letter posted</h3>
+              <p class="amount">£2.50<small>per letter</small></p>
+              <p>
+                Printing, envelope and the stamp are all included. Anywhere in
+                the UK.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="wrap closing">
+        <h2>Someone would love to hear from you.</h2>
+        <a class="btn" href="#">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.68-1.28z"
+            />
+          </svg>
+          Download on the App Store
+        </a>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">Quillmore is a made-up product for a demo.</div>
+    </footer>
+
+    <script>
+      (function () {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+          return;
+        var rows = document.querySelectorAll("#letter p");
+        var lines = [
+          "The daffodils are out",
+          "in the park again and",
+          "I thought of you.",
+          "Love always, Sam x",
+        ];
+        for (var r = 2; r < rows.length; r++) rows[r].textContent = "";
+        var caret = document.createElement("span");
+        caret.className = "caret";
+        var li = 0,
+          ci = 0;
+        function tick() {
+          if (li >= lines.length) {
+            if (caret.parentNode) caret.parentNode.removeChild(caret);
+            return;
+          }
+          var row = rows[li + 2];
+          ci++;
+          row.textContent = lines[li].slice(0, ci);
+          row.appendChild(caret);
+          if (ci >= lines[li].length) {
+            li++;
+            ci = 0;
+            setTimeout(tick, 420);
+          } else {
+            setTimeout(tick, 55 + Math.random() * 70);
+          }
+        }
+        setTimeout(tick, 900);
+      })();
+    </script>
+  </body>
+</html>

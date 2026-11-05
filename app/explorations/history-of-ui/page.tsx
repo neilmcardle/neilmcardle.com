@@ -25,10 +25,10 @@ const DESCRIPTION =
   "Sixty years of user interfaces in sixteen eras, from Sketchpad's light pen to agents that use the screen for you.";
 
 export const metadata: Metadata = {
-  title: "A history of UI · Neil McArdle",
+  title: "A Brief History of UI · Neil McArdle",
   description: DESCRIPTION,
   ...share({
-    title: "A history of UI",
+    title: "A Brief History of UI",
     description: DESCRIPTION,
     path: "/explorations/history-of-ui",
   }),

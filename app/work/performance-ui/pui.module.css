@@ -58,7 +58,7 @@
 
 .pair {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 260px));
+  grid-template-columns: repeat(2, minmax(0, 340px));
   justify-content: center;
   gap: 24px;
   padding: 32px 24px;
@@ -223,7 +223,7 @@
   display: block;
   height: 6px;
   border-radius: 999px;
-  background: rgb(34 211 238 / 0.45);
+  background: rgb(236 235 231 / 0.7);
 }
 
 .radiusSpec {
@@ -244,7 +244,7 @@
   display: block;
   width: 48px;
   height: 36px;
-  box-shadow: inset 0 0 0 1.5px rgb(34 211 238 / 0.55);
+  box-shadow: inset 0 0 0 1.5px rgb(236 235 231 / 0.6);
 }
 
 @media (max-width: 720px) {
@@ -354,7 +354,7 @@
 
 .trio {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 220px));
+  grid-template-columns: repeat(3, minmax(0, 300px));
   justify-content: center;
   gap: 20px;
   padding: 32px 24px;
@@ -394,4 +394,78 @@
     gap: 8px;
     padding: 16px 12px;
   }
+}
+
+.kit {
+  display: grid;
+  gap: 24px;
+}
+
+.kitSpecs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.credits table {
+  table-layout: fixed;
+}
+
+.colWho {
+  width: 38%;
+}
+
+.more {
+  margin-top: 8px;
+}
+
+.more summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  color: #ecebe7;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.more summary::-webkit-details-marker {
+  display: none;
+}
+
+.more summary::after {
+  content: "+";
+  margin-left: 8px;
+  color: #8f8c86;
+}
+
+.more[open] summary::after {
+  content: "\2212";
+}
+
+.more thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 720px) {
+  .kitSpecs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stack {
+  display: grid;
+  gap: 24px;
+}
+
+.flowCell .banned {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }

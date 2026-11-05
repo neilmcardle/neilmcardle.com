@@ -21,7 +21,7 @@ export default function PerformanceUiCase({ home }: { home?: string }) {
           </div>
         </section>
       }
-      overview="Performance UI is a design system written for agents. It gives an agent the colours, sizes, motion and page budgets for fast interfaces, with the reason behind every rule. I made it from 141 decisions in a picker I built, along with Looks UI, the layer this site uses on top of it."
+      overview="The rules a coding agent loads before it builds any interface: colours, sizes, motion and page budgets for fast pages, each with its reason. Looks UI, the layer this site uses, sits on top."
       facts={[
         { label: "When", value: "2026" },
         { label: "Role", value: "Design and writing, solo" },

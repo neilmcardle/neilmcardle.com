@@ -7,11 +7,11 @@ const DESCRIPTION =
   "A history of architecture in thirty line drawings, each building drawn for the one idea it added to how we build.";
 
 export const metadata: Metadata = {
-  title: "Architecture · Neil McArdle",
+  title: "A History of Architecture · Neil McArdle",
   description: DESCRIPTION,
   robots: { index: false, follow: false },
   ...share({
-    title: "Architecture · Neil McArdle",
+    title: "A History of Architecture · Neil McArdle",
     description: DESCRIPTION,
     path: "/explorations/architecture",
   }),

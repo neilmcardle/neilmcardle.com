@@ -194,13 +194,15 @@ export default function History() {
   return (
     <main className={styles.page}>
       <header className={styles.intro} id="top" data-observe>
+        <div className={styles.rain} aria-hidden="true" />
         <Link href="/" className={styles.home}>
           Neil McArdle
         </Link>
         <div className={styles.introText}>
-          <h1 className={styles.introTitle}>A history of UI</h1>
+          <h1 className={styles.introTitle}>A Brief History of UI</h1>
           <p className={styles.introLede}>
-            Sixty years of interfaces, from the light pen to the prompt box.
+            <span className={styles.subject}>Sixty years of interfaces</span>,
+            from the light pen to the prompt box.
           </p>
           <button type="button" className={styles.start} onClick={start}>
             Start in 1963
@@ -216,6 +218,23 @@ export default function History() {
             </li>
           ))}
         </ol>
+        <button
+          type="button"
+          className={styles.down}
+          onClick={start}
+          aria-label="Scroll to 1963"
+        >
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path
+              d="M8 3v10M3.5 8.5 8 13l4.5-4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </header>
 
       <Rail current={current} />

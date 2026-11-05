@@ -396,7 +396,7 @@ export default function Architecture() {
             Neil McArdle
           </Link>
           <h1 className={styles.title}>
-            A history of architecture in thirty drawings
+            A History of Architecture in thirty drawings
           </h1>
           <p className={styles.lede}>
             Each building here changed one thing about how we build. Like a new

@@ -9,28 +9,6 @@ export type Piece = {
   local?: boolean;
 };
 
-const LAB: Piece[] = [
-  {
-    id: "podium",
-    title: "Podium",
-    line: "Branding for an indie game.",
-    kind: "Brand",
-    href: "/work/podium",
-    image: "/home/leads/podium.jpg",
-    film: "/home/podium.mp4",
-    local: true,
-  },
-  {
-    id: "doodlewire",
-    title: "DoodleWire",
-    line: "Wireframe from your phone.",
-    kind: "iOS app",
-    href: "/work/doodlewire",
-    image: "/home/leads/doodlewire.jpg",
-    local: true,
-  },
-];
-
 export const WORK: Piece[] = [
   {
     id: "makeebook",
@@ -50,6 +28,15 @@ export const WORK: Piece[] = [
     href: "/work/coverly",
     image: "/home/leads/coverly-books.jpg",
     film: "/home/coverly.mp4",
+    local: true,
+  },
+  {
+    id: "doodlewire",
+    title: "DoodleWire",
+    line: "Wireframe from your phone.",
+    kind: "iOS app",
+    href: "/work/doodlewire",
+    image: "/home/leads/doodlewire.jpg",
     local: true,
   },
   {
@@ -80,11 +67,30 @@ export const STACK = [
   "avis",
   "performance-ui",
 ]
-  .map((id) => [...WORK, ...LAB].find((piece) => piece.id === id))
+  .map((id) => WORK.find((piece) => piece.id === id))
   .filter((piece): piece is Piece => Boolean(piece));
 
+export const EXPLORATIONS: Piece[] = [
+  {
+    id: "ui",
+    title: "A Brief History of UI",
+    line: "Sixty years of interfaces.",
+    kind: "Lab",
+    href: "/explorations/history-of-ui",
+    image: "/home/peek/history-of-ui-rain.jpg",
+  },
+  {
+    id: "architecture-pixel",
+    title: "Architecture in Pixels",
+    line: "3D dioramas through time.",
+    kind: "Lab",
+    href: "/explorations/architecture-pixel",
+    image: "/home/peek/architecture-pixel.jpg",
+  },
+];
+
 export const PLAY: Piece[] = [
-  ...LAB,
+  ...EXPLORATIONS,
   {
     id: "chess",
     title: "Chess Path",
@@ -94,58 +100,28 @@ export const PLAY: Piece[] = [
     image: "/home/leads/chess-path.jpg",
   },
   {
-    id: "spark",
-    title: "Spark",
-    line: "A course for designers learning to build.",
-    kind: "In progress",
-    href: "/spark",
-    image: "/home/leads/spark.jpg",
-  },
-  {
-    id: "ui",
-    title: "A history of UI",
-    kind: "Lab",
-    href: "/explorations/history-of-ui",
-    image: "/home/peek/history-of-ui.jpg",
-  },
-  {
-    id: "architecture",
-    title: "A history of architecture",
-    kind: "Lab",
-    href: "/explorations/architecture",
-    image: "/home/peek/architecture.jpg",
-  },
-  {
-    id: "checkout",
-    title: "Self-healing checkout",
-    kind: "Lab",
-    href: "/explorations/self-healing-checkout",
-    image: "/home/peek/self-healing-checkout.jpg",
+    id: "ui-taste",
+    title: "UI Taste",
+    line: "Decide your interface taste.",
+    kind: "Tool",
+    href: "/ui-taste",
   },
   {
     id: "logo",
     title: "Logo Animator Studio",
+    line: "A concept where agents animate logos.",
     kind: "Lab",
     href: "/logo-animator-studio",
     image: "/home/peek/logo-animator-studio.jpg",
   },
   {
-    id: "ui-taste",
-    title: "UI taste",
-    line: "Decide your interface taste, one choice at a time.",
-    kind: "Tool",
-    href: "/ui-taste",
-  },
-  {
-    id: "icons",
-    title: "Icon Animator",
-    kind: "Tool",
-    href: "/icon-animator",
-  },
-  {
-    id: "promptr",
-    title: "Promptr",
-    kind: "Tool",
-    href: "/promptr",
+    id: "podium",
+    title: "Podium",
+    line: "Branding for an indie game.",
+    kind: "Brand",
+    href: "/work/podium",
+    image: "/home/leads/podium.jpg",
+    film: "/home/podium.mp4",
+    local: true,
   },
 ];

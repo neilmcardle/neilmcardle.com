@@ -10,7 +10,7 @@ export function Pair() {
           alt="The demo booking page built without Performance UI: a navy header, an orange search button, a date strip of from prices and train fares shown before the booking fee"
           width={520}
           height={1125}
-          sizes="(max-width: 720px) 45vw, 240px"
+          sizes="(max-width: 720px) 45vw, 340px"
         />
         <figcaption>
           Without.{" "}
@@ -29,7 +29,7 @@ export function Pair() {
           alt="The same page built with Performance UI: a plain header, a large heading saying every price includes the booking fee, a white search form, and trains listed with their total price"
           width={520}
           height={1125}
-          sizes="(max-width: 720px) 45vw, 240px"
+          sizes="(max-width: 720px) 45vw, 340px"
         />
         <figcaption>
           With.{" "}
@@ -58,7 +58,6 @@ const CHECKS: [string, string, string][] = [
     "Loaded from Google, two outside hosts",
     "One file, served with the page",
   ],
-  ["Details joined with middle dots", "Yes", "No"],
   ["Buttons and links under 44px", "6 of 15", "3 of 5"],
 ];
 
@@ -108,17 +107,8 @@ export function Files() {
   );
 }
 
-const BUILT = ["tokens.css", "theme.css"];
-
 const TYPE = [56, 44, 24, 20, 16, 13];
 const SPACE = [4, 8, 12, 16, 24, 32, 48, 64];
-const RADII: [string, number][] = [
-  ["input", 8],
-  ["inner", 10],
-  ["card", 12],
-  ["outer", 16],
-  ["button", 999],
-];
 const DURATIONS: [string, number][] = [
   ["exit", 96],
   ["press", 120],
@@ -127,71 +117,93 @@ const DURATIONS: [string, number][] = [
   ["modal", 320],
 ];
 
-export function Flow() {
+export function Kit() {
   return (
-    <div className={styles.flow}>
-      <div className={styles.flowIntro}>
-        <p>
-          <span className={styles.source}>tokens.json</span>
-        </p>
-        <p>The build script writes {BUILT.join(" and ")} from it.</p>
-        <p>Imported into Figma, it becomes 77 variables in four collections.</p>
-      </div>
-      <div className={styles.flowGrid}>
+    <div className={styles.kit}>
+      <Files />
+      <div className={styles.kitSpecs}>
         <figure className={styles.flowCell}>
-          <figcaption>Colour, 16</figcaption>
-          <Image
-            className={styles.figma}
-            src="/work/performance-ui/figma-variables.jpg"
-            alt="A Figma file showing the 16 colour variables imported from tokens.json as swatches"
-            width={688}
-            height={653}
-            sizes="(max-width: 720px) 90vw, 420px"
-          />
+          <figcaption>Type sizes</figcaption>
+          <div className={styles.typeSpec}>
+            {TYPE.map((size) => (
+              <span key={size} style={{ fontSize: Math.min(size, 40) }}>
+                {size}
+              </span>
+            ))}
+          </div>
         </figure>
-        <div className={styles.flowSide}>
-          <figure className={styles.flowCell}>
-            <figcaption>Type, 8</figcaption>
-            <div className={styles.typeSpec}>
-              {TYPE.map((size) => (
-                <span key={size} style={{ fontSize: Math.min(size, 40) }}>
-                  {size}
-                </span>
-              ))}
-            </div>
-          </figure>
-          <figure className={styles.flowCell}>
-            <figcaption>Size and space, 38</figcaption>
-            <div className={styles.spaceSpec}>
-              {SPACE.map((n) => (
-                <span key={n}>
-                  <i style={{ width: n * 2 }} />
-                  {n}
-                </span>
-              ))}
-            </div>
-            <div className={styles.radiusSpec}>
-              {RADII.map(([name, r]) => (
-                <span key={name}>
-                  <i style={{ borderRadius: Math.min(r, 18) }} />
-                  {name} {r === 999 ? "pill" : r}
-                </span>
-              ))}
-            </div>
-          </figure>
-          <figure className={styles.flowCell}>
-            <figcaption>Motion, 15</figcaption>
-            <div className={styles.motionSpec}>
-              {DURATIONS.map(([name, ms]) => (
-                <span key={name}>
-                  <i style={{ width: Math.round((ms / 320) * 120) }} />
-                  {name} {ms}ms
-                </span>
-              ))}
-            </div>
-          </figure>
-        </div>
+        <figure className={styles.flowCell}>
+          <figcaption>Spacing</figcaption>
+          <div className={styles.spaceSpec}>
+            {SPACE.map((n) => (
+              <span key={n}>
+                <i style={{ width: n * 2 }} />
+                {n}
+              </span>
+            ))}
+          </div>
+        </figure>
+        <figure className={styles.flowCell}>
+          <figcaption>Motion</figcaption>
+          <div className={styles.motionSpec}>
+            {DURATIONS.map(([name, ms]) => (
+              <span key={name}>
+                <i style={{ width: Math.round((ms / 320) * 120) }} />
+                {name} {ms}ms
+              </span>
+            ))}
+          </div>
+        </figure>
       </div>
+      <figure className={styles.flowCell}>
+        <figcaption>Never allowed</figcaption>
+        <Banned />
+      </figure>
+    </div>
+  );
+}
+
+export function BrandPair() {
+  return (
+    <div className={styles.pair}>
+      <figure>
+        <Image
+          src="/work/performance-ui/brand-full.jpg"
+          alt="The Quillmore page with every Performance UI rule applied: monochrome, Inter only, the red brand gone"
+          width={520}
+          height={1125}
+          sizes="(max-width: 720px) 45vw, 340px"
+        />
+        <figcaption>
+          Every rule.{" "}
+          <a
+            href="/work/performance-ui/brand-full.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open the demo
+          </a>
+        </figcaption>
+      </figure>
+      <figure>
+        <Image
+          src="/work/performance-ui/brand-kept.jpg"
+          alt="The same page with Foundation rules only: the cream page, serif heading and red brand kept, with spacing, tap sizes and type scale fixed"
+          width={520}
+          height={1125}
+          sizes="(max-width: 720px) 45vw, 340px"
+        />
+        <figcaption>
+          Foundation only.{" "}
+          <a
+            href="/work/performance-ui/brand-kept.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open the demo
+          </a>
+        </figcaption>
+      </figure>
     </div>
   );
 }
@@ -221,7 +233,7 @@ export function Picker() {
     <figure className={styles.shot}>
       <Image
         src="/work/performance-ui/picker-v2.jpg"
-        alt="The UI taste picker: a list of areas on the left, and a decision about the page background with a live demo, options and what other sources use"
+        alt="The UI Taste picker: a list of areas on the left, and a decision about the page background with a live demo, options and what other sources use"
         width={1280}
         height={800}
         sizes="(max-width: 720px) 100vw, 1072px"
@@ -233,72 +245,63 @@ export function Picker() {
   );
 }
 
-const LAYERS: [string, string][] = [
-  ["Looks UI", "33 decisions that change when the impression matters most"],
-  ["Performance UI", "129 decisions for fast, calm interfaces"],
-];
-
-export function Layers() {
-  return (
-    <ol className={styles.layers}>
-      {LAYERS.map(([name, what]) => (
-        <li key={name}>
-          <span>{name}</span>
-          {what}
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-const CREDITS: [string, string, string][] = [
-  ["Impeccable", "Paul Bakaus's design skill", "37"],
-  ["My own work", "This site, my product brands and my writing rules", "32"],
-  ["Apple", "WWDC talks and the Human Interface Guidelines", "27"],
-  ["Emil Kowalski", "His writing on motion and interaction, and Sonner", "20"],
-  ["frontend-design", "Anthropic's design skill", "15"],
+const CREDITS: [string, string][] = [
+  ["Impeccable", "Paul Bakaus's design skill"],
+  ["Apple", "WWDC talks and the Human Interface Guidelines"],
+  ["Emil Kowalski", "His writing on motion and interaction, and Sonner"],
+  ["frontend-design", "Anthropic's design skill"],
   [
     "Wireframe and Inflight",
     "Their sites, for type sizes, columns and controls",
-    "15",
   ],
-  ["Vercel", "Web interface guidelines and React rules", "12"],
-  ["web.dev, WCAG and Core Web Vitals", "Speed and access", "11"],
+  ["Vercel", "Web interface guidelines and React rules"],
+  ["web.dev, WCAG and Core Web Vitals", "Speed and access"],
   [
     "break-ui, mobile-native, animation-performance and pick-ui-library",
     "Agent skills built on Emil Kowalski's design engineering, author unknown",
-    "10",
   ],
-  ["Baymard Institute", "Forms and checkout research", "4"],
-  ["Studio sites and torph", "Showpiece effects", "4"],
+  ["Baymard Institute", "Forms and checkout research"],
+  ["Studio sites and torph", "Showpiece effects"],
   [
     "Robert Bringhurst, Brilliant and the CMA",
     "Type scale, first run and price rules",
-    "3",
   ],
 ];
 
-export function Credits() {
+function CreditTable({ rows }: { rows: [string, string][] }) {
   return (
-    <div className={styles.checks}>
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Source</th>
-            <th scope="col">What I took</th>
-            <th scope="col">Decisions</th>
+    <table>
+      <colgroup>
+        <col className={styles.colWho} />
+        <col />
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col">Source</th>
+          <th scope="col">What I learned from</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([who, what]) => (
+          <tr key={who}>
+            <th scope="row">{who}</th>
+            <td>{what}</td>
           </tr>
-        </thead>
-        <tbody>
-          {CREDITS.map(([who, what, count]) => (
-            <tr key={who}>
-              <th scope="row">{who}</th>
-              <td>{what}</td>
-              <td>{count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export function Credits() {
+  const rest = CREDITS.slice(5);
+  return (
+    <div className={`${styles.checks} ${styles.credits}`}>
+      <CreditTable rows={CREDITS.slice(0, 5)} />
+      <details className={styles.more}>
+        <summary>{rest.length} more sources</summary>
+        <CreditTable rows={rest} />
+      </details>
     </div>
   );
 }
@@ -327,7 +330,7 @@ export function Trio() {
             alt={`The Quillmore launch page built with ${name.toLowerCase()}: ${line}`}
             width={520}
             height={1125}
-            sizes="(max-width: 720px) 30vw, 220px"
+            sizes="(max-width: 720px) 30vw, 300px"
           />
           <figcaption>
             <span>{name}</span>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { media } from "@/lib/media";
 import { CoverageParts, PagesFlow, StepsDiagram } from "./Parts";
 import type { Chapter } from "../Story";
@@ -72,5 +73,18 @@ export const AVIS: Chapter[] = [
   {
     label: "What I led",
     body: "I led the design of the review and checkout page, now live on avis.com: the flow, the layout, and the interaction and motion. I worked with a product manager, a data analyst and a front-end developer.",
+  },
+  {
+    label: "Where I took it next",
+    body: (
+      <>
+        On my own time I kept going: a concept for a console that spots a broken
+        checkout and ships the fix, with sample data.{" "}
+        <Link href="/explorations/self-healing-checkout">
+          See the self-healing checkout
+        </Link>
+        .
+      </>
+    ),
   },
 ];

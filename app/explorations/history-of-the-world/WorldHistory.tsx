@@ -39,13 +39,12 @@ const SPHERE: GeoPermissibleObjects = { type: "Sphere" };
 const PLAY_MS = 7000;
 const FLY_MS = 1400;
 
-type Center = [number, number]; // [lon, lat] at the middle of the globe
+type Center = [number, number];
 
 const toLonLat = ([lat, lon]: LatLon): [number, number] => [lon, lat];
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 const fixed = (n: number) => n.toFixed(4);
 
-/** The part of a route travelled after `t` (0 to 1) of its length. */
 function partialRoute(route: LatLon[], t: number): [number, number][] {
   const pts = route.map(toLonLat);
   if (t >= 1 || pts.length < 2) return pts;
@@ -66,11 +65,10 @@ function partialRoute(route: LatLon[], t: number): [number, number][] {
   return out;
 }
 
-/** Where the globe should look to frame an event (the middle of its route). */
 function focusOf(ev: HistoryEvent): Center {
   if (!ev.route) return toLonLat(ev.at);
   const pts = ev.route.map(toLonLat);
-  // Average on the unit sphere so routes across the antimeridian behave.
+
   let x = 0,
     y = 0,
     z = 0;
@@ -86,13 +84,10 @@ function focusOf(ev: HistoryEvent): Center {
   return [lon, lat];
 }
 
-/** How far to zoom out so a whole route fits on the visible hemisphere. */
 function zoomFor(ev: HistoryEvent): number {
   if (!ev.route) return 1.35;
   const c = focusOf(ev);
-  const spread = Math.max(
-    ...ev.route.map((p) => geoDistance(c, toLonLat(p))),
-  );
+  const spread = Math.max(...ev.route.map((p) => geoDistance(c, toLonLat(p))));
   if (spread > 1.2) return 1;
   if (spread > 0.7) return 1.15;
   if (spread > 0.35) return 1.4;
@@ -163,8 +158,10 @@ export default function WorldHistory() {
       );
       routeRef.current?.setAttribute(
         "d",
-        path({ type: "LineString", coordinates: part } as GeoPermissibleObjects) ??
-          "",
+        path({
+          type: "LineString",
+          coordinates: part,
+        } as GeoPermissibleObjects) ?? "",
       );
       const head = part[part.length - 1];
       const hp = projection(head);
@@ -212,41 +209,45 @@ export default function WorldHistory() {
     }
   }, []);
 
-  const loop = useCallback(function step() {
-    const v = view.current;
-    v.raf = 0;
-    const now = performance.now();
-    let more = false;
-    if (v.anim) {
-      const t = Math.min(1, (now - v.anim.start) / FLY_MS);
-      const k = ease(t);
-      v.center = geoInterpolate(v.anim.from, v.anim.to)(k) as Center;
-      // Pull back a little mid-flight so long trips read as travel.
-      const dist = geoDistance(v.anim.from, v.anim.to);
-      const lift = Math.sin(Math.PI * k) * Math.min(0.35, dist * 0.18);
-      v.zoom = v.anim.z0 + (v.anim.z1 - v.anim.z0) * k - lift;
-      v.zoom = Math.max(0.8, v.zoom);
-      if (t >= 1) v.anim = null;
-      else more = true;
-    }
-    if (v.routeT < 1) {
-      v.routeT = Math.min(1, v.routeT + 0.006);
-      more = true;
-    }
-    draw();
-    if (more) v.raf = requestAnimationFrame(step);
-  }, [draw]);
+  const loop = useCallback(
+    function step() {
+      const v = view.current;
+      v.raf = 0;
+      const now = performance.now();
+      let more = false;
+      if (v.anim) {
+        const t = Math.min(1, (now - v.anim.start) / FLY_MS);
+        const k = ease(t);
+        v.center = geoInterpolate(v.anim.from, v.anim.to)(k) as Center;
+
+        const dist = geoDistance(v.anim.from, v.anim.to);
+        const lift = Math.sin(Math.PI * k) * Math.min(0.35, dist * 0.18);
+        v.zoom = v.anim.z0 + (v.anim.z1 - v.anim.z0) * k - lift;
+        v.zoom = Math.max(0.8, v.zoom);
+        if (t >= 1) v.anim = null;
+        else more = true;
+      }
+      if (v.routeT < 1) {
+        v.routeT = Math.min(1, v.routeT + 0.006);
+        more = true;
+      }
+      draw();
+      if (more) v.raf = requestAnimationFrame(step);
+    },
+    [draw],
+  );
 
   const kick = useCallback(() => {
     const v = view.current;
     if (!v.raf) v.raf = requestAnimationFrame(loop);
   }, [loop]);
 
-  // Fly to each newly selected event and replay its route.
   useEffect(() => {
     const v = view.current;
     const ev = EVENTS[index];
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const to = focusOf(ev);
     const z1 = zoomFor(ev);
     if (reduce) {
@@ -282,7 +283,6 @@ export default function WorldHistory() {
     };
   }, []);
 
-  // Drag to spin, wheel to zoom.
   const drag = useRef<null | { x: number; y: number; center: Center }>(null);
   const onPointerDown = (e: ReactPointerEvent<SVGSVGElement>) => {
     if ((e.target as Element).closest("[data-marker]")) return;
@@ -315,7 +315,10 @@ export default function WorldHistory() {
       e.preventDefault();
       const v = view.current;
       v.anim = null;
-      v.zoom = Math.max(0.8, Math.min(4, v.zoom * Math.exp(-e.deltaY * 0.0015)));
+      v.zoom = Math.max(
+        0.8,
+        Math.min(4, v.zoom * Math.exp(-e.deltaY * 0.0015)),
+      );
       kick();
     };
     svg.addEventListener("wheel", onWheel, { passive: false });
@@ -326,7 +329,6 @@ export default function WorldHistory() {
     setIndex(Math.max(0, Math.min(EVENTS.length - 1, i)));
   }, []);
 
-  // Autoplay through the events.
   useEffect(() => {
     if (!playing || index >= EVENTS.length - 1) return;
     const t = window.setTimeout(() => go(index + 1), PLAY_MS);
@@ -354,7 +356,6 @@ export default function WorldHistory() {
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 
-  // Scrubbing the timeline selects the latest event at or before that point.
   const scrubTo = (clientX: number) => {
     const el = trackRef.current;
     if (!el) return;
@@ -386,11 +387,10 @@ export default function WorldHistory() {
           <Link href="/" className={styles.home}>
             Neil McArdle
           </Link>
-          <h1 className={styles.title}>A history of the world</h1>
+          <h1 className={styles.title}>A History of the World</h1>
           <p className={styles.lede}>
-            {EVENTS.length} moments across 300,000 years, from the first
-            people to the present. Drag the globe, scrub the timeline or press
-            play.
+            {EVENTS.length} moments across 300,000 years, from the first people
+            to the present. Drag the globe, scrub the timeline or press play.
           </p>
         </header>
 
@@ -463,7 +463,11 @@ export default function WorldHistory() {
               <stop offset="100%" stopColor="var(--sea)" />
             </radialGradient>
           </defs>
-          <path ref={sphereRef} className={styles.sphere} fill="url(#whOcean)" />
+          <path
+            ref={sphereRef}
+            className={styles.sphere}
+            fill="url(#whOcean)"
+          />
           <path ref={gratRef} className={styles.graticule} />
           <path ref={landRef} className={styles.land} />
           <path ref={routeTrailRef} className={styles.routeTrail} />
@@ -471,7 +475,11 @@ export default function WorldHistory() {
           <circle ref={headRef} className={styles.routeHead} r={4} />
           {EVENTS.map((e, i) => {
             const state =
-              i === index ? "active" : e.year <= active.year ? "past" : "future";
+              i === index
+                ? "active"
+                : e.year <= active.year
+                  ? "past"
+                  : "future";
             return (
               <g
                 key={e.id}
@@ -489,12 +497,21 @@ export default function WorldHistory() {
               >
                 <title>{`${e.when}: ${e.title}`}</title>
                 <circle className={styles.hit} r={11} />
-                {state === "active" && <circle className={styles.pulse} r={6} />}
-                <circle className={styles.dot} r={state === "active" ? 5 : 3.2} />
+                {state === "active" && (
+                  <circle className={styles.pulse} r={6} />
+                )}
+                <circle
+                  className={styles.dot}
+                  r={state === "active" ? 5 : 3.2}
+                />
               </g>
             );
           })}
-          <g ref={labelRef} className={styles.label} style={{ display: "none" }}>
+          <g
+            ref={labelRef}
+            className={styles.label}
+            style={{ display: "none" }}
+          >
             <text x={12} y={4}>
               {active.place}
             </text>
@@ -544,7 +561,11 @@ export default function WorldHistory() {
                 type="button"
                 className={styles.tick}
                 data-state={
-                  i === index ? "active" : e.year <= active.year ? "past" : "future"
+                  i === index
+                    ? "active"
+                    : e.year <= active.year
+                      ? "past"
+                      : "future"
                 }
                 style={{ "--p": fixed(position(e.year)) } as CSSProperties}
                 aria-label={`${e.when}: ${e.title}`}

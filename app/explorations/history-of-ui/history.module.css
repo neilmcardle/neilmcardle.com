@@ -6,18 +6,94 @@
 }
 
 .intro {
-  min-height: 100svh;
+  --hero-bg: #0d0d0c;
+  --hero-ink: #ecebe7;
+  --hero-text: #8f8c86;
+  --hero-line: rgb(255 255 255 / 0.06);
+  --hero-accent: #f5a524;
+  color-scheme: dark;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: 28px clamp(16px, 5vw, 64px) 36px;
-  gap: 40px;
+  gap: 64px;
+  padding: 24px clamp(16px, 5vw, 64px) 64px;
+  background: var(--hero-bg);
+  color: var(--hero-text);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.intro > .rain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: auto;
+  overflow: hidden;
+  filter: grayscale(1);
+  opacity: 0.09;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+
+.rain::before,
+.rain::after {
+  content: "";
+  position: absolute;
+  top: -480px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-repeat: repeat;
+  background-position: top left;
+  background-size: 480px 480px;
+  will-change: transform;
+}
+
+.rain::before {
+  background-image: url("/explorations/history-of-ui-rain-thin.svg");
+  animation: rain 90s linear infinite;
+}
+
+.rain::after {
+  background-image: url("/explorations/history-of-ui-rain-large.svg");
+  animation: rain 32s linear infinite;
+}
+
+@keyframes rain {
+  to {
+    transform: translateY(480px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rain::before,
+  .rain::after {
+    animation: none;
+  }
+}
+
+.intro > * {
+  width: min(600px, 100%);
+}
+
+.intro ::selection {
+  background: var(--hero-ink);
+  color: var(--hero-bg);
 }
 
 .home {
-  font-size: 14px;
-  color: inherit;
+  display: inline-grid;
+  place-items: center start;
+  min-height: 44px;
+  color: var(--hero-ink);
+  font-size: 13px;
+  font-weight: 500;
   text-decoration: none;
-  justify-self: start;
 }
 
 .home:hover {
@@ -26,79 +102,104 @@
 }
 
 .introText {
-  align-self: center;
-  max-width: 920px;
+  padding-top: 32px;
 }
 
 .introTitle {
-  font-size: clamp(48px, 11vw, 148px);
-  line-height: 0.92;
-  letter-spacing: -0.045em;
-  font-weight: 600;
   margin: 0;
+  color: var(--hero-ink);
+  font-size: 44px;
+  font-weight: 520;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .introLede {
-  font-size: clamp(18px, 2.2vw, 24px);
-  line-height: 1.35;
-  max-width: 30ch;
-  margin: 28px 0 32px;
-  color: #4a4741;
+  margin: 16px 0 32px;
   text-wrap: pretty;
 }
 
-.start {
-  font: inherit;
-  font-size: 15px;
+.subject {
+  color: var(--hero-ink);
   font-weight: 500;
-  padding: 12px 20px;
-  border-radius: 999px;
+}
+
+.start {
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 20px;
   border: 0;
-  background: #1b1a18;
-  color: #ebe8e4;
+  border-radius: 999px;
+  background: var(--hero-accent);
+  color: var(--hero-bg);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: scale 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .start:active {
-  transform: scale(0.97);
+  scale: 0.96;
 }
 
 .start:focus-visible,
 .railItem:focus-visible,
 .introIndex a:focus-visible {
   outline: 2px solid currentColor;
-  outline-offset: 3px;
+  outline-offset: 2px;
+}
+
+.start:focus-visible,
+.introIndex a:focus-visible,
+.home:focus-visible {
+  outline-color: var(--hero-ink);
 }
 
 .introIndex {
-  list-style: none;
-  margin: 0;
-  padding: 20px 0 0;
-  border-top: 1px solid #cfcac2;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px 24px;
-  font-size: 14px;
+  gap: 0 24px;
+  margin: 0;
+  padding: 16px 0 0;
+  list-style: none;
+  box-shadow: inset 0 1px 0 var(--hero-line);
+  font-size: 13px;
 }
 
 .introIndex a {
-  color: #4a4741;
+  display: grid;
+  grid-template-columns: 4.6em minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  padding: 10px 0;
+  color: var(--hero-text);
   text-decoration: none;
-  display: flex;
-  gap: 10px;
+  transition: color 160ms ease-out;
 }
 
 .introIndex a span {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 12px;
-  color: #8a857c;
-  min-width: 3.4em;
-  padding-top: 1px;
+  color: var(--hero-text);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
 }
 
-.introIndex a:hover {
-  color: #1b1a18;
+@media (hover: hover) and (pointer: fine) {
+  .introIndex a:hover {
+    color: var(--hero-ink);
+  }
+}
+
+@media (min-width: 700px) {
+  .introTitle {
+    font-size: 56px;
+  }
+
+  .intro {
+    padding-top: 32px;
+  }
 }
 
 .era {
@@ -259,13 +360,18 @@
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  padding: 28px clamp(16px, 5vw, 64px) 36px;
-  background: #ebe8e4;
+  padding: 24px clamp(16px, 5vw, 64px) 48px;
+  background: #0d0d0c;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
 }
 
 .footer a {
-  color: #4a4741;
-  font-size: 15px;
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  color: #ecebe7;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 @media (max-width: 900px) {
@@ -335,5 +441,71 @@
   .stage[data-era="agents"] {
     height: auto;
     min-height: 0;
+  }
+}
+
+@media (min-width: 1080px) {
+  .intro > .introIndex {
+    width: min(820px, 100%);
+    grid-template-columns: repeat(3, max-content);
+    column-gap: 40px;
+  }
+
+  .introIndex a {
+    white-space: nowrap;
+  }
+}
+
+.down {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-left: -14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hero-text);
+  cursor: pointer;
+  transition: color 160ms ease-out;
+}
+
+.down:focus-visible {
+  outline: 2px solid var(--hero-ink);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .down:hover {
+    color: var(--hero-ink);
+  }
+}
+
+@media (min-width: 1080px) {
+  .intro {
+    height: 100svh;
+    min-height: 620px;
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    row-gap: clamp(24px, 4vh, 48px);
+    padding-top: 24px;
+    padding-bottom: 12px;
+  }
+
+  .introText {
+    grid-row: 2;
+    padding-top: clamp(16px, 8vh, 96px);
+  }
+
+  .intro > .introIndex {
+    grid-row: 3;
+    padding-top: 8px;
+  }
+
+  .introIndex a {
+    padding: 6px 0;
+  }
+
+  .intro > .down {
+    grid-row: 5;
   }
 }

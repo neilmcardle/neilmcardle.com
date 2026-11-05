@@ -7,10 +7,10 @@ const DESCRIPTION =
   "An interactive globe of world history: sixty-odd moments across 300,000 years, from the first Homo sapiens to the present day.";
 
 export const metadata: Metadata = {
-  title: "A history of the world · Neil McArdle",
+  title: "A History of the World · Neil McArdle",
   description: DESCRIPTION,
   ...share({
-    title: "A history of the world",
+    title: "A History of the World",
     description: DESCRIPTION,
     path: "/explorations/history-of-the-world",
   }),

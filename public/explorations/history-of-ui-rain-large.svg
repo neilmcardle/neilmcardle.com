@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><defs><filter id="_JK-0__9tmjt60" x=".8887" y="-2" width="78.22" height="84" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix" /><feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" /><feOffset /><feGaussianBlur stdDeviation="1" /><feColorMatrix values="0 0 0 0 0.024 0 0 0 0 0.894 0 0 0 0 0 0 0 0 1 0" /><feBlend in2="BackgroundImageFix" result="effect1_dropShadow_3230_14485" /><feBlend in="SourceGraphic" in2="effect1_dropShadow_3230_14485" result="shape" /></filter><linearGradient id="_JK-0__9tmjt61" x1="5.076" x2="5.076" y1="19.44" y2="29.67" gradientUnits="userSpaceOnUse"><stop stop-color="#98F454" offset="0" /><stop stop-color="#65C44A" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt62" x1="6.844" x2="6.844" y1="67.25" y2="72.05" gradientUnits="userSpaceOnUse"><stop stop-color="#8CE557" offset="0" /><stop stop-color="#85ED51" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt63" x1="29.29" x2="29.29" y1="59.05" y2="65.14" gradientUnits="userSpaceOnUse"><stop stop-color="#9AE961" offset="0" /><stop stop-color="#8FE758" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt64" x1="69.77" x2="69.77" y1="53.27" y2="63.62" gradientUnits="userSpaceOnUse"><stop stop-color="#8AE256" offset="0" /><stop stop-color="#85E750" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt65" x1="55.16" x2="55.16" y1="1.637" y2="7.411" gradientUnits="userSpaceOnUse"><stop stop-color="#99F352" offset="0" /><stop stop-color="#8CE856" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt66" x1="21.56" x2="21.56" y1="46.14" y2="48.41" gradientUnits="userSpaceOnUse"><stop stop-color="#9DF458" offset="0" /><stop stop-color="#89E856" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt67" x1="23.07" x2="23.07" y1="22.77" y2="26.65" gradientUnits="userSpaceOnUse"><stop stop-color="#A5F268" offset="0" /><stop stop-color="#89E955" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt68" x1="51.12" x2="51.12" y1="20.59" y2="23.08" gradientUnits="userSpaceOnUse"><stop stop-color="#9CF456" offset="0" /><stop stop-color="#86E84F" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt69" x1="46.27" x2="46.27" y1="53.73" y2="54.99" gradientUnits="userSpaceOnUse"><stop stop-color="#94F259" offset="0" /><stop stop-color="#83E650" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt610" x1="25.49" x2="25.49" y1="75.87" y2="77.81" gradientUnits="userSpaceOnUse"><stop stop-color="#92F057" offset="0" /><stop stop-color="#83E64F" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt611" x1="16.87" x2="16.87" y1="72.35" y2="73.92" gradientUnits="userSpaceOnUse"><stop stop-color="#9DF458" offset="0" /><stop stop-color="#89E856" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt612" x1="38.02" x2="38.02" y1="6.227" y2="9.384" gradientUnits="userSpaceOnUse"><stop stop-color="#99EE5B" offset="0" /><stop stop-color="#89E754" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt613" x1="33.23" x2="33.23" y1="8.395" y2="11.64" gradientUnits="userSpaceOnUse"><stop stop-color="#C7F6D0" offset="0" /><stop stop-color="#A5EFB8" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt614" x1="28.35" x2="28.35" y1="29.18" y2="34.65" gradientUnits="userSpaceOnUse"><stop stop-color="#4A8F60" offset="0" /><stop stop-color="#87D0A1" offset=".4844" /><stop stop-color="#94D4AB" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt615" x1="11.61" x2="11.61" y1="41.93" y2="46.08" gradientUnits="userSpaceOnUse"><stop stop-color="#5C9D70" offset="0" /><stop stop-color="#8BCAA6" offset=".4896" /><stop stop-color="#90CEA9" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt616" x1="62.14" x2="62.14" y1="43.03" y2="48.45" gradientUnits="userSpaceOnUse"><stop stop-color="#C9F7D4" offset="0" /><stop stop-color="#8ED2A4" offset=".4844" /><stop stop-color="#3D7555" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt617" x1="55.16" x2="55.16" y1="64.31" y2="70.9" gradientUnits="userSpaceOnUse"><stop stop-color="#BDF3CE" offset="0" /><stop stop-color="#6EC294" offset=".4844" /><stop stop-color="#4B8D69" offset="1" /></linearGradient><linearGradient id="_JK-0__9tmjt618" x1="76.14" x2="76.14" y1="72.39" y2="76.93" gradientUnits="userSpaceOnUse"><stop stop-color="#C7F4D3" offset="0" /><stop stop-color="#97D4AF" offset="1" /></linearGradient></defs>
+  <g filter="url(#_JK-0__9tmjt60)">
+    <line x1="5.076" x2="5.076" y1="19.44" y2="29.67" stroke="url(#_JK-0__9tmjt61)" stroke-width="0.4688" />
+    <line x1="6.844" x2="6.844" y1="67.25" y2="72.05" stroke="url(#_JK-0__9tmjt62)" stroke-width="0.4688" />
+    <line x1="29.29" x2="29.29" y1="59.05" y2="65.14" stroke="url(#_JK-0__9tmjt63)" stroke-width="0.4922" />
+    <line x1="69.77" x2="69.77" y1="53.27" y2="63.62" stroke="url(#_JK-0__9tmjt64)" stroke-width="0.4922" />
+    <line x1="55.16" x2="55.16" y1="1.637" y2="7.411" stroke="url(#_JK-0__9tmjt65)" stroke-width="0.4688" />
+    <line x1="21.56" x2="21.56" y1="46.14" y2="48.41" stroke="url(#_JK-0__9tmjt66)" stroke-width="0.4922" />
+    <line x1="23.07" x2="23.07" y1="22.77" y2="26.65" stroke="url(#_JK-0__9tmjt67)" stroke-width="0.4688" />
+    <line x1="51.12" x2="51.12" y1="20.59" y2="23.08" stroke="url(#_JK-0__9tmjt68)" stroke-width="0.4375" />
+    <line x1="46.27" x2="46.27" y1="53.73" y2="54.99" stroke="url(#_JK-0__9tmjt69)" stroke-width="0.4375" />
+    <line x1="25.49" x2="25.49" y1="75.87" y2="77.81" stroke="url(#_JK-0__9tmjt610)" stroke-width="0.4375" />
+    <line x1="16.87" x2="16.87" y1="72.35" y2="73.92" stroke="url(#_JK-0__9tmjt611)" stroke-width="0.3906" />
+    <line x1="38.02" x2="38.02" y1="6.227" y2="9.384" stroke="url(#_JK-0__9tmjt612)" stroke-width="0.5391" />
+    <line x1="33.23" x2="33.23" y1="8.395" y2="11.64" stroke="url(#_JK-0__9tmjt613)" stroke-width="0.4102" />
+    <line x1="28.35" x2="28.35" y1="29.18" y2="34.65" stroke="url(#_JK-0__9tmjt614)" stroke-width="0.4375" />
+    <line x1="11.61" x2="11.61" y1="41.93" y2="46.08" stroke="url(#_JK-0__9tmjt615)" stroke-width="0.4375" />
+    <line x1="62.14" x2="62.14" y1="43.03" y2="48.45" stroke="url(#_JK-0__9tmjt616)" stroke-width="0.4102" />
+    <line x1="55.16" x2="55.16" y1="64.31" y2="70.9" stroke="url(#_JK-0__9tmjt617)" stroke-width="0.4375" />
+    <line x1="76.14" x2="76.14" y1="72.39" y2="76.93" stroke="url(#_JK-0__9tmjt618)" stroke-width="0.3906" />
+    <line x1="2.438" x2="2.438" y1="29.81" y2="31.33" stroke="#3A8251" stroke-width="0.4141" />
+    <line x1="2.416" x2="2.416" y1="32.55" y2="33.14" stroke="#479A60" stroke-width="0.4141" />
+    <line x1="2.416" x2="2.416" y1="33.61" y2="34.01" stroke="#479A60" stroke-width="0.3672" />
+    <line x1="2.416" x2="2.416" y1="34.43" y2="34.83" stroke="#479A60" stroke-width="0.3203" />
+    <line x1="2.416" x2="2.416" y1="35.23" y2="36.14" stroke="#2A6A42" stroke-width="0.3203" stroke-dasharray="0.28 0.28" />
+    <line x1="2.416" x2="2.416" y1="36.73" y2="36.99" stroke="#479A60" stroke-width="0.3672" />
+    <line x1="2.416" x2="2.416" y1="38.37" y2="39.37" stroke="#42935D" stroke-width="0.4141" />
+    <line x1="5.076" x2="5.076" y1="30.43" y2="30.84" stroke="#75D152" stroke-width="0.4688" />
+    <line x1="5.812" x2="5.812" y1="34.33" y2="35.92" stroke="#164318" stroke-width="0.3516" stroke-dasharray="0.26 0.26" />
+    <line x1="5.812" x2="5.812" y1="35.8" y2="36.1" stroke="#337A35" stroke-width="0.3125" />
+    <line x1="11.38" x2="11.85" y1="46.77" y2="46.77" stroke="#5A9D72" stroke-width="0.4141" />
+    <line x1="2.355" x2="2.355" y1="23.21" y2="24.64" stroke="#B6F2CE" stroke-width="0.375" />
+    <line x1="16.16" x2="16.16" y1=".01562" y2="1.273" stroke="#428B60" stroke-width="0.4102" />
+    <line x1="18.51" x2="18.51" y1=".2344" y2=".6328" stroke="#A5F268" stroke-width="0.4062" />
+    <line x1="18.51" x2="18.51" y1="1.297" y2="1.719" stroke="#A5F268" stroke-width="0.4062" />
+    <line x1="18.51" x2="18.51" y1="2.234" y2="2.734" stroke="#A5F268" stroke-width="0.4062" />
+    <line x1="18.51" x2="18.51" y1="3.328" y2="3.734" stroke="#A5F268" stroke-width="0.4062" />
+    <line x1="18.51" x2="18.51" y1="3.852" y2="4.367" stroke="#A5F268" stroke-width="0.4062" />
+    <line x1="28.08" x2="28.58" y1="35.48" y2="35.48" stroke="#79BD91" stroke-width="0.4297" />
+    <line x1="54.26" x2="54.26" y1="18.3" y2="19.67" stroke="#85D19D" stroke-width="0.375" />
+    <line x1="54.39" x2="54.39" y1="20.11" y2="20.49" stroke="#5DA878" stroke-width="0.3438" />
+    <line x1="54.39" x2="54.39" y1="20.96" y2="21.36" stroke="#5DA878" stroke-width="0.3281" />
+    <line x1="54.39" x2="54.39" y1="21.77" y2="22.16" stroke="#559D70" stroke-width="0.3125" />
+    <line x1="54.39" x2="54.39" y1="22.71" y2="23.1" stroke="#4B9166" stroke-width="0.2812" />
+    <line x1="54.39" x2="54.39" y1="23.32" y2="23.62" stroke="#42875F" stroke-width="0.2656" />
+    <line x1="73.09" x2="73.09" y1="48.46" y2="54.73" stroke="#4A946B" stroke-width="0.375" stroke-dasharray="0.35 0.35" />
+    <line x1="76.14" x2="76.14" y1="70.91" y2="71.73" stroke="#163B20" stroke-width="0.3438" stroke-dasharray="0.35 0.35" />
+    <line x1="76.14" x2="76.14" y1="77.41" y2="77.79" stroke="#32744A" stroke-width="0.4102" />
+    <line x1="63.39" x2="63.39" y1="4.188" y2="4.664" stroke="#215B33" stroke-width="0.4102" />
+    <line x1="63.39" x2="63.39" y1="5.781" y2="6.195" stroke="#2F734A" stroke-width="0.3906" />
+    <line x1="63.39" x2="63.39" y1="6.754" y2="7.129" stroke="#2F734A" stroke-width="0.375" />
+    <line x1="63.39" x2="63.39" y1="12.58" y2="12.98" stroke="#428F5C" stroke-width="0.375" />
+    <line x1="63.39" x2="63.39" y1="13.48" y2="13.95" stroke="#5CB26A" stroke-width="0.3906" />
+    <line x1="63.34" x2="63.34" y1="14.48" y2="15" stroke="#6CC679" stroke-width="0.375" />
+    <line x1="63.34" x2="63.34" y1="15.67" y2="16.21" stroke="#73CF80" stroke-width="0.4375" />
+    <line x1="68.84" x2="68.84" y1="45.51" y2="46.09" stroke="#8BE752" stroke-width="0.5859" />
+    <line x1="68.84" x2="68.84" y1="47.29" y2="47.83" stroke="#98F454" stroke-width="0.5859" />
+    <line x1="68.84" x2="68.84" y1="48.64" y2="49.19" stroke="#85E74F" stroke-width="0.625" />
+    <line x1="77.18" x2="77.18" y1="38.33" y2="38.7" stroke="#74C94D" stroke-width="0.375" />
+    <line x1="77.18" x2="77.18" y1="39.38" y2="39.76" stroke="#80D950" stroke-width="0.375" />
+    <line x1="21.53" x2="21.53" y1="63.14" y2="65.17" stroke="#2D6946" stroke-width="0.4062" />
+    <line x1="21.53" x2="21.53" y1="65.46" y2="65.89" stroke="#439260" stroke-width="0.3438" />
+    <line x1="21.53" x2="21.53" y1="66.3" y2="66.73" stroke="#439260" stroke-width="0.3281" />
+    <line x1="21.53" x2="21.53" y1="66.93" y2="67.43" stroke="#439260" stroke-width="0.3125" />
+    <line x1="21.53" x2="21.53" y1="67.83" y2="68.29" stroke="#439260" stroke-width="0.3047" />
+    <line x1="21.53" x2="21.53" y1="68.79" y2="69.55" stroke="#408B5D" stroke-width="0.3828" />
+    <line x1="21.53" x2="21.53" y1="70.02" y2="70.55" stroke="#3B8256" stroke-width="0.3359" />
+    <line x1="21.53" x2="21.53" y1="70.91" y2="71.35" stroke="#377A51" stroke-width="0.3125" />
+    <line x1="21.53" x2="21.53" y1="71.64" y2="72.05" stroke="#32724B" stroke-width="0.2891" />
+    <line x1="21.53" x2="21.53" y1="72.55" y2="72.95" stroke="#2D6A45" stroke-width="0.2734" />
+    <line x1="21.53" x2="21.53" y1="73.66" y2="75.49" stroke="#266140" stroke-width="0.4062" />
+    <line x1="38.02" x2="38.02" y1="67.89" y2="68.38" stroke="#367750" stroke-width="0.4453" />
+    <line x1="38.02" x2="38.02" y1="69.09" y2="69.63" stroke="#61B177" stroke-width="0.4688" />
+    <line x1="38.02" x2="38.02" y1="70.06" y2="70.52" stroke="#84C997" stroke-width="0.4375" />
+    <line x1="38.02" x2="38.02" y1="70.92" y2="71.43" stroke="#96D5A9" stroke-width="0.4375" />
+    <line x1="38.02" x2="38.02" y1="71.79" y2="72.33" stroke="#9DD8B0" stroke-width="0.4219" />
+    <line x1="38.02" x2="38.02" y1="72.46" y2="72.92" stroke="#95D5AA" stroke-width="0.4062" />
+    <line x1="38.02" x2="38.02" y1="73.39" y2="73.81" stroke="#85CA99" stroke-width="0.375" />
+    <line x1="38.02" x2="38.02" y1="74.38" y2="74.79" stroke="#79C190" stroke-width="0.3438" />
+    <line x1="38.02" x2="38.02" y1="75.16" y2="75.58" stroke="#68B686" stroke-width="0.3203" />
+    <line x1="38.02" x2="38.02" y1="76.21" y2="76.69" stroke="#5FAD7E" stroke-width="0.4375" />
+    <line x1="29.27" x2="29.27" y1="67.67" y2="68.19" stroke="#75D14D" stroke-width="0.4375" />
+    <line x1="29.29" x2="29.29" y1="68.98" y2="69.53" stroke="#87E44F" stroke-width="0.4453" />
+    <line x1="29.29" x2="29.29" y1="69.53" y2="69.88" stroke="#87E44F" stroke-width="0.4219" />
+  </g>
+  <text transform="translate(1.957 16.24)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01855em" fill="#ABEAB2">1</text>
+  <text transform="translate(1.939 20.43)" font-family="Rajdhani" font-size="1.68" letter-spacing=".01855em" fill="#C5F8D7">0</text>
+  <text transform="translate(10.93 2.75)" font-family="Rajdhani" font-size="2.734" letter-spacing=".03125em" fill="#B0F383">1</text>
+  <text transform="translate(10.86 6.121)" font-family="Rajdhani" font-size="3.125" letter-spacing=".03125em" fill="#B8F399">1</text>
+  <text transform="translate(10.91 9.688)" font-family="Rajdhani" font-size="2.861" letter-spacing=".03125em" fill="#BDF2A6">1</text>
+  <text transform="translate(10.69 13.61)" font-family="Rajdhani" font-size="3.457" letter-spacing=".03516em" fill="#C7F7B2">0</text>
+  <text transform="translate(10.85 17.43)" font-family="Rajdhani" font-size="3.32" letter-spacing=".03516em" fill="#C6F7AB">1</text>
+  <text transform="translate(10.64 21.48)" font-family="Rajdhani" font-size="3.457" letter-spacing=".03516em" fill="#D0F9B9">0</text>
+  <text transform="translate(10.88 25.19)" font-family="Rajdhani" font-size="3.234" letter-spacing=".03516em" fill="#D3F9B7">1</text>
+  <text transform="translate(10.64 29.11)" font-family="Rajdhani" font-size="3.535" letter-spacing=".03516em" fill="#D6FAB5">0</text>
+  <text transform="translate(10.87 32.77)" font-family="Rajdhani" font-size="3.32" letter-spacing=".03516em" fill="#C9F6AE">1</text>
+  <text transform="translate(10.67 36.72)" font-family="Rajdhani" font-size="3.477" letter-spacing=".03516em" fill="#D0F9B6">0</text>
+  <text transform="translate(10.98 40.49)" font-family="Rajdhani" font-size="3.047" letter-spacing=".03125em" fill="#BDF49E">1</text>
+  <text transform="translate(5.348 38.77)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02148em" fill="#B2F280">1</text>
+  <text transform="translate(5.297 41.7)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02148em" fill="#B8F384">0</text>
+  <text transform="translate(5.391 44.31)" font-family="Rajdhani" font-size="1.992" letter-spacing=".01953em" fill="#B7F281">1</text>
+  <text transform="translate(5.191 47.12)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02148em" fill="#B8F384">0</text>
+  <text transform="translate(5.355 49.64)" font-family="Rajdhani" font-size="2.031" letter-spacing=".01953em" fill="#B7F280">1</text>
+  <text transform="translate(5.195 52.34)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02148em" fill="#B8F384">0</text>
+  <text transform="translate(5.273 55.21)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02148em" fill="#B8F384">0</text>
+  <text transform="translate(5.387 58.14)" font-family="Rajdhani" font-size="2.031" letter-spacing=".01953em" fill="#B8F383">1</text>
+  <text transform="translate(5.195 61.23)" font-family="Rajdhani" font-size="2.227" letter-spacing=".02148em" fill="#B8F384">0</text>
+  <text transform="translate(5.398 62.47)" font-family="Rajdhani" font-size="1.797" letter-spacing=".01758em" fill="#B8F383">1</text>
+  <text transform="translate(5.383 64.52)" font-family="Rajdhani" font-size="1.875" letter-spacing=".01953em" fill="#B8F383">1</text>
+  <text transform="translate(16.52 53.14)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#A7F07D">0</text>
+  <text transform="translate(16.51 54.89)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#B3F285">0</text>
+  <text transform="translate(16.46 58.7)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01641em" fill="#B9F489">1</text>
+  <text transform="translate(16.39 60.96)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#C3F691">0</text>
+  <text transform="translate(16.49 62.89)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01719em" fill="#B9F488">1</text>
+  <text transform="translate(16.36 65.05)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01914em" fill="#BEF590">0</text>
+  <text transform="translate(16.48 67.11)" font-family="Rajdhani" font-size="1.688" letter-spacing=".01699em" fill="#C3F794">1</text>
+  <text transform="translate(25.16 35.21)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01855em" fill="#88D28E">0</text>
+  <text transform="translate(25.09 37.74)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01855em" fill="#80C886">3</text>
+  <text transform="translate(25.08 40.12)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01855em" fill="#80C886">0</text>
+  <text transform="translate(25.04 42.54)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#8ED698">0</text>
+  <text transform="translate(25.04 44.92)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#9BE289">1</text>
+  <text transform="translate(25.03 52.11)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01855em" fill="#9FE484">0</text>
+  <text transform="translate(25.11 56.89)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01641em" fill="#A2E995">1</text>
+  <text transform="translate(25.06 66.32)" font-family="Rajdhani" font-size="1.688" letter-spacing=".01816" fill="#85CD8A">0</text>
+  <text transform="translate(25.12 68.71)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01641em" fill="#7DC681">1</text>
+  <text transform="translate(25.23 32.93)" font-family="Rajdhani" font-size="1.688" letter-spacing=".01855em" fill="#205437">1</text>
+  <text transform="translate(25.23 29.28)" font-family="Rajdhani" font-size="1.617" letter-spacing=".0166em" fill="#0F2D1D">2</text>
+  <text transform="translate(27.82 4.645)" font-family="Rajdhani" font-size="2.383" letter-spacing=".02344em" fill="#B8F39A">1</text>
+  <text transform="translate(27.69 7.52)" font-family="Rajdhani" font-size="2.203" letter-spacing=".02148em" fill="#B8F39A">0</text>
+  <text transform="translate(27.84 10.26)" font-family="Rajdhani" font-size="2.203" letter-spacing=".02148em" fill="#BAF49D">0</text>
+  <text transform="translate(27.66 13.17)" font-family="Rajdhani" font-size="2.273" letter-spacing=".02344em" fill="#BDF4A3">0</text>
+  <text transform="translate(27.85 15.89)" font-family="Rajdhani" font-size="2.148" letter-spacing=".02148em" fill="#BDF4A3">1</text>
+  <text transform="translate(27.62 18.88)" font-family="Rajdhani" font-size="2.188" letter-spacing=".02344em" fill="#C6F8B0">0</text>
+  <text transform="translate(27.82 21.73)" font-family="Rajdhani" font-size="2.148" letter-spacing=".02148em" fill="#C1F69E">1</text>
+  <text transform="translate(27.62 24.76)" font-family="Rajdhani" font-size="2.422" letter-spacing=".02344em" fill="#CCF8A8">0</text>
+  <text transform="translate(27.82 27.98)" font-family="Rajdhani" font-size="2.148" letter-spacing=".02148em" fill="#C6F69D">1</text>
+  <text transform="translate(37.56 16.02)" font-family="Rajdhani" font-size="2.852" letter-spacing=".03125em" fill="#C6F8B0">1</text>
+  <text transform="translate(36.97 20.34)" font-family="Rajdhani" font-size="3.848" letter-spacing=".03906em" fill="#D0F9B8">0</text>
+  <text transform="translate(37.17 24.64)" font-family="Rajdhani" font-size="3.535" letter-spacing=".03516em" fill="#C9F7B2">1</text>
+  <text transform="translate(36.88 29.32)" font-family="Rajdhani" font-size="4.277" letter-spacing=".04297em" fill="#D6FAB5">0</text>
+  <text transform="translate(37.19 33.97)" font-family="Rajdhani" font-size="3.848" letter-spacing=".03906em" fill="#C9F7B3">2</text>
+  <text transform="translate(36.87 38.72)" font-family="Rajdhani" font-size="3.984" letter-spacing=".04297em" fill="#D0F9B6">0</text>
+  <text transform="translate(37.18 43.25)" font-family="Rajdhani" font-size="3.867" letter-spacing=".03906em" fill="#C6F8AF">4</text>
+  <text transform="translate(36.86 48.11)" font-family="Rajdhani" font-size="4.062" letter-spacing=".0418em" fill="#D0F8B6">0</text>
+  <text transform="translate(37.32 52.52)" font-family="Rajdhani" font-size="3.258" letter-spacing=".0332em" fill="#C8F7B3">3</text>
+  <text transform="translate(36.95 57.04)" font-family="Rajdhani" font-size="3.926" letter-spacing=".03906em" fill="#D8FAB9">0</text>
+  <text transform="translate(36.96 61.61)" font-family="Rajdhani" font-size="3.867" letter-spacing=".03906em" fill="#D4F9B6">0</text>
+  <text transform="translate(37.32 65.96)" font-family="Rajdhani" font-size="3.258" letter-spacing=".0332em" fill="#C7F7B3">1</text>
+  <text transform="translate(46.95 2.973)" font-family="Rajdhani" font-size="2.031" letter-spacing=".02051em" fill="#A8F0B5">0</text>
+  <text transform="translate(47.33 7.535)" font-family="Rajdhani" font-size="2.016" letter-spacing=".02051em" fill="#B8F4C0">0</text>
+  <text transform="translate(47.4 10.64)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01562em" fill="#ADF0B8">0</text>
+  <text transform="translate(47.32 19.06)" font-family="Rajdhani" font-size="1.641" letter-spacing=".0166em" fill="#C8F8CD">0</text>
+  <text transform="translate(47.36 21.32)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01514em" fill="#C9F8D0">1</text>
+  <text transform="translate(47.28 33.21)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01855em" fill="#B1F3C6">0</text>
+  <text transform="translate(47.32 35.68)" font-family="Rajdhani" font-size="1.672" letter-spacing=".0166em" fill="#A7E8B7">0</text>
+  <text transform="translate(47.35 38.06)" font-family="Rajdhani" font-size="1.758" letter-spacing=".01758em" fill="#ABE9B9">1</text>
+  <text transform="translate(50.76 11.52)" font-family="Rajdhani" font-size="1.773" letter-spacing=".01758em" fill="#BCF6A5">0</text>
+  <text transform="translate(50.81 13.55)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01514em" fill="#B8F59E">1</text>
+  <text transform="translate(50.71 15.55)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01855em" fill="#B8F59F">0</text>
+  <text transform="translate(50.77 17.64)" font-family="Rajdhani" font-size="1.656" letter-spacing=".01611" fill="#A8F081">0</text>
+  <text transform="translate(60.2 4.844)" font-family="Rajdhani" font-size="1.641" letter-spacing=".01641em" fill="#A7E7AE">0</text>
+  <text transform="translate(60.19 14.21)" font-family="Rajdhani" font-size="1.641" letter-spacing=".01641em" fill="#86CD96">0</text>
+  <text transform="translate(60.19 18.04)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01611" fill="#82CC92">0</text>
+  <text transform="translate(57.18 29.02)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01855em" fill="#ABF279">1</text>
+  <text transform="translate(57.13 31.61)" font-family="Rajdhani" font-size="1.836" letter-spacing=".01855em" fill="#ABF279">0</text>
+  <text transform="translate(56.98 34.38)" font-family="Rajdhani" font-size="2.109" letter-spacing=".02051em" fill="#B6F47B">0</text>
+  <text transform="translate(57.1 36.88)" font-family="Rajdhani" font-size="1.961" letter-spacing=".01855em" fill="#BEF485">1</text>
+  <text transform="translate(56.98 39.52)" font-family="Rajdhani" font-size="1.891" letter-spacing=".01611" fill="#C0F484">0</text>
+  <text transform="translate(57.11 42.18)" font-family="Rajdhani" font-size="1.855" letter-spacing=".01816" fill="#B9F47E">1</text>
+  <text transform="translate(56.95 45.03)" font-family="Rajdhani" font-size="2.125" letter-spacing=".02051em" fill="#B9F47F">0</text>
+  <text transform="translate(56.96 50.22)" font-family="Rajdhani" font-size="2.031" letter-spacing=".01895" fill="#B8F47E">0</text>
+  <text transform="translate(57.15 52.84)" font-family="Rajdhani" font-size="1.812" letter-spacing=".01719" fill="#B5F275">1</text>
+  <text transform="translate(56.97 55.64)" font-family="Rajdhani" font-size="2.172" letter-spacing=".02012" fill="#B9F379">0</text>
+  <text transform="translate(57.16 58.56)" font-family="Rajdhani" font-size="1.984" letter-spacing=".01836" fill="#B8F37A">1</text>
+  <text transform="translate(76.81 41.68)" font-family="Rajdhani" font-size="1.719" letter-spacing=".01855em" fill="#B4F47A">1</text>
+  <text transform="translate(76.78 45.96)" font-family="Rajdhani" font-size="1.836" letter-spacing=".02051em" fill="#B6F478">0</text>
+  <text transform="translate(76.84 50.05)" font-family="Rajdhani" font-size="1.602" letter-spacing=".01758" fill="#B8F47D">1</text>
+  <text transform="translate(76.77 52.34)" font-family="Rajdhani" font-size="1.836" letter-spacing=".02051em" fill="#B8F47D">0</text>
+  <text transform="translate(76.8 54.55)" font-family="Rajdhani" font-size="1.922" letter-spacing=".02051em" fill="#C3F692">1</text>
+  <text transform="translate(76.81 56.86)" font-family="Rajdhani" font-size="1.891" letter-spacing=".01914" fill="#D0F79A">0</text>
+  <text transform="translate(76.88 59.21)" font-family="Rajdhani" font-size="1.672" letter-spacing=".01836" fill="#D2F79A">1</text>
+  <text transform="translate(76.73 61.62)" font-family="Rajdhani" font-size="1.867" letter-spacing=".01914" fill="#C4F592">0</text>
+  <text transform="translate(76.82 63.75)" font-family="Rajdhani" font-size="1.68" letter-spacing=".01855em" fill="#C4F591">3</text>
+  <text transform="translate(76.83 65.66)" font-family="Rajdhani" font-size="1.672" letter-spacing=".01895" fill="#C8F694">1</text>
+  <text transform="translate(68.26 3.562)" font-family="Rajdhani" font-size="3.633" letter-spacing=".03711" fill="#C7F6A9">1</text>
+  <text transform="translate(68.02 7.852)" font-family="Rajdhani" font-size="3.633" letter-spacing=".03711" fill="#C6F6A9">6</text>
+  <text transform="translate(68.07 11.64)" font-family="Rajdhani" font-size="4.414" letter-spacing=".04453" fill="#BDF499">0</text>
+  <text transform="translate(68.09 16.72)" font-family="Rajdhani" font-size="3.535" letter-spacing=".03711" fill="#C8F89F">1</text>
+  <text transform="translate(67.79 21.54)" font-family="Rajdhani" font-size="4.336" letter-spacing=".04453" fill="#C9F89F">0</text>
+  <text transform="translate(68.12 25.92)" font-family="Rajdhani" font-size="3.477" letter-spacing=".03613" fill="#CEFAA4">1</text>
+  <text transform="translate(67.83 30.47)" font-family="Rajdhani" font-size="3.848" letter-spacing=".03906" fill="#D0FAAC">0</text>
+  <text transform="translate(68.12 34.83)" font-family="Rajdhani" font-size="3.535" letter-spacing=".03516" fill="#C7F7A7">1</text>
+  <text transform="translate(67.79 39.34)" font-family="Rajdhani" font-size="3.848" letter-spacing=".03906" fill="#D0FAA7">0</text>
+  <text transform="translate(68.37 43.86)" font-family="Rajdhani" font-size="3.398" letter-spacing=".0332" fill="#BDF88F">3</text>
+  </svg>
