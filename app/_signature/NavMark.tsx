@@ -50,13 +50,17 @@ export default function NavMark() {
   useEffect(() => () => window.clearTimeout(unmount.current), []);
 
   useEffect(() => {
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+    if (
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
       return;
     const near = (event: PointerEvent) => {
       if (event.clientY > 160) return;
       window.removeEventListener("pointermove", near);
-      import("@/app/explorations/_lab/NParticles");
-      new Image().src = "/me.png";
+      import("@/app/explorations/_lab/NParticles").then((m) =>
+        m.prepareParticles(HOVER, "/me.png"),
+      );
     };
     window.addEventListener("pointermove", near, { passive: true });
     return () => window.removeEventListener("pointermove", near);

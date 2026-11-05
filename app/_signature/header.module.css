@@ -73,14 +73,14 @@
   width: 22px;
   height: 22px;
   translate: -50% -50%;
-  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.32s cubic-bezier(0.2, 0.8, 0, 1);
 }
 
 .particleMark .fade {
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.32s cubic-bezier(0.2, 0.8, 0, 1);
 }
 
 .particleMark .fade.on {

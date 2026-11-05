@@ -296,16 +296,8 @@ function sample(
   return { home, home2, tone, seed, rnd, minX, maxX, face: !!face };
 }
 
-function buffers(data: ReturnType<typeof sample>) {
+function pairs(data: ReturnType<typeof sample>) {
   const count = data.rnd.length;
-  const points = new THREE.BufferGeometry();
-  points.setAttribute("position", new THREE.BufferAttribute(data.home, 3));
-  points.setAttribute("home", new THREE.BufferAttribute(data.home, 3));
-  points.setAttribute("seed", new THREE.BufferAttribute(data.seed, 3));
-  points.setAttribute("rnd", new THREE.BufferAttribute(data.rnd, 1));
-  points.setAttribute("home2", new THREE.BufferAttribute(data.home2, 3));
-  points.setAttribute("tone", new THREE.BufferAttribute(data.tone, 1));
-
   const home = new Float32Array(count * 6);
   const home2 = new Float32Array(count * 6);
   const tone = new Float32Array(count * 2);
@@ -323,15 +315,89 @@ function buffers(data: ReturnType<typeof sample>) {
       tailFlag[v] = side;
     }
   }
+  return { home, home2, tone, seed, rnd, tail: tailFlag };
+}
+
+type Prepared = {
+  data: ReturnType<typeof sample>;
+  lines: ReturnType<typeof pairs>;
+};
+
+function buffers({ data, lines: pair }: Prepared) {
+  const points = new THREE.BufferGeometry();
+  points.setAttribute("position", new THREE.BufferAttribute(data.home, 3));
+  points.setAttribute("home", new THREE.BufferAttribute(data.home, 3));
+  points.setAttribute("seed", new THREE.BufferAttribute(data.seed, 3));
+  points.setAttribute("rnd", new THREE.BufferAttribute(data.rnd, 1));
+  points.setAttribute("home2", new THREE.BufferAttribute(data.home2, 3));
+  points.setAttribute("tone", new THREE.BufferAttribute(data.tone, 1));
+
   const lines = new THREE.BufferGeometry();
-  lines.setAttribute("position", new THREE.BufferAttribute(home, 3));
-  lines.setAttribute("home", new THREE.BufferAttribute(home, 3));
-  lines.setAttribute("seed", new THREE.BufferAttribute(seed, 3));
-  lines.setAttribute("rnd", new THREE.BufferAttribute(rnd, 1));
-  lines.setAttribute("tail", new THREE.BufferAttribute(tailFlag, 1));
-  lines.setAttribute("home2", new THREE.BufferAttribute(home2, 3));
-  lines.setAttribute("tone", new THREE.BufferAttribute(tone, 1));
+  lines.setAttribute("position", new THREE.BufferAttribute(pair.home, 3));
+  lines.setAttribute("home", new THREE.BufferAttribute(pair.home, 3));
+  lines.setAttribute("seed", new THREE.BufferAttribute(pair.seed, 3));
+  lines.setAttribute("rnd", new THREE.BufferAttribute(pair.rnd, 1));
+  lines.setAttribute("tail", new THREE.BufferAttribute(pair.tail, 1));
+  lines.setAttribute("home2", new THREE.BufferAttribute(pair.home2, 3));
+  lines.setAttribute("tone", new THREE.BufferAttribute(pair.tone, 1));
   return { points, lines };
+}
+
+type Recipe = {
+  shape: Shape;
+  count: number;
+  depth: number;
+  face?: string;
+  crop?: [number, number, number, number];
+  contrast: number;
+  zoom: number;
+};
+
+function recipe(settings: NSettings, face?: string): Recipe {
+  return {
+    shape: settings.shape,
+    count: settings.particles,
+    depth: settings.depth ?? 1,
+    face,
+    crop: settings.faceCrop,
+    contrast: settings.faceContrast ?? 1,
+    zoom: settings.faceScale ?? 1,
+  };
+}
+
+const keyOf = (r: Recipe) =>
+  [r.shape, r.count, r.depth, r.face, r.crop?.join(","), r.contrast, r.zoom]
+    .map(String)
+    .join("|");
+
+const ready = new Map<string, () => Promise<Prepared>>();
+
+async function build(r: Recipe): Promise<Prepared> {
+  let faceData: Portrait | null = null;
+  if (r.face) {
+    try {
+      faceData = await portrait(r.face, r.count, r.crop, r.contrast, r.zoom);
+    } catch {
+      faceData = null;
+    }
+  }
+  const data = sample(r.shape, r.count, faceData, r.depth);
+  return { data, lines: pairs(data) };
+}
+
+const idle = (run: () => void) =>
+  typeof window.requestIdleCallback === "function"
+    ? window.requestIdleCallback(run, { timeout: 2000 })
+    : setTimeout(run, 200);
+
+export function prepareParticles(settings: NSettings, face?: string) {
+  const r = recipe(settings, face);
+  const key = keyOf(r);
+  if (ready.has(key)) return;
+  let started: Promise<Prepared> | undefined;
+  const start = () => (started ??= build(r));
+  ready.set(key, start);
+  idle(start);
 }
 
 const ease = (t: number) =>
@@ -391,7 +457,7 @@ export default function NParticles({
     if (!stage) return;
     let off = false;
     let stop: (() => void) | undefined;
-    const setup = (faceData: Portrait | null) => {
+    const setup = (prepared: Prepared) => {
       const reduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
@@ -446,10 +512,10 @@ export default function NParticles({
         depthWrite: false,
       });
 
-      const data = sample(shape, count, faceData, depth);
+      const { data } = prepared;
       uniforms.uMinX.value = data.minX;
       uniforms.uMaxX.value = data.maxX;
-      const geometry = buffers(data);
+      const geometry = buffers(prepared);
       const group = new THREE.Group();
       group.add(new THREE.LineSegments(geometry.lines, lineMaterial));
       group.add(new THREE.Points(geometry.points, pointMaterial));
@@ -741,22 +807,25 @@ export default function NParticles({
         assembleRef.current = () => {};
       };
     };
-    if (!face) return setup(null);
-    portrait(
-      face,
+    const r: Recipe = {
+      shape,
       count,
-      faceCrop
+      depth,
+      face,
+      crop: faceCrop
         ? (faceCrop.split(",").map(Number) as [number, number, number, number])
         : undefined,
-      faceContrast,
-      faceScale,
-    )
-      .then((faceData) => {
-        if (!off) stop = setup(faceData);
-      })
-      .catch(() => {
-        if (!off) stop = setup(null);
-      });
+      contrast: faceContrast,
+      zoom: faceScale,
+    };
+    const cached = ready.get(keyOf(r));
+    if (!cached && !face) {
+      const data = sample(shape, count, null, depth);
+      return setup({ data, lines: pairs(data) });
+    }
+    (cached ? cached() : build(r)).then((prepared) => {
+      if (!off) stop = setup(prepared);
+    });
     return () => {
       off = true;
       stop?.();

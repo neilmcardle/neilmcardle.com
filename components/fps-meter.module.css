@@ -1,0 +1,62 @@
+.meter {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483000;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(13 13 12 / 0.88);
+  color: #8f8c86;
+  font:
+    400 12px/36px var(--font-inter),
+    Inter,
+    system-ui,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 4px 16px rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+.fps {
+  min-width: 2ch;
+  color: #ecebe7;
+  font-weight: 600;
+  text-align: right;
+}
+
+.meter[data-level="warn"] .fps {
+  color: #f5a524;
+}
+
+.meter[data-level="bad"] .fps {
+  color: #ff6b5a;
+}
+
+.unit,
+.label {
+  color: #6b6964;
+}
+
+.num {
+  color: #ecebe7;
+}
+
+.sep {
+  width: 1px;
+  height: 12px;
+  align-self: center;
+  background: rgb(255 255 255 / 0.12);
+}
+
+.meter:focus-visible {
+  outline: 2px solid #ecebe7;
+  outline-offset: 2px;
+}

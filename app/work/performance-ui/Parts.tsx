@@ -249,6 +249,10 @@ const CREDITS: [string, string][] = [
   ["Impeccable", "Paul Bakaus's design skill"],
   ["Apple", "WWDC talks and the Human Interface Guidelines"],
   ["Emil Kowalski", "His writing on motion and interaction, and Sonner"],
+  [
+    "Derek Briggs",
+    "Motion that settles, ordering by importance and frame-rate checks",
+  ],
   ["frontend-design", "Anthropic's design skill"],
   [
     "Wireframe and Inflight",

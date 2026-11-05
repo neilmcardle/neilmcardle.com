@@ -14,7 +14,7 @@
   --radius-frame: 20px;
   --radius-chip: 7px;
   --radius-pill: 999px;
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0, 1);
   --duration-press: 160ms;
   --duration-enter: 240ms;
   --press-scale: 0.96;

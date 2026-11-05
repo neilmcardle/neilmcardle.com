@@ -17,9 +17,9 @@
   font-weight: 500;
   translate: -50% 0;
   transition:
-    opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-    translate 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  animation: arrive 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.8s backwards;
+    opacity 0.24s cubic-bezier(0.2, 0.8, 0, 1),
+    translate 0.24s cubic-bezier(0.2, 0.8, 0, 1);
+  animation: arrive 0.6s cubic-bezier(0.2, 0.8, 0, 1) 0.8s backwards;
 }
 
 .hint svg {

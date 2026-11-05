@@ -179,7 +179,7 @@ function Card({
       flyer.append(next);
     }
     document.body.append(veil, flyer);
-    const ease = "cubic-bezier(0.16, 1, 0.3, 1)";
+    const ease = "cubic-bezier(0.2, 0.8, 0, 1)";
     veil.animate([{ opacity: 0 }, { opacity: 1 }], {
       duration: 200,
       easing: "linear",

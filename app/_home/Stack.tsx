@@ -204,7 +204,7 @@ export default function Stack({ base = "" }: { base?: string }) {
     cards.current.forEach((card, i) => {
       if (!card) return;
       const wait = `${i * ARRIVAL_STEP}ms`;
-      card.style.transition = `transform ${ARRIVAL_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${wait}, opacity ${ARRIVAL_MS}ms cubic-bezier(0.16, 1, 0.3, 1) ${wait}`;
+      card.style.transition = `transform ${ARRIVAL_MS}ms cubic-bezier(0.2, 0.8, 0, 1) ${wait}, opacity ${ARRIVAL_MS}ms cubic-bezier(0.2, 0.8, 0, 1) ${wait}`;
     });
     paint();
     const id = window.setTimeout(() => {

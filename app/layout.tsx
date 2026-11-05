@@ -7,6 +7,7 @@ import "./make-ebook/styles/tokens.css";
 import { THEME_SCRIPT } from "@/components/home/theme";
 import NeilAgent from "@/components/NeilAgent";
 import NavTracker from "@/components/NavTracker";
+import FpsMeter from "@/components/FpsMeter";
 import { Analytics } from "@vercel/analytics/next";
 import {
   Archivo,
@@ -194,6 +195,7 @@ export default function RootLayout({
         </div>
         <NavTracker />
         <NeilAgent />
+        {process.env.NODE_ENV === "development" && <FpsMeter />}
         <Analytics />
       </body>
     </html>

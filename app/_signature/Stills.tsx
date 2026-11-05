@@ -7,9 +7,7 @@ import styles from "./stills.module.css";
 
 export type Still = { src: string; alt: string };
 
-const SPRING =
-  "linear(0, 0.0348, 0.121, 0.2357, 0.3618, 0.4874, 0.6045, 0.7082, 0.7962, 0.8681, 0.9246, 0.9671, 0.9975, 1.0179, 1.0303, 1.0366, 1.0384, 1.0371, 1.0338, 1.0294, 1.0246, 1.0197, 1.0152, 1.0112, 1.0079, 1.0051, 1.0029, 1.0013, 1.0001, 0.9993, 0.9988, 0.9986, 0.9985, 0.9986, 0.9987, 0.9989, 0.9991, 0.9992, 0.9994, 0.9996, 1)";
-const OUT = "cubic-bezier(0.16, 1, 0.3, 1)";
+const OUT = "cubic-bezier(0.2, 0.8, 0, 1)";
 const SIZES = "(max-width: 720px) 50vw, 360px";
 
 const still = () =>
@@ -99,7 +97,7 @@ export default function Stills({
     const to = stage.current.getBoundingClientRect();
     stage.current.animate(
       [{ transform: between(from.rect, to) }, { transform: "none" }],
-      { duration: 560, easing: SPRING },
+      { duration: 400, easing: OUT },
     );
     shade.current?.animate([{ opacity: 0 }, { opacity: 1 }], {
       duration: 240,

@@ -593,7 +593,7 @@ button:hover .palette-icon {
 /* The hero CTA uses the same trace but wants punch, not ambience: a quick,
    ease-out sweep that fires the moment the pointer lands. */
 .project-card-trace.cta-trace-fast:hover::after {
-  animation: project-card-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: project-card-trace 3.2s cubic-bezier(0.2, 0.8, 0, 1);
 }
 
 @keyframes project-card-trace {
@@ -684,7 +684,7 @@ button:hover .palette-icon {
 }
 
 .animate-slide-in-right {
-  animation: slide-in-from-right 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slide-in-from-right 200ms cubic-bezier(0.2, 0.8, 0, 1) both;
   will-change: transform;
 }
 
@@ -698,7 +698,7 @@ button:hover .palette-icon {
 }
 
 .animate-slide-in-from-bottom {
-  animation: slide-in-from-bottom 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slide-in-from-bottom 250ms cubic-bezier(0.2, 0.8, 0, 1) both;
 }
 
 /* Persona-specific backgrounds */
@@ -1660,7 +1660,7 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
   opacity: 0;
 }
 .gold-btn-trace:hover::after {
-  animation: project-card-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: project-card-trace 3.2s cubic-bezier(0.2, 0.8, 0, 1);
 }
 
 .home-prose .soft-card {
@@ -2271,7 +2271,7 @@ button.spark-card:hover,
   --me-dur: 200ms;
   --me-dur-slow: 300ms;
   --me-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --me-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --me-ease-out: cubic-bezier(0.2, 0.8, 0, 1);
 }
 
 @keyframes me-rise-in {

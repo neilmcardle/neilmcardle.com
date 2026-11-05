@@ -8,7 +8,7 @@
   --sea-lit: #fbfaf7;
   --land: #cfc9bc;
   --coast: #8f897c;
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease: cubic-bezier(0.2, 0.8, 0, 1);
   --sans: var(--font-inter), system-ui, sans-serif;
   --heavy: var(--font-heavy), "Arial Narrow", sans-serif;
 
@@ -385,7 +385,8 @@
 .eraBand[data-on] {
   color: var(--ink);
   font-weight: 600;
-  background: linear-gradient(var(--ink), var(--ink)) bottom / 100% 2px no-repeat;
+  background: linear-gradient(var(--ink), var(--ink)) bottom / 100% 2px
+    no-repeat;
 }
 
 .ticks {
