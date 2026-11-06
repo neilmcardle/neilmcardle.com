@@ -496,7 +496,7 @@
 
 .shelf {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 4px;
 }
@@ -513,6 +513,25 @@
 .shelf figcaption span {
   margin-right: 6px;
   color: var(--ink);
+}
+
+.coinCard {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--frame);
+  box-shadow: var(--edge);
+}
+
+.coinCard canvas {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.coinCard.on canvas {
+  opacity: 1;
 }
 
 .faceCard,
@@ -787,6 +806,18 @@
 }
 
 @media (max-width: 560px) {
+  .shelf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .coinFigure {
+    grid-column: 1 / -1;
+  }
+
+  .coinFigure .coinCard {
+    aspect-ratio: 2;
+  }
+
   .stack {
     height: 190px;
     scale: 0.74;

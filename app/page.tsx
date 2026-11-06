@@ -9,6 +9,7 @@ import Rows from "./_home/Rows";
 import Rail from "./_home/Rail";
 import TopNav from "./_home/TopNav";
 import FaceCard from "./_home/FaceCard";
+import CoinCard from "./_home/CoinCard";
 import Contact from "./_home/Contact";
 import Chip from "./_home/Chip";
 import { PLAY, WORK } from "./_home/data";
@@ -148,7 +149,7 @@ export default function Homepage() {
               <figure>
                 <FaceCard />
                 <figcaption>
-                  <span>The N</span> Hover or tap to see who&rsquo;s behind it
+                  <span>Particles</span> Hover or tap
                 </figcaption>
               </figure>
               <figure>
@@ -156,7 +157,13 @@ export default function Homepage() {
                   <Finale card />
                 </div>
                 <figcaption>
-                  <span>Ignition</span> Lift the cover to start your project
+                  <span>Ignition</span> Lift and press
+                </figcaption>
+              </figure>
+              <figure className={styles.coinFigure}>
+                <CoinCard />
+                <figcaption>
+                  <span>Coin</span> Spin it
                 </figcaption>
               </figure>
             </div>
