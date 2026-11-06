@@ -412,7 +412,11 @@ const EASES = [
     v: [0.23, 1, 0.32, 1],
     n: "Emil's default for interface motion.",
   },
-  { l: "Expo out", v: [0.16, 1, 0.3, 1], n: "Used on neilmcardle.com." },
+  {
+    l: "Expo out",
+    v: [0.16, 1, 0.3, 1],
+    n: "Impeccable's natural deceleration.",
+  },
   {
     l: "Strong ease-in-out",
     v: [0.77, 0, 0.175, 1],
@@ -421,7 +425,12 @@ const EASES = [
   {
     l: "ease-in",
     v: [0.42, 0, 1, 1],
-    n: "Starts slow, so it feels sluggish. Avoid for interface motion.",
+    n: "Starts slow, so it feels sluggish. Only for something heading into a hard stop.",
+  },
+  {
+    l: "Ease out",
+    v: [0.2, 0.8, 0, 1],
+    n: "Derek Briggs's curve. Covers the distance early, then settles. Used on neilmcardle.com.",
   },
 ];
 add("motion", [
@@ -434,7 +443,7 @@ add("motion", [
     play: true,
     why: "Easing is most of what makes motion feel right. A curve that starts fast responds at the moment people are watching most closely.",
     opts: EASES,
-    def: 3,
+    def: 6,
     dials: [["dur", "Duration", 150, 1200, 10, 500, "ms"]],
     demo: (s, o) =>
       `<div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">${bezSvg(o.v)}<div style="flex:1;min-width:200px;container-type:inline-size"><div style="height:24px;border-radius:999px;background:#f3f3f3;position:relative"><span style="position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:#1d1d1f;--dx:calc(100cqw - 24px);animation:d-move ${s.d.dur}ms cubic-bezier(${o.v.join(",")}) 200ms both"></span></div></div></div>`,
@@ -725,7 +734,7 @@ add("motion", [
     ],
     def: 2,
     demo: (s, o) =>
-      `<div style="height:200px;overflow:auto;border-radius:8px;border:1px solid #eee;padding:0 16px">${Array.from({ length: 9 }, (_, i) => `<div class="${o.v === "all" ? "d-reveal" : ""}" style="padding:18px 0;border-top:${i ? "1px solid #f0f0f0" : "0"};${o.v === "one" && i === 0 ? "animation:d-rise 700ms cubic-bezier(.16,1,.3,1) 200ms both;font-size:22px;font-weight:520;letter-spacing:-.03em" : ""}">${i === 0 ? "Work" : `Project ${i}`}</div>`).join("")}</div>`,
+      `<div style="height:200px;overflow:auto;border-radius:8px;border:1px solid #eee;padding:0 16px">${Array.from({ length: 9 }, (_, i) => `<div class="${o.v === "all" ? "d-reveal" : ""}" style="padding:18px 0;border-top:${i ? "1px solid #f0f0f0" : "0"};${o.v === "one" && i === 0 ? "animation:d-rise 700ms cubic-bezier(.2,.8,0,1) 200ms both;font-size:22px;font-weight:520;letter-spacing:-.03em" : ""}">${i === 0 ? "Work" : `Project ${i}`}</div>`).join("")}</div>`,
     css: (s, o) =>
       o.v === "all"
         ? "animation: rise linear both;\nanimation-timeline: view();\nanimation-range: entry 0% entry 60%;"

@@ -241,7 +241,7 @@ add("showpiece", [
       const base =
         "font-size:32px;font-weight:520;letter-spacing:-.045em;line-height:1.1";
       if (o.v === "letters")
-        return `<div style="${base}" aria-label="${t}">${[...t].map((ch, i) => `<span aria-hidden="true" style="display:inline-block;white-space:pre;animation:d-letter 500ms cubic-bezier(.16,1,.3,1) ${200 + i * 22}ms both">${ch}</span>`).join("")}</div>`;
+        return `<div style="${base}" aria-label="${t}">${[...t].map((ch, i) => `<span aria-hidden="true" style="display:inline-block;white-space:pre;animation:d-letter 500ms cubic-bezier(.2,.8,0,1) ${200 + i * 22}ms both">${ch}</span>`).join("")}</div>`;
       if (o.v === "wipe")
         return `<div style="${base};animation:d-wipe 900ms cubic-bezier(.77,0,.175,1) 200ms both">${t}</div>`;
       return `<div data-scr style="${base};font-variant-numeric:tabular-nums">${t}</div>`;

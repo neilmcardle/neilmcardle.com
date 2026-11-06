@@ -26,7 +26,7 @@ export const MARK: NSettings = {
   faceContrast: 1.35,
   flightAlpha: 0.45,
   strokes: 0.03,
-  grain: 0.08,
+  grain: 0,
   tilt: 0,
   orbit: 0,
   follow: 0,
