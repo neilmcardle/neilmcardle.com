@@ -60,6 +60,29 @@ export const WORK: Piece[] = [
   },
 ];
 
+export const WRITING_PUBLIC = false;
+
+export const WRITING: Piece[] = [
+  {
+    id: "history-of-design-tools",
+    title: "A History of Design Tools",
+    line: "Sixty years, from Sketchpad to the prompt.",
+    kind: "Essay",
+    href: "/writing/history-of-design-tools",
+    image: "/writing/history-of-design-tools/sketchpad-1963.png",
+    local: true,
+  },
+  {
+    id: "what-designers-are-saying",
+    title: "What designers are saying",
+    line: "A year of design talk, counted and read.",
+    kind: "Research",
+    href: "/writing/what-designers-are-saying",
+    image: "/writing/what-designers-are-saying/chart-term-shifts.svg",
+    local: true,
+  },
+];
+
 export const STACK = [
   "coverly",
   "doodlewire",

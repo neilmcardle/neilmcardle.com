@@ -167,6 +167,10 @@ const nextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/writing/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
       ...(isDev
         ? [
             {

@@ -130,6 +130,12 @@
   color: var(--ink);
 }
 
+@media (max-width: 520px) {
+  .nav a.extra {
+    display: none;
+  }
+}
+
 @media (max-width: 420px) {
   .brand {
     min-width: 44px;

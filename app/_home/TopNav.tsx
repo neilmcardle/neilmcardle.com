@@ -1,9 +1,11 @@
 "use client";
 
+import { WRITING_PUBLIC } from "./data";
 import styles from "./home.module.css";
 
 const ITEMS = [
   { id: "work", label: "Work" },
+  ...(WRITING_PUBLIC ? [{ id: "writing", label: "Writing" }] : []),
   { id: "play", label: "Playground" },
   { id: "contact", label: "Contact" },
 ];

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createSample } from "@/lib/coverly/sfx";
+import { WRITING_PUBLIC } from "./data";
 import styles from "./home.module.css";
 
 const tick = createSample("/coverly/tick-pop.mp3", () => true, {
@@ -12,6 +13,7 @@ const tick = createSample("/coverly/tick-pop.mp3", () => true, {
 const ITEMS = [
   { id: "about", label: "Neil" },
   { id: "work", label: "Work" },
+  ...(WRITING_PUBLIC ? [{ id: "writing", label: "Writing" }] : []),
   { id: "moments", label: "Moments" },
   { id: "interactions", label: "Interactions" },
   { id: "play", label: "Playground" },

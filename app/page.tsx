@@ -12,7 +12,7 @@ import FaceCard from "./_home/FaceCard";
 import CoinCard from "./_home/CoinCard";
 import Contact from "./_home/Contact";
 import Chip from "./_home/Chip";
-import { PLAY, WORK } from "./_home/data";
+import { PLAY, WORK, WRITING, WRITING_PUBLIC } from "./_home/data";
 import { SITE_DESCRIPTION, SITE_TITLE, share } from "./shared-metadata";
 import styles from "./_home/home.module.css";
 
@@ -72,12 +72,41 @@ export default function Homepage() {
               </Chip>
               , the library of real app screens designers use for reference.
             </p>
+            {WRITING_PUBLIC ? (
+              <p>
+                What I want to design next is the tools themselves. I trained as
+                a painter, then took a degree in social psychology, so I care
+                about both the brush and the person holding it. This year
+                I&rsquo;ve been researching{" "}
+                <Link
+                  className={styles.inlineLink}
+                  href="/writing/history-of-design-tools"
+                >
+                  where design tools came from
+                </Link>{" "}
+                and{" "}
+                <Link
+                  className={styles.inlineLink}
+                  href="/writing/what-designers-are-saying"
+                >
+                  what designers say they&rsquo;re becoming
+                </Link>
+                .
+              </p>
+            ) : null}
           </section>
 
           <section id="work" className={styles.section}>
             <h2 className={styles.label}>Work</h2>
             <Rows pieces={WORK} />
           </section>
+
+          {WRITING_PUBLIC ? (
+            <section id="writing" className={styles.section}>
+              <h2 className={styles.label}>Writing</h2>
+              <Rows pieces={WRITING} />
+            </section>
+          ) : null}
 
           <section id="moments" className={styles.section}>
             <h2 className={styles.label}>Moments</h2>

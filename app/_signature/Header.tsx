@@ -2,6 +2,7 @@ import type React from "react";
 import Link from "next/link";
 import BackLink from "./BackLink";
 import shell from "./signature.module.css";
+import { WRITING_PUBLIC } from "@/app/_home/data";
 import styles from "./header.module.css";
 
 export default function Header({
@@ -11,9 +12,11 @@ export default function Header({
   mark,
   role = true,
   back,
+  backLabel = "Work",
 }: {
   role?: boolean;
   back?: string;
+  backLabel?: string;
   home?: string;
   brand?: boolean;
   contact?: string;
@@ -22,7 +25,7 @@ export default function Header({
   return (
     <header className={`${shell.wrap} ${styles.header}`}>
       {back ? (
-        <BackLink fallback={back} label="Work" />
+        <BackLink fallback={back} label={backLabel} />
       ) : mark ? (
         <Link
           className={styles.brand}
@@ -47,6 +50,11 @@ export default function Header({
       )}
       <nav className={styles.nav}>
         <Link href={`${home}#work`}>Work</Link>
+        {WRITING_PUBLIC ? (
+          <Link className={styles.extra} href={`${home}#writing`}>
+            Writing
+          </Link>
+        ) : null}
         <Link href={`${home}#play`}>Playground</Link>
         <a href={contact}>Contact</a>
       </nav>
