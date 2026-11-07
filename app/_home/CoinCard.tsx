@@ -3,14 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./home.module.css";
 
+type Handle = { stop: () => void };
+
 export default function CoinCard() {
   const stage = useRef<HTMLDivElement>(null);
+  const handle = useRef<Handle | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
-    let stop: (() => void) | undefined;
     let off = false;
     const near = new IntersectionObserver(
       ([entry]) => {
@@ -21,10 +23,10 @@ export default function CoinCard() {
         ).matches;
         import("./coinScene")
           .then((m) => m.mountCoin(el, { still }))
-          .then((cleanup) => {
-            if (off) cleanup();
+          .then((h) => {
+            if (off) h.stop();
             else {
-              stop = cleanup;
+              handle.current = h;
               setReady(true);
             }
           })
@@ -36,7 +38,8 @@ export default function CoinCard() {
     return () => {
       off = true;
       near.disconnect();
-      stop?.();
+      handle.current?.stop();
+      handle.current = null;
     };
   }, []);
 
@@ -45,7 +48,7 @@ export default function CoinCard() {
       ref={stage}
       className={`${styles.coinCard} ${ready ? styles.on : ""}`}
       role="img"
-      aria-label="A black coin with my N logo struck on both sides"
+      aria-label="A black coin that reads Ship it on one side and Roll back on the other"
     />
   );
 }

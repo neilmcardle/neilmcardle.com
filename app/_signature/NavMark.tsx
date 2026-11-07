@@ -36,7 +36,12 @@ export const MARK: NSettings = {
   ink: "#ecebe7",
 };
 
-const HOVER: NSettings = { ...MARK, hold: 0.7, faceHold: 60 };
+const HOVER: NSettings = {
+  ...MARK,
+  hold: 0.7,
+  faceHold: 60,
+  faceScale: 37 / 22,
+};
 
 const FADE_MS = 320;
 

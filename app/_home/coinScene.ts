@@ -1,83 +1,163 @@
 import * as THREE from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-const MARK = [
-  "M45 45L32 31.2985V18H45V45Z",
-  "M18 18L32 31.6343L32 45L18 45L18 18Z",
-];
+const SIDES = ["Ship it", "Roll back"];
 const SIZE = 512;
-const RADIUS = 1;
+const W = SIZE * 2;
 const THICK = 0.13;
-const RELIEF = 0.035;
-const FIELD = 0.5;
-const RIM = 1;
-const REST = 0;
 const SLOPE = 4;
+
+export type CoinLook = {
+  key: number;
+  keyX: number;
+  keyY: number;
+  keyZ: number;
+  fill: number;
+  low: number;
+  gold: number;
+  goldBack: number;
+  tone: string;
+  inlay: string;
+  metalness: number;
+  roughness: number;
+  clearcoat: number;
+  coatRoughness: number;
+  relief: number;
+  distance: number;
+  rest: number;
+};
+
+export const COIN: CoinLook = {
+  key: 1.4,
+  keyX: -0.7,
+  keyY: 1,
+  keyZ: 4,
+  fill: 0.22,
+  low: 0.2,
+  gold: 2.2,
+  goldBack: 0.9,
+  tone: "#060606",
+  inlay: "#ecebe7",
+  metalness: 0.1,
+  roughness: 0.2,
+  clearcoat: 0.7,
+  coatRoughness: 0.2,
+  relief: 0.035,
+  distance: 6.5,
+  rest: 0,
+};
 
 const sheet = () => {
   const c = document.createElement("canvas");
-  c.width = c.height = SIZE;
+  c.width = W;
+  c.height = SIZE;
   const ctx = c.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("no canvas");
   return { c, ctx };
 };
 
-const grey = (v: number) => {
-  const g = Math.round(Math.min(1, Math.max(0, v)) * 255);
-  return `rgb(${g} ${g} ${g})`;
-};
-
-function base(ctx: CanvasRenderingContext2D) {
-  ctx.fillStyle = grey(RIM);
-  ctx.fillRect(0, 0, SIZE, SIZE);
-  ctx.fillStyle = grey(FIELD);
-  ctx.beginPath();
-  ctx.arc(SIZE / 2, SIZE / 2, SIZE * 0.445, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = grey(FIELD + 0.16);
-  ctx.lineWidth = SIZE * 0.006;
-  ctx.beginPath();
-  ctx.arc(SIZE / 2, SIZE / 2, SIZE * 0.415, 0, Math.PI * 2);
-  ctx.stroke();
+function faceSheet(field: string, ink: string, font: string, into = sheet()) {
+  const { c, ctx } = into;
+  ctx.fillStyle = field;
+  ctx.fillRect(0, 0, W, SIZE);
+  ctx.fillStyle = ink;
+  ctx.textAlign = "center";
+  let px = SIZE * 0.2;
+  ctx.font = `500 ${px}px ${font}`;
+  const widest = Math.max(...SIDES.map((t) => ctx.measureText(t).width));
+  px *= (SIZE * 0.6) / widest;
+  ctx.font = `500 ${px}px ${font}`;
+  ctx.letterSpacing = `${-0.02 * px}px`;
+  ctx.textBaseline = "alphabetic";
+  const caps = ctx.measureText("H").actualBoundingBoxAscent;
+  SIDES.forEach((text, i) => {
+    ctx.fillText(text, SIZE / 2 + i * SIZE, SIZE / 2 + caps / 2);
+  });
+  return c;
 }
 
-function soften(c: HTMLCanvasElement, px: number) {
-  const out = sheet();
-  out.ctx.filter = `blur(${px}px)`;
-  out.ctx.drawImage(c, 0, 0);
-  return out;
+function profile(relief: number) {
+  const h = THICK / 2;
+  const face: [number, number][] = [
+    [0, h],
+    [0.8, h],
+    [0.806, h + relief * 0.12],
+    [0.818, h + relief * 0.18],
+    [0.83, h + relief * 0.12],
+    [0.836, h],
+    [0.865, h],
+    [0.885, h + relief * 0.7],
+    [0.9, h + relief],
+    [0.955, h + relief],
+    [0.982, h + relief * 0.75],
+    [0.996, h + relief * 0.3],
+    [1, h * 0.8],
+  ];
+  const points = [
+    ...face.map(([r, z]) => new THREE.Vector2(r, -z)),
+    ...[...face].reverse().map(([r, z]) => new THREE.Vector2(r, z)),
+  ];
+  const geometry = new THREE.LatheGeometry(points, 256);
+  geometry.rotateX(Math.PI / 2);
+  const pos = geometry.attributes.position;
+  const uv = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i += 1) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+    uv[i * 2] = z >= 0 ? 0.25 + x * 0.25 : 0.75 - x * 0.25;
+    uv[i * 2 + 1] = 0.5 + pos.getY(i) * 0.5;
+  }
+  geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  return geometry;
 }
 
-function logoHeight() {
+function blurred(height: HTMLCanvasElement, sigma: number) {
+  const src = height.getContext("2d")!.getImageData(0, 0, W, SIZE).data;
+  const radius = Math.ceil(sigma * 3);
+  const kernel = new Float32Array(radius * 2 + 1);
+  let total = 0;
+  for (let k = -radius; k <= radius; k += 1) {
+    const w = Math.exp(-(k * k) / (2 * sigma * sigma));
+    kernel[k + radius] = w;
+    total += w;
+  }
+  for (let k = 0; k < kernel.length; k += 1) kernel[k] /= total;
+  const a = new Float32Array(W * SIZE);
+  for (let i = 0; i < a.length; i += 1) a[i] = src[i * 4] / 255;
+  const b = new Float32Array(W * SIZE);
+  const cx = (v: number) => Math.min(W - 1, Math.max(0, v));
+  const cy = (v: number) => Math.min(SIZE - 1, Math.max(0, v));
+  for (let y = 0; y < SIZE; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      let v = 0;
+      for (let k = -radius; k <= radius; k += 1)
+        v += a[y * W + cx(x + k)] * kernel[k + radius];
+      b[y * W + x] = v;
+    }
+  }
+  for (let y = 0; y < SIZE; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      let v = 0;
+      for (let k = -radius; k <= radius; k += 1)
+        v += b[cy(y + k) * W + x] * kernel[k + radius];
+      a[y * W + x] = v;
+    }
+  }
+  return a;
+}
+
+function normals(height: HTMLCanvasElement, strength: number, sigma: number) {
+  const f = blurred(height, sigma);
+  const h = (x: number, y: number) =>
+    f[Math.min(SIZE - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
   const { c, ctx } = sheet();
-  base(ctx);
-  const side = SIZE * 0.5;
-  ctx.save();
-  ctx.translate(SIZE / 2 - side / 2, SIZE / 2 - side / 2);
-  ctx.scale(side / 27, side / 27);
-  ctx.translate(-18, -18);
-  ctx.fillStyle = grey(FIELD - 0.42);
-  for (const d of MARK) ctx.fill(new Path2D(d));
-  ctx.restore();
-  return { c, ctx };
-}
-
-function normals(height: HTMLCanvasElement, strength: number) {
-  const src = height.getContext("2d")!.getImageData(0, 0, SIZE, SIZE).data;
-  const h = (x: number, y: number) => {
-    const cx = Math.min(SIZE - 1, Math.max(0, x));
-    const cy = Math.min(SIZE - 1, Math.max(0, y));
-    return src[(cy * SIZE + cx) * 4] / 255;
-  };
-  const { c, ctx } = sheet();
-  const out = ctx.createImageData(SIZE, SIZE);
+  const out = ctx.createImageData(W, SIZE);
   const o = out.data;
   for (let y = 0; y < SIZE; y += 1) {
-    for (let x = 0; x < SIZE; x += 1) {
+    for (let x = 0; x < W; x += 1) {
       const dx = (h(x + 1, y) - h(x - 1, y)) * strength;
       const dy = (h(x, y + 1) - h(x, y - 1)) * strength;
       const len = Math.hypot(dx, dy, 1);
-      const i = (y * SIZE + x) * 4;
+      const i = (y * W + x) * 4;
       o[i] = Math.round(((-dx / len) * 0.5 + 0.5) * 255);
       o[i + 1] = Math.round(((dy / len) * 0.5 + 0.5) * 255);
       o[i + 2] = Math.round(((1 / len) * 0.5 + 0.5) * 255);
@@ -91,9 +171,11 @@ function normals(height: HTMLCanvasElement, strength: number) {
 const texture = (c: HTMLCanvasElement) => {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.NoColorSpace;
-  t.anisotropy = 4;
+  t.anisotropy = 8;
   return t;
 };
+
+const breathe = () => new Promise((done) => setTimeout(done, 0));
 
 const easeOut = (x: number) => {
   const bx = (t: number) =>
@@ -110,8 +192,18 @@ const easeOut = (x: number) => {
   return by((lo + hi) / 2);
 };
 
-export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
-  const logo = logoHeight();
+export async function mountCoin(
+  stage: HTMLElement,
+  { still, look: start = COIN }: { still: boolean; look?: CoinLook },
+) {
+  let look = start;
+  let rest = (look.rest * Math.PI) / 180;
+  const font = getComputedStyle(stage).fontFamily;
+  await document.fonts.load(`500 64px ${font}`).catch(() => {});
+  const mark = faceSheet("#fff", "#000", font);
+  await breathe();
+  const normalMap = normals(mark, 3, 1.3);
+  await breathe();
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
@@ -130,73 +222,32 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
   stage.appendChild(canvas);
 
   const scene = new THREE.Scene();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  const room = new RoomEnvironment();
-  const env = pmrem.fromScene(room, 0.04).texture;
-  scene.environment = env;
-  scene.environmentIntensity = 0.28;
-  room.dispose();
-  pmrem.dispose();
 
   const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 50);
-  camera.position.set(0, 0, 6.5);
 
-  const key = new THREE.DirectionalLight(0xffffff, 0.35);
-  key.position.set(-1, 5, 1.2);
-  const gold = new THREE.DirectionalLight(0xffb04a, 2.2);
+  const key = new THREE.DirectionalLight(0xffffff);
+  const gold = new THREE.DirectionalLight(0xffb04a);
   gold.position.set(5, -0.6, -0.6);
-  const gold2 = new THREE.DirectionalLight(0xffc670, 0.9);
+  const gold2 = new THREE.DirectionalLight(0xffc670);
   gold2.position.set(-5, -0.8, -0.6);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.22);
+  const fill = new THREE.DirectionalLight(0xffffff);
   fill.position.set(3, 3.5, 1.2);
-  const low = new THREE.DirectionalLight(0xffffff, 0.2);
+  const low = new THREE.DirectionalLight(0xffffff);
   low.position.set(-3, -3, 1.4);
   scene.add(key, fill, low, gold, gold2);
 
-  const lacquer = {
-    color: 0x060606,
-    metalness: 0.1,
-    roughness: 0.2,
-    clearcoat: 0.7,
-    clearcoatRoughness: 0.2,
-  };
-
-  const coin = new THREE.Group();
-  const edge = new THREE.Mesh(
-    new THREE.CylinderGeometry(
-      RADIUS,
-      RADIUS,
-      THICK + RELIEF * 2,
-      160,
-      1,
-      true,
-    ),
-    new THREE.MeshPhysicalMaterial({ ...lacquer, roughness: 0.22 }),
-  );
-  edge.rotation.x = Math.PI / 2;
-  coin.add(edge);
-
-  const maps: THREE.Texture[] = [];
-  const side = (height: HTMLCanvasElement, back: boolean) => {
-    const displacement = texture(soften(height, 5).c);
-    const normal = texture(normals(soften(height, 1.4).c, 7));
-    maps.push(displacement, normal);
-    const geometry = new THREE.RingGeometry(0.0001, RADIUS, 200, 110);
-    const material = new THREE.MeshPhysicalMaterial({
-      ...lacquer,
-      displacementMap: displacement,
-      displacementScale: RELIEF,
-      normalMap: normal,
-      normalScale: new THREE.Vector2(1, 1),
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.z = back ? -THICK / 2 : THICK / 2;
-    if (back) mesh.rotation.y = Math.PI;
-    coin.add(mesh);
-    return mesh;
-  };
-  const front = side(logo.c, false);
-  const rear = side(logo.c, true);
+  const normal = texture(normalMap);
+  const paintSheet = sheet();
+  const colour = new THREE.CanvasTexture(paintSheet.c);
+  colour.colorSpace = THREE.SRGBColorSpace;
+  colour.anisotropy = 8;
+  let painted = "";
+  const material = new THREE.MeshPhysicalMaterial({
+    normalMap: normal,
+    map: colour,
+  });
+  let relief = look.relief;
+  const coin = new THREE.Mesh(profile(relief), material);
   scene.add(coin);
 
   let width = 1;
@@ -206,12 +257,13 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
     width = box.width;
     renderer.setSize(box.width, box.height, false);
     camera.aspect = box.width / box.height;
-    camera.position.z = camera.aspect >= 1 ? 6.5 : 6.5 / camera.aspect;
+    camera.position.z =
+      camera.aspect >= 1 ? look.distance : look.distance / camera.aspect;
     camera.updateProjectionMatrix();
     paint();
   };
 
-  let angle = REST;
+  let angle = rest;
   let frame = 0;
   let dragging = false;
   let downX = 0;
@@ -220,7 +272,9 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
   let settle: { from: number; by: number; start: number; ms: number } | null =
     null;
 
+  let live = false;
   const paint = () => {
+    if (!live) return;
     coin.rotation.y = angle;
     renderer.render(scene, camera);
   };
@@ -240,9 +294,9 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
   };
 
   const restNear = (a: number, dir: number) => {
-    const k = (a - REST) / Math.PI;
+    const k = (a - rest) / Math.PI;
     const n = dir > 0 ? Math.ceil(k) : dir < 0 ? Math.floor(k) : Math.round(k);
-    return REST + n * Math.PI;
+    return rest + n * Math.PI;
   };
 
   const release = (velocity: number) => {
@@ -265,9 +319,10 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
       const dir = Math.sign(velocity);
       let target = restNear(angle + velocity * 0.6, dir);
       if ((target - angle) * dir < 0.2) target += dir * Math.PI;
+      if (Math.random() < 0.5) target += dir * Math.PI;
       const by = target - angle;
       const ms = Math.min(
-        3200,
+        4000,
         Math.max(400, ((SLOPE * Math.abs(by)) / speed) * 1000),
       );
       settle = { from: angle, by, start: performance.now(), ms };
@@ -301,7 +356,7 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
       const box = canvas.getBoundingClientRect();
       const dir = e.clientX > box.left + box.width / 2 ? 1 : -1;
       if (still) {
-        angle = restNear(angle, 0) + dir * Math.PI;
+        angle = restNear(angle, 0) + (Math.random() < 0.5 ? dir * Math.PI : 0);
         paint();
         return;
       }
@@ -321,24 +376,58 @@ export function mountCoin(stage: HTMLElement, { still }: { still: boolean }) {
   canvas.addEventListener("pointerup", up);
   canvas.addEventListener("pointercancel", up);
 
+  const apply = (next: CoinLook) => {
+    look = next;
+    key.intensity = look.key;
+    key.position.set(look.keyX, look.keyY, look.keyZ);
+    fill.intensity = look.fill;
+    low.intensity = look.low;
+    gold.intensity = look.gold;
+    gold2.intensity = look.goldBack;
+    if (painted !== look.tone + look.inlay) {
+      painted = look.tone + look.inlay;
+      faceSheet(look.tone, look.inlay, font, paintSheet);
+      colour.needsUpdate = true;
+    }
+    material.metalness = look.metalness;
+    material.roughness = look.roughness;
+    material.clearcoat = look.clearcoat;
+    material.clearcoatRoughness = look.coatRoughness;
+    if (look.relief !== relief) {
+      relief = look.relief;
+      coin.geometry.dispose();
+      coin.geometry = profile(relief);
+    }
+    const before = rest;
+    rest = (look.rest * Math.PI) / 180;
+    if (!settle && !dragging) angle += rest - before;
+    resize();
+  };
+
   const sizer = new ResizeObserver(resize);
   sizer.observe(stage);
   resize();
 
-  return () => {
+  apply(look);
+  await breathe();
+  await renderer.compileAsync(scene, camera);
+  live = true;
+  paint();
+
+  const stop = () => {
     cancelAnimationFrame(frame);
     sizer.disconnect();
     canvas.removeEventListener("pointerdown", down);
     canvas.removeEventListener("pointermove", move);
     canvas.removeEventListener("pointerup", up);
     canvas.removeEventListener("pointercancel", up);
-    for (const m of maps) m.dispose();
-    for (const mesh of [edge, front, rear]) {
-      mesh.geometry.dispose();
-      (mesh.material as THREE.Material).dispose();
-    }
-    env.dispose();
+    normal.dispose();
+    colour.dispose();
+    coin.geometry.dispose();
+    material.dispose();
     renderer.dispose();
     canvas.remove();
   };
+
+  return { stop, tune: apply };
 }

@@ -163,7 +163,7 @@ export default function Homepage() {
               <figure className={styles.coinFigure}>
                 <CoinCard />
                 <figcaption>
-                  <span>Coin</span> Spin it
+                  <span>Coin</span> Drag and spin
                 </figcaption>
               </figure>
             </div>

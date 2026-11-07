@@ -312,7 +312,7 @@ export const BUILDINGS: Building[] = [
     place: "Bilbao, Spain",
     year: 1997,
     date: "1993–1997",
-    tradition: "Contemporary",
+    tradition: "Deconstructivism",
     idea: "Software from aircraft design makes the curves buildable.",
     body: "Frank Gehry's museum, opened in 1997, is clad in about 33,000 titanium panels, each less than half a millimetre thick, over curves no drawing board could describe. His office used CATIA, software made by Dassault Systèmes for designing aircraft, to model the shapes, check the structure and cut every panel and steel member to fit. Its effect on the city gave a name to culture-led regeneration: the Bilbao effect.",
   },
