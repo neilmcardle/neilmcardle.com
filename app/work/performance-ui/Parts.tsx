@@ -232,7 +232,7 @@ export function Picker() {
   return (
     <figure className={styles.shot}>
       <Image
-        src="/work/performance-ui/picker-v2.jpg"
+        src="/work/performance-ui/picker-v3.jpg"
         alt="The UI Taste picker: a list of areas on the left, and a decision about the page background with a live demo, options and what other sources use"
         width={1280}
         height={800}

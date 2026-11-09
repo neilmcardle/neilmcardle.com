@@ -55,7 +55,7 @@ export const WORK: Piece[] = [
     line: "A design system written for agents.",
     kind: "Design system",
     href: "/work/performance-ui",
-    image: "/work/performance-ui/with.jpg",
+    image: "/home/peek/performance-ui.jpg",
     local: true,
   },
 ];
