@@ -5,9 +5,9 @@ import Link from "next/link";
 import Shell from "@/app/_signature/Shell";
 import Header from "@/app/_signature/Header";
 import Finale from "@/app/_signature/Finale";
-import shell from "@/app/_signature/signature.module.css";
 import bar from "@/app/_signature/case.module.css";
-import { Markdown, type Sizes } from "./markdown";
+import { Markdown, slug, type Sizes } from "./markdown";
+import Contents from "./Contents";
 import { WRITING_PUBLIC } from "@/app/_home/data";
 import styles from "./article.module.css";
 
@@ -46,12 +46,24 @@ export default function Article({
   endLabel?: string;
 }) {
   const { title, byline, body } = readArticle(path);
+  const sections = body
+    .split("\n")
+    .filter((line) => /^##\s/.test(line))
+    .map((line) => {
+      const text = line.replace(/^##\s+/, "").trim();
+      const plain = text
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+        .replace(/\*\*|\*|_/g, "");
+      const era = plain.match(/^(\d{4}–\d{4}):/);
+      return { id: slug(text), label: era ? era[1] : plain };
+    });
   return (
     <Shell>
       <div className={bar.bar}>
         <Header back={back} backLabel={backLabel} />
       </div>
-      <main id="main" className={shell.wrap}>
+      <Contents sections={sections} />
+      <main id="main" className={styles.main}>
         <article className={`${styles.article} ${wide ? styles.wide : ""}`}>
           <header className={styles.head}>
             <h1 className={styles.title}>{title}</h1>

@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d0d0c" />
     <title>UI Taste · Neil McArdle</title>
     <meta
       name="description"
@@ -16,16 +17,29 @@
     />
     <style>
       :root {
-        --bg: #fafafa;
-        --panel: #ffffff;
-        --ink: #1d1d1f;
-        --text: #5c5c5c;
-        --muted: #737373;
-        --line: #e8e8e8;
-        --soft: #f3f3f3;
+        --bg: #0d0d0c;
+        --panel: #161615;
+        --raised-hover: #1d1d1b;
+        --ink: #ecebe7;
+        --text: #a8a59f;
+        --muted: #8f8c86;
+        --faint: #5f5c57;
+        --line: rgb(255 255 255 / 0.06);
+        --soft: #1d1d1b;
+        --underline: #48463f;
+        --accent: #ce2ab7;
+        --on-accent: #ffffff;
+        --edge:
+          0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+          0 2px 4px 0 rgb(0 0 0 / 0.3);
+        --edge-hover:
+          0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
+          0 2px 4px 0 rgb(0 0 0 / 0.4);
+        --edge-lifted:
+          0 0 0 1px rgb(255 255 255 / 0.08), 0 14px 36px 0 rgb(0 0 0 / 0.5);
         --ease: cubic-bezier(0.2, 0.8, 0, 1);
         --mono: "JetBrains Mono", ui-monospace, monospace;
-        color-scheme: light;
+        color-scheme: dark;
       }
       * {
         box-sizing: border-box;
@@ -48,7 +62,7 @@
       }
       ::selection {
         background: var(--ink);
-        color: #fff;
+        color: var(--bg);
       }
       button,
       input,
@@ -111,14 +125,14 @@
         font-size: 13px;
         font-weight: 450;
         text-decoration: none;
-        transition: color 160ms ease;
+        transition: color 160ms var(--ease);
       }
       .areas a[aria-current="true"] {
         color: var(--ink);
       }
       .areas .n {
         font-variant-numeric: tabular-nums;
-        color: #a3a3a3;
+        color: var(--muted);
       }
       .areas a[data-done="true"] .n {
         color: var(--ink);
@@ -149,8 +163,11 @@
       }
       .intro p {
         margin: 0;
-        max-width: 34em;
-        color: var(--text);
+        max-width: 38em;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.6;
+        text-wrap: pretty;
       }
       .tools {
         position: sticky;
@@ -162,8 +179,10 @@
         gap: 8px 16px;
         margin: 28px 0 8px;
         padding: 12px 0;
-        background: var(--bg);
-        border-bottom: 1px solid var(--line);
+        background: rgb(13 13 12 / 0.82);
+        -webkit-backdrop-filter: blur(16px) saturate(1.4);
+        backdrop-filter: blur(16px) saturate(1.4);
+        box-shadow: 0 1px 0 var(--line);
       }
       .tally {
         margin-left: auto;
@@ -175,9 +194,9 @@
       .seg {
         display: inline-flex;
         padding: 2px;
-        border: 1px solid var(--line);
         border-radius: 999px;
         background: var(--panel);
+        box-shadow: var(--edge);
       }
       .seg button {
         height: 26px;
@@ -190,12 +209,12 @@
         font-weight: 450;
         white-space: nowrap;
         transition:
-          background-color 160ms ease,
-          color 160ms ease;
+          background-color 160ms var(--ease),
+          color 160ms var(--ease);
       }
       .seg button[aria-pressed="true"] {
         background: var(--ink);
-        color: #fff;
+        color: var(--bg);
       }
       @media (hover: hover) and (pointer: fine) {
         .seg button:not([aria-pressed="true"]):hover {
@@ -210,14 +229,14 @@
         padding: 0 14px;
         border: 0;
         border-radius: 999px;
-        background: var(--ink);
-        color: #fff;
+        background: var(--accent);
+        color: var(--on-accent);
         font-size: 13px;
         font-weight: 500;
         transition: transform 160ms var(--ease);
       }
       .pill:active {
-        transform: scale(0.97);
+        transform: scale(0.96);
       }
       .menuWrap {
         position: relative;
@@ -230,10 +249,9 @@
         display: grid;
         min-width: 200px;
         padding: 4px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 12px;
         background: var(--panel);
-        box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+        box-shadow: var(--edge-lifted);
         transform-origin: top right;
         transition:
           opacity 150ms ease-out,
@@ -262,7 +280,7 @@
         background: var(--soft);
       }
       .menu .danger {
-        color: #b42318;
+        color: #ff7a6b;
       }
       .menu input {
         display: none;
@@ -321,8 +339,8 @@
         color: var(--muted);
         font-size: 13.5px;
         transition:
-          color 200ms ease,
-          border-color 200ms ease;
+          color 200ms var(--ease),
+          border-color 200ms var(--ease);
       }
       .repoAbout p b {
         font-weight: 550;
@@ -358,36 +376,34 @@
       .lo {
         height: 30px;
         padding: 0 13px;
-        border: 1px solid var(--line);
+        border: 0;
         border-radius: 999px;
         background: var(--panel);
+        box-shadow: var(--edge);
         color: var(--text);
         font-size: 12.5px;
         font-weight: 500;
         transition:
-          background-color 160ms ease,
-          color 160ms ease,
-          border-color 160ms ease,
-          transform 120ms var(--ease);
+          background-color 160ms var(--ease),
+          color 160ms var(--ease),
+          transform 160ms var(--ease);
       }
       .use:active,
       .lo:active {
-        transform: scale(0.97);
+        transform: scale(0.96);
       }
       .use[aria-pressed="true"] {
         background: var(--ink);
-        border-color: var(--ink);
-        color: #fff;
+        color: var(--bg);
       }
       .lo[aria-pressed="true"] {
         background: var(--soft);
-        border-color: var(--soft);
         color: var(--ink);
       }
       @media (hover: hover) and (pointer: fine) {
         .use:not([aria-pressed="true"]):hover,
         .lo:not([aria-pressed="true"]):hover {
-          border-color: #cfcfcf;
+          background: var(--raised-hover);
           color: var(--ink);
         }
       }
@@ -447,11 +463,11 @@
         font-size: 12.5px;
         white-space: nowrap;
         text-decoration: underline;
-        text-decoration-color: rgb(29 29 31 / 0.3);
+        text-decoration-color: var(--underline);
         text-underline-offset: 3px;
       }
       .reset:disabled {
-        color: #a3a3a3;
+        color: var(--faint);
         text-decoration: none;
         cursor: default;
       }
@@ -477,11 +493,11 @@
         color: var(--ink);
         font-size: 12.5px;
         text-decoration: underline;
-        text-decoration-color: rgb(29 29 31 / 0.3);
+        text-decoration-color: var(--underline);
         text-underline-offset: 3px;
       }
       .item[data-v="out"] .ih h3 {
-        color: #a3a3a3;
+        color: var(--faint);
         text-decoration: line-through;
         text-decoration-thickness: 1px;
       }
@@ -498,10 +514,10 @@
         font-size: 12px;
       }
       .meta .cost[data-c="2"] {
-        color: #9a5b00;
+        color: #e3a64a;
       }
       .meta .cost[data-c="3"] {
-        color: #b42318;
+        color: #ff7a6b;
       }
       .why {
         margin: 6px 0 16px;
@@ -511,14 +527,31 @@
       }
 
       .stage {
+        --bg: #fafafa;
+        --panel: #ffffff;
+        --ink: #1d1d1f;
+        --text: #5c5c5c;
+        --muted: #737373;
+        --line: #e8e8e8;
+        --soft: #f3f3f3;
+        --underline: rgb(29 29 31 / 0.3);
         position: relative;
         min-height: 120px;
         padding: 24px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 16px;
         background: var(--panel);
+        color: var(--ink);
+        box-shadow: var(--edge);
         overflow: hidden;
         isolation: isolate;
+        color-scheme: light;
+      }
+      .stage ::selection {
+        background: #1d1d1f;
+        color: #fff;
+      }
+      .stage :focus-visible {
+        outline-color: #1d1d1f;
       }
       .stage.flush {
         padding: 0;
@@ -559,29 +592,28 @@
       .chip {
         height: 28px;
         padding: 0 11px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
+        border: 0;
+        border-radius: 7px;
         background: var(--panel);
+        box-shadow: var(--edge);
         color: var(--text);
         font-size: 12.5px;
         font-weight: 450;
         transition:
-          background-color 160ms ease,
-          color 160ms ease,
-          border-color 160ms ease,
-          transform 120ms var(--ease);
+          background-color 160ms var(--ease),
+          color 160ms var(--ease),
+          transform 160ms var(--ease);
       }
       .chip:active {
-        transform: scale(0.97);
+        transform: scale(0.96);
       }
       .chip[aria-pressed="true"] {
         background: var(--ink);
-        border-color: var(--ink);
-        color: #fff;
+        color: var(--bg);
       }
       @media (hover: hover) and (pointer: fine) {
         .chip:not([aria-pressed="true"]):hover {
-          border-color: #cfcfcf;
+          background: var(--raised-hover);
           color: var(--ink);
         }
       }
@@ -676,8 +708,9 @@
       .out pre {
         margin: 0;
         padding: 12px 14px;
-        border-radius: 8px;
-        background: var(--soft);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: var(--edge);
         color: var(--ink);
         font: 400 12px/1.6 var(--mono);
         letter-spacing: 0;
@@ -694,13 +727,14 @@
         flex: 1 1 200px;
         height: 30px;
         padding: 0 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
+        border: 0;
+        border-radius: 10px;
         background: var(--panel);
+        box-shadow: var(--edge);
         font-size: 13px;
       }
       .note::placeholder {
-        color: #a3a3a3;
+        color: var(--faint);
       }
       .empty {
         padding: 48px 0;
@@ -716,7 +750,7 @@
         max-width: calc(100vw - 32px);
         border-radius: 12px;
         background: var(--ink);
-        color: #fff;
+        color: var(--bg);
         font-size: 13px;
         text-align: center;
         translate: -50% 0;
@@ -744,8 +778,10 @@
           margin: 0 -16px;
           padding: 10px 16px;
           overflow-x: auto;
-          background: var(--bg);
-          border-bottom: 1px solid var(--line);
+          background: rgb(13 13 12 / 0.82);
+          -webkit-backdrop-filter: blur(16px) saturate(1.4);
+          backdrop-filter: blur(16px) saturate(1.4);
+          box-shadow: 0 1px 0 var(--line);
         }
         .mark,
         .railFoot {
@@ -1041,10 +1077,13 @@
         animation-timeline: view();
         animation-range: entry 0% entry 60%;
       }
+      .intro .credit {
+        margin-top: 12px;
+      }
       .credit a {
         color: inherit;
         text-decoration: underline;
-        text-decoration-color: rgb(29 29 31 / 0.45);
+        text-decoration-color: var(--underline);
         text-underline-offset: 4px;
       }
       .credit a:hover {
@@ -1165,7 +1204,7 @@
     <div class="shell">
       <nav class="rail" aria-label="Areas">
         <p class="mark">
-          <svg viewBox="0 0 24 24" fill="#1d1d1f">
+          <svg viewBox="0 0 24 24" fill="#ce2ab7" aria-hidden="true">
             <circle cx="5" cy="12" r="3" />
             <circle cx="19" cy="12" r="3" />
             <circle cx="12" cy="5" r="1.6" />
@@ -1192,14 +1231,14 @@
           </p>
           <div class="repoAbout" id="repoAbout">
             <p data-about="perf">
-              <b>performance-ui</b> is for sites where speed matters most:
+              <b>Performance UI</b> is for sites where speed matters most:
               booking flows, shops, news, anything used on slow phones and
               patchy signal. Every choice should cost little or nothing in load
               time or smoothness. Its rules are tagged Foundation or Style. On a
               page that already has a brand, only the Foundation rules apply.
             </p>
             <p data-about="looks">
-              <b>Looks</b> is for sites where the impression matters most:
+              <b>Looks UI</b> is for sites where the impression matters most:
               portfolios, launches, brand pages. Anything that makes it look and
               feel better is allowed, as long as it still works for everyone.
               Some speed cost is fine.
@@ -1213,8 +1252,8 @@
             role="group"
             aria-label="Choosing for"
           >
-            <button data-pick="perf" aria-pressed="true">performance-ui</button>
-            <button data-pick="looks" aria-pressed="false">Looks</button>
+            <button data-pick="perf" aria-pressed="true">Performance UI</button>
+            <button data-pick="looks" aria-pressed="false">Looks UI</button>
           </div>
           <div class="seg" id="fShow" role="group" aria-label="Show">
             <button data-f="all" aria-pressed="true">All</button>
@@ -1252,6 +1291,6 @@
       </main>
     </div>
     <div class="toast" id="toast" role="status" hidden></div>
-    <script src="/ui-taste/engine.js?v=5"></script>
+    <script src="/ui-taste/engine.js?v=6"></script>
   </body>
 </html>

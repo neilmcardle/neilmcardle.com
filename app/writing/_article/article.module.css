@@ -1,10 +1,15 @@
+.main {
+  display: block;
+}
+
 .article {
   --text: #8f8c86;
   --raised: #161615;
   --edge:
     0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
     0 2px 4px 0 rgb(0 0 0 / 0.3);
-  max-width: 640px;
+  width: min(600px, 100% - 32px);
+  margin-inline: auto;
   padding-top: clamp(56px, 8vw, 104px);
   padding-bottom: clamp(48px, 6vw, 80px);
   color: var(--text);
@@ -199,8 +204,113 @@
   white-space: nowrap;
 }
 
+.contents {
+  position: fixed;
+  top: 50%;
+  left: max(24px, calc(50% - 300px - 256px));
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  width: 232px;
+  translate: 0 -50%;
+  font-size: 13px;
+}
+
+.contents a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.contents a::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.5;
+  transform-origin: left center;
+  transition:
+    width 0.24s var(--ease),
+    opacity 0.16s var(--ease),
+    scale 0.24s var(--ease);
+}
+
+.contents .label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+  translate: -6px 0;
+  transition:
+    opacity 0.2s var(--ease),
+    translate 0.24s var(--ease);
+}
+
+.contents .here {
+  color: var(--ink);
+}
+
+.contents .here::before {
+  width: 20px;
+  opacity: 1;
+}
+
+.contents:has(a:focus-visible) a::before {
+  opacity: 0;
+  scale: 0.3 1;
+}
+
+.contents:has(a:focus-visible) .label {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.contents a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contents:hover a::before {
+    opacity: 0;
+    scale: 0.3 1;
+  }
+
+  .contents:hover .label {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .contents a:hover {
+    color: var(--ink);
+  }
+}
+
+@media (min-width: 1180px) {
+  .contents {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contents .label,
+  .contents a::before {
+    translate: none;
+    transition: opacity 0.2s linear;
+  }
+}
+
 @media (min-width: 1000px) {
   .wide {
-    max-width: none;
+    width: min(960px, 100% - 32px);
   }
 }

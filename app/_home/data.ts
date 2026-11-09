@@ -128,6 +128,7 @@ export const PLAY: Piece[] = [
     line: "Decide your interface taste.",
     kind: "Tool",
     href: "/ui-taste",
+    image: "/home/peek/ui-taste.jpg",
   },
   {
     id: "logo",

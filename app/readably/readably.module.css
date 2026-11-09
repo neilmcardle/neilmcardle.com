@@ -1,0 +1,160 @@
+.head {
+  margin-bottom: clamp(16px, 3vw, 24px);
+}
+
+.intro {
+  margin: 20px 0 28px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+a.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  transition: opacity 0.2s var(--ease);
+}
+
+a.button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.button:hover {
+    opacity: 0.88;
+  }
+}
+
+.quote {
+  margin: 8px 0 24px;
+  padding-left: 16px;
+  box-shadow: inset 2px 0 0 var(--underline);
+}
+
+.quote blockquote {
+  margin: 0;
+  color: var(--ink);
+}
+
+.quote blockquote p {
+  margin: 0;
+}
+
+.quote figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.prices table {
+  min-width: 480px;
+}
+
+.price {
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.questions {
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.question {
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.question summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 12px 0;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.question summary::-webkit-details-marker {
+  display: none;
+}
+
+.question summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.question p {
+  margin: 0 0 16px;
+  text-wrap: pretty;
+}
+
+.icon {
+  position: relative;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--muted);
+}
+
+.icon::before,
+.icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 1.5px;
+  margin-top: -0.75px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: rotate 0.2s var(--ease);
+}
+
+.icon::after {
+  rotate: 90deg;
+}
+
+.question[open] .icon::after {
+  rotate: 0deg;
+}
+
+.end {
+  margin-top: 16px;
+}
+
+.end .button {
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon::before,
+  .icon::after,
+  .button {
+    transition: none;
+  }
+}
+
+.numbered {
+  list-style: decimal;
+}
+
+.bulleted {
+  list-style: disc;
+}
+
+.numbered li::marker {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

@@ -5,7 +5,7 @@ const COST = [
   "Medium speed cost",
   "Heavy speed cost",
 ];
-const REPOS = { perf: "performance-ui", looks: "Looks" };
+const REPOS = { perf: "Performance UI", looks: "Looks UI" };
 const other = (r) => (r === "perf" ? "looks" : "perf");
 let S = {};
 let repo = "perf";
