@@ -104,8 +104,9 @@ export default function ReadablyPage() {
             </h2>
             <p className={article.p}>
               Since 28 June 2025, ebooks sold into the EU have to meet the
-              European Accessibility Act. That covers UK and US publishers too,
-              unless they have fewer than 10 staff and turnover under €2m.
+              European Accessibility Act. UK and US publishers are covered too
+              for every ebook they sell into the EU, unless they have fewer than
+              10 staff and turnover under €2m.
             </p>
             <p className={article.p}>
               Most ebooks made before then fall short in the same places:
