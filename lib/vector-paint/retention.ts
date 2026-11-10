@@ -1,6 +1,7 @@
 import { and, inArray, isNotNull, lt, or, sql } from "drizzle-orm";
 import { db, vectorPaintOrders } from "@/lib/db";
 import { removeOrderFiles } from "./render";
+import { PAID_STATUSES, UNPAID_STATUSES } from "./orderState";
 
 const DAY = 24 * 60 * 60 * 1000;
 export const UNPAID_RETENTION_DAYS = 30;
@@ -26,18 +27,11 @@ export async function purgeOldOrders(): Promise<{
         ),
         or(
           and(
-            inArray(vectorPaintOrders.status, ["pending", "expired"]),
+            inArray(vectorPaintOrders.status, [...UNPAID_STATUSES]),
             lt(vectorPaintOrders.createdAt, unpaidCutoff),
           ),
           and(
-            inArray(vectorPaintOrders.status, [
-              "paid",
-              "submitted",
-              "dry_run",
-              "failed",
-              "unconfirmed",
-              "refunded",
-            ]),
+            inArray(vectorPaintOrders.status, [...PAID_STATUSES]),
             lt(
               sql`coalesce(${vectorPaintOrders.paidAt}, ${vectorPaintOrders.createdAt})`,
               paidCutoff,

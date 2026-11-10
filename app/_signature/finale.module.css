@@ -409,7 +409,7 @@
 }
 
 @media (hover: hover) {
-  .start:hover:not(:disabled) .cap {
+  .start:hover:not([aria-disabled="true"]) .cap {
     filter: drop-shadow(0 2.33px 2px rgb(0 0 0 / 0.8)) brightness(1.2);
   }
 }
@@ -431,7 +431,7 @@
   opacity: 0.9;
 }
 
-.start:disabled {
+.start[aria-disabled="true"] {
   cursor: default;
 }
 

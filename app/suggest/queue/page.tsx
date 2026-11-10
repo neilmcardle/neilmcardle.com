@@ -6,6 +6,7 @@ import kit from "../kit.module.css";
 import { db, suggestions, type Suggestion } from "@/lib/db";
 import { MONTHLY_CAP_PENCE, monthSpend, pence } from "@/lib/suggest/budget";
 import { isOwner } from "@/lib/suggest/owner";
+import { expireStaleBuilds } from "@/lib/suggest/transition";
 import {
   build,
   lock,
@@ -144,6 +145,7 @@ export default async function QueuePage({
     );
   }
 
+  await expireStaleBuilds();
   const rows = await db
     .select()
     .from(suggestions)

@@ -68,7 +68,14 @@ export function BrowseFilters({ total }: { total: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [pendingKey, setPendingKey] = useState<string | null>(null);
-  const [query, setQuery] = useState(sp.get("q") ?? "");
+  const urlQuery = sp.get("q") ?? "";
+  const [query, setQuery] = useState(urlQuery);
+  const [syncedQuery, setSyncedQuery] = useState(urlQuery);
+  if (urlQuery !== syncedQuery) {
+    setSyncedQuery(urlQuery);
+    setQuery(urlQuery);
+  }
+  const busyKey = pending ? pendingKey : null;
   const barRef = useRef<HTMLDivElement>(null);
   const triggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
@@ -194,7 +201,7 @@ export function BrowseFilters({ total }: { total: number }) {
           }}
           className="relative flex h-[34px] items-center"
         >
-          {pending && pendingKey === "q" ? (
+          {busyKey === "q" ? (
             <Loader2 className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 animate-spin text-muted-foreground" />
           ) : (
             <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" />
@@ -258,7 +265,7 @@ export function BrowseFilters({ total }: { total: number }) {
                     {selected.length > 1 ? ` +${selected.length - 1}` : ""}
                   </span>
                 )}
-                {pending && pendingKey === cat.key ? (
+                {busyKey === cat.key ? (
                   <Loader2
                     className="h-3.5 w-3.5 shrink-0 animate-spin opacity-70"
                     strokeWidth={2.5}

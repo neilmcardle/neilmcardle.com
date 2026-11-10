@@ -5,9 +5,16 @@ import {
   getUserByEmail,
   getUserById,
   updateUserSubscription,
+  updateUser,
   grantLifetimeAccess,
+  getUserByLifetimePayment,
   createUser,
 } from "@/lib/db/users";
+import {
+  shouldApplySubscription,
+  subscriptionFields,
+} from "@/lib/billing/entitlement";
+import { hasProSubscription } from "@/lib/billing/proStatus";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   expireSession,
@@ -98,6 +105,7 @@ export async function POST(req: NextRequest) {
 
       case "charge.refunded":
         await handleRefund(event.data.object as Stripe.Charge, stripe);
+        await handleLifetimeRefund(event.data.object as Stripe.Charge);
         break;
 
       case "invoice.payment_succeeded":
@@ -150,55 +158,64 @@ async function findUserByCustomerId(customerId: string, stripe: Stripe) {
   return { user: null };
 }
 
-async function handleSubscriptionUpdate(
-  subscription: Stripe.Subscription,
+function incomingFrom(subscription: Stripe.Subscription) {
+  const item = subscription.items?.data[0];
+  return {
+    id: subscription.id,
+    status: subscription.status,
+    periodEnd: item?.current_period_end ?? null,
+    priceId: item?.price.id ?? null,
+  };
+}
+
+async function applySubscription(
+  subscriptionId: string,
+  customerId: string,
   stripe: Stripe,
-) {
-  const customerId = subscription.customer as string;
-  console.log(`Handling subscription update for customer: ${customerId}`);
-
+  label: string,
+): Promise<{ applied: boolean; user?: { id: string; email: string } }> {
   const { user } = await findUserByCustomerId(customerId, stripe);
-
   if (!user) {
     console.warn(
-      `[stripe webhook] No user row for customer ${customerId} on subscription.update; ignoring.`,
+      `[stripe webhook] No user row for customer ${customerId} on ${label}; ignoring.`,
     );
-    return;
+    return { applied: false };
   }
 
   if (user.isGrandfathered) {
     console.log(`User ${user.id} is grandfathered - keeping Pro access`);
-    return;
+    return { applied: false };
   }
 
-  const tier: "free" | "pro" =
-    subscription.status === "active" || subscription.status === "trialing"
-      ? "pro"
-      : "free";
+  const fresh = await stripe.subscriptions.retrieve(subscriptionId);
+  const incoming = incomingFrom(fresh);
 
-  const periodEndRaw = subscription.items?.data[0]?.current_period_end;
-  let subscriptionCurrentPeriodEnd: Date | undefined;
-  if (periodEndRaw && typeof periodEndRaw === "number") {
-    const periodEndMs = periodEndRaw * 1000;
-    const dateObj = new Date(periodEndMs);
-    if (!isNaN(dateObj.getTime())) {
-      subscriptionCurrentPeriodEnd = dateObj;
-    }
+  if (!shouldApplySubscription(user, incoming)) {
+    console.log(
+      `[stripe webhook] ${label} for ${incoming.id} ignored; user ${user.id} is on ${user.stripeSubscriptionId}`,
+    );
+    return { applied: false };
   }
 
-  const { error: updateError } = await updateUserSubscription(user.id, {
-    stripeSubscriptionId: subscription.id,
-    subscriptionStatus: subscription.status as
-      "active" | "trialing" | "canceled" | "past_due" | "incomplete",
-    subscriptionTier: tier,
-    subscriptionCurrentPeriodEnd,
-    stripePriceId: subscription.items.data[0]?.price.id,
-  });
-
+  const fields = subscriptionFields(incoming);
+  const { error: updateError } = await updateUserSubscription(user.id, fields);
   if (updateError) throw updateError;
 
   console.log(
-    `✅ Subscription updated for user ${user.id}: ${subscription.status} (${tier})`,
+    `✅ Subscription ${label} for user ${user.id}: ${fields.subscriptionStatus} (${fields.subscriptionTier})`,
+  );
+  return { applied: true, user };
+}
+
+async function handleSubscriptionUpdate(
+  subscription: Stripe.Subscription,
+  stripe: Stripe,
+) {
+  await applySubscription(
+    subscription.id,
+    subscription.customer as string,
+    stripe,
+    "update",
   );
 }
 
@@ -206,35 +223,13 @@ async function handleSubscriptionCanceled(
   subscription: Stripe.Subscription,
   stripe: Stripe,
 ) {
-  const customerId = subscription.customer as string;
-  console.log(`Handling subscription cancellation for customer: ${customerId}`);
-
-  const { user } = await findUserByCustomerId(customerId, stripe);
-
-  if (!user) {
-    console.warn(
-      `[stripe webhook] No user row for customer ${customerId} on subscription.deleted; ignoring.`,
-    );
-    return;
-  }
-
-  if (user.isGrandfathered) {
-    console.log(
-      `User ${user.id} is grandfathered - keeping Pro access despite cancellation`,
-    );
-    return;
-  }
-
-  const { error: updateError } = await updateUserSubscription(user.id, {
-    subscriptionStatus: "canceled",
-    subscriptionTier: "free",
-  });
-
-  if (updateError) throw updateError;
-
-  console.log(
-    `✅ Subscription canceled for user ${user.id} - downgraded to free`,
+  const { applied, user } = await applySubscription(
+    subscription.id,
+    subscription.customer as string,
+    stripe,
+    "cancellation",
   );
+  if (!applied || !user) return;
 
   try {
     await sendSubscriptionCanceled({ to: user.email });
@@ -333,24 +328,19 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 
 async function handlePaymentFailed(invoice: Stripe.Invoice, stripe: Stripe) {
   const customerId = invoice.customer as string;
-  console.log(`Payment failed for customer: ${customerId}`);
-
   const { user } = await findUserByCustomerId(customerId, stripe);
-
-  if (!user) {
+  if (!user?.stripeSubscriptionId) {
     console.warn(
-      `[stripe webhook] No user row for customer ${customerId} on invoice.payment_failed; ignoring.`,
+      `[stripe webhook] No subscribed user for customer ${customerId} on invoice.payment_failed; ignoring.`,
     );
     return;
   }
-
-  const { error: updateError } = await updateUserSubscription(user.id, {
-    subscriptionStatus: "past_due",
-  });
-
-  if (updateError) throw updateError;
-
-  console.log(`⚠️ Payment failed for user ${user.id} - marked as past_due`);
+  await applySubscription(
+    user.stripeSubscriptionId,
+    customerId,
+    stripe,
+    "payment failure",
+  );
 }
 
 async function handleCheckoutSessionCompleted(
@@ -449,4 +439,24 @@ async function handleCheckoutSessionCompleted(
       `Unrecognized purchase type: ${purchaseType} for session ${session.id}`,
     );
   }
+}
+
+async function handleLifetimeRefund(charge: Stripe.Charge) {
+  if (!charge.refunded) return;
+  const paymentIntent =
+    typeof charge.payment_intent === "string"
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
+  if (!paymentIntent) return;
+  const { user, error } = await getUserByLifetimePayment(paymentIntent);
+  if (error) throw error;
+  if (!user || !user.hasLifetimeAccess) return;
+  const { error: updateError } = await updateUser(user.id, {
+    hasLifetimeAccess: false,
+    subscriptionTier: hasProSubscription(user) ? "pro" : "free",
+  });
+  if (updateError) throw updateError;
+  console.log(
+    `Lifetime access revoked for user ${user.id} after a full refund`,
+  );
 }

@@ -1,11 +1,11 @@
 "use server";
 
-import { and, eq, inArray } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { db, suggestions } from "@/lib/db";
 import { monthSpend } from "@/lib/suggest/budget";
+import { runToken } from "@/lib/suggest/buildState";
+import { transitionSuggestion } from "@/lib/suggest/transition";
 import {
   isOwner,
   OWNER_COOKIE,
@@ -71,7 +71,11 @@ async function requireOwner() {
   if (!(await isOwner())) redirect(QUEUE);
 }
 
-async function dispatch(id: string, request: string): Promise<string | null> {
+async function dispatch(
+  id: string,
+  request: string,
+  started: string,
+): Promise<string | null> {
   const token = process.env.SUGGEST_GITHUB_TOKEN;
   if (!token) return "SUGGEST_GITHUB_TOKEN is not set.";
   const res = await fetch(
@@ -85,7 +89,7 @@ async function dispatch(id: string, request: string): Promise<string | null> {
       },
       body: JSON.stringify({
         ref: "main",
-        inputs: { id, request },
+        inputs: { id, request, started },
       }),
     },
   );
@@ -101,29 +105,20 @@ export async function build(id: string) {
     redirect(`${QUEUE}?cap=1`);
   }
 
-  const [row] = await db
-    .update(suggestions)
-    .set({
-      status: "building",
-      buildStartedAt: new Date(),
-      note: null,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(suggestions.id, id),
-        inArray(suggestions.status, ["new", "failed"]),
-      ),
-    )
-    .returning({ id: suggestions.id, request: suggestions.request });
+  const row = await transitionSuggestion(id, "build", {
+    buildStartedAt: new Date(),
+    note: null,
+    prUrl: null,
+  });
 
   if (row) {
-    const error = await dispatch(row.id, row.request);
+    const error = await dispatch(
+      row.id,
+      row.request,
+      runToken(row.buildStartedAt),
+    );
     if (error) {
-      await db
-        .update(suggestions)
-        .set({ status: "failed", note: error, updatedAt: new Date() })
-        .where(eq(suggestions.id, row.id));
+      await transitionSuggestion(row.id, "dispatch_failed", { note: error });
     }
   }
   revalidatePath(QUEUE);
@@ -131,32 +126,19 @@ export async function build(id: string) {
 
 export async function reject(id: string) {
   await requireOwner();
-  await db
-    .update(suggestions)
-    .set({ status: "rejected", updatedAt: new Date() })
-    .where(eq(suggestions.id, id));
+  await transitionSuggestion(id, "reject");
   revalidatePath(QUEUE);
 }
 
 export async function markLive(id: string) {
   await requireOwner();
-  await db
-    .update(suggestions)
-    .set({ status: "live", liveAt: new Date(), updatedAt: new Date() })
-    .where(and(eq(suggestions.id, id), eq(suggestions.status, "ready")));
+  await transitionSuggestion(id, "go_live", { liveAt: new Date() });
   revalidatePath(QUEUE);
   revalidatePath("/suggest");
 }
 
 export async function stop(id: string) {
   await requireOwner();
-  await db
-    .update(suggestions)
-    .set({
-      status: "failed",
-      note: "Stopped by hand.",
-      updatedAt: new Date(),
-    })
-    .where(and(eq(suggestions.id, id), eq(suggestions.status, "building")));
+  await transitionSuggestion(id, "stop", { note: "Stopped by hand." });
   revalidatePath(QUEUE);
 }

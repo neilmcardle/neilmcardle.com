@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useReducer } from "react";
 import BackLink from "@/components/BackLink";
 import Hero from "./components/Hero";
 import PromptEditor from "./components/PromptEditor";
@@ -17,20 +17,55 @@ import {
   CATEGORY_HEADLINES,
 } from "./rubric";
 import type { LibraryPrompt } from "./library";
+import {
+  describeRefine,
+  describeScore,
+  idleRefine,
+  idleScore,
+  refineRequest,
+  scoreRequest,
+} from "./requests";
 
 export default function PromptrPage() {
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPromptValue] = useState("");
 
-  const [dimensions, setDimensions] = useState<
-    Map<DimensionKey, RubricDimension>
-  >(new Map());
-  const [summary, setSummary] = useState<RubricSummary | null>(null);
-  const [scoreError, setScoreError] = useState<string | null>(null);
-  const [isScoring, setIsScoring] = useState(false);
+  const [score, dispatchScore] = useReducer(scoreRequest, idleScore);
+  const { dimensions, summary, isScoring, scoreError } = describeScore(score);
+  const [refine, dispatchRefine] = useReducer(refineRequest, idleRefine);
+  const { refineResult, refineError, isRefining } = describeRefine(refine);
 
-  const [refineResult, setRefineResult] = useState<RefineResponse | null>(null);
-  const [refineError, setRefineError] = useState<string | null>(null);
-  const [isRefining, setIsRefining] = useState(false);
+  const runs = useRef(0);
+  const scoreAbort = useRef<AbortController | null>(null);
+  const refineAbort = useRef<AbortController | null>(null);
+
+  const cancelRequests = useCallback(() => {
+    scoreAbort.current?.abort();
+    scoreAbort.current = null;
+    refineAbort.current?.abort();
+    refineAbort.current = null;
+  }, []);
+
+  useEffect(
+    () => () => {
+      cancelRequests();
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    },
+    [cancelRequests],
+  );
+
+  const setPrompt = useCallback((value: string) => {
+    if (scoreAbort.current) {
+      scoreAbort.current.abort();
+      scoreAbort.current = null;
+      dispatchScore({ type: "clear" });
+    }
+    if (refineAbort.current) {
+      refineAbort.current.abort();
+      refineAbort.current = null;
+      dispatchRefine({ type: "clear" });
+    }
+    setPromptValue(value);
+  }, []);
 
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -40,22 +75,33 @@ export default function PromptrPage() {
     toastTimer.current = setTimeout(() => setToast(null), 1600);
   }, []);
 
-  const resetScore = () => {
-    setDimensions(new Map());
-    setSummary(null);
-    setScoreError(null);
-  };
-
   const handleScore = useCallback(async () => {
     if (!prompt.trim() || isScoring) return;
-    resetScore();
-    setIsScoring(true);
+    scoreAbort.current?.abort();
+    const controller = new AbortController();
+    scoreAbort.current = controller;
+    const run = ++runs.current;
+    dispatchScore({ type: "start", run });
+
+    const readSummary = (parsed: {
+      total?: unknown;
+      headline?: unknown;
+    }): RubricSummary => {
+      const totalRaw = typeof parsed.total === "number" ? parsed.total : 0;
+      const safeCategory = categoryFor(totalRaw);
+      return {
+        total: totalRaw,
+        category: safeCategory,
+        headline: String(parsed.headline ?? CATEGORY_HEADLINES[safeCategory]),
+      };
+    };
 
     try {
       const response = await fetch("/api/promptr/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -85,28 +131,20 @@ export default function PromptrPage() {
               throw new Error(parsed.error ?? "Scoring failed");
             }
             if (parsed.type === "dimension" && parsed.key) {
-              setDimensions((prev) => {
-                const next = new Map(prev);
-                next.set(parsed.key, {
-                  key: parsed.key,
-                  label: parsed.label ?? parsed.key,
-                  score: typeof parsed.score === "number" ? parsed.score : 0,
-                  explanation: String(parsed.explanation ?? ""),
-                  improvement: String(parsed.improvement ?? ""),
-                });
-                return next;
-              });
+              const dimension: RubricDimension = {
+                key: parsed.key as DimensionKey,
+                label: parsed.label ?? parsed.key,
+                score: typeof parsed.score === "number" ? parsed.score : 0,
+                explanation: String(parsed.explanation ?? ""),
+                improvement: String(parsed.improvement ?? ""),
+              };
+              dispatchScore({ type: "dimension", run, dimension });
             }
             if (parsed.type === "summary") {
-              const totalRaw =
-                typeof parsed.total === "number" ? parsed.total : 0;
-              const safeCategory = categoryFor(totalRaw);
-              setSummary({
-                total: totalRaw,
-                category: safeCategory,
-                headline: String(
-                  parsed.headline ?? CATEGORY_HEADLINES[safeCategory],
-                ),
+              dispatchScore({
+                type: "summary",
+                run,
+                summary: readSummary(parsed),
               });
             }
           } catch (e) {
@@ -122,40 +160,38 @@ export default function PromptrPage() {
         try {
           const parsed = JSON.parse(trailing);
           if (parsed.type === "summary") {
-            const totalRaw =
-              typeof parsed.total === "number" ? parsed.total : 0;
-            const safeCategory = categoryFor(totalRaw);
-            setSummary({
-              total: totalRaw,
-              category: safeCategory,
-              headline: String(
-                parsed.headline ?? CATEGORY_HEADLINES[safeCategory],
-              ),
+            dispatchScore({
+              type: "summary",
+              run,
+              summary: readSummary(parsed),
             });
           }
-        } catch {
-          /* ignore */
-        }
+        } catch {}
       }
+      dispatchScore({ type: "finish", run });
     } catch (err) {
+      if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : "Scoring failed";
-      setScoreError(message);
+      dispatchScore({ type: "fail", run, error: message });
     } finally {
-      setIsScoring(false);
+      if (scoreAbort.current === controller) scoreAbort.current = null;
     }
   }, [prompt, isScoring]);
 
   const handleRefine = useCallback(async () => {
     if (!prompt.trim() || isRefining) return;
-    setRefineResult(null);
-    setRefineError(null);
-    setIsRefining(true);
+    refineAbort.current?.abort();
+    const controller = new AbortController();
+    refineAbort.current = controller;
+    const run = ++runs.current;
+    dispatchRefine({ type: "start", run });
 
     try {
       const response = await fetch("/api/promptr/refine", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -182,31 +218,34 @@ export default function PromptrPage() {
       if (typeof parsed.refined !== "string" || !parsed.refined.trim()) {
         throw new Error("The model did not return a refined prompt");
       }
-      setRefineResult({
+      const result: RefineResponse = {
         refined: parsed.refined,
         changes: Array.isArray(parsed.changes)
           ? parsed.changes
               .filter((c: unknown): c is string => typeof c === "string")
               .slice(0, 5)
           : [],
-      });
+      };
+      dispatchRefine({ type: "ready", run, result });
     } catch (err) {
+      if (controller.signal.aborted) return;
       const message = err instanceof Error ? err.message : "Refine failed";
-      setRefineError(message);
+      dispatchRefine({ type: "fail", run, error: message });
     } finally {
-      setIsRefining(false);
+      if (refineAbort.current === controller) refineAbort.current = null;
     }
   }, [prompt, isRefining]);
 
   const handleKeepRefine = () => {
     if (!refineResult) return;
-    setPrompt(refineResult.refined);
-    setRefineResult(null);
-    resetScore();
+    cancelRequests();
+    setPromptValue(refineResult.refined);
+    dispatchRefine({ type: "clear" });
+    dispatchScore({ type: "clear" });
   };
 
   const handleRevertRefine = () => {
-    setRefineResult(null);
+    dispatchRefine({ type: "clear" });
   };
 
   const handleLibraryCopy = useCallback(
@@ -223,13 +262,14 @@ export default function PromptrPage() {
 
   const handleLibraryLoad = useCallback(
     (item: LibraryPrompt) => {
-      setPrompt(item.prompt);
-      resetScore();
-      setRefineResult(null);
+      cancelRequests();
+      setPromptValue(item.prompt);
+      dispatchScore({ type: "clear" });
+      dispatchRefine({ type: "clear" });
       window.scrollTo({ top: 0, behavior: "smooth" });
       showToast(`Loaded "${item.title}"`);
     },
-    [showToast],
+    [showToast, cancelRequests],
   );
 
   return (

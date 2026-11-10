@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BackLink from "@/components/BackLink";
 import s from "./touchtype.module.css";
+import { accuracy, freshDrill, pressKey, speed, type Drill } from "./drill";
 
 type Finger = "L5" | "L4" | "L3" | "L2" | "R2" | "R3" | "R4" | "R5" | "T";
 type KeyDef = {
@@ -14,13 +15,6 @@ type KeyDef = {
 };
 type Layout = "mac" | "win";
 type Lesson = { name: string; short: string; keys: string; items: string[] };
-type Result = {
-  wpm: number;
-  acc: number;
-  errors: number;
-  ms: number;
-  chars: number;
-};
 type Best = Record<string, { wpm: number; acc: number }>;
 
 const ROW1_BASE: KeyDef[] = [
@@ -346,16 +340,6 @@ function formatTime(ms: number) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-function speed(chars: number, ms: number) {
-  if (ms < 1000) return 0;
-  return Math.round(chars / 5 / (ms / 60000));
-}
-
-function accuracy(keystrokes: number, errors: number) {
-  if (keystrokes === 0) return 100;
-  return Math.round(((keystrokes - errors) / keystrokes) * 100);
-}
-
 function cx(...names: (string | false | undefined)[]) {
   return names.filter(Boolean).join(" ");
 }
@@ -363,18 +347,22 @@ function cx(...names: (string | false | undefined)[]) {
 export default function TouchTypePage() {
   const [layout, setLayout] = useState<Layout>("mac");
   const [lessonIdx, setLessonIdx] = useState(0);
-  const [itemIdx, setItemIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
-  const [keystrokes, setKeystrokes] = useState(0);
-  const [errors, setErrors] = useState(0);
-  const [doneChars, setDoneChars] = useState(0);
-  const [drillStart, setDrillStart] = useState<number | null>(null);
+  const [drill, setDrill] = useState<Drill>(freshDrill);
+  const drillRef = useRef<Drill>(freshDrill);
+  const {
+    itemIdx,
+    charIdx,
+    keystrokes,
+    errors,
+    doneChars,
+    drillStart,
+    result,
+  } = drill;
   const [now, setNow] = useState(0);
   const [wrong, setWrong] = useState(false);
   const [pressed, setPressed] = useState<{ key: string; ok: boolean } | null>(
     null,
   );
-  const [result, setResult] = useState<Result | null>(null);
   const [best, setBest] = useState<Best>({});
   const [cleared, setCleared] = useState<Best | null>(null);
   const [sound, setSound] = useState(false);
@@ -471,15 +459,10 @@ export default function TouchTypePage() {
   );
 
   const resetCounters = useCallback(() => {
-    setItemIdx(0);
-    setCharIdx(0);
-    setKeystrokes(0);
-    setErrors(0);
-    setDoneChars(0);
-    setDrillStart(null);
+    drillRef.current = freshDrill;
+    setDrill(freshDrill);
     setWrong(false);
     setPressed(null);
-    setResult(null);
   }, []);
 
   const focusPractice = useCallback((scroll: boolean) => {
@@ -522,21 +505,28 @@ export default function TouchTypePage() {
         return;
       const key = e.code === "Space" ? " " : e.key;
       if (key.length !== 1) return;
-      if (expected === undefined) return;
+      const before = drillRef.current;
+      const expectedNow = before.result
+        ? undefined
+        : lesson.items[before.itemIdx]?.[before.charIdx];
+      if (expectedNow === undefined) return;
       e.preventDefault();
+      if (e.repeat) return;
 
       const stamp = Date.now();
-      const start = drillStart ?? stamp;
-      if (drillStart === null) {
-        setDrillStart(stamp);
+      const { drill: after, outcome } = pressKey(
+        before,
+        key,
+        stamp,
+        lesson.items,
+      );
+      drillRef.current = after;
+      setDrill(after);
+      if (before.drillStart === null && after.drillStart !== null)
         setNow(stamp);
-      }
-      const strokes = keystrokes + 1;
-      setKeystrokes(strokes);
 
-      if (key.toLowerCase() !== expected.toLowerCase()) {
+      if (outcome === "wrong") {
         playTone(180, 0.1, "square");
-        setErrors((n) => n + 1);
         setWrong(true);
         flashKey(SHIFTED[key] ?? key.toLowerCase(), false);
         return;
@@ -544,33 +534,9 @@ export default function TouchTypePage() {
 
       playTone(880, 0.04, "sine");
       setWrong(false);
-      flashKey(SHIFTED[expected] ?? expected.toLowerCase(), true);
-      const next = charIdx + 1;
-      if (next < text.length) {
-        setCharIdx(next);
-        return;
-      }
-
-      const totalChars = doneChars + text.length;
-      const totalMs = stamp - start;
-      if (itemIdx + 1 < lesson.items.length) {
-        setDoneChars(totalChars);
-        setItemIdx(itemIdx + 1);
-        setCharIdx(0);
-        return;
-      }
-
-      const finished: Result = {
-        wpm: speed(totalChars, totalMs),
-        acc: accuracy(strokes, errors),
-        errors,
-        ms: totalMs,
-        chars: totalChars,
-      };
-      setCharIdx(next);
-      setDoneChars(totalChars);
-      setDrillStart(null);
-      setResult(finished);
+      flashKey(SHIFTED[expectedNow] ?? expectedNow.toLowerCase(), true);
+      const finished = after.result;
+      if (outcome !== "finished" || !finished) return;
       setBest((prev) => {
         const old = prev[lessonIdx];
         const keep = old && old.wpm >= finished.wpm && old.acc >= finished.acc;
@@ -587,20 +553,7 @@ export default function TouchTypePage() {
         return merged;
       });
     },
-    [
-      expected,
-      drillStart,
-      keystrokes,
-      playTone,
-      flashKey,
-      charIdx,
-      text,
-      doneChars,
-      itemIdx,
-      lesson,
-      errors,
-      lessonIdx,
-    ],
+    [playTone, flashKey, lesson, lessonIdx],
   );
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function HeartButton({
   liked,
@@ -11,6 +11,14 @@ export function HeartButton({
   onToggle: () => void;
 }) {
   const [justLiked, setJustLiked] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -18,7 +26,8 @@ export function HeartButton({
     onToggle();
     if (!liked) {
       setJustLiked(true);
-      setTimeout(() => setJustLiked(false), 1000);
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => setJustLiked(false), 1000);
     }
   };
 

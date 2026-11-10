@@ -1,17 +1,26 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { media } from "@/lib/media";
 import ToTop from "./ToTop";
 import shell from "./signature.module.css";
 import styles from "./finale.module.css";
+import {
+  CLOSE_AFTER_RUN_MS,
+  describeIgnition,
+  ignition,
+  initialIgnition,
+  retryable,
+} from "./ignition";
 
 const ENGINE = media("/audio/engine.mp3");
 const ART = "/home/ignition";
 const OFFSET = 0.6;
 const OCTAGON =
   "29.3,0 70.7,0 100,29.3 100,70.7 70.7,100 29.3,100 0,70.7 0,29.3";
+const hoverable = () =>
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 const address = () => ["neil", ["neilmcardle", "com"].join(".")].join("@");
 
 type Spark = {
@@ -43,18 +52,21 @@ export default function Finale({
   const start = useRef<HTMLButtonElement>(null);
   const engine = useRef<{
     audio?: AudioContext;
-    bytes?: Promise<ArrayBuffer>;
-    buffer?: Promise<AudioBuffer>;
-  }>({});
-  const closeTimer = useRef(0);
+    bytes?: () => Promise<ArrayBuffer>;
+    buffer?: () => Promise<AudioBuffer>;
+    raf: number;
+    src?: AudioBufferSourceNode;
+    alive: boolean;
+  }>({ raf: 0, alive: true });
   const copyTimer = useRef(0);
   const [shown, setShown] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [lifecycle, dispatch] = useReducer(ignition, initialIgnition);
+  const { open, running, revealed } = describeIgnition(lifecycle);
+  const said = describeIgnition(lifecycle).said
+    ? "Engine’s running. What are we building?"
+    : "";
+  const subject = said !== "";
   const [instant, setInstant] = useState(false);
-  const [running, setRunning] = useState(false);
-  const [revealed, setRevealed] = useState(false);
-  const [said, setSaid] = useState("");
-  const [subject, setSubject] = useState(false);
   const [copied, setCopied] = useState("");
   const [footCopied, setFootCopied] = useState(false);
   const footTimer = useRef(0);
@@ -94,9 +106,35 @@ export default function Finale({
     return () => io.disconnect();
   }, []);
 
+  const closeSoon =
+    lifecycle.phase === "revealed" && lifecycle.open && lifecycle.closeSoon;
+  useEffect(() => {
+    if (!closeSoon) return;
+    const t = window.setTimeout(() => {
+      if (!(hoverable() && ign.current?.matches(":hover")))
+        dispatch({ type: "close" });
+    }, CLOSE_AFTER_RUN_MS);
+    return () => window.clearTimeout(t);
+  }, [closeSoon]);
+
+  useEffect(() => {
+    const e = engine.current;
+    e.alive = true;
+    return () => {
+      e.alive = false;
+      cancelAnimationFrame(e.raf);
+      try {
+        e.src?.stop();
+      } catch {}
+      e.src = undefined;
+      e.audio?.close().catch(() => {});
+      e.audio = undefined;
+      e.buffer = undefined;
+    };
+  }, []);
+
   useEffect(
     () => () => {
-      window.clearTimeout(closeTimer.current);
       window.clearTimeout(copyTimer.current);
       window.clearTimeout(pressTimer.current);
       window.clearTimeout(footTimer.current);
@@ -105,29 +143,29 @@ export default function Finale({
   );
 
   const fetchEngine = () => {
-    engine.current.bytes ??= fetch(ENGINE).then((r) => {
-      if (!r.ok) throw new Error("engine");
-      return r.arrayBuffer();
-    });
-    return engine.current.bytes;
+    engine.current.bytes ??= retryable(() =>
+      fetch(ENGINE).then((r) => {
+        if (!r.ok) throw new Error("engine");
+        return r.arrayBuffer();
+      }),
+    );
+    return engine.current.bytes();
   };
 
   const loadEngine = () => {
     const e = engine.current;
     e.audio ??= new AudioContext();
     const audio = e.audio;
-    e.buffer ??= fetchEngine().then((b) => audio.decodeAudioData(b.slice(0)));
-    return e.buffer;
+    e.buffer ??= retryable(() =>
+      fetchEngine().then((b) => audio.decodeAudioData(b.slice(0))),
+    );
+    return e.buffer();
   };
 
   const openCover = () => {
-    window.clearTimeout(closeTimer.current);
-    setOpen(true);
+    dispatch({ type: "open" });
     fetchEngine().catch(() => {});
   };
-
-  const hoverable = () =>
-    window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   const onCoverClick = (event: React.MouseEvent) => {
     if (event.detail === 0) {
@@ -163,10 +201,8 @@ export default function Finale({
   };
 
   const ignite = async () => {
-    setRevealed(true);
     if (running) return;
-    setRunning(true);
-    window.clearTimeout(closeTimer.current);
+    dispatch({ type: "ignite" });
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const stage = finale.current;
     const canvas = exhaust.current;
@@ -178,14 +214,15 @@ export default function Finale({
     } catch {
       buffer = undefined;
     }
+    if (!engine.current.alive) return;
     const audio = engine.current.audio;
     if (!stage || !canvas || !ctx || !audio || !buffer) {
-      setRunning(false);
-      setSaid("Engine’s running. What are we building?");
-      setSubject(true);
+      dispatch({ type: "loaded", ok: false });
       return;
     }
+    dispatch({ type: "loaded", ok: true });
     const src = audio.createBufferSource();
+    engine.current.src = src;
     const analyser = audio.createAnalyser();
     analyser.fftSize = 1024;
     src.buffer = buffer;
@@ -274,20 +311,17 @@ export default function Finale({
         ctx.globalAlpha = 1;
       }
       if (t < length + 0.3 || puffs.length) {
-        requestAnimationFrame(frame);
+        engine.current.raf = requestAnimationFrame(frame);
         return;
       }
+      engine.current.raf = 0;
+      if (engine.current.src === src) engine.current.src = undefined;
       if (title.current) title.current.style.translate = "";
       stage.style.setProperty("--flare", "0");
       tach.current?.style.setProperty("stroke-dashoffset", "100");
-      setSaid("Engine’s running. What are we building?");
-      setSubject(true);
-      setRunning(false);
-      closeTimer.current = window.setTimeout(() => {
-        if (!(hoverable() && ign.current?.matches(":hover"))) setOpen(false);
-      }, 1600);
+      dispatch({ type: "finished" });
     };
-    requestAnimationFrame(frame);
+    engine.current.raf = requestAnimationFrame(frame);
   };
 
   const mailto = revealed
@@ -315,7 +349,7 @@ export default function Finale({
             ref={ign}
             className={`${styles.ignition} ${open ? styles.open : ""} ${instant ? styles.instant : ""}`}
             onPointerEnter={() => hoverable() && openCover()}
-            onPointerLeave={() => hoverable() && !running && setOpen(false)}
+            onPointerLeave={() => hoverable() && dispatch({ type: "close" })}
           >
             <span className={styles.shadow} aria-hidden="true">
               <img src={`${ART}/contact-shadow.svg`} alt="" />
@@ -360,7 +394,7 @@ export default function Finale({
               className={`${styles.start} ${pressed ? styles.pressed : ""}`}
               type="button"
               tabIndex={open ? 0 : -1}
-              disabled={running}
+              aria-disabled={running || undefined}
               aria-label="Reveal my email address"
               onClick={ignite}
               onPointerDown={press}

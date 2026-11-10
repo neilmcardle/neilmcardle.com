@@ -72,6 +72,14 @@ export default function Stack({ base = "" }: { base?: string }) {
   const [playing, setPlaying] = useState<string | null>(null);
   const touch = useRef(false);
   const self = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab" || e.key.startsWith("Arrow")) touch.current = false;
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, []);
   const cards = useRef<(HTMLAnchorElement | null)[]>([]);
   const motion = useRef({
     pos: spring(MID),

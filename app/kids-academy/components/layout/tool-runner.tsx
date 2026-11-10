@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type {
@@ -11,6 +11,10 @@ import type {
 import { getProgress, setProgress } from "@/app/kids-academy/lib/progress";
 import { CelebrationAnimation } from "@/app/kids-academy/components/progress/celebration-animation";
 import { getTool } from "@/app/kids-academy/components/interactive/registry";
+import {
+  celebration,
+  showsCelebration,
+} from "@/app/kids-academy/lib/celebration";
 
 type Props = {
   topic: CurriculumTopic;
@@ -18,9 +22,12 @@ type Props = {
 };
 
 export function ToolRunner({ topic, childProfile }: Props) {
-  const [showCelebration, setShowCelebration] = useState(false);
+  const [party, dispatchParty] = useReducer(celebration, {
+    phase: "working",
+    topic: topic.id,
+  });
+  const showCelebration = showsCelebration(party, topic.id);
   const startedAt = useRef<number>(Date.now());
-  const celebrated = useRef(false);
   const alreadyDone = useRef(false);
 
   const Tool = getTool(topic.id);
@@ -28,7 +35,7 @@ export function ToolRunner({ topic, childProfile }: Props) {
   useEffect(() => {
     const done = getProgress(topic.id).status === "completed";
     alreadyDone.current = done;
-    celebrated.current = false;
+    dispatchParty({ type: "topic", topic: topic.id });
     setProgress(topic.id, done ? {} : { status: "in_progress" });
     startedAt.current = Date.now();
   }, [topic.id]);
@@ -41,14 +48,12 @@ export function ToolRunner({ topic, childProfile }: Props) {
         timeSpentSeconds || Math.round((Date.now() - startedAt.current) / 1000),
     });
     alreadyDone.current = true;
-    if (!celebrated.current) {
-      celebrated.current = true;
-      setShowCelebration(true);
-    }
+    dispatchParty({ type: "finish" });
   }
 
   function handleProgress(p: number) {
     const next = Math.min(100, Math.max(0, Math.round(p)));
+    dispatchParty({ type: "progress", percentage: next });
     if (next >= 100) {
       celebrate();
       return;
@@ -97,7 +102,7 @@ export function ToolRunner({ topic, childProfile }: Props) {
       <CelebrationAnimation
         show={showCelebration}
         message={`${topic.title} complete!`}
-        onDismiss={() => setShowCelebration(false)}
+        onDismiss={() => dispatchParty({ type: "dismiss" })}
       />
     </>
   );

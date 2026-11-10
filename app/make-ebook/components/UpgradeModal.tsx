@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   PRO_LIFETIME_TERMS,
   PRO_MONTHLY_PRICE,
@@ -12,6 +12,7 @@ import { track } from "@vercel/analytics";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { Sparkles, Cloud, BookOpen, Clock, Check } from "lucide-react";
 import { Modal, ModalHeader, ModalBody } from "./Modal";
+import { checkout, initialCheckout } from "../state/checkout";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -25,12 +26,27 @@ export default function UpgradeModal({
   feature,
 }: UpgradeModalProps) {
   const { isGrandfathered, isLoading } = useSubscription();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "lifetime">(
-    "monthly",
-  );
-  const [error, setError] = useState<string | null>(null);
+  const [flow, dispatch] = useReducer(checkout, initialCheckout);
+  const checkoutLoading = flow.status === "redirecting";
+  const selectedPlan = flow.plan;
+  const error = flow.status === "failed" ? flow.error : null;
+  const setSelectedPlan = (plan: "monthly" | "lifetime") =>
+    dispatch({ type: "choose", plan });
   const [mounted, setMounted] = useState(false);
+
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) dispatch({ type: "open" });
+  }
+
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) dispatch({ type: "restored" });
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -60,8 +76,8 @@ export default function UpgradeModal({
     track("checkout_started", {
       tier: mode === "subscription" ? "pro" : "lifetime",
     });
-    setCheckoutLoading(true);
-    setError(null);
+    if (checkoutLoading) return;
+    dispatch({ type: "start" });
 
     try {
       const endpoint =
@@ -86,8 +102,10 @@ export default function UpgradeModal({
       }
     } catch (err) {
       console.error("Checkout error:", err);
-      setError(err instanceof Error ? err.message : "Failed to start checkout");
-      setCheckoutLoading(false);
+      dispatch({
+        type: "failed",
+        error: err instanceof Error ? err.message : "Failed to start checkout",
+      });
     }
   };
 

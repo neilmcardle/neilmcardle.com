@@ -15,9 +15,8 @@ import {
   fetchCoverDetail,
   fetchMapPoints,
   fetchSimilarCovers,
-  type CoverDetailData,
-  type MapPoint,
 } from "./actions";
+import { useRemote } from "./use-remote";
 import { ViewControls, type LayoutMode } from "./view-controls";
 
 const MODE_KEY = "coverly:view-mode";
@@ -48,16 +47,9 @@ export function Browse({
   const [size, setSize] = useLocalPref<number>(SIZE_KEY, 170, parseSize);
   const [columns, setColumns] = useLocalPref<number>(COLS_KEY, 2, parseCols);
   const [zoom, setZoom] = useState(1);
-  const [points, setPoints] = useState<MapPoint[] | null>(null);
   const [pickedId, setPickedId] = useState<string | null>(null);
-  const [pickedDetail, setPickedDetail] = useState<{
-    id: string;
-    data: CoverDetailData | null;
-  } | null>(null);
-  const [pickedSimilar, setPickedSimilar] = useState<{
-    id: string;
-    data: CoverCardType[];
-  } | null>(null);
+  const pickedDetail = useRemote(pickedId, fetchCoverDetail);
+  const pickedSimilar = useRemote(pickedId, fetchSimilarCovers);
   const isNarrow = useMediaQuery("(max-width: 639px)");
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -66,25 +58,11 @@ export function Browse({
   }, [filters]);
 
   const effectiveMode: LayoutMode = isNarrow ? "grid" : mode;
-  const picked =
-    pickedDetail && pickedDetail.id === pickedId ? pickedDetail.data : null;
-  const pickedRows =
-    pickedSimilar && pickedSimilar.id === pickedId ? pickedSimilar.data : null;
-
-  useEffect(() => {
-    if (!pickedId) return;
-    let live = true;
-    const id = pickedId;
-    fetchCoverDetail(id).then((d) => {
-      if (live) setPickedDetail({ id, data: d });
-    });
-    fetchSimilarCovers(id).then((rows) => {
-      if (live) setPickedSimilar({ id, data: rows });
-    });
-    return () => {
-      live = false;
-    };
-  }, [pickedId]);
+  const picked = pickedDetail.data;
+  const pickedRows = pickedSimilar.data;
+  const mapKey = effectiveMode === "map" ? JSON.stringify(filters) : null;
+  const mapPoints = useRemote(mapKey, () => fetchMapPoints(filters));
+  const points = mapPoints.data;
 
   useEffect(() => {
     if (!picked) return;
@@ -118,17 +96,6 @@ export function Browse({
     return () => cancelAnimationFrame(raf);
   }, [picked]);
 
-  useEffect(() => {
-    if (effectiveMode !== "map") return;
-    let live = true;
-    fetchMapPoints(filters).then((rows) => {
-      if (live) setPoints(rows);
-    });
-    return () => {
-      live = false;
-    };
-  }, [effectiveMode, filters]);
-
   return (
     <>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
@@ -150,7 +117,25 @@ export function Browse({
       </div>
       {effectiveMode === "map" ? (
         points === null ? (
-          <div className="h-[min(72dvh,720px)] animate-pulse rounded-[1rem] border bg-muted/40" />
+          mapPoints.failed ? (
+            <p
+              role="alert"
+              className="flex h-[min(72dvh,720px)] items-center justify-center rounded-[1rem] border text-sm text-muted-foreground"
+            >
+              <span>
+                The colour map didn’t load.{" "}
+                <button
+                  type="button"
+                  onClick={mapPoints.retry}
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  Try again
+                </button>
+              </span>
+            </p>
+          ) : (
+            <div className="h-[min(72dvh,720px)] animate-pulse rounded-[1rem] border bg-muted/40" />
+          )
         ) : (
           <>
             <ColourMap
@@ -160,6 +145,18 @@ export function Browse({
               onOpen={setPickedId}
               selectedId={pickedId}
             />
+            {pickedId && !picked && pickedDetail.failed && (
+              <p role="alert" className="mt-4 text-sm text-muted-foreground">
+                That cover didn’t load.{" "}
+                <button
+                  type="button"
+                  onClick={pickedDetail.retry}
+                  className="underline underline-offset-4 hover:text-foreground"
+                >
+                  Try again
+                </button>
+              </p>
+            )}
             {pickedId && picked && (
               <div ref={panelRef} className="mt-4 scroll-mt-32">
                 <DetailPanel
@@ -175,6 +172,8 @@ export function Browse({
                   }}
                   detail={picked}
                   similar={pickedRows}
+                  similarFailed={pickedSimilar.failed}
+                  onRetrySimilar={pickedSimilar.retry}
                   onClose={() => setPickedId(null)}
                   onSimilar={setPickedId}
                   onLayout={() => {}}

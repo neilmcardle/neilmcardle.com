@@ -128,6 +128,19 @@ export async function fetchSimilarCovers(id: string): Promise<CoverCard[]> {
     .select("id, title, author, imprint, year, image_url, palette");
   let similar = (Array.isArray(rpcData) ? rpcData : []) as CoverCard[];
 
+  if (similar.length > 0) {
+    const { data: visible } = await supabase
+      .from("covers")
+      .select("id")
+      .in(
+        "id",
+        similar.map((cover) => cover.id),
+      )
+      .eq("delisted", false);
+    const allowed = new Set((visible ?? []).map((row) => row.id));
+    similar = similar.filter((cover) => allowed.has(cover.id));
+  }
+
   if (similar.length < 6) {
     const typed = source as {
       sub_genre: string | null;

@@ -11,6 +11,7 @@ import {
   removeBookFromLibrary,
 } from "../utils/bookLibrary";
 import { ensureChapterIds, migrateEndnoteReferences } from "../utils/pageUtils";
+import type { SwitchBook } from "./useBookSwitch";
 
 interface DialogState {
   open: boolean;
@@ -43,8 +44,7 @@ interface UseLibraryParams {
   setBookJustLoaded: (v: boolean) => void;
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   clearEditorState: () => void;
-  editorSessionRef: React.MutableRefObject<number>;
-  beforeSwitch: () => Promise<unknown>;
+  switchBook: SwitchBook;
   loadCommitRef: React.MutableRefObject<boolean>;
 }
 
@@ -70,8 +70,7 @@ export function useLibrary({
   setBookJustLoaded,
   setDialogState,
   clearEditorState,
-  editorSessionRef,
-  beforeSwitch,
+  switchBook,
   loadCommitRef,
 }: UseLibraryParams) {
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(
@@ -102,58 +101,63 @@ export function useLibrary({
   }
 
   async function handleLoadBook(id: string, keepChapter = false) {
-    if (id !== currentBookId) await beforeSwitch();
-    const loaded = loadBookById(user?.id ?? "", id);
-    if (loaded) {
-      const cover = await toDisplayCover(loaded.coverFile).catch(() => null);
-      editorSessionRef.current += 1;
-      isLoadingBookRef.current = true;
-      loadCommitRef.current = true;
-      setShowMarketingPage(false);
-      loadMetadata({ ...loaded, id: loaded.id });
-      setTags(loaded.tags || []);
-      setCoverUrl(cover);
+    await switchBook({
+      flush: id !== currentBookId,
+      prepare: async () => {
+        const loaded = loadBookById(user?.id ?? "", id);
+        if (!loaded) return null;
+        const cover = await toDisplayCover(loaded.coverFile).catch(() => null);
+        return { loaded, cover };
+      },
+      apply: ({ loaded, cover }) => {
+        isLoadingBookRef.current = true;
+        loadCommitRef.current = true;
+        setShowMarketingPage(false);
+        loadMetadata({ ...loaded, id: loaded.id });
+        setTags(loaded.tags || []);
+        setCoverUrl(cover);
 
-      const loadedChapters =
-        loaded.chapters &&
-        Array.isArray(loaded.chapters) &&
-        loaded.chapters.length > 0
-          ? loaded.chapters
-          : [
-              {
-                id: uuidv4(),
-                title: "",
-                content: "",
-                type: "content" as const,
-              },
-            ];
-      const migratedChapters = ensureChapterIds(loadedChapters);
-      setChapters(migratedChapters);
+        const loadedChapters =
+          loaded.chapters &&
+          Array.isArray(loaded.chapters) &&
+          loaded.chapters.length > 0
+            ? loaded.chapters
+            : [
+                {
+                  id: uuidv4(),
+                  title: "",
+                  content: "",
+                  type: "content" as const,
+                },
+              ];
+        const migratedChapters = ensureChapterIds(loadedChapters);
+        setChapters(migratedChapters);
 
-      if (loaded.endnoteReferences) {
-        const migratedEndnoteRefs = migrateEndnoteReferences(
-          loaded.endnoteReferences,
-          migratedChapters,
+        if (loaded.endnoteReferences) {
+          const migratedEndnoteRefs = migrateEndnoteReferences(
+            loaded.endnoteReferences,
+            migratedChapters,
+          );
+          setEndnoteReferences(migratedEndnoteRefs);
+        }
+
+        const loadedEndnotes = loaded.endnotes || [];
+        setEndnotes(loadedEndnotes);
+        const maxNumber = loadedEndnotes.reduce(
+          (max: number, e: Endnote) => Math.max(max, e.number),
+          0,
         );
-        setEndnoteReferences(migratedEndnoteRefs);
-      }
+        setNextEndnoteNumber(maxNumber + 1);
+        setCurrentBookId(loaded.id);
+        if (!keepChapter) setSelectedChapter(0);
 
-      const loadedEndnotes = loaded.endnotes || [];
-      setEndnotes(loadedEndnotes);
-      const maxNumber = loadedEndnotes.reduce(
-        (max: number, e: Endnote) => Math.max(max, e.number),
-        0,
-      );
-      setNextEndnoteNumber(maxNumber + 1);
-      setCurrentBookId(loaded.id);
-      if (!keepChapter) setSelectedChapter(0);
+        setMobileSidebarOpen(false);
+        setSidebarView(null);
 
-      setMobileSidebarOpen(false);
-      setSidebarView(null);
-
-      setBookJustLoaded(true);
-      setTimeout(() => setBookJustLoaded(false), 1000);
-    }
+        setBookJustLoaded(true);
+        setTimeout(() => setBookJustLoaded(false), 1000);
+      },
+    });
   }
 
   function handleDeleteBook(id: string) {

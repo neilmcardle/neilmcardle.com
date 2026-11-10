@@ -11,6 +11,10 @@ on:
         description: Suggestion text
         required: true
         type: string
+      started:
+        description: Run token
+        required: false
+        type: string
 
 concurrency:
   group: suggest-build
@@ -27,6 +31,7 @@ jobs:
     env:
       SUGGESTION_ID: ${{ inputs.id }}
       SUGGESTION: ${{ inputs.request }}
+      STARTED: ${{ inputs.started }}
       MAX_BUDGET_USD: "0.06"
     steps:
       - name: Check the id
@@ -133,8 +138,8 @@ jobs:
           if [ -z "$note" ] && [ "${{ steps.agent.outcome }}" != "success" ]; then
             note="The agent stopped before finishing."
           fi
-          jq -n --arg id "$SUGGESTION_ID" --arg pr "$PR_URL" --arg note "$note" --argjson cost "${cost:-0}" \
-            '{id: $id, prUrl: (if $pr == "" then null else $pr end), costUsd: $cost, note: $note}' \
+          jq -n --arg id "$SUGGESTION_ID" --arg pr "$PR_URL" --arg note "$note" --arg started "$STARTED" --argjson cost "${cost:-0}" \
+            '{id: $id, prUrl: (if $pr == "" then null else $pr end), costUsd: $cost, note: $note, started: $started}' \
             | curl -sS --fail-with-body -X POST "$REPORT_URL" \
                 -H "Authorization: Bearer $REPORT_SECRET" \
                 -H "Content-Type: application/json" \

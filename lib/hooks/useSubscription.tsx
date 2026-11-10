@@ -1,152 +1,173 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useAuth } from './useAuth'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
+import { useAuth } from "./useAuth";
+import {
+  describeSubscription,
+  initialSubscription,
+  subscription,
+  type SubscriptionSnapshot,
+} from "./subscriptionState";
 
-export type SubscriptionTier = 'free' | 'pro'
-export type SubscriptionStatus = 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete' | null
+export type { SubscriptionTier, SubscriptionStatus } from "./subscriptionState";
 
-interface SubscriptionData {
-  tier: SubscriptionTier
-  status: SubscriptionStatus
-  isGrandfathered: boolean
-  currentPeriodEnd: string | null
-  stripeCustomerId: string | null
-  isPro: boolean
-  isLoading: boolean
-  error: string | null
+const UPGRADE_POLL_MS = 2000;
+const UPGRADE_POLL_ATTEMPTS = 8;
+
+type SubscriptionData = ReturnType<typeof describeSubscription> & {
+  expectUpgrade: () => void;
+};
+
+const SubscriptionContext = createContext<SubscriptionData | undefined>(
+  undefined,
+);
+
+function toSnapshot(
+  result: Partial<SubscriptionSnapshot>,
+): SubscriptionSnapshot {
+  return {
+    tier: result.tier || "free",
+    status: result.status || null,
+    isGrandfathered: result.isGrandfathered || false,
+    currentPeriodEnd: result.currentPeriodEnd || null,
+    stripeCustomerId: result.stripeCustomerId || null,
+    isPro: result.isPro || false,
+  };
 }
 
-const SubscriptionContext = createContext<SubscriptionData | undefined>(undefined)
+export function SubscriptionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const [state, dispatch] = useReducer(subscription, initialSubscription);
+  const requestRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
 
-export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
-  const { user, isAuthenticated, loading: authLoading } = useAuth()
-  const [data, setData] = useState<SubscriptionData>({
-    tier: 'free',
-    status: null,
-    isGrandfathered: false,
-    currentPeriodEnd: null,
-    stripeCustomerId: null,
-    isPro: false,
-    isLoading: true,
-    error: null,
-  })
+  const fetchTier = useCallback(async (userId: string, retryFree: boolean) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const request = ++requestRef.current;
+    dispatch({ type: "fetch", request, userId });
+
+    const load = async () => {
+      const response = await fetch("/api/subscription", {
+        method: "GET",
+        credentials: "include",
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("Failed to fetch subscription data");
+      return toSnapshot(await response.json());
+    };
+
+    try {
+      let data = await load();
+      if (retryFree && !data.isPro && data.tier === "free") {
+        await new Promise((r) => setTimeout(r, 1000));
+        if (controller.signal.aborted) return;
+        data = await load();
+      }
+      dispatch({ type: "loaded", request, data });
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      console.error("Error fetching subscription:", error);
+      dispatch({
+        type: "failed",
+        request,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to load subscription",
+      });
+    }
+  }, []);
+
+  const userId = user?.id;
+  const hasEmail = !!user?.email;
 
   useEffect(() => {
-    // Wait for auth to settle before deciding a tier. While loading,
-    // "not authenticated" really means "unknown", and treating that as
-    // free causes downstream consumers to gate the wrong way.
-    if (authLoading) return
-
-    if (!isAuthenticated || !user) {
-      setData({
-        tier: 'free',
-        status: null,
-        isGrandfathered: false,
-        currentPeriodEnd: null,
-        stripeCustomerId: null,
-        isPro: false,
-        isLoading: false,
-        error: null,
-      })
-      return
+    if (authLoading) return;
+    if (!isAuthenticated || !userId) {
+      abortRef.current?.abort();
+      requestRef.current += 1;
+      dispatch({ type: "signedOut" });
+      return;
     }
+    void fetchTier(userId, hasEmail);
+  }, [userId, hasEmail, isAuthenticated, authLoading, fetchTier]);
 
-    // Fetch with a single retry to handle a known auth-cookie race on first load.
-    const fetchSubscription = async (attempt = 1) => {
-      try {
-        setData(prev => ({ ...prev, isLoading: true, error: null }))
+  useEffect(() => () => abortRef.current?.abort(), []);
 
-        const response = await fetch('/api/subscription', {
-          method: 'GET',
-          credentials: 'include',
-        })
+  const awaiting = state.awaitingUpgrade;
+  const awaitingUserId = state.userId;
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch subscription data')
-        }
-
-        const result = await response.json()
-
-        // Authenticated user but server returned free: retry once for the
-        // cookie race, then accept whatever comes back.
-        if (
-          attempt === 1 &&
-          (!result.isPro && result.tier === 'free') &&
-          user?.email
-        ) {
-          console.warn('[subscription] first fetch returned free for authenticated user, retrying in 1s')
-          await new Promise(r => setTimeout(r, 1000))
-          return fetchSubscription(2)
-        }
-
-        setData({
-          tier: result.tier || 'free',
-          status: result.status || null,
-          isGrandfathered: result.isGrandfathered || false,
-          currentPeriodEnd: result.currentPeriodEnd || null,
-          stripeCustomerId: result.stripeCustomerId || null,
-          isPro: result.isPro || false,
-          isLoading: false,
-          error: null,
-        })
-      } catch (error) {
-        console.error('Error fetching subscription:', error)
-        setData({
-          tier: 'free',
-          status: null,
-          isGrandfathered: false,
-          currentPeriodEnd: null,
-          stripeCustomerId: null,
-          isPro: false,
-          isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to load subscription',
-        })
+  useEffect(() => {
+    if (!awaiting || !awaitingUserId) return;
+    let attempts = 0;
+    const timer = setInterval(() => {
+      attempts += 1;
+      if (attempts > UPGRADE_POLL_ATTEMPTS) {
+        clearInterval(timer);
+        dispatch({ type: "gaveUp" });
+        return;
       }
-    }
+      void fetchTier(awaitingUserId, false);
+    }, UPGRADE_POLL_MS);
+    return () => clearInterval(timer);
+  }, [awaiting, awaitingUserId, fetchTier]);
 
-    fetchSubscription()
-  }, [user?.id, isAuthenticated, authLoading])
+  const expectUpgrade = useCallback(
+    () => dispatch({ type: "expectUpgrade" }),
+    [],
+  );
+
+  const value = useMemo(
+    () => ({ ...describeSubscription(state), expectUpgrade }),
+    [state, expectUpgrade],
+  );
 
   return (
-    <SubscriptionContext.Provider value={data}>
+    <SubscriptionContext.Provider value={value}>
       {children}
     </SubscriptionContext.Provider>
-  )
+  );
 }
 
-/**
- * Access the current subscription state.
- */
 export function useSubscription() {
-  const context = useContext(SubscriptionContext)
+  const context = useContext(SubscriptionContext);
   if (context === undefined) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider')
+    throw new Error(
+      "useSubscription must be used within a SubscriptionProvider",
+    );
   }
-  return context
+  return context;
 }
 
-/**
- * Returns true when the user has Pro access.
- */
 export function useIsPro() {
-  const { isPro } = useSubscription()
-  return isPro
+  const { isPro } = useSubscription();
+  return isPro;
 }
 
-/**
- * Check whether the current user has access to a specific feature.
- * @param feature - Feature key to check
- * @returns true if the feature is available to this user
- */
-export function useFeatureAccess(feature: 'book_mind_ai' | 'cloud_sync' | 'version_history' | 'export_history') {
-  const { tier } = useSubscription()
+export function useFeatureAccess(
+  feature: "book_mind_ai" | "cloud_sync" | "version_history" | "export_history",
+) {
+  const { tier } = useSubscription();
 
-  const proFeatures = ['book_mind_ai', 'cloud_sync']
+  const proFeatures = ["book_mind_ai", "cloud_sync"];
 
   if (proFeatures.includes(feature)) {
-    return tier === 'pro'
+    return tier === "pro";
   }
 
-  return true
+  return true;
 }

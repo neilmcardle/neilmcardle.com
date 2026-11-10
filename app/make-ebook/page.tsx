@@ -95,6 +95,9 @@ import { UserDropdownMobile } from "./components/UserDropdownMobile";
 import { useEndnotes } from "./hooks/useEndnotes";
 import { useSaveBook } from "./hooks/useSaveBook";
 import { useDocumentImport } from "./hooks/useDocumentImport";
+import { useBookSwitch } from "./hooks/useBookSwitch";
+import { useBookMind } from "./hooks/useBookMind";
+import { isSaveFailure, snapshotsVersion } from "./state/save";
 import { useLibrary } from "./hooks/useLibrary";
 import { useCloudSync } from "./hooks/useCloudSync";
 import { useFocusMode } from "./hooks/useFocusMode";
@@ -108,7 +111,11 @@ function MakeEbookPage() {
 
   useSignupConversion();
 
-  const { isLoading: tierLoading } = useSubscription();
+  const {
+    isLoading: tierLoading,
+    tierKnown,
+    expectUpgrade,
+  } = useSubscription();
   const hasCloudSync = useFeatureAccess("cloud_sync");
   const hasBookMind = useFeatureAccess("book_mind_ai");
   const isPro = hasBookMind;
@@ -151,9 +158,10 @@ function MakeEbookPage() {
     if (searchParams.get("checkout") === "success") {
       const type = searchParams.get("type") === "lifetime" ? "lifetime" : "pro";
       track("checkout_completed", { tier: type });
+      expectUpgrade();
       router.replace("/make-ebook");
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, expectUpgrade]);
 
   const {
     chapters,
@@ -679,6 +687,8 @@ function MakeEbookPage() {
 
   openBookIdRef.current = currentBookId;
 
+  const bookMind = useBookMind({ bookId: currentBookId, userId: user?.id });
+
   const cloudSync = useCloudSync({
     user,
     hasCloudSync,
@@ -703,6 +713,11 @@ function MakeEbookPage() {
     setDialogState,
   });
 
+  const { switchBook, cancelPendingSwitch } = useBookSwitch({
+    beforeSwitch: () => flushSaveRef.current(),
+    editorSessionRef,
+  });
+
   const docImport = useDocumentImport({
     resetMetadata,
     setTitle,
@@ -712,6 +727,7 @@ function MakeEbookPage() {
     setTags,
     clearCover,
     setSidebarView,
+    switchBook,
   });
 
   const library = useLibrary({
@@ -736,8 +752,7 @@ function MakeEbookPage() {
     setBookJustLoaded,
     setDialogState,
     clearEditorState: () => clearEditorStateFnRef.current(),
-    editorSessionRef,
-    beforeSwitch: () => flushSaveRef.current(),
+    switchBook,
     loadCommitRef,
   });
 
@@ -791,27 +806,12 @@ function MakeEbookPage() {
     }
   }, [focus.active, focus.settings.hideChrome]);
 
-  const handleAutoSave = useCallback(() => {
-    const saved = saveBook.saveBookDirectly(false, "later");
-
-    return saved;
-  }, [
-    currentBookId,
-    title,
-    author,
-    blurb,
-    publisher,
-    pubDate,
-    isbn,
-    language,
-    genre,
-    tags,
-    chapters,
-    coverUrl,
-    endnoteReferences,
-    user?.id,
-    isPro,
-  ]);
+  const saveLatestRef = useRef(saveBook.saveBookDirectly);
+  saveLatestRef.current = saveBook.saveBookDirectly;
+  const handleAutoSave = useCallback(
+    () => saveLatestRef.current(false, "later"),
+    [],
+  );
 
   const hasContent =
     chapters.length > 0 &&
@@ -1094,9 +1094,10 @@ function MakeEbookPage() {
 
   async function startNewBook(save: boolean) {
     if (save) {
-      const ok = await saveBook.saveBookDirectly(false);
-      if (!ok) return;
-      saveBook.saveVersionSnapshot();
+      const snapshot = saveBook.saveVersionSnapshot;
+      const result = await saveBook.saveBookDirectly(false);
+      if (isSaveFailure(result)) return;
+      if (snapshotsVersion(result)) snapshot();
     } else {
       markClean();
     }
@@ -1105,6 +1106,7 @@ function MakeEbookPage() {
   }
 
   function clearEditorState() {
+    cancelPendingSwitch();
     editorSessionRef.current += 1;
     autoBlankRef.current = false;
     resetMetadata();
@@ -1141,6 +1143,7 @@ function MakeEbookPage() {
   }
 
   function handleGoToHome() {
+    cancelPendingSwitch();
     editorSessionRef.current += 1;
     setChapters([]);
     setTitle("");
@@ -1449,7 +1452,9 @@ function MakeEbookPage() {
             setMobileBookMindOpen(false);
             setPreflightFormat("epub");
           }}
+          mind={bookMind}
           isPro={isPro}
+          tierKnown={tierKnown}
           onUpgrade={() => setExportUpgradeOpen(true)}
         />
 
@@ -2074,7 +2079,9 @@ function MakeEbookPage() {
           title={title}
           selectedText={selectedEditorText}
           onPreflight={() => setPreflightFormat("epub")}
+          mind={bookMind}
           isPro={isPro}
+          tierKnown={tierKnown}
           onUpgrade={() => setExportUpgradeOpen(true)}
           onExpandedChange={setBookMindDocked}
           onBusyChange={setBookMindBusy}

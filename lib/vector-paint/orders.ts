@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { Resend } from "resend";
-import { and, eq, inArray, lt, or, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, sql, type SQL } from "drizzle-orm";
+import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 import { db, vectorPaintOrders, type VectorPaintOrder } from "@/lib/db";
 import {
   cancelGelatoOrder,
@@ -9,6 +10,7 @@ import {
 } from "./gelato";
 import { isProductId, VECTOR_PAINT_PRODUCTS } from "./products";
 import { signedUrl } from "./render";
+import { ORDER_TRANSITIONS, type OrderEvent } from "./orderState";
 
 const PRINT_URL_TTL_SECONDS = 60 * 60 * 24 * 14;
 const STALE_CLAIM_MINUTES = 10;
@@ -55,10 +57,33 @@ export async function createPendingOrder(values: {
   return order;
 }
 
-export async function updateOrder(
+type OrderValues = Omit<
+  PgUpdateSetSource<typeof vectorPaintOrders>,
+  "status" | "id"
+>;
+
+export async function transitionOrder(
   id: string,
-  values: Partial<typeof vectorPaintOrders.$inferInsert>,
-) {
+  event: OrderEvent,
+  values: OrderValues = {},
+  extra?: SQL,
+): Promise<VectorPaintOrder | null> {
+  const { from, to } = ORDER_TRANSITIONS[event];
+  const [row] = await db
+    .update(vectorPaintOrders)
+    .set({ ...values, status: to, updatedAt: new Date() })
+    .where(
+      and(
+        eq(vectorPaintOrders.id, id),
+        inArray(vectorPaintOrders.status, [...from]),
+        extra,
+      ),
+    )
+    .returning();
+  return row ?? null;
+}
+
+export async function updateOrder(id: string, values: OrderValues) {
   await db
     .update(vectorPaintOrders)
     .set({ ...values, updatedAt: new Date() })
@@ -89,32 +114,23 @@ export async function fulfilPaidSession(
     return;
   }
 
-  const [claimed] = await db
-    .update(vectorPaintOrders)
-    .set({
-      status: "paid",
-      stripeSessionId: session.id,
-      email: session.customer_details?.email ?? null,
-      paidAt: sql`coalesce(${vectorPaintOrders.paidAt}, now())`,
-      error: null,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(vectorPaintOrders.id, orderId),
-        or(
-          inArray(vectorPaintOrders.status, ["pending", "failed", "expired"]),
-          and(
-            eq(vectorPaintOrders.status, "paid"),
-            lt(
-              vectorPaintOrders.updatedAt,
-              new Date(Date.now() - STALE_CLAIM_MINUTES * 60 * 1000),
-            ),
-          ),
-        ),
+  const claimValues: OrderValues = {
+    stripeSessionId: session.id,
+    email: session.customer_details?.email ?? null,
+    paidAt: sql`coalesce(${vectorPaintOrders.paidAt}, now())`,
+    error: null,
+  };
+  const claimed =
+    (await transitionOrder(orderId, "pay", claimValues)) ??
+    (await transitionOrder(
+      orderId,
+      "reclaim",
+      claimValues,
+      lt(
+        vectorPaintOrders.updatedAt,
+        new Date(Date.now() - STALE_CLAIM_MINUTES * 60 * 1000),
       ),
-    )
-    .returning();
+    ));
 
   if (!claimed) {
     console.log(
@@ -139,31 +155,63 @@ export async function fulfilPaidSession(
       quantity: claimed.quantity,
       printFileUrl,
     });
-    await updateOrder(claimed.id, {
-      status: gelato.dryRun ? "dry_run" : "submitted",
-      gelatoOrderId: gelato.id,
-      submittedAt: new Date(),
-    });
+    const sent = await transitionOrder(
+      claimed.id,
+      gelato.dryRun ? "dry_run" : "submit",
+      { gelatoOrderId: gelato.id, submittedAt: new Date() },
+    );
+    if (!sent) {
+      await cancelAfterRefund(claimed.id, gelato.dryRun ? null : gelato.id);
+      return;
+    }
     console.log(
       `Vector Paint order ${claimed.id} sent to Gelato as ${gelato.id} (${gelato.fulfillmentStatus})`,
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    if (err instanceof GelatoUnconfirmedError) {
-      await updateOrder(claimed.id, {
-        status: "unconfirmed",
-        error: message.slice(0, 1000),
-      });
-      await alertOps(claimed.id, session.id, message, true);
+    const unconfirmed = err instanceof GelatoUnconfirmedError;
+    const moved = await transitionOrder(
+      claimed.id,
+      unconfirmed ? "unconfirm" : "fail",
+      { error: message.slice(0, 1000) },
+    );
+    if (!moved) {
+      await sendOps(
+        `Vector Paint order ${claimed.id.slice(0, 8).toUpperCase()} was refunded while sending`,
+        `Order ${claimed.id} was refunded while it was being sent, and sending then failed: ${message}\n\nSearch Gelato for order reference ${claimed.id} and cancel it if it is there.`,
+      );
       return;
     }
-    await updateOrder(claimed.id, {
-      status: "failed",
-      error: message.slice(0, 1000),
-    });
-    await alertOps(claimed.id, session.id, message);
-    throw err;
+    await alertOps(claimed.id, session.id, message, unconfirmed);
+    if (!unconfirmed) throw err;
   }
+}
+
+async function cancelAfterRefund(
+  orderId: string,
+  gelatoOrderId: string | null,
+) {
+  const ref = orderId.slice(0, 8).toUpperCase();
+  if (!gelatoOrderId) {
+    await sendOps(
+      `Vector Paint order ${ref} was refunded while sending`,
+      `Order ${orderId} was refunded while it was being sent. It was a dry run, so nothing was printed.`,
+    );
+    return;
+  }
+  let note: string;
+  try {
+    await cancelGelatoOrder(gelatoOrderId);
+    note = `The Gelato order ${gelatoOrderId} was cancelled.`;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    note = `Cancelling Gelato order ${gelatoOrderId} failed: ${message}. Cancel it by hand if it has not shipped.`;
+  }
+  await updateOrder(orderId, { gelatoOrderId, error: note.slice(0, 1000) });
+  await sendOps(
+    `Vector Paint order ${ref} was refunded while sending`,
+    `Order ${orderId} was refunded while it was being sent to Gelato.\n\n${note}`,
+  );
 }
 
 export async function handleRefund(
@@ -211,14 +259,17 @@ export async function handleRefund(
     }
   } else if (order.status === "unconfirmed") {
     printNote = `Gelato never confirmed this order. Search Gelato for order reference ${order.id} and cancel it if it is there.`;
+  } else if (order.status === "paid") {
+    printNote =
+      "The print was being sent when the refund arrived. If it reaches Gelato it will be cancelled automatically, and you will get a second email.";
   } else {
     printNote = "No print had been sent to Gelato.";
   }
 
-  await updateOrder(order.id, {
-    status: "refunded",
+  const refunded = await transitionOrder(order.id, "refund", {
     error: printNote.slice(0, 1000),
   });
+  if (!refunded) return;
   await sendOps(
     `Vector Paint order ${ref} was refunded`,
     `Order ${order.id} was refunded in full.\n\n${printNote}`,
@@ -230,13 +281,5 @@ export async function expireSession(
 ): Promise<void> {
   const orderId = session.metadata?.order_id;
   if (!orderId) return;
-  await db
-    .update(vectorPaintOrders)
-    .set({ status: "expired", updatedAt: new Date() })
-    .where(
-      and(
-        eq(vectorPaintOrders.id, orderId),
-        eq(vectorPaintOrders.status, "pending"),
-      ),
-    );
+  await transitionOrder(orderId, "expire");
 }

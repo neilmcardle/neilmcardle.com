@@ -19,6 +19,7 @@ import {
   markTrialUsed,
 } from "../../utils/bookMindTrial";
 import styles from "../../styles/studio.module.css";
+import { bookMindGate } from "../../state/bookMindGate";
 
 type Mind = ReturnType<typeof useBookMind>;
 
@@ -33,6 +34,7 @@ interface BookMindChatProps {
   onNavigateToChapter?: (chapterIndex: number) => void;
   onPreflight?: () => void;
   isPro: boolean;
+  tierKnown?: boolean;
   onUpgrade?: () => void;
 }
 
@@ -374,18 +376,11 @@ export default function BookMindChat({
   onNavigateToChapter,
   onPreflight,
   isPro,
+  tierKnown = true,
   onUpgrade,
 }: BookMindChatProps) {
-  const {
-    messages,
-    isLoading,
-    isStreaming,
-    activity,
-    sendMessage,
-    createSession,
-    currentSessionId,
-    stop,
-  } = mind;
+  const { messages, isLoading, isStreaming, activity, sendMessage, stop } =
+    mind;
 
   const [input, setInput] = useState("");
   const [deep, setDeep] = useState(false);
@@ -404,7 +399,7 @@ export default function BookMindChat({
   const pinned = useRef(true);
 
   const busy = isLoading || isStreaming;
-  const trialMode = !isPro;
+  const trialMode = tierKnown && !isPro;
   const locked = trialMode && trialUsed;
   const selection =
     selectedText && selectedText !== dismissedSelection
@@ -469,16 +464,16 @@ export default function BookMindChat({
     }
   };
 
-  const ensureSession = () => {
-    if (!currentSessionId) createSession();
-  };
-
   const guard = () => {
-    if (locked) {
-      onUpgrade?.();
-      return false;
-    }
-    return !busy && chapters.length > 0;
+    const gate = bookMindGate({
+      tierKnown,
+      isPro,
+      trialUsed,
+      busy,
+      hasChapters: chapters.length > 0,
+    });
+    if (gate === "upgrade") onUpgrade?.();
+    return gate === "send";
   };
 
   const send = (text: string) => {
@@ -486,7 +481,6 @@ export default function BookMindChat({
     if (!msg || !guard()) return;
     setInput("");
     requestAnimationFrame(resize);
-    ensureSession();
     const o = opts();
     afterSend();
     void sendMessage(msg, { ...o, action: "ask-question" });
@@ -497,14 +491,13 @@ export default function BookMindChat({
     setInput("");
     setMenuOpen(false);
     requestAnimationFrame(resize);
-    ensureSession();
     const o = opts();
     afterSend();
     void sendMessage(label, { ...o, action });
   };
 
   const retry = (assistantId: string) => {
-    if (busy) return;
+    if (!guard()) return;
     const idx = messages.findIndex((m) => m.id === assistantId);
     const user = [...messages.slice(0, idx)]
       .reverse()

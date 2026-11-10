@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useBookMind, type ChatSession } from "../hooks/useBookMind";
+import type { useBookMind, ChatSession } from "../hooks/useBookMind";
 import BookMindMark from "./bookmind/BookMindMark";
 import BookMindChat from "./bookmind/BookMindChat";
 import type { Chapter as BookChapter } from "../types";
@@ -10,6 +10,7 @@ import { addRule, getMemory, removeRule } from "../utils/bookmindMemory";
 import styles from "../styles/studio.module.css";
 
 interface FloatingBookMindWindowProps {
+  mind: ReturnType<typeof useBookMind>;
   isOpen: boolean;
   onClose: () => void;
   variant?: "window" | "sheet";
@@ -24,6 +25,7 @@ interface FloatingBookMindWindowProps {
   selectedText?: string;
   onPreflight?: () => void;
   isPro?: boolean;
+  tierKnown?: boolean;
   onUpgrade?: () => void;
   onExpandedChange?: (expanded: boolean) => void;
   onBusyChange?: (busy: boolean) => void;
@@ -251,6 +253,7 @@ function ChatList({
 }
 
 export default function FloatingBookMindWindow({
+  mind,
   isOpen,
   onClose,
   variant = "window",
@@ -263,11 +266,11 @@ export default function FloatingBookMindWindow({
   selectedText,
   onPreflight,
   isPro = false,
+  tierKnown = true,
   onUpgrade,
   onExpandedChange,
   onBusyChange,
 }: FloatingBookMindWindowProps) {
-  const mind = useBookMind({ bookId, userId });
   const [listOpen, setListOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const busy = mind.isLoading || mind.isStreaming;
@@ -367,6 +370,7 @@ export default function FloatingBookMindWindow({
           onNavigateToChapter={onChapterSelect}
           onPreflight={onPreflight}
           isPro={isPro}
+          tierKnown={tierKnown}
           onUpgrade={onUpgrade}
         />
         {listOpen && (

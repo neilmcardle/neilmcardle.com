@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { saveEbookToSupabase } from "@/lib/supabaseEbooks";
 import { Chapter, Endnote, EndnoteReference } from "../types";
@@ -16,6 +16,19 @@ import {
   parseCloudTime,
 } from "../utils/bookLibrary";
 import { toDisplayCover, toStoredCover } from "../utils/assetStore";
+import { createSingleFlight } from "../state/singleFlight";
+import {
+  mergeSaveRequests,
+  snapshotsVersion,
+  type SaveRequest,
+  type SaveResult,
+} from "../state/save";
+import {
+  describeExport,
+  exportFlow,
+  initialExport,
+  type ExportFormat,
+} from "../state/exportFlow";
 
 const CLOUD_IDLE_MS = 10000;
 const CLOUD_MAX_WAIT_MS = 30000;
@@ -151,6 +164,26 @@ export function useSaveBook({
   const currentBookIdRef = useRef(currentBookId);
   currentBookIdRef.current = currentBookId;
   const pushRef = useRef<(id: string) => Promise<boolean>>(async () => true);
+  const renamedRef = useRef(new Map<string, string>());
+  const runSaveRef = useRef<(request: SaveRequest) => Promise<SaveResult>>(
+    async () => "failed",
+  );
+  const [saveFlight] = useState(() =>
+    createSingleFlight<SaveRequest, SaveResult>({
+      run: (_key, request) => runSaveRef.current(request),
+      merge: mergeSaveRequests,
+      failed: "failed",
+    }),
+  );
+  const [cloudFlight] = useState(() =>
+    createSingleFlight<true, boolean>({
+      run: (id) => pushRef.current(id),
+      merge: () => true,
+      failed: false,
+    }),
+  );
+  const [exportState, dispatchExport] = useReducer(exportFlow, initialExport);
+  const exportingRef = useRef(false);
 
   useEffect(
     () => () => {
@@ -174,6 +207,7 @@ export function useSaveBook({
 
   pushRef.current = async (id: string) => {
     if (!(user?.id && hasCloudSync)) return true;
+    id = renamedRef.current.get(id) ?? id;
     const stored = loadBookById(user.id, id);
     if (!stored) return true;
     try {
@@ -185,6 +219,7 @@ export function useSaveBook({
       );
       const cloudId = saved?.id ?? id;
       if (cloudId !== id) {
+        renamedRef.current.set(id, cloudId);
         removeBookFromLibrary(user.id, id);
         saveBookToLibrary(user.id, { ...stored, id: cloudId });
         if (currentBookIdRef.current === id) setCurrentBookId(cloudId);
@@ -229,7 +264,7 @@ export function useSaveBook({
         : Math.max(0, Math.min(CLOUD_IDLE_MS, CLOUD_MAX_WAIT_MS - waited));
     cloudTimerRef.current = setTimeout(async () => {
       cloudTimerRef.current = null;
-      const ok = await pushRef.current(id);
+      const ok = await cloudFlight.request(id, true);
       if (ok) {
         cloudPendingIdRef.current = null;
         setCloudPending(false);
@@ -244,7 +279,7 @@ export function useSaveBook({
       cloudTimerRef.current = null;
     }
     setCloudPending(true);
-    const ok = await pushRef.current(id);
+    const ok = await cloudFlight.request(id, true);
     if (ok) {
       cloudPendingIdRef.current = null;
       setCloudPending(false);
@@ -279,21 +314,24 @@ export function useSaveBook({
     });
   }
 
-  async function saveBookDirectly(
+  function saveBookDirectly(
     forceNewVersion: boolean,
     cloud: "now" | "later" = "now",
-  ): Promise<boolean> {
-    if (isSavingRef.current) return false;
+  ): Promise<SaveResult> {
+    return saveFlight.request("save", { forceNewVersion, cloud });
+  }
 
+  runSaveRef.current = async ({ forceNewVersion, cloud }) => {
     const session = editorSessionRef.current;
     const version = getDirtyVersion();
+    const openId = currentBookIdRef.current;
 
     if (
-      (forceNewVersion || !currentBookId) &&
+      (forceNewVersion || !openId) &&
       isBlankBook({ title, author, blurb, coverFile: coverUrl, chapters })
     ) {
       markClean(version);
-      return true;
+      return "blank";
     }
 
     isSavingRef.current = true;
@@ -311,12 +349,12 @@ export function useSaveBook({
       }
 
       const previousMemory =
-        currentBookId && user?.id
-          ? loadBookById(user.id, currentBookId)?.bookmindMemory
+        openId && user?.id
+          ? loadBookById(user.id, openId)?.bookmindMemory
           : undefined;
 
       const bookData = {
-        id: forceNewVersion ? undefined : currentBookId,
+        id: forceNewVersion ? undefined : openId,
         title,
         author,
         blurb,
@@ -354,12 +392,15 @@ export function useSaveBook({
           variant: "alert",
           onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
         });
-        return false;
+        return "failed";
       }
 
       const stillOpen = () => editorSessionRef.current === session;
 
-      if (stillOpen()) setCurrentBookId(id);
+      if (stillOpen()) {
+        currentBookIdRef.current = id;
+        setCurrentBookId(id);
+      }
       setLibraryBooks(loadBookLibrary(user?.id ?? ""));
 
       const confirmSaved = () => {
@@ -371,36 +412,36 @@ export function useSaveBook({
 
       if (!(user && user.id && hasCloudSync)) {
         confirmSaved();
-        return true;
+        return "saved";
       }
 
       if (cloud === "later") {
         confirmSaved();
         scheduleCloudPush(id);
-        return true;
+        return "saved";
       }
 
       const ok = await pushNow(id);
       if (ok) confirmSaved();
-      return ok;
+      return ok ? "saved" : "failed";
     } finally {
       isSavingRef.current = false;
     }
-  }
+  };
 
   async function handleSaveBook() {
     const hasContent =
       title.trim() || author.trim() || chapters.some((ch) => ch.content.trim());
     if (!hasContent) return;
 
-    await saveBookDirectly(false);
-    saveVersionSnapshot();
+    const snapshot = saveVersionSnapshot;
+    if (snapshotsVersion(await saveBookDirectly(false))) snapshot();
   }
 
   async function handleOverwriteBook() {
     setSaveDialogOpen(false);
-    await saveBookDirectly(false);
-    saveVersionSnapshot();
+    const snapshot = saveVersionSnapshot;
+    if (snapshotsVersion(await saveBookDirectly(false))) snapshot();
 
     if (newBookConfirmOpen) {
       clearEditorState();
@@ -410,8 +451,8 @@ export function useSaveBook({
 
   async function handleSaveAsNewVersion() {
     setSaveDialogOpen(false);
-    await saveBookDirectly(true);
-    saveVersionSnapshot();
+    const snapshot = saveVersionSnapshot;
+    if (snapshotsVersion(await saveBookDirectly(true))) snapshot();
 
     if (newBookConfirmOpen) {
       clearEditorState();
@@ -419,79 +460,118 @@ export function useSaveBook({
     }
   }
 
-  async function handleExportEPUB() {
-    trackExport("epub");
-    const migratedChapters = ensureChapterIds(chapters);
-    const migratedEndnoteRefs = migrateEndnoteReferences(
-      endnoteReferences,
-      migratedChapters,
-    );
+  async function runExport(format: ExportFormat, work: () => Promise<void>) {
+    if (exportingRef.current) return;
+    exportingRef.current = true;
+    dispatchExport({ type: "start", format });
+    try {
+      await work();
+      trackExport(format);
+      dispatchExport({ type: "done" });
+    } catch (err) {
+      console.error("Export failed:", err);
+      const error =
+        err instanceof Error && err.message
+          ? err.message
+          : "Something went wrong while building the file.";
+      dispatchExport({ type: "failed", error });
+      setDialogState({
+        open: true,
+        title: "Export failed",
+        message: `Your book is safe, but the ${format.toUpperCase()} file could not be made. ${error}`,
+        variant: "alert",
+        onConfirm: () => {
+          dispatchExport({ type: "dismiss" });
+          setDialogState((prev) => ({ ...prev, open: false }));
+        },
+      });
+    } finally {
+      exportingRef.current = false;
+    }
+  }
 
-    setChapters(migratedChapters);
-    setEndnoteReferences(migratedEndnoteRefs);
-
-    const totalWords = migratedChapters.reduce((sum, ch) => {
-      const text = ch.content.replace(/<[^>]+>/g, " ");
-      return (
-        sum +
-        text
-          .trim()
-          .split(/\s+/)
-          .filter((w) => w.length > 0).length
+  function handleExportEPUB() {
+    return runExport("epub", async () => {
+      const migratedChapters = ensureChapterIds(chapters);
+      const migratedEndnoteRefs = migrateEndnoteReferences(
+        endnoteReferences,
+        migratedChapters,
       );
-    }, 0);
 
-    const blob = (await exportEpub({
-      title,
-      author,
-      blurb,
-      publisher,
-      pubDate,
-      isbn,
-      language,
-      genre,
-      tags,
-      coverFile: coverUrl,
-      chapters: migratedChapters,
-      endnoteReferences: migratedEndnoteRefs,
-      returnBlob: true,
-    })) as Blob;
+      if (chapters.some((ch) => !ch.id)) setChapters(migratedChapters);
+      if (
+        endnoteReferences.some((r) => !r.chapterId || r.chapterId === "unknown")
+      )
+        setEndnoteReferences(migratedEndnoteRefs);
 
-    await saveExport({
-      title,
-      author,
-      wordCount: totalWords,
-      chapterCount: migratedChapters.length,
-      blob,
+      const totalWords = migratedChapters.reduce((sum, ch) => {
+        const text = ch.content.replace(/<[^>]+>/g, " ");
+        return (
+          sum +
+          text
+            .trim()
+            .split(/\s+/)
+            .filter((w) => w.length > 0).length
+        );
+      }, 0);
+
+      const blob = (await exportEpub({
+        title,
+        author,
+        blurb,
+        publisher,
+        pubDate,
+        isbn,
+        language,
+        genre,
+        tags,
+        coverFile: coverUrl,
+        chapters: migratedChapters,
+        endnoteReferences: migratedEndnoteRefs,
+        returnBlob: true,
+      })) as Blob;
+
+      await saveExport({
+        title,
+        author,
+        wordCount: totalWords,
+        chapterCount: migratedChapters.length,
+        blob,
+      }).catch((err) => console.error("Export history save failed:", err));
+
+      setEpubBlob(blob);
+      setShowEPUBReader(true);
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
     });
-
-    setEpubBlob(blob);
-    setShowEPUBReader(true);
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-
-    markClean();
   }
 
   function handleExportPDF() {
-    trackExport("pdf");
-    const migratedChapters = ensureChapterIds(chapters);
-    exportPdf({ title, author, publisher, chapters: migratedChapters });
+    return runExport("pdf", async () => {
+      const migratedChapters = ensureChapterIds(chapters);
+      exportPdf({ title, author, publisher, chapters: migratedChapters });
+    });
   }
 
-  async function handleExportDocx() {
-    trackExport("docx");
-    const migratedChapters = ensureChapterIds(chapters);
-    await exportDocx({ title, author, publisher, chapters: migratedChapters });
+  function handleExportDocx() {
+    return runExport("docx", async () => {
+      const migratedChapters = ensureChapterIds(chapters);
+      await exportDocx({
+        title,
+        author,
+        publisher,
+        chapters: migratedChapters,
+      });
+    });
   }
 
   async function handlePreviewExport(exportId: string) {
@@ -528,6 +608,7 @@ export function useSaveBook({
     saveBookDirectly,
     pushNow,
     cloudPending,
+    ...describeExport(exportState),
     saveVersionSnapshot,
     handleSaveBook,
     handleOverwriteBook,

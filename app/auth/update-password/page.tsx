@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer } from "react";
+import { REDIRECT_MS, initialResetFlow, resetFlow } from "./reset-flow";
 import { useRouter } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, KeyRound } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
@@ -25,19 +26,25 @@ function Shell({ children }: { children: React.ReactNode }) {
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [isValidSession, setIsValidSession] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
+  const [flow, dispatch] = useReducer(resetFlow, initialResetFlow);
+  const isLoading = flow.phase === "saving";
+  const error = flow.phase === "ready" ? flow.error : null;
   const router = useRouter();
+
+  useEffect(() => {
+    if (flow.phase !== "done") return;
+    const t = window.setTimeout(() => router.push("/make-ebook"), REDIRECT_MS);
+    return () => window.clearTimeout(t);
+  }, [flow.phase, router]);
 
   useEffect(() => {
     const checkPasswordResetSession = async () => {
       const supabase = getSupabaseBrowserClient();
       if (!supabase) {
-        setError("Authentication service unavailable");
-        setCheckingSession(false);
+        dispatch({
+          type: "linkBad",
+          reason: "Authentication service unavailable",
+        });
         return;
       }
 
@@ -49,21 +56,24 @@ export default function UpdatePasswordPage() {
 
         if (error) {
           console.error("Session error:", error);
-          setError("Invalid or expired reset link");
-          setCheckingSession(false);
+          dispatch({
+            type: "linkBad",
+            reason: "Invalid or expired reset link",
+          });
           return;
         }
 
         if (session?.user) {
-          setIsValidSession(true);
+          dispatch({ type: "linkOk" });
         } else {
-          setError("Invalid or expired reset link");
+          dispatch({
+            type: "linkBad",
+            reason: "Invalid or expired reset link",
+          });
         }
       } catch (err) {
         console.error("Error checking session:", err);
-        setError("Unable to verify reset link");
-      } finally {
-        setCheckingSession(false);
+        dispatch({ type: "linkBad", reason: "Unable to verify reset link" });
       }
     };
 
@@ -72,30 +82,35 @@ export default function UpdatePasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (flow.phase !== "ready") return;
 
     if (!password.trim() || !confirmPassword.trim()) {
-      setError("Please fill in all fields");
+      dispatch({ type: "reject", error: "Please fill in all fields" });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      dispatch({ type: "reject", error: "Passwords do not match" });
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      dispatch({
+        type: "reject",
+        error: "Password must be at least 6 characters",
+      });
       return;
     }
 
-    setIsLoading(true);
-    setError(null);
+    dispatch({ type: "submit" });
 
     try {
       const supabase = getSupabaseBrowserClient();
       if (!supabase) {
-        setError("Authentication service unavailable");
-        setIsLoading(false);
+        dispatch({
+          type: "failed",
+          error: "Authentication service unavailable",
+        });
         return;
       }
 
@@ -104,22 +119,17 @@ export default function UpdatePasswordPage() {
       });
 
       if (error) {
-        setError(error.message);
+        dispatch({ type: "failed", error: error.message });
       } else {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push("/make-ebook");
-        }, 2000);
+        dispatch({ type: "saved" });
       }
     } catch (err) {
       console.error("Password update error:", err);
-      setError("Failed to update password");
-    } finally {
-      setIsLoading(false);
+      dispatch({ type: "failed", error: "Failed to update password" });
     }
   };
 
-  if (checkingSession) {
+  if (flow.phase === "checking") {
     return (
       <Shell>
         <div className={ui.center}>
@@ -132,7 +142,7 @@ export default function UpdatePasswordPage() {
     );
   }
 
-  if (!isValidSession) {
+  if (flow.phase === "invalid") {
     return (
       <Shell>
         <div className={`${ui.badge} ${ui.badgeError}`}>
@@ -153,7 +163,7 @@ export default function UpdatePasswordPage() {
     );
   }
 
-  if (success) {
+  if (flow.phase === "done") {
     return (
       <Shell>
         <div className={`${ui.badge} ${ui.badgeSuccess}`}>

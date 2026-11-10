@@ -13,7 +13,11 @@ import {
 } from "@/lib/vector-paint/products";
 import { parseDrawingPayload } from "@/lib/vector-paint/drawing";
 import { storeOrderFiles } from "@/lib/vector-paint/render";
-import { createPendingOrder, updateOrder } from "@/lib/vector-paint/orders";
+import {
+  createPendingOrder,
+  transitionOrder,
+  updateOrder,
+} from "@/lib/vector-paint/orders";
 import { checkOrigin } from "@/lib/auth/checkOrigin";
 import { clientIp, hit } from "@/lib/rateLimit";
 
@@ -143,8 +147,7 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Vector Paint checkout failed:", message);
     if (orderId)
-      await updateOrder(orderId, {
-        status: "failed",
+      await transitionOrder(orderId, "abandon", {
         error: message.slice(0, 1000),
       }).catch(() => {});
     return fail(

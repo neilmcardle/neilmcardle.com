@@ -17,6 +17,11 @@ import {
   initialBookMindRequest,
 } from "../state/bookMindRequest";
 import {
+  addSession,
+  recordExchange,
+  removeSession,
+} from "../state/chatSessions";
+import {
   buildSceneContext,
   buildSpotlightContext,
   buildWideContext,
@@ -161,21 +166,30 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     }
   }, [bookId, chatStorageKey]);
 
-  const saveSessions = useCallback(
-    (sessions: ChatSession[]) => {
-      if (typeof window === "undefined") return;
+  const sessionIdRef = useRef<string | null>(null);
+  const selectSession = useCallback((id: string | null) => {
+    sessionIdRef.current = id;
+    setCurrentSessionId(id);
+  }, []);
+
+  const readAllSessions = useCallback((): ChatSession[] => {
+    try {
+      const stored = localStorage.getItem(chatStorageKey);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error("Failed to read chat sessions:", e);
+      return [];
+    }
+  }, [chatStorageKey]);
+
+  const writeAllSessions = useCallback(
+    (all: ChatSession[]) => {
       try {
-        const stored = localStorage.getItem(chatStorageKey);
-        const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
-        const otherBookSessions = bookId
-          ? allSessions.filter((s) => s.bookId !== bookId)
-          : [];
-        const merged = [...otherBookSessions, ...sessions];
-        localStorage.setItem(chatStorageKey, JSON.stringify(merged));
-        setChatSessions(sessions);
+        localStorage.setItem(chatStorageKey, JSON.stringify(all));
       } catch (e) {
         console.error("Failed to save chat sessions:", e);
       }
+      setChatSessions(bookId ? all.filter((s) => s.bookId === bookId) : all);
     },
     [bookId, chatStorageKey],
   );
@@ -183,97 +197,73 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const createSession = useCallback(
     (name?: string): string => {
       const id = generateSessionId();
+      const all = readAllSessions();
+      const owner = bookId || "unknown";
       const session: ChatSession = {
         id,
-        name: name || `Chat ${chatSessions.length + 1}`,
-        bookId: bookId || "unknown",
+        name:
+          name || `Chat ${all.filter((s) => s.bookId === owner).length + 1}`,
+        bookId: owner,
         messages: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
-      const updated = [...chatSessions, session];
-      saveSessions(updated);
-      setCurrentSessionId(id);
+      writeAllSessions(addSession(all, session));
+      selectSession(id);
       setMessages([]);
       return id;
     },
-    [chatSessions, bookId, saveSessions],
+    [bookId, readAllSessions, writeAllSessions, selectSession],
   );
 
   const loadSession = useCallback(
     (sessionId: string) => {
-      try {
-        const stored = localStorage.getItem(chatStorageKey);
-        const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
-        const session = allSessions.find((s) => s.id === sessionId);
-        if (session) {
-          setCurrentSessionId(sessionId);
-          setMessages(session.messages);
-        }
-      } catch (e) {
-        console.error("Failed to load session:", e);
+      const session = readAllSessions().find((s) => s.id === sessionId);
+      if (session) {
+        selectSession(sessionId);
+        setMessages(session.messages);
       }
     },
-    [chatStorageKey],
+    [readAllSessions, selectSession],
   );
 
   const renameSession = useCallback(
     (sessionId: string, newName: string) => {
-      const updated = chatSessions.map((s) =>
-        s.id === sessionId ? { ...s, name: newName, updatedAt: Date.now() } : s,
+      writeAllSessions(
+        readAllSessions().map((s) =>
+          s.id === sessionId
+            ? { ...s, name: newName, updatedAt: Date.now() }
+            : s,
+        ),
       );
-      saveSessions(updated);
     },
-    [chatSessions, saveSessions],
+    [readAllSessions, writeAllSessions],
   );
 
   const deleteSession = useCallback(
     (sessionId: string) => {
-      const updated = chatSessions.filter((s) => s.id !== sessionId);
-      saveSessions(updated);
-      if (currentSessionId === sessionId) {
-        setCurrentSessionId(null);
+      writeAllSessions(removeSession(readAllSessions(), sessionId));
+      if (sessionIdRef.current === sessionId) {
+        selectSession(null);
         setMessages([]);
       }
     },
-    [chatSessions, currentSessionId, saveSessions],
+    [readAllSessions, writeAllSessions, selectSession],
   );
 
-  const updateCurrentSession = useCallback(
-    (newMessages: BookMindMessage[]) => {
-      if (!currentSessionId) return;
-      try {
-        const stored = localStorage.getItem(chatStorageKey);
-        const allSessions: ChatSession[] = stored ? JSON.parse(stored) : [];
-
-        const session = allSessions.find((s) => s.id === currentSessionId);
-        const firstUserMsg = newMessages.find((m) => m.role === "user");
-        let autoName: string | null = null;
-        if (session && firstUserMsg && /^Chat \d+$/.test(session.name)) {
-          const text = firstUserMsg.content.trim();
-          autoName = text.slice(0, 40) + (text.length > 40 ? "…" : "");
-        }
-
-        const updated = allSessions.map((s) =>
-          s.id === currentSessionId
-            ? {
-                ...s,
-                messages: newMessages,
-                updatedAt: Date.now(),
-                ...(autoName ? { name: autoName } : {}),
-              }
-            : s,
-        );
-        localStorage.setItem(chatStorageKey, JSON.stringify(updated));
-        const bookSessions = bookId
-          ? updated.filter((s) => s.bookId === bookId)
-          : updated;
-        setChatSessions(bookSessions);
-      } catch (e) {
-        console.error("Failed to update session:", e);
-      }
+  const saveExchange = useCallback(
+    (sessionId: string | null, newMessages: BookMindMessage[]) => {
+      if (!sessionId) return;
+      writeAllSessions(
+        recordExchange(readAllSessions(), {
+          sessionId,
+          bookId: bookId || "unknown",
+          messages: newMessages,
+          now: Date.now(),
+        }),
+      );
     },
-    [currentSessionId, bookId, chatStorageKey],
+    [bookId, readAllSessions, writeAllSessions],
   );
 
   function resolveContext(
@@ -380,6 +370,12 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       }
 
       dispatch({ type: "send" });
+
+      let sessionId = sessionIdRef.current;
+      if (!sessionId) {
+        sessionId = generateSessionId();
+        selectSession(sessionId);
+      }
 
       const isLegacy = !!contextOrOpts && "allChapters" in contextOrOpts;
       const legacy = isLegacy ? (contextOrOpts as BookMindContext) : undefined;
@@ -561,7 +557,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           },
         ];
         dispatch({ type: "done" });
-        updateCurrentSession(finalMessages);
+        saveExchange(sessionId, finalMessages);
         return fullContent;
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -570,7 +566,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
             const kept = prev.filter(
               (m) => m.role !== "assistant" || m.content.trim(),
             );
-            updateCurrentSession(kept);
+            saveExchange(sessionId, kept);
             return kept;
           });
           return null;
@@ -592,11 +588,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         };
         const finalMessages = [...updatedMessages, errorMsg];
         setMessages(finalMessages);
-        updateCurrentSession(finalMessages);
+        saveExchange(sessionId, finalMessages);
         return null;
       }
     },
-    [messages, updateCurrentSession, bookId, userId],
+    [messages, saveExchange, selectSession, bookId, userId],
   );
 
   const quickAction = useCallback(
@@ -623,10 +619,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const clearMessages = useCallback(() => {
     setMessages([]);
     dispatch({ type: "clearError" });
-    if (currentSessionId) {
-      updateCurrentSession([]);
-    }
-  }, [currentSessionId, updateCurrentSession]);
+    saveExchange(sessionIdRef.current, []);
+  }, [saveExchange]);
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);

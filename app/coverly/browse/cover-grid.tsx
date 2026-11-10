@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useReducer,
   useRef,
   useState,
 } from "react";
@@ -33,6 +34,8 @@ import { AddToBoard, type AddToBoardHandle } from "./add-to-board";
 import { HeartButton } from "./heart-button";
 import { useLikes } from "@/lib/coverly/use-likes";
 import type { LayoutMode } from "./view-controls";
+import { initialPaging, paging } from "./remote";
+import { useRemote } from "./use-remote";
 
 const cap = (s: string) =>
   s.replace(/-/g, " ").replace(/^\w/, (c) => c.toUpperCase());
@@ -56,17 +59,11 @@ export function CoverGrid({
   columns?: number | null;
 }) {
   const [covers, setCovers] = useState(initialCovers);
-  const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [pager, dispatchPage] = useReducer(paging, initialPaging);
+  const loading = pager.status === "loading";
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [detail, setDetail] = useState<{
-    id: string;
-    data: CoverDetailData | null;
-  } | null>(null);
-  const [similar, setSimilar] = useState<{
-    id: string;
-    data: CoverCardType[];
-  } | null>(null);
+  const detail = useRemote(expandedId, fetchCoverDetail);
+  const similar = useRemote(expandedId, fetchSimilarCovers);
   const containerRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -74,7 +71,7 @@ export function CoverGrid({
   const animateRef = useRef(false);
   const prevLenRef = useRef(0);
   const router = useRouter();
-  const hasMore = covers.length < total;
+  const hasMore = covers.length < total && pager.status !== "done";
   const { isLiked, toggle } = useLikes();
 
   useEffect(() => {
@@ -84,23 +81,8 @@ export function CoverGrid({
     return () => cancelAnimationFrame(r);
   }, []);
 
-  useEffect(() => {
-    if (!expandedId) return;
-    let live = true;
-    fetchCoverDetail(expandedId).then((d) => {
-      if (live) setDetail({ id: expandedId, data: d });
-    });
-    fetchSimilarCovers(expandedId).then((rows) => {
-      if (live) setSimilar({ id: expandedId, data: rows });
-    });
-    return () => {
-      live = false;
-    };
-  }, [expandedId]);
-
-  const activeDetail = detail && detail.id === expandedId ? detail.data : null;
-  const activeSimilar =
-    similar && similar.id === expandedId ? similar.data : null;
+  const activeDetail = detail.data;
+  const activeSimilar = similar.data;
 
   const relayout = useCallback(() => {
     const cont = containerRef.current;
@@ -324,24 +306,44 @@ export function CoverGrid({
 
   useEffect(() => {
     const el = sentinelRef.current;
-    if (!el || !hasMore) return;
-    const observer = new IntersectionObserver(async ([entry]) => {
-      if (!entry.isIntersecting || loading) return;
-      setLoading(true);
-      try {
-        const next = await loadMoreCovers(filters, page + 1);
-        setCovers((prev) => {
-          const seen = new Set(prev.map((c) => c.id));
-          return [...prev, ...next.covers.filter((c) => !seen.has(c.id))];
-        });
-        setPage((p) => p + 1);
-      } finally {
-        setLoading(false);
-      }
+    if (!el || !hasMore || pager.status !== "idle") return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) dispatchPage({ type: "load" });
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [filters, page, loading, hasMore]);
+  }, [hasMore, pager.status]);
+
+  const latest = useRef({ covers, filters, total });
+  useEffect(() => {
+    latest.current = { covers, filters, total };
+  });
+
+  const loadingPage = pager.status === "loading" ? pager.page + 1 : null;
+  useEffect(() => {
+    if (loadingPage === null) return;
+    let live = true;
+    loadMoreCovers(latest.current.filters, loadingPage).then(
+      (next) => {
+        if (!live) return;
+        const { covers, total } = latest.current;
+        const seen = new Set(covers.map((c) => c.id));
+        const fresh = next.covers.filter((c) => !seen.has(c.id));
+        setCovers([...covers, ...fresh]);
+        dispatchPage({
+          type: "loaded",
+          added: fresh.length,
+          more: covers.length + fresh.length < total,
+        });
+      },
+      () => {
+        if (live) dispatchPage({ type: "fail" });
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [loadingPage]);
 
   if (covers.length === 0) {
     return (
@@ -424,6 +426,10 @@ export function CoverGrid({
               cover={expandedCover}
               detail={activeDetail}
               similar={activeSimilar}
+              detailFailed={detail.failed}
+              similarFailed={similar.failed}
+              onRetryDetail={detail.retry}
+              onRetrySimilar={similar.retry}
               onClose={() => setExpandedId(null)}
               onSimilar={openSimilar}
               onLayout={relayout}
@@ -436,9 +442,22 @@ export function CoverGrid({
           ref={sentinelRef}
           className="flex items-center justify-center py-4 text-xs text-muted-foreground"
         >
-          {loading
-            ? "Loading more covers…"
-            : `${(total - covers.length).toLocaleString()} more covers`}
+          {loading ? (
+            "Loading more covers…"
+          ) : pager.status === "error" ? (
+            <span role="alert">
+              More covers didn’t load.{" "}
+              <button
+                type="button"
+                onClick={() => dispatchPage({ type: "retry" })}
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                Try again
+              </button>
+            </span>
+          ) : (
+            `${(total - covers.length).toLocaleString()} more covers`
+          )}
         </div>
       )}
       <p className="sr-only" aria-live="polite">
@@ -576,6 +595,10 @@ export function DetailPanel({
   cover,
   detail,
   similar,
+  detailFailed = false,
+  similarFailed = false,
+  onRetryDetail,
+  onRetrySimilar,
   onClose,
   onSimilar,
   onLayout,
@@ -583,6 +606,10 @@ export function DetailPanel({
   cover: CoverCardType;
   detail: CoverDetailData | null;
   similar: CoverCardType[] | null;
+  detailFailed?: boolean;
+  similarFailed?: boolean;
+  onRetryDetail?: () => void;
+  onRetrySimilar?: () => void;
   onClose: () => void;
   onSimilar: (id: string) => void;
   onLayout: () => void;
@@ -602,6 +629,13 @@ export function DetailPanel({
     setJustLiked(true);
     likeTimer.current = setTimeout(() => setJustLiked(false), 1000);
   };
+
+  useEffect(
+    () => () => {
+      if (likeTimer.current) clearTimeout(likeTimer.current);
+    },
+    [],
+  );
   const skeletonRow = rowMetrics(dock.peak, dock.height, dock.anchor);
 
   useEffect(() => {
@@ -700,6 +734,19 @@ export function DetailPanel({
               </div>
             )}
           </dl>
+        ) : detailFailed ? (
+          <p role="alert" className="mt-4 text-sm text-muted-foreground">
+            The details didn’t load.{" "}
+            {onRetryDetail && (
+              <button
+                type="button"
+                onClick={onRetryDetail}
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                Try again
+              </button>
+            )}
+          </p>
         ) : (
           <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -712,8 +759,8 @@ export function DetailPanel({
         )}
 
         <div className="mt-3 flex gap-1.5">
-          {detail
-            ? (detail.palette?.colors ?? []).map((hex) => (
+          {detail || detailFailed
+            ? (detail?.palette?.colors ?? []).map((hex) => (
                 <span
                   key={hex}
                   title={hex}
@@ -762,7 +809,22 @@ export function DetailPanel({
           </div>
         </LayoutGroup>
 
-        {similar === null && (
+        {similar === null && similarFailed && (
+          <p role="alert" className="mt-5 text-sm text-muted-foreground">
+            Similar covers didn’t load.{" "}
+            {onRetrySimilar && (
+              <button
+                type="button"
+                onClick={onRetrySimilar}
+                className="underline underline-offset-4 hover:text-foreground"
+              >
+                Try again
+              </button>
+            )}
+          </p>
+        )}
+
+        {similar === null && !similarFailed && (
           <div className="mt-5">
             <p className="relative z-10 mb-2 text-xs uppercase tracking-wide text-muted-foreground">
               Similar covers

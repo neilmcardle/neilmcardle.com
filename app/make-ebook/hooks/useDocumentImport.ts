@@ -7,6 +7,7 @@ import {
   documentImport,
   initialDocumentImport,
 } from "../state/documentImport";
+import type { SwitchBook } from "./useBookSwitch";
 
 interface UseDocumentImportParams {
   resetMetadata: () => void;
@@ -17,6 +18,7 @@ interface UseDocumentImportParams {
   setTags: (tags: string[]) => void;
   clearCover: () => void;
   setSidebarView: (view: "library" | "book" | "chapters" | null) => void;
+  switchBook: SwitchBook;
 }
 
 export function useDocumentImport({
@@ -28,6 +30,7 @@ export function useDocumentImport({
   setTags,
   clearCover,
   setSidebarView,
+  switchBook,
 }: UseDocumentImportParams) {
   const [state, dispatch] = useReducer(documentImport, initialDocumentImport);
   const { importDialogOpen, importing, importError } =
@@ -56,26 +59,28 @@ export function useDocumentImport({
         );
       }
 
-      const parsed = await parseDocument(file);
+      await switchBook({
+        flush: true,
+        prepare: () => parseDocument(file),
+        apply: (parsed) => {
+          const newChapters: Chapter[] = parsed.chapters.map((ch) => ({
+            id: uuidv4(),
+            title: ch.title,
+            content: ch.content,
+            type: ch.type,
+          }));
 
-      const newChapters: Chapter[] = parsed.chapters.map(
-        (ch: any, idx: number) => ({
-          id: uuidv4(),
-          title: ch.title,
-          content: ch.content,
-          type: ch.type,
-        }),
-      );
+          resetMetadata();
+          setTitle(parsed.title);
+          setAuthor(parsed.author);
+          setChapters(newChapters);
+          setSelectedChapter(0);
+          setTags([]);
+          clearCover();
 
-      resetMetadata();
-      setTitle(parsed.title);
-      setAuthor(parsed.author);
-      setChapters(newChapters);
-      setSelectedChapter(0);
-      setTags([]);
-      clearCover();
-
-      setSidebarView("book");
+          setSidebarView("book");
+        },
+      });
       dispatch({ type: "done" });
     } catch (err) {
       console.error("Import error:", err);

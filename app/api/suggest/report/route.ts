@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db, suggestions } from "@/lib/db";
+import { reportEvent, runToken } from "@/lib/suggest/buildState";
+import { transitionSuggestion } from "@/lib/suggest/transition";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,34 +49,37 @@ export async function POST(request: Request) {
   const note =
     typeof body.note === "string" ? body.note.trim().slice(0, 500) : null;
 
-  const [current] = await db
-    .select({ status: suggestions.status })
-    .from(suggestions)
-    .where(
-      and(
-        eq(suggestions.id, id),
-        inArray(suggestions.status, ["building", "failed"]),
-      ),
-    );
-  if (!current) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  const started = typeof body.started === "string" ? body.started : "";
 
-  const running = current.status === "building";
   const [row] = await db
     .update(suggestions)
     .set({
-      status: running ? (prUrl ? "ready" : "failed") : "failed",
-      prUrl: running ? prUrl : null,
       costMicroUsd: sql`${suggestions.costMicroUsd} + ${Math.ceil(costUsd * 1_000_000)}`,
-      note: running ? note || null : "Stopped by hand.",
       updatedAt: new Date(),
     })
     .where(eq(suggestions.id, id))
-    .returning({ id: suggestions.id });
+    .returning({ buildStartedAt: suggestions.buildStartedAt });
 
   if (!row) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const sameRun = !started || started === runToken(row.buildStartedAt);
+  if (!sameRun) {
+    return NextResponse.json({ ok: true, stale: true });
+  }
+
+  const moved = await transitionSuggestion(id, reportEvent(prUrl), {
+    prUrl,
+    note: note || null,
+  });
+
+  if (!moved && prUrl) {
+    await db
+      .update(suggestions)
+      .set({ prUrl, updatedAt: new Date() })
+      .where(and(eq(suggestions.id, id), eq(suggestions.status, "failed")));
+  }
+
   return NextResponse.json({ ok: true });
 }

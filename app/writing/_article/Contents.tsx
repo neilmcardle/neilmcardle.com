@@ -8,6 +8,23 @@ export type Section = { id: string; label: string };
 export default function Contents({ sections }: { sections: Section[] }) {
   const [current, setCurrent] = useState(sections[0]?.id);
   const lock = useRef(0);
+  const release = useRef<(() => void) | null>(null);
+
+  const unlock = () => {
+    lock.current = 0;
+    if (release.current)
+      window.removeEventListener("scrollend", release.current);
+    release.current = null;
+  };
+
+  useEffect(
+    () => () => {
+      if (release.current)
+        window.removeEventListener("scrollend", release.current);
+      release.current = null;
+    },
+    [],
+  );
 
   useEffect(() => {
     const pick = () => {
@@ -54,12 +71,11 @@ export default function Contents({ sections }: { sections: Section[] }) {
             const target = document.getElementById(s.id);
             if (!target) return;
             event.preventDefault();
+            unlock();
             lock.current = Date.now() + 1200;
-            const release = () => {
-              lock.current = 0;
-              window.removeEventListener("scrollend", release);
-            };
-            window.addEventListener("scrollend", release);
+            const done = () => unlock();
+            release.current = done;
+            window.addEventListener("scrollend", done);
             setCurrent(s.id);
             const calm = window.matchMedia(
               "(prefers-reduced-motion: reduce)",

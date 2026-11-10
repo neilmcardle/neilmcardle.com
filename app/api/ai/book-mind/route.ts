@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireBookMindAccess } from "@/lib/auth/requireBookMindAccess";
-import { refundFreeQuestion } from "@/lib/ai/questionGrant";
+import { refundGrant } from "@/lib/ai/grants";
 import { voiceFor } from "@/lib/ai/bookMindVoices";
 import {
   streamWithFallback,
@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) return auth.response!;
 
   const refundIfFree = async () => {
-    if (auth.usedFreeQuestion && auth.user)
-      await refundFreeQuestion(auth.user.id);
+    if (auth.usedFreeQuestion && auth.user && auth.claimedAt)
+      await refundGrant("question", auth.user.id, auth.claimedAt);
   };
 
   if (auth.usedFreeQuestion) body.deep = false;

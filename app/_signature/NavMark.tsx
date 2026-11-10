@@ -51,6 +51,7 @@ export default function NavMark() {
   const [ready, setReady] = useState(false);
   const [shown, setShown] = useState(false);
   const unmount = useRef<number>(undefined);
+  const hovering = useRef(false);
 
   useEffect(() => () => window.clearTimeout(unmount.current), []);
 
@@ -77,12 +78,14 @@ export default function NavMark() {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
+    hovering.current = true;
     window.clearTimeout(unmount.current);
     setLive(true);
     if (ready) setShown(true);
   };
 
   const leave = () => {
+    hovering.current = false;
     setShown(false);
     window.clearTimeout(unmount.current);
     unmount.current = window.setTimeout(() => {
@@ -115,7 +118,7 @@ export default function NavMark() {
             face="/me.png"
             onReady={() => {
               setReady(true);
-              setShown(true);
+              if (hovering.current) setShown(true);
             }}
           />
         </span>

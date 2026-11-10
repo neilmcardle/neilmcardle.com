@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { createServerClient } from "@supabase/ssr";
 import { CookieOptions } from "@supabase/ssr";
 import { getUserById, updateUser } from "@/lib/db/users";
+import { hasProSubscription } from "@/lib/billing/proStatus";
 
 export async function POST(req: NextRequest) {
   try {
@@ -61,6 +62,16 @@ export async function POST(req: NextRequest) {
           if (dbUser.hasLifetimeAccess) {
             return NextResponse.json(
               { error: "You already have lifetime access" },
+              { status: 400 },
+            );
+          }
+
+          if (hasProSubscription(dbUser)) {
+            return NextResponse.json(
+              {
+                error:
+                  "You already have Pro by subscription. Cancel it in Manage billing first, then buy lifetime.",
+              },
               { status: 400 },
             );
           }

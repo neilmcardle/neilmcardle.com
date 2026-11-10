@@ -78,7 +78,8 @@ export function useAutoSave({
     setState((prev) => ({ ...prev, isSaving: true }));
     let ok = false;
     try {
-      ok = (await onSaveRef.current()) !== false;
+      const result = await onSaveRef.current();
+      ok = result !== false && result !== "failed";
     } catch (error) {
       console.error("Auto-save failed:", error);
     } finally {

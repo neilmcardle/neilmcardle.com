@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireBriefAccess } from "@/lib/auth/requireBriefAccess";
-import { refundMonthlyBrief } from "@/lib/ai/briefGrant";
+import { refundGrant } from "@/lib/ai/grants";
 import { streamWithFallback, SystemBlock } from "../_lib/anthropic";
 
 export const runtime = "nodejs";
@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
   if (!auth.ok) return auth.response!;
 
   const refundIfGranted = async () => {
-    if (auth.usedFreeGrant && auth.user) await refundMonthlyBrief(auth.user.id);
+    if (auth.usedFreeGrant && auth.user && auth.claimedAt)
+      await refundGrant("brief", auth.user.id, auth.claimedAt);
   };
 
   let body: BriefRequest;

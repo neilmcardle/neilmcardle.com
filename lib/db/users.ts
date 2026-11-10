@@ -1,11 +1,12 @@
-import { eq } from 'drizzle-orm'
-import { db } from './index'
-import { users, type NewUser } from './schema'
+import { eq } from "drizzle-orm";
+import { db } from "./index";
+import { users, type NewUser } from "./schema";
+import { isProUser } from "../billing/proStatus";
 
 export async function createUser(userData: {
-  id: string
-  email: string
-  username?: string
+  id: string;
+  email: string;
+  username?: string;
 }) {
   try {
     const [user] = await db
@@ -15,12 +16,12 @@ export async function createUser(userData: {
         email: userData.email,
         username: userData.username,
       })
-      .returning()
+      .returning();
 
-    return { user, error: null }
+    return { user, error: null };
   } catch (error) {
-    console.error('Error creating user:', error)
-    return { user: null, error }
+    console.error("Error creating user:", error);
+    return { user: null, error };
   }
 }
 
@@ -30,12 +31,12 @@ export async function getUserById(id: string) {
       .select()
       .from(users)
       .where(eq(users.id, id))
-      .limit(1)
+      .limit(1);
 
-    return { user: user || null, error: null }
+    return { user: user || null, error: null };
   } catch (error) {
-    console.error('Error fetching user:', error)
-    return { user: null, error }
+    console.error("Error fetching user:", error);
+    return { user: null, error };
   }
 }
 
@@ -45,19 +46,18 @@ export async function updateUser(id: string, updates: Partial<NewUser>) {
       .update(users)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(users.id, id))
-      .returning()
+      .returning();
 
-    return { user, error: null }
+    return { user, error: null };
   } catch (error) {
-    console.error('Error updating user:', error)
-    return { user: null, error }
+    console.error("Error updating user:", error);
+    return { user: null, error };
   }
 }
 
-/**
- * Returns the user's subscription tier.
- */
-export async function getUserSubscriptionTier(userId: string): Promise<'free' | 'pro'> {
+export async function getUserSubscriptionTier(
+  userId: string,
+): Promise<"free" | "pro"> {
   try {
     const [user] = await db
       .select({
@@ -65,116 +65,85 @@ export async function getUserSubscriptionTier(userId: string): Promise<'free' | 
         isGrandfathered: users.isGrandfathered,
         hasLifetimeAccess: users.hasLifetimeAccess,
         subscriptionStatus: users.subscriptionStatus,
-        subscriptionCurrentPeriodEnd: users.subscriptionCurrentPeriodEnd,
       })
       .from(users)
       .where(eq(users.id, userId))
-      .limit(1)
-
-    if (!user) return 'free'
-
-    if (user.isGrandfathered) return 'pro'
-
-    if (user.hasLifetimeAccess) return 'pro'
-
-    // 'trialing' grants Pro access during the Stripe-managed free trial.
-    // Stripe sends customer.subscription.created with status='trialing' at
-    // checkout completion, then flips to 'active' when the card is charged.
-    const proStatuses: ReadonlyArray<string> = ['active', 'trialing']
-    if (
-      user.subscriptionStatus &&
-      proStatuses.includes(user.subscriptionStatus) &&
-      user.subscriptionTier === 'pro'
-    ) {
-      if (user.subscriptionCurrentPeriodEnd) {
-        const now = new Date()
-        const periodEnd = new Date(user.subscriptionCurrentPeriodEnd)
-        if (periodEnd < now) {
-          // Grace period: status active but period ended.
-          console.warn(`User ${userId} subscription expired but status still active`)
-        }
-      }
-      return 'pro'
-    }
-
-    return 'free'
+      .limit(1);
+    return isProUser(user) ? "pro" : "free";
   } catch (error) {
-    console.error('Error fetching user subscription tier:', error)
-    return 'free'
+    console.error("Error fetching user subscription tier:", error);
+    return "free";
   }
 }
 
-/**
- * Update a user's subscription record.
- */
 export async function updateUserSubscription(
   userId: string,
   updates: {
-    stripeCustomerId?: string
-    stripeSubscriptionId?: string
-    subscriptionStatus?: 'active' | 'trialing' | 'canceled' | 'past_due' | 'incomplete'
-    subscriptionTier?: 'free' | 'pro'
-    subscriptionCurrentPeriodEnd?: Date
-    stripePriceId?: string
-  }
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    subscriptionStatus?:
+      "active" | "trialing" | "canceled" | "past_due" | "incomplete";
+    subscriptionTier?: "free" | "pro";
+    subscriptionCurrentPeriodEnd?: Date;
+    stripePriceId?: string;
+  },
 ) {
-  return updateUser(userId, updates)
+  return updateUser(userId, updates);
 }
 
-/**
- * Look up a user by email address.
- */
 export async function getUserByEmail(email: string) {
   try {
     const [user] = await db
       .select()
       .from(users)
       .where(eq(users.email, email))
-      .limit(1)
+      .limit(1);
 
-    return { user: user || null, error: null }
+    return { user: user || null, error: null };
   } catch (error) {
-    console.error('Error fetching user by email:', error)
-    return { user: null, error }
+    console.error("Error fetching user by email:", error);
+    return { user: null, error };
   }
 }
 
-/**
- * Look up a user by external customer ID.
- */
+export async function getUserByLifetimePayment(paymentId: string) {
+  try {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.lifetimePaymentId, paymentId))
+      .limit(1);
+    return { user: user || null, error: null };
+  } catch (error) {
+    console.error("Error fetching user by lifetime payment:", error);
+    return { user: null, error };
+  }
+}
+
 export async function getUserByStripeCustomerId(stripeCustomerId: string) {
   try {
     const [user] = await db
       .select()
       .from(users)
       .where(eq(users.stripeCustomerId, stripeCustomerId))
-      .limit(1)
+      .limit(1);
 
-    return { user: user || null, error: null }
+    return { user: user || null, error: null };
   } catch (error) {
-    console.error('Error fetching user by Stripe customer ID:', error)
-    return { user: null, error }
+    console.error("Error fetching user by Stripe customer ID:", error);
+    return { user: null, error };
   }
 }
 
-/**
- * Returns true when the user has Pro access.
- */
 export async function userHasProAccess(userId: string): Promise<boolean> {
-  const tier = await getUserSubscriptionTier(userId)
-  return tier === 'pro'
+  const tier = await getUserSubscriptionTier(userId);
+  return tier === "pro";
 }
 
-/**
- * Grant lifetime access to a user.
- */
-export async function grantLifetimeAccess(
-  userId: string,
-  paymentId: string
-) {
+export async function grantLifetimeAccess(userId: string, paymentId: string) {
   return updateUser(userId, {
     hasLifetimeAccess: true,
     lifetimePaymentId: paymentId,
-    subscriptionTier: 'pro',
-  })
+    subscriptionTier: "pro",
+  });
 }

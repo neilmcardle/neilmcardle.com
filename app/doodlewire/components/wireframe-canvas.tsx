@@ -3,7 +3,7 @@
 import BackLink from "@/components/BackLink";
 import styles from "../doodlewire.module.css";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
 import {
   clusterStrokes,
@@ -23,6 +23,15 @@ import {
   normalize,
   rankTemplates,
 } from "@/app/doodlewire/components/point-cloud-recognizer";
+import {
+  EXPORT_DONE_MS,
+  exportStatus,
+  noSnip,
+  snip,
+  snipOwnsSave,
+  snipRect as rectOf,
+  type SnipRect,
+} from "@/app/doodlewire/components/canvas-state";
 import {
   classifyShape,
   type ShapeGuess,
@@ -72,7 +81,6 @@ type Pt = { x: number; y: number };
 
 type Stroke = { points: Pt[]; freehand?: boolean };
 type Mode = "pen" | "ink" | "eraser" | "snip" | "move";
-type SnipRect = { x: number; y: number; w: number; h: number };
 
 interface PageSnapshot {
   id: string;
@@ -146,7 +154,6 @@ export default function WireframeCanvas() {
     restoredPage ? [...restoredPage.strokes] : [],
   );
   const currentStrokeRef = useRef<Stroke | null>(null);
-  const inFlightRef = useRef(false);
   const dprRef = useRef(1);
 
   const scrollYRef = useRef(restoredPage?.scrollY ?? 0);
@@ -173,7 +180,6 @@ export default function WireframeCanvas() {
   );
   const [currentPage, setCurrentPage] = useState(restored?.currentPage ?? 0);
   const [mode, setMode] = useState<Mode>("pen");
-  const [recognizing, setRecognizing] = useState(false);
 
   const [autoRecognise, setAutoRecognise] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
@@ -204,10 +210,24 @@ export default function WireframeCanvas() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
-  const [snipRect, setSnipRect] = useState<SnipRect | null>(null);
-  const [snipDragging, setSnipDragging] = useState(false);
-  const snipStartRef = useRef<{ x: number; y: number } | null>(null);
-  const [snipSaving, setSnipSaving] = useState(false);
+  const [snipState, dispatchSnip] = useReducer(snip, noSnip);
+  const snipRect: SnipRect | null = rectOf(snipState);
+  const snipDragging = snipState.phase === "drawing";
+  const snipSaving = snipState.phase === "saving";
+  const snipStateRef = useRef(snipState);
+  const modeRef = useRef<Mode>("pen");
+  const snipRuns = useRef(0);
+  useEffect(() => {
+    snipStateRef.current = snipState;
+    modeRef.current = mode;
+  });
+
+  useEffect(
+    () => () => {
+      if (recogniseTimerRef.current) clearTimeout(recogniseTimerRef.current);
+    },
+    [],
+  );
 
   const [savedImageUrl, setSavedImageUrl] = useState<string | null>(null);
 
@@ -511,16 +531,14 @@ export default function WireframeCanvas() {
   }
 
   function startStroke(e: React.PointerEvent) {
-    if (recognizing) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
     if (pointersRef.current.size >= 2) {
       gestureRef.current = "pan";
       currentStrokeRef.current = null;
-      setSnipRect(null);
-      setSnipDragging(false);
-      snipStartRef.current = null;
+      if (snipStateRef.current.phase !== "saving")
+        dispatchSnip({ type: "cancel" });
       const avg = averagePointer();
       panStartRef.current = avg;
       panLastRef.current = avg;
@@ -536,10 +554,7 @@ export default function WireframeCanvas() {
     if (mode === "move") return;
 
     if (mode === "snip") {
-      const sp = getScreenPoint(e);
-      snipStartRef.current = sp;
-      setSnipRect({ x: sp.x, y: sp.y, w: 0, h: 0 });
-      setSnipDragging(true);
+      dispatchSnip({ type: "begin", at: getScreenPoint(e) });
       return;
     }
     const pt = getPoint(e);
@@ -574,15 +589,7 @@ export default function WireframeCanvas() {
     }
     if (e.buttons === 0) return;
     if (mode === "snip") {
-      const start = snipStartRef.current;
-      if (!start) return;
-      const sp = getScreenPoint(e);
-      setSnipRect({
-        x: Math.min(start.x, sp.x),
-        y: Math.min(start.y, sp.y),
-        w: Math.abs(sp.x - start.x),
-        h: Math.abs(sp.y - start.y),
-      });
+      dispatchSnip({ type: "drag", at: getScreenPoint(e) });
       return;
     }
     const pt = getPoint(e);
@@ -612,10 +619,7 @@ export default function WireframeCanvas() {
     if (pointersRef.current.size === 0) gestureRef.current = "idle";
 
     if (mode === "snip") {
-      setSnipDragging(false);
-      snipStartRef.current = null;
-
-      setSnipRect((prev) => (prev && (prev.w < 6 || prev.h < 6) ? null : prev));
+      dispatchSnip({ type: "end" });
       return;
     }
     const cs = currentStrokeRef.current;
@@ -637,13 +641,10 @@ export default function WireframeCanvas() {
   }
 
   function changeMode(next: Mode) {
-    if (next !== "snip") {
-      setSnipRect(null);
-      setSnipDragging(false);
-      snipStartRef.current = null;
-    }
+    if (next !== "snip") dispatchSnip({ type: "cancel" });
 
     if (next !== "move") setSelectedElementId(null);
+    modeRef.current = next;
     setMode(next);
   }
 
@@ -707,38 +708,48 @@ export default function WireframeCanvas() {
   }
 
   async function downloadSnip() {
-    if (!snipRect || !containerRef.current) return;
-    setSnipSaving(true);
+    if (snipState.phase !== "selected" || !containerRef.current) return;
+    const region = snipState.rect;
+    const run = ++snipRuns.current;
+    dispatchSnip({ type: "save", run });
+    const finish = (keep: boolean) => {
+      const owned = snipOwnsSave(snipStateRef.current, run);
+      dispatchSnip({ type: "saved", run, keep });
+      if (owned && !keep && modeRef.current === "snip") {
+        modeRef.current = "pen";
+        setMode("pen");
+      }
+      return owned;
+    };
     try {
       const dataUrl = await captureWireframePng(containerRef.current, {
-        region: snipRect,
+        region,
       });
+      if (!snipOwnsSave(snipStateRef.current, run)) return;
       if (isTouch) {
-        setSavedImageUrl(dataUrl);
-        setSnipRect(null);
-        setMode("pen");
+        if (finish(false)) setSavedImageUrl(dataUrl);
         return;
       }
       const result = await savePng(dataUrl, defaultPngFilename());
       if (result === "cancelled") {
+        finish(true);
         return;
       }
+      if (!finish(false)) return;
       if (result === "shared")
         setFlash({ kind: "local", text: "Image shared" });
       else setFlash({ kind: "local", text: "Image saved" });
-      setSnipRect(null);
-      setMode("pen");
     } catch {
-      setFlash({ kind: "info", text: "Couldn't export the image. Try again." });
-    } finally {
-      setSnipSaving(false);
+      if (finish(true))
+        setFlash({
+          kind: "info",
+          text: "Couldn't export the image. Try again.",
+        });
     }
   }
 
   function cancelSnip() {
-    setSnipRect(null);
-    setSnipDragging(false);
-    snipStartRef.current = null;
+    dispatchSnip({ type: "cancel" });
   }
 
   function eraseAt(pt: Pt) {
@@ -867,7 +878,6 @@ export default function WireframeCanvas() {
   );
 
   const runRecognition = useCallback(() => {
-    if (inFlightRef.current) return;
     const recognisable = strokesRef.current.filter((s) => !s.freehand);
     if (recognisable.length === 0) return;
     recogniseClusters(clusterStrokes(recognisable));
@@ -1260,7 +1270,6 @@ export default function WireframeCanvas() {
             onDownload={() => void downloadSnip()}
           />
         )}
-        {recognizing && <ThinkingPill />}
         <FlashPill message={flash} />
       </div>
       {showExport && (
@@ -2522,45 +2531,6 @@ function ToolBtn({ active, disabled, onClick, label, icon }: ToolBtnProps) {
   );
 }
 
-function ThinkingPill() {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 14,
-        right: 18,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "6px 12px",
-        background: "var(--color-raised)",
-        color: "var(--color-bg)",
-        borderRadius: 999,
-        fontSize: 13,
-        fontWeight: 500,
-        letterSpacing: "0.01em",
-        zIndex: 50,
-      }}
-    >
-      <span
-        style={{
-          width: 6,
-          height: 6,
-          borderRadius: 999,
-          background: "var(--color-raised)",
-          animation: "wfPulse 1.2s ease-in-out infinite",
-        }}
-      />
-      Reading your doodle
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `@keyframes wfPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`,
-        }}
-      />
-    </div>
-  );
-}
-
 interface ExportDialogProps {
   elements: WfElement[];
   size: { w: number; h: number };
@@ -2593,39 +2563,60 @@ function ExportDialog({
         ? exportAsReact(elements, docSize)
         : "";
   const [copied, setCopied] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
-  const [downloadDone, setDownloadDone] = useState<
-    "shared" | "downloaded" | null
-  >(null);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [download, dispatchDownload] = useReducer(exportStatus, {
+    status: "idle",
+  });
+  const downloading = download.status === "downloading";
+  const downloadError = download.status === "error" ? download.error : null;
+  const downloadDone = download.status === "done" ? download.result : null;
+
+  useEffect(() => {
+    if (download.status !== "done") return;
+    const t = setTimeout(
+      () => dispatchDownload({ type: "settle" }),
+      EXPORT_DONE_MS,
+    );
+    return () => clearTimeout(t);
+  }, [download]);
+
+  useEffect(
+    () => () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    },
+    [],
+  );
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1400);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 1400);
     } catch {}
   }
 
   async function downloadImage() {
-    setDownloading(true);
-    setDownloadError(null);
-    setDownloadDone(null);
+    if (downloading) return;
+    dispatchDownload({ type: "start" });
     try {
       const dataUrl = await onCaptureFullPage();
       if (isTouch) {
+        dispatchDownload({ type: "cancelled" });
         onPreviewImage(dataUrl);
         return;
       }
       const result = await savePng(dataUrl, defaultPngFilename());
-      if (result !== "cancelled") {
-        setDownloadDone(result);
-        setTimeout(() => setDownloadDone(null), 1800);
-      }
+      dispatchDownload(
+        result === "cancelled"
+          ? { type: "cancelled" }
+          : { type: "done", result },
+      );
     } catch {
-      setDownloadError("Couldn't export the image. Try again.");
-    } finally {
-      setDownloading(false);
+      dispatchDownload({
+        type: "fail",
+        error: "Couldn't export the image. Try again.",
+      });
     }
   }
 

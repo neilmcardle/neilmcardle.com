@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { claimFreeQuestion } from "@/lib/ai/questionGrant";
+import { claimGrant } from "@/lib/ai/grants";
 import { dailyCapResponse, resolveAuthedUser } from "./requirePro";
 
 export interface BookMindAccessResult {
@@ -8,6 +8,7 @@ export interface BookMindAccessResult {
   response?: NextResponse;
   user?: { id: string; email?: string };
   usedFreeQuestion?: boolean;
+  claimedAt?: Date;
 }
 
 export async function requireBookMindAccess(
@@ -38,8 +39,23 @@ export async function requireBookMindAccess(
     };
   }
 
-  if (await claimFreeQuestion(resolved.user.id)) {
-    return { ok: true, user: resolved.user, usedFreeQuestion: true };
+  const claim = await claimGrant("question", resolved.user.id);
+  if (claim.status === "claimed") {
+    return {
+      ok: true,
+      user: resolved.user,
+      usedFreeQuestion: true,
+      claimedAt: claim.claimedAt,
+    };
+  }
+  if (claim.status === "error") {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: "We could not check your free allowance. Please try again." },
+        { status: 503 },
+      ),
+    };
   }
 
   return {

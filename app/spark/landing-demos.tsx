@@ -560,10 +560,12 @@ export function Waitlist() {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const sending = useRef(false);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (status === "sending") return;
+    if (sending.current) return;
+    sending.current = true;
     setStatus("sending");
     setMessage("");
     try {
@@ -587,6 +589,8 @@ export function Waitlist() {
     } catch {
       setStatus("error");
       setMessage("That did not send. Check your connection and try again.");
+    } finally {
+      sending.current = false;
     }
   }
 
@@ -610,6 +614,7 @@ export function Waitlist() {
         autoComplete="email"
         placeholder="you@studio.com"
         value={email}
+        readOnly={status === "sending"}
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
@@ -621,7 +626,11 @@ export function Waitlist() {
         value={website}
         onChange={(e) => setWebsite(e.target.value)}
       />
-      <button type="submit" className={styles.inkButton}>
+      <button
+        type="submit"
+        className={styles.inkButton}
+        aria-disabled={status === "sending" || undefined}
+      >
         {status === "sending" ? "Sending" : "Notify me"}
       </button>
       {status === "error" && (

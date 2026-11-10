@@ -6,12 +6,21 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
+  useReducer,
 } from "react";
 import Link from "next/link";
 import BackLink from "@/components/BackLink";
 import s from "./tessera.module.css";
-
-type Player = "p1" | "p2";
+import {
+  HANDOFF_MS,
+  ROLL_TICK_MS,
+  ROLL_TICKS,
+  dieFace,
+  initialTurn,
+  linesLeft,
+  turn as turnTransition,
+  type Player,
+} from "./turn";
 type Point = {
   id: string;
   r: number;
@@ -282,11 +291,12 @@ export default function TesseraLab() {
   const [p2Name, setP2Name] = useState("Player 2");
   const [drawn, setDrawn] = useState<EdgeMap>(() => new Map());
   const [owners, setOwners] = useState<OwnerMap>(() => new Map());
-  const [turn, setTurn] = useState<Player>("p1");
-  const [die, setDie] = useState<number | null>(null);
-  const [budget, setBudget] = useState(0);
-  const [rolling, setRolling] = useState(false);
-  const [message, setMessage] = useState("");
+  const [turnState, dispatchTurn] = useReducer(turnTransition, initialTurn);
+  const turn = turnState.player;
+  const die = dieFace(turnState);
+  const budget = linesLeft(turnState);
+  const rolling = turnState.phase === "rolling";
+  const message = turnState.phase === "drawing" ? turnState.note : "";
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog | null>(
     null,
   );
@@ -363,48 +373,46 @@ export default function TesseraLab() {
     [triByEdge],
   );
 
+  const canHumanAct = !(mode === "cpu" && turn === "p2");
+
   const handleEdgeClick = (key: string) => {
-    if (rolling || budget <= 0 || drawn.has(key)) return;
-    if (mode === "cpu" && turn !== "p1") return;
+    if (turnState.phase !== "drawing" || drawn.has(key) || !canHumanAct) return;
     const { nd, no, gained } = applyEdge(key, turn, drawn, owners);
     setDrawn(nd);
     setOwners(no);
     playLineSound();
-    const nb = budget - 1;
-    setBudget(nb);
-    const player = turn;
-    if (nb <= 0) {
-      window.setTimeout(() => {
-        playTurnSound();
-        setTurn(player === "p1" ? "p2" : "p1");
-        setDie(null);
-        setMessage("");
-      }, 350);
-    } else {
-      setMessage(
-        `${gained ? `Captured ${gained}! ` : ""}${nb} line${nb > 1 ? "s" : ""} left.`,
-      );
-    }
+    dispatchTurn({ type: "draw", gained, full: no.size === totalTris });
   };
 
   const doRoll = () => {
-    if (rolling || budget > 0 || gameOver) return;
+    if (turnState.phase !== "awaitRoll" || !canHumanAct) return;
     playDiceSound();
-    setRolling(true);
-    let ticks = 0;
-    const iv = setInterval(() => {
-      setDie(rollDie());
-      ticks++;
-      if (ticks > 8) {
-        clearInterval(iv);
-        const v = rollDie();
-        setDie(v);
-        setBudget(v);
-        setRolling(false);
-        setMessage("");
-      }
-    }, 70);
+    dispatchTurn({ type: "roll", face: rollDie() });
   };
+
+  useEffect(() => {
+    if (turnState.phase !== "rolling") return;
+    let ticks = 0;
+    const iv = window.setInterval(() => {
+      ticks++;
+      if (ticks >= ROLL_TICKS) {
+        window.clearInterval(iv);
+        dispatchTurn({ type: "rolled", value: rollDie() });
+      } else {
+        dispatchTurn({ type: "tick", face: rollDie() });
+      }
+    }, ROLL_TICK_MS);
+    return () => window.clearInterval(iv);
+  }, [turnState.phase]);
+
+  useEffect(() => {
+    if (turnState.phase !== "handoff") return;
+    const t = window.setTimeout(() => {
+      playTurnSound();
+      dispatchTurn({ type: "handOff" });
+    }, HANDOFF_MS);
+    return () => window.clearTimeout(t);
+  }, [turnState]);
 
   const pickCpuEdge = useCallback(
     (dmap: EdgeMap, omap: OwnerMap) => {
@@ -435,53 +443,31 @@ export default function TesseraLab() {
   );
 
   useEffect(() => {
-    if (mode !== "cpu" || turn !== "p2" || gameOver) return;
-    let cancelled = false;
-    const run = async () => {
-      await new Promise((res) => setTimeout(res, 500));
-      if (cancelled) return;
-      playDiceSound();
-      setRolling(true);
-      let v = rollDie();
-      for (let t = 0; t < 8; t++) {
-        setDie(rollDie());
-        await new Promise((r) => setTimeout(r, 70));
-      }
-      v = rollDie();
-      setDie(v);
-      setRolling(false);
-      setMessage("");
-      let b = v;
-      let dmap = new Map(drawn);
-      let omap = new Map(owners);
-      while (b > 0) {
-        const k = pickCpuEdge(dmap, omap);
-        if (!k) break;
-        await new Promise((r) => setTimeout(r, 360));
-        if (cancelled) return;
-        const res = applyEdge(k, "p2", dmap, omap);
-        dmap = res.nd;
-        omap = res.no;
-        setDrawn(new Map(dmap));
-        setOwners(new Map(omap));
+    if (mode !== "cpu" || turnState.player !== "p2") return;
+    if (turnState.phase === "awaitRoll") {
+      const t = window.setTimeout(() => {
+        playDiceSound();
+        dispatchTurn({ type: "roll", face: rollDie() });
+      }, 500);
+      return () => window.clearTimeout(t);
+    }
+    if (turnState.phase === "drawing") {
+      const t = window.setTimeout(() => {
+        const k = pickCpuEdge(drawn, owners);
+        if (!k) return;
+        const res = applyEdge(k, "p2", drawn, owners);
+        setDrawn(res.nd);
+        setOwners(res.no);
         playLineSound();
-        b--;
-        setBudget(b);
-      }
-
-      await new Promise((r) => setTimeout(r, 350));
-      if (cancelled) return;
-      playTurnSound();
-      setTurn("p1");
-      setDie(null);
-      setBudget(0);
-      setMessage("");
-    };
-    run();
-    return () => {
-      cancelled = true;
-    };
-  }, [turn, mode, gameOver]);
+        dispatchTurn({
+          type: "draw",
+          gained: res.gained,
+          full: res.no.size === totalTris,
+        });
+      }, 360);
+      return () => window.clearTimeout(t);
+    }
+  }, [mode, turnState, drawn, owners, pickCpuEdge, applyEdge, totalTris]);
 
   useEffect(() => {
     if (!gameOver) return;
@@ -500,27 +486,17 @@ export default function TesseraLab() {
     setMode(newMode);
     setDrawn(new Map());
     setOwners(new Map());
-    setTurn("p1");
-    setDie(null);
-    setBudget(0);
-    setRolling(false);
-    setMessage("");
+    dispatchTurn({ type: "reset" });
   };
 
   const changeSize = (newSize: number) => {
     setSize(newSize);
     setDrawn(new Map());
     setOwners(new Map());
-    setTurn("p1");
-    setDie(null);
-    setBudget(0);
-    setRolling(false);
-    setMessage("");
+    dispatchTurn({ type: "reset" });
   };
 
-  const canHumanAct = !(mode === "cpu" && turn === "p2");
-
-  const needsRoll = !rolling && budget === 0 && !gameOver && canHumanAct;
+  const needsRoll = turnState.phase === "awaitRoll" && !gameOver && canHumanAct;
 
   const inProgress = drawn.size > 0 && !gameOver;
 
@@ -747,12 +723,7 @@ export default function TesseraLab() {
                       rolling={rolling}
                       prompt={needsRoll}
                       onClick={doRoll}
-                      disabled={
-                        rolling ||
-                        budget > 0 ||
-                        gameOver ||
-                        (mode === "cpu" && turn === "p2")
-                      }
+                      disabled={!needsRoll}
                     />
                   </Fragment>
                 );

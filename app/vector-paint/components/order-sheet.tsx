@@ -82,6 +82,14 @@ export default function OrderSheet({
   }, [gatePassed]);
 
   useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setSubmitting(false);
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !submitting) onClose();
     };
@@ -99,6 +107,7 @@ export default function OrderSheet({
   };
 
   const pay = async () => {
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
     try {

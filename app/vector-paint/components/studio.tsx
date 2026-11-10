@@ -205,7 +205,9 @@ export default function Studio() {
 
   const orderFromWall = (id: string) => {
     const d = lib.drawings.find((x) => x.id === id);
-    if (d) setOrdering(d);
+    if (!d) return;
+    setShowWall(false);
+    setOrdering(d);
   };
 
   const orderCurrent = () => {
