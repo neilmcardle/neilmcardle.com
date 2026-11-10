@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useReducer, useRef } from "react";
 import { track } from "@vercel/analytics";
 import { Chapter as BookChapter } from "../types";
 import { loadBookById } from "../utils/bookLibrary";
@@ -10,6 +10,12 @@ import {
   isBriefFresh,
 } from "../utils/bookmindMemory";
 import { ensureManuscriptBrief } from "../utils/manuscriptBrief";
+import {
+  BookMindError,
+  bookMindRequest,
+  describeBookMindRequest,
+  initialBookMindRequest,
+} from "../state/bookMindRequest";
 import {
   buildSceneContext,
   buildSpotlightContext,
@@ -124,10 +130,12 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const [messages, setMessages] = useState<BookMindMessage[]>([]);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [activity, setActivity] = useState<BookMindActivity | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [request, dispatch] = useReducer(
+    bookMindRequest,
+    initialBookMindRequest,
+  );
+  const { isLoading, isStreaming, activity, error, errorCode } =
+    describeBookMindRequest(request);
   const [isOpen, setIsOpen] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
@@ -371,8 +379,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         }
       }
 
-      setIsLoading(true);
-      setError(null);
+      dispatch({ type: "send" });
 
       const isLegacy = !!contextOrOpts && "allChapters" in contextOrOpts;
       const legacy = isLegacy ? (contextOrOpts as BookMindContext) : undefined;
@@ -408,10 +415,13 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         if (deep && bookId && userId) {
           const book = loadBookById(userId, bookId);
           if (book && book.chapters.length > 0 && !isBriefFresh(book)) {
-            setActivity({
-              read: ["the whole book"],
-              deep: true,
-              startedAt: Date.now(),
+            dispatch({
+              type: "read",
+              activity: {
+                read: ["the whole book"],
+                deep: true,
+                startedAt: Date.now(),
+              },
             });
             await ensureManuscriptBrief({ userId, book }).catch(() => null);
           }
@@ -440,7 +450,10 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         }
         const contextBlock = renderContextForPrompt(ctx);
 
-        setActivity({ read, deep, startedAt: Date.now() });
+        dispatch({
+          type: "read",
+          activity: { read, deep, startedAt: Date.now() },
+        });
 
         const recent = base
           .slice(-10)
@@ -471,8 +484,9 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(
+          throw new BookMindError(
             errorData.error || `Request failed with status ${response.status}`,
+            errorData.freeQuestionSpent ? "free_question_spent" : undefined,
           );
         }
         if (!response.body) throw new Error("No response body");
@@ -487,9 +501,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           meta: { read, deep },
         };
         setMessages([...updatedMessages, assistantMsg]);
-        setIsLoading(false);
-        setActivity(null);
-        setIsStreaming(true);
+        dispatch({ type: "stream" });
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -548,14 +560,12 @@ export function useBookMind(options: UseBookMindOptions = {}) {
             meta: messageMeta ?? assistantMsg.meta,
           },
         ];
-        setIsStreaming(false);
+        dispatch({ type: "done" });
         updateCurrentSession(finalMessages);
         return fullContent;
       } catch (err) {
-        setActivity(null);
-        setIsStreaming(false);
         if (err instanceof DOMException && err.name === "AbortError") {
-          setIsLoading(false);
+          dispatch({ type: "stopped" });
           setMessages((prev) => {
             const kept = prev.filter(
               (m) => m.role !== "assistant" || m.content.trim(),
@@ -568,8 +578,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
         const errorMessage =
           err instanceof Error ? err.message : "An error occurred";
-        setError(errorMessage);
-        setIsLoading(false);
+        dispatch({
+          type: "failed",
+          error: errorMessage,
+          code: err instanceof BookMindError ? err.code : undefined,
+        });
 
         const errorMsg: BookMindMessage = {
           id: generateId(),
@@ -609,7 +622,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
   const clearMessages = useCallback(() => {
     setMessages([]);
-    setError(null);
+    dispatch({ type: "clearError" });
     if (currentSessionId) {
       updateCurrentSession([]);
     }
@@ -624,9 +637,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       abortRef.current.abort();
       abortRef.current = null;
     }
-    setIsLoading(false);
-    setIsStreaming(false);
-    setActivity(null);
+    dispatch({ type: "stopped" });
   }, []);
 
   const inlineEdit = useCallback(
@@ -638,7 +649,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       if (!bookId || !userId) {
         const msg =
           "Save the book first — Book Mind needs a saved book to generate from.";
-        setError(msg);
+        dispatch({ type: "sideFailed", error: msg });
         throw new Error(msg);
       }
       const book = loadBookById(userId, bookId);
@@ -696,7 +707,10 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         }
         return fullContent;
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Inline edit failed");
+        dispatch({
+          type: "sideFailed",
+          error: err instanceof Error ? err.message : "Inline edit failed",
+        });
         throw err;
       }
     },
@@ -709,6 +723,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     isStreaming,
     activity,
     error,
+    errorCode,
     isOpen,
     setIsOpen,
     toggleOpen,

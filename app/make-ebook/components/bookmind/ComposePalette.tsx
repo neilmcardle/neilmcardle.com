@@ -1,12 +1,14 @@
 "use client";
 
 import React, {
+  useReducer,
   useState,
   useEffect,
   useRef,
   useMemo,
   useCallback,
 } from "react";
+import { describeTakes, emptyTakes, takesReducer } from "../../state/takes";
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
@@ -97,8 +99,14 @@ export default function ComposePalette({
     null,
   );
   const [instruction, setInstruction] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [takes, dispatchTakes] = useReducer(takesReducer, 1, emptyTakes);
+  const runRef = useRef(0);
+  const { results, isLoading } = describeTakes(takes);
+  const result = results[0] ?? null;
+  const clearResult = () => {
+    runRef.current += 1;
+    dispatchTakes({ type: "reset", count: 1 });
+  };
 
   const paletteRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLInputElement>(null);
@@ -119,8 +127,7 @@ export default function ComposePalette({
       setFilter("");
       setSelectedCommand(null);
       setInstruction("");
-      setIsLoading(false);
-      setResult(null);
+      clearResult();
       setTimeout(() => filterRef.current?.focus(), 50);
     }
   }, [request.open]);
@@ -193,8 +200,8 @@ export default function ComposePalette({
 
   const handleGenerate = useCallback(
     async (cmd: ComposeCommand, userInstruction: string) => {
-      setIsLoading(true);
-      setResult(null);
+      const run = ++runRef.current;
+      dispatchTakes({ type: "start", run, count: 1 });
       const fullPrompt = userInstruction.trim()
         ? `${cmd.promptPrefix} ${userInstruction.trim()}`
         : cmd.promptPrefix;
@@ -205,12 +212,19 @@ export default function ComposePalette({
           instruction: fullPrompt,
         });
         if (output) {
-          setResult(output);
+          dispatchTakes({ type: "take", run, index: 0, text: output });
         }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Compose failed");
+        if (run === runRef.current) {
+          toast.error(err instanceof Error ? err.message : "Compose failed");
+        }
+        dispatchTakes({
+          type: "failed",
+          run,
+          error: err instanceof Error ? err.message : "Compose failed",
+        });
       } finally {
-        setIsLoading(false);
+        dispatchTakes({ type: "finish", run });
       }
     },
     [inlineEdit],
@@ -358,7 +372,6 @@ export default function ComposePalette({
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => {
-                    setResult(null);
                     handleGenerate(selectedCommand, instruction);
                   }}
                   className="text-xs px-3 py-1 text-gray-600 dark:text-[var(--clay-muted)] hover:text-gray-900 dark:hover:text-white rounded transition-colors"

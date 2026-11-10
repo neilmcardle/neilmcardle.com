@@ -1,7 +1,12 @@
 "use client";
-import { useState, useRef } from "react";
+import { useReducer, useRef } from "react";
 import { uuidv4 } from "../utils/uuid";
 import { Chapter } from "../types";
+import {
+  describeDocumentImport,
+  documentImport,
+  initialDocumentImport,
+} from "../state/documentImport";
 
 interface UseDocumentImportParams {
   resetMetadata: () => void;
@@ -24,14 +29,17 @@ export function useDocumentImport({
   clearCover,
   setSidebarView,
 }: UseDocumentImportParams) {
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const [importError, setImportError] = useState<string | null>(null);
+  const [state, dispatch] = useReducer(documentImport, initialDocumentImport);
+  const { importDialogOpen, importing, importError } =
+    describeDocumentImport(state);
+
+  function setImportDialogOpen(open: boolean) {
+    dispatch({ type: open ? "open" : "close" });
+  }
   const importFileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleImportDocument(file: File) {
-    setImporting(true);
-    setImportError(null);
+    dispatch({ type: "start" });
 
     try {
       const { parseDocument, getSupportedFormats } =
@@ -68,14 +76,13 @@ export function useDocumentImport({
       clearCover();
 
       setSidebarView("book");
-      setImportDialogOpen(false);
+      dispatch({ type: "done" });
     } catch (err) {
       console.error("Import error:", err);
-      setImportError(
-        err instanceof Error ? err.message : "Failed to import document",
-      );
-    } finally {
-      setImporting(false);
+      dispatch({
+        type: "failed",
+        error: err instanceof Error ? err.message : "Failed to import document",
+      });
     }
   }
 
@@ -88,8 +95,7 @@ export function useDocumentImport({
   }
 
   function showImportDialog() {
-    setImportError(null);
-    setImportDialogOpen(true);
+    dispatch({ type: "open" });
   }
 
   return {

@@ -1,12 +1,14 @@
 "use client";
 
 import React, {
+  useReducer,
   useState,
   useEffect,
   useRef,
   useMemo,
   useCallback,
 } from "react";
+import { describeTakes, emptyTakes, takesReducer } from "../../state/takes";
 import { createPortal } from "react-dom";
 import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
@@ -51,13 +53,15 @@ export default function InlineEditPopover({
   const undoCombo = isMac ? "⌘Z" : "Ctrl+Z";
 
   const [instruction, setInstruction] = useState("");
-  const [results, setResults] = useState<(string | null)[]>(
-    Array(INITIAL_ALTERNATIVES).fill(null),
+  const [takes, dispatchTakes] = useReducer(
+    takesReducer,
+    INITIAL_ALTERNATIVES,
+    emptyTakes,
   );
+  const runRef = useRef(0);
+  const { results, isLoading, error } = describeTakes(takes);
   const [numAlternatives, setNumAlternatives] = useState(INITIAL_ALTERNATIVES);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -81,10 +85,9 @@ export default function InlineEditPopover({
       setInstruction(request.initialInstruction ?? "");
       autoRunRef.current = request.initialInstruction ?? null;
       setNumAlternatives(INITIAL_ALTERNATIVES);
-      setResults(Array(INITIAL_ALTERNATIVES).fill(null));
+      runRef.current += 1;
+      dispatchTakes({ type: "reset", count: INITIAL_ALTERNATIVES });
       setActiveIndex(0);
-      setIsLoading(false);
-      setError(null);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [request.open]);
@@ -176,9 +179,8 @@ export default function InlineEditPopover({
     async (count?: number) => {
       if (!instruction.trim() || isLoading) return;
       const n = count ?? numAlternatives;
-      setIsLoading(true);
-      setError(null);
-      setResults(Array(n).fill(null));
+      const run = ++runRef.current;
+      dispatchTakes({ type: "start", run, count: n });
       setActiveIndex(0);
 
       const promises = Array.from({ length: n }, async (_, i) => {
@@ -187,19 +189,18 @@ export default function InlineEditPopover({
             selectedText: request.selectedText,
             instruction: instruction.trim(),
           });
-          setResults((prev) => {
-            const next = [...prev];
-            next[i] = rewritten;
-            return next;
-          });
+          dispatchTakes({ type: "take", run, index: i, text: rewritten });
         } catch (err) {
-          if (i === 0)
-            setError(err instanceof Error ? err.message : "Rewrite failed");
+          dispatchTakes({
+            type: "failed",
+            run,
+            error: err instanceof Error ? err.message : "Rewrite failed",
+          });
         }
       });
 
       await Promise.allSettled(promises);
-      setIsLoading(false);
+      dispatchTakes({ type: "finish", run });
     },
     [instruction, isLoading, inlineEdit, request.selectedText, numAlternatives],
   );
@@ -211,7 +212,6 @@ export default function InlineEditPopover({
   }, [request.open, instruction, handleSubmit]);
 
   const handleRegenerate = useCallback(() => {
-    setResults(Array(numAlternatives).fill(null));
     setActiveIndex(0);
     void handleSubmit();
   }, [handleSubmit, numAlternatives]);

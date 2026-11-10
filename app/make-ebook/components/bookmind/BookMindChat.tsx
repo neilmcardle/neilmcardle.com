@@ -417,14 +417,14 @@ export default function BookMindChat({
 
   useEffect(() => {
     if (!trialMode || !mind.error) return;
-    if (/free question/i.test(mind.error)) {
+    if (mind.errorCode === "free_question_spent") {
       markTrialUsed(userId);
       setTrialUsed(true);
     } else {
       clearTrialUsed(userId);
       setTrialUsed(false);
     }
-  }, [mind.error, trialMode, userId]);
+  }, [mind.error, mind.errorCode, trialMode, userId]);
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 200);

@@ -59,6 +59,7 @@ import PreflightExportDialog, {
   ExportFormat,
 } from "./components/PreflightExportDialog";
 import UpgradeModal from "./components/UpgradeModal";
+import { useOverlays } from "./hooks/useOverlays";
 
 import { toast } from "sonner";
 import EditorCanvas from "./components/EditorCanvas";
@@ -112,10 +113,26 @@ function MakeEbookPage() {
   const hasBookMind = useFeatureAccess("book_mind_ai");
   const isPro = hasBookMind;
 
-  const [preflightFormat, setPreflightFormat] = useState<ExportFormat | null>(
-    null,
-  );
-  const [exportUpgradeOpen, setExportUpgradeOpen] = useState(false);
+  const {
+    mobileSidebarOpen,
+    setMobileSidebarOpen,
+    mobileBookMindOpen,
+    setMobileBookMindOpen,
+    chaptersSheetOpen,
+    setChaptersSheetOpen,
+    newBookConfirmOpen,
+    setNewBookConfirmOpen,
+    exportUpgradeOpen,
+    setExportUpgradeOpen,
+    showEPUBReader,
+    setShowEPUBReader,
+    historyModal,
+    setHistoryModal,
+    preflightFormat,
+    setPreflightFormat,
+    dialogState,
+    setDialogState,
+  } = useOverlays();
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -579,36 +596,16 @@ function MakeEbookPage() {
 
   const [showMarketingPage, setShowMarketingPage] = useState(!user);
 
-  const [showEPUBReader, setShowEPUBReader] = useState(false);
   const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
 
   const [libraryBooks, setLibraryBooks] = useState<any[]>([]);
   const [libraryLoading, setLibraryLoading] = useState(true);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [mobileBookMindOpen, setMobileBookMindOpen] = useState(false);
-  const [chaptersSheetOpen, setChaptersSheetOpen] = useState(false);
   const [mobileEditorFocused, setMobileEditorFocused] = useState(false);
   useKeyboardInset(mobileEditorFocused);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [newBookConfirmOpen, setNewBookConfirmOpen] = useState(false);
   const [chapterTypeDropdownOpen, setChapterTypeDropdownOpen] = useState(false);
   const [, setSaveDialogOpen] = useState(false);
-
-  const [dialogState, setDialogState] = useState<{
-    open: boolean;
-    title: string;
-    message: string;
-    variant: "confirm" | "alert" | "destructive";
-    confirmLabel?: string;
-    onConfirm: () => void;
-  }>({
-    open: false,
-    title: "",
-    message: "",
-    variant: "alert",
-    onConfirm: () => {},
-  });
 
   const [sidebarLibraryExpanded, setSidebarLibraryExpanded] = useState(true);
   const [sidebarChaptersExpanded, setSidebarChaptersExpanded] = useState(true);
@@ -679,10 +676,6 @@ function MakeEbookPage() {
     deleteExport,
     clearHistory: clearExportHistory,
   } = useExportHistory({ bookId: currentBookId, maxExports: 5 });
-
-  const [historyModal, setHistoryModal] = useState<
-    "versions" | "exports" | null
-  >(null);
 
   openBookIdRef.current = currentBookId;
 
