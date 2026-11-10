@@ -2623,75 +2623,65 @@
 }
 
 .chapterIndex {
-  --wheel-row: 30px;
-  --wheel-height: 330px;
   position: relative;
   display: flex;
   flex: none;
-  align-items: center;
-  width: 176px;
-  padding: 0 0 0 22px;
-  opacity: 0.55;
-  transition: opacity 220ms var(--ease);
-}
-
-.chapterIndex:hover,
-.chapterIndex:focus-within {
-  opacity: 1;
+  align-self: flex-start;
+  width: 196px;
+  padding: 24px 0 0 22px;
 }
 
 .indexList {
   width: 100%;
-  height: var(--wheel-height);
+  max-height: calc(100dvh - 180px);
   margin: 0;
-  padding: calc((var(--wheel-height) - var(--wheel-row)) / 2) 0;
+  padding: 0 0 24px;
   overflow-y: auto;
   list-style: none;
-  scroll-snap-type: y mandatory;
   overscroll-behavior: contain;
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(
-    180deg,
-    transparent,
-    #000 32%,
-    #000 68%,
-    transparent
-  );
-  mask-image: linear-gradient(
-    180deg,
-    transparent,
-    #000 32%,
-    #000 68%,
-    transparent
-  );
-}
-
-.indexList::-webkit-scrollbar {
-  display: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(243, 239, 229, 0.18) transparent;
 }
 
 .indexList li {
-  scroll-snap-align: center;
+  margin: 0;
 }
 
 .indexItem {
+  position: relative;
   display: flex;
   align-items: center;
   width: 100%;
-  height: var(--wheel-row);
-  padding: 0;
+  min-height: 32px;
+  padding: 0 0 0 12px;
   border: 0;
+  border-radius: 6px;
   background: none;
   text-align: left;
   cursor: pointer;
-  transform-origin: left center;
-  will-change: transform, opacity;
+  transition: background-color 160ms var(--ease);
+}
+
+.indexItem::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--paper);
+  opacity: 0;
+  transition: opacity 160ms var(--ease);
+}
+
+.indexItemCurrent::before {
+  opacity: 1;
 }
 
 .indexItem:focus-visible {
   outline: 2px solid var(--acid);
   outline-offset: 1px;
-  border-radius: 3px;
 }
 
 .indexLabel {
@@ -2700,40 +2690,38 @@
   overflow: hidden;
   font-family: var(--font-ui);
   font-size: 13px;
-  font-weight: 500;
-  line-height: 1.5;
+  font-weight: 450;
+  line-height: 1.4;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  text-overflow: ellipsis;
   color: var(--clay);
-  -webkit-mask-image: linear-gradient(90deg, #000 78%, transparent);
-  mask-image: linear-gradient(90deg, #000 78%, transparent);
-  transition: color 180ms var(--ease);
+  transition: color 160ms var(--ease);
 }
 
-.indexItem:hover .indexLabel,
 .indexItemCurrent .indexLabel {
   color: var(--paper);
+  font-weight: 550;
 }
 
-.wheelBand {
-  position: absolute;
-  top: 50%;
-  left: 14px;
-  right: 0;
-  height: var(--wheel-row);
-  border-top: 1px solid rgba(243, 239, 229, 0.12);
-  border-bottom: 1px solid rgba(243, 239, 229, 0.12);
-  transform: translateY(-50%);
-  pointer-events: none;
+@media (hover: hover) and (pointer: fine) {
+  .indexItem:hover {
+    background: rgba(243, 239, 229, 0.05);
+  }
+
+  .indexItem:hover .indexLabel {
+    color: var(--paper);
+  }
 }
 
 .indexProgress {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
+  left: 12px;
+  right: 8px;
+  bottom: 3px;
   height: 1px;
   overflow: hidden;
+  background: rgba(243, 239, 229, 0.08);
 }
 
 .indexProgress span {
@@ -2742,6 +2730,12 @@
   background: color-mix(in srgb, var(--acid) 70%, transparent);
   transform-origin: left;
   transition: transform 120ms linear;
+}
+
+@media (pointer: coarse) {
+  .indexItem {
+    min-height: 44px;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -4300,4 +4294,13 @@ button:focus-visible > .avatar {
 .bmMemoryAdd {
   display: flex;
   padding: 6px 4px 4px;
+}
+
+@media (pointer: coarse) {
+  .editorRoot :global(button),
+  .editorRoot :global([role="button"]),
+  .editorRoot :global([role="tab"]) {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }

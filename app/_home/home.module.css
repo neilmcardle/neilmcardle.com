@@ -369,14 +369,13 @@
   gap: 4px;
   min-height: 44px;
   margin: -12px 0;
-  color: var(--ink);
   font-size: 13px;
   white-space: nowrap;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: var(--underline);
-  transition: text-decoration-color 0.2s var(--ease);
+}
+
+a.live {
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
 }
 
 .live svg {
@@ -387,17 +386,29 @@
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: translate 0.2s var(--ease);
 }
 
-.live:focus-visible {
+a.live:focus-visible {
+  color: var(--ink);
   outline: 2px solid var(--ink);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .live:hover {
-    text-decoration-color: currentColor;
+  a.live:hover {
+    color: var(--ink);
+  }
+
+  a.live:hover svg {
+    translate: 1px -1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live svg {
+    transition: none;
   }
 }
 

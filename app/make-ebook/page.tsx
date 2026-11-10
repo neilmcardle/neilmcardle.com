@@ -1281,7 +1281,9 @@ function MakeEbookPage() {
     <>
       <TrialBanner />
 
-      <div className="bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]">
+      <div
+        className={`${studio.editorRoot} bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]`}
+      >
         {newBookConfirmOpen && (
           <div
             className="fixed inset-0 z-[130] bg-black/50 flex items-center justify-center p-4"
@@ -1973,9 +1975,7 @@ function MakeEbookPage() {
                       hasBookMind ? handleComposeRequest : undefined
                     }
                     isBookMindLoading={bookMindBusy}
-                    onOpenBookMind={
-                      hasBookMind ? () => setBookMindOpen(true) : undefined
-                    }
+                    onOpenBookMind={() => setBookMindOpen(true)}
                   />
                 </section>
               )}
@@ -2069,7 +2069,7 @@ function MakeEbookPage() {
         </>
       )}
 
-      {hasBookMind && (
+      {user && (
         <FloatingBookMindWindow
           isOpen={bookMindOpen}
           onClose={() => setBookMindOpen(false)}
