@@ -98,8 +98,8 @@ export const WORKS: Work[] = [
   },
   {
     title: "Chess Path",
-    group: "products",
-    sub: "In progress",
+    group: "tools",
+    sub: "In the browser",
     href: "/chess",
     pills: ["Chess course", "Web"],
   },

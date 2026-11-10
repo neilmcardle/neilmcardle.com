@@ -141,7 +141,7 @@ export const PLAY: Piece[] = [
     id: "chess",
     title: "Chess Path",
     line: "Teach yourself chess.",
-    kind: "In progress",
+    kind: "Tool",
     href: "/chess",
     image: "/home/leads/chess-path.jpg",
   },
