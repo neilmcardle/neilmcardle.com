@@ -1,197 +1,262 @@
 .root {
-  --paper: #f4f3ef;
-  --ink: #0d0d0c;
-  --muted: #6c6963;
-  --rule: #dfddd7;
+  --bg: #0d0d0c;
+  --raised: #161615;
+  --raised-hover: #1d1d1b;
+  --ink: #ecebe7;
+  --text: #8f8c86;
+  --underline: #48463f;
+  --line: rgb(255 255 255 / 0.06);
+  --edge:
+    0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+  --edge-hover:
+    0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
+    0 2px 4px 0 rgb(0 0 0 / 0.4);
+  --brand: #c2412b;
+  --on-brand: #ffffff;
+  --ease: cubic-bezier(0.2, 0.8, 0, 1);
+  --duration-hover: 160ms;
+  --duration-press: 160ms;
+  --duration-enter: 240ms;
+  --duration-travel: 400ms;
+  --press-scale: 0.96;
+
+  --globe-ink: #0d0d0c;
+  --globe-muted: #6c6963;
   --red: #c2412b;
   --sea: #e6e3db;
   --sea-lit: #fbfaf7;
   --land: #cfc9bc;
   --coast: #8f897c;
-  --ease: cubic-bezier(0.2, 0.8, 0, 1);
-  --sans: var(--font-inter), system-ui, sans-serif;
-  --heavy: var(--font-heavy), "Arial Narrow", sans-serif;
 
+  color-scheme: dark;
   display: grid;
-  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "panel stage"
     "time time";
   height: 100svh;
   min-height: 560px;
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
-  font-family: var(--sans);
+  font:
+    400 16px / 1.6 var(--font-inter),
+    system-ui,
+    sans-serif;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
 
-/* Panel */
+.root ::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
 
 .panel {
   grid-area: panel;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 32px;
   min-height: 0;
-  padding: 28px 28px 20px;
-  border-right: 1px solid var(--rule);
+  padding: 12px 32px 24px;
+  box-shadow: inset -1px 0 0 var(--line);
   overflow-y: auto;
 }
 
 .masthead {
   display: grid;
-  gap: 10px;
+  gap: 16px;
 }
 
 .home {
-  font-size: 12px;
-  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 4px;
+  min-height: 44px;
+  margin-left: -4px;
+  padding-right: 8px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
   text-decoration: none;
 }
 
-.home:hover {
-  color: var(--ink);
+.home svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate var(--duration-enter) var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home:hover svg {
+    translate: -4px 0;
+  }
 }
 
 .title {
-  margin: 0;
-  font-family: var(--heavy);
-  font-size: 40px;
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
+  margin: 12px 0 0;
+  font-size: 56px;
+  font-weight: 520;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .lede {
   margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--muted);
-  max-width: 34ch;
+  color: var(--text);
+  font-size: 16px;
+  text-wrap: pretty;
 }
 
 .card {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   align-content: start;
   flex: 1;
-  animation: rise 600ms var(--ease) both;
+  animation: appear var(--duration-enter) var(--ease) both;
 }
 
-@keyframes rise {
+@keyframes appear {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
-}
-
-.era {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.when {
-  margin: 4px 0 0;
-  font-family: var(--heavy);
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--red);
 }
 
 .event {
   margin: 0;
   font-size: 24px;
-  font-weight: 600;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
-.place {
+.meta {
   margin: 0;
+  color: var(--text);
   font-size: 13px;
-  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.when {
+  color: var(--ink);
+  font-weight: 500;
 }
 
 .body {
-  margin: 10px 0 0;
-  font-size: 15px;
-  line-height: 1.6;
-  max-width: 40ch;
+  max-width: 64ch;
+  margin: 8px 0 0;
+  color: var(--text);
+  text-wrap: pretty;
 }
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
 .step,
 .play {
-  height: 40px;
-  border: 1px solid var(--ink);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  border: 0;
   border-radius: 999px;
-  background: transparent;
-  color: var(--ink);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
   cursor: pointer;
-  transition:
-    background 150ms,
-    color 150ms;
+  transition: scale var(--duration-press) var(--ease);
+}
+
+.step::before,
+.play::before {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+.step::after,
+.play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--duration-hover) var(--ease);
+  pointer-events: none;
 }
 
 .step {
-  width: 40px;
+  background: var(--raised);
+  box-shadow: var(--edge);
+  color: var(--ink);
+}
+
+.step::after {
+  background: var(--raised-hover);
+  box-shadow: var(--edge-hover);
 }
 
 .play {
-  min-width: 84px;
-  padding: 0 18px;
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 600;
+  min-width: 72px;
+  background: var(--brand);
+  box-shadow: var(--edge);
+  color: var(--on-brand);
 }
 
-.step:hover:not(:disabled) {
-  background: var(--ink);
-  color: var(--paper);
+.play::after {
+  background: rgb(255 255 255 / 0.12);
 }
 
-.play:hover,
-.play[aria-pressed="true"] {
-  background: var(--red);
-  border-color: var(--red);
+@media (hover: hover) and (pointer: fine) {
+  .step:not(:disabled):hover::after,
+  .play:hover::after {
+    opacity: 1;
+  }
+}
+
+.step:not(:disabled):active,
+.play:active {
+  scale: var(--press-scale);
 }
 
 .step:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: default;
 }
 
+.home:focus-visible,
 .step:focus-visible,
 .play:focus-visible,
 .tick:focus-visible,
 .eraBand:focus-visible {
-  outline: 2px solid var(--red);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
 
 .count {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--muted);
+  flex-basis: 100%;
+  color: var(--text);
+  font-size: 13px;
 }
-
-/* Globe */
 
 .stage {
   grid-area: stage;
@@ -266,14 +331,14 @@
 }
 
 .marker[data-state="past"] .dot {
-  fill: var(--ink);
+  fill: var(--globe-ink);
   stroke: var(--sea-lit);
   stroke-width: 1;
 }
 
 .marker[data-state="future"] .dot {
   fill: var(--sea-lit);
-  stroke: var(--muted);
+  stroke: var(--globe-muted);
   stroke-width: 1;
 }
 
@@ -315,7 +380,7 @@
 .label text {
   font-size: 13px;
   font-weight: 600;
-  fill: var(--ink);
+  fill: var(--globe-ink);
   paint-order: stroke;
   stroke: var(--sea-lit);
   stroke-width: 4px;
@@ -324,21 +389,20 @@
 
 .hint {
   position: absolute;
-  right: 20px;
+  right: 24px;
   bottom: 12px;
   margin: 0;
-  font-size: 11px;
-  color: var(--muted);
+  color: var(--text);
+  font-size: 13px;
   pointer-events: none;
 }
 
-/* Timeline */
-
 .timeline {
   grid-area: time;
-  padding: 14px 28px 16px;
-  border-top: 1px solid var(--rule);
-  background: var(--paper);
+  padding: 12px 32px 16px;
+  box-shadow: inset 0 1px 0 var(--line);
+  background: var(--bg);
+  overflow-x: clip;
 }
 
 .track {
@@ -350,7 +414,7 @@
 
 .eras {
   position: relative;
-  height: 26px;
+  height: 24px;
 }
 
 .eraBand {
@@ -359,18 +423,20 @@
   bottom: 0;
   left: calc(var(--a) * 100%);
   width: calc((var(--b) - var(--a)) * 100%);
-  padding: 0 6px;
+  padding: 0 8px;
   border: 0;
-  border-left: 1px solid var(--rule);
   background: transparent;
-  color: var(--muted);
+  box-shadow: inset 1px 0 0 var(--line);
+  color: var(--text);
   font: inherit;
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 24px;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+  transition: color var(--duration-hover) var(--ease);
 }
 
 .eraBand span {
@@ -378,22 +444,25 @@
   text-overflow: ellipsis;
 }
 
-.eraBand:hover {
-  color: var(--ink);
+@media (hover: hover) and (pointer: fine) {
+  .eraBand:hover {
+    color: var(--ink);
+  }
 }
 
 .eraBand[data-on] {
   color: var(--ink);
-  font-weight: 600;
-  background: linear-gradient(var(--ink), var(--ink)) bottom / 100% 2px
-    no-repeat;
+  font-weight: 500;
+  box-shadow:
+    inset 1px 0 0 var(--line),
+    inset 0 -2px 0 var(--ink);
 }
 
 .ticks {
   position: relative;
-  height: 38px;
-  margin-top: 6px;
-  background: linear-gradient(var(--rule), var(--rule)) center / 100% 1px
+  height: 40px;
+  margin-top: 4px;
+  background: linear-gradient(var(--line), var(--line)) center / 100% 1px
     no-repeat;
 }
 
@@ -414,44 +483,49 @@
   content: "";
   position: absolute;
   left: 6px;
-  top: 5px;
+  top: 0;
   width: 2px;
-  height: 14px;
+  height: 24px;
   border-radius: 1px;
-  background: var(--muted);
-  opacity: 0.45;
-  transition:
-    height 200ms var(--ease),
-    top 200ms var(--ease),
-    background 200ms;
+  background: var(--underline);
+  scale: 1 0.58;
+  transition: scale var(--duration-enter) var(--ease);
 }
 
 .tick[data-state="past"]::after {
-  background: var(--ink);
-  opacity: 1;
+  background: var(--text);
 }
 
 .tick[data-state="active"]::after {
-  top: 0;
-  height: 24px;
-  background: var(--red);
-  opacity: 1;
+  background: var(--ink);
+  scale: 1 1;
 }
 
-.tick:hover::after {
-  background: var(--red);
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .tick:hover::after {
+    background: var(--ink);
+  }
 }
 
 .playhead {
   position: absolute;
   top: -4px;
   bottom: -4px;
-  left: calc(var(--p) * 100%);
-  width: 0;
-  border-left: 1px solid var(--red);
+  left: 0;
+  width: 100%;
   pointer-events: none;
-  transition: left 500ms var(--ease);
+  translate: calc(var(--p) * 100%) 0;
+  transition: translate var(--duration-travel) var(--ease);
+}
+
+.playhead::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: var(--ink);
 }
 
 .playhead[data-scrub] {
@@ -462,17 +536,19 @@
   position: absolute;
   bottom: 100%;
   left: 0;
-  transform: translateX(-50%);
-  margin-bottom: 2px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: var(--red);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
+  translate: -50% 0;
+  margin-bottom: 4px;
+  padding: 0 8px;
+  border-radius: 7px;
+  background: var(--raised);
+  box-shadow: var(--edge);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 24px;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity var(--duration-hover) var(--ease);
 }
 
 .playhead[data-scrub] span {
@@ -481,32 +557,31 @@
 
 .scale {
   position: relative;
-  height: 14px;
-  margin-top: 6px;
-  font-size: 10px;
-  color: var(--muted);
+  height: 20px;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 20px;
 }
 
 .scale span {
   position: absolute;
   top: 0;
   left: calc(var(--p) * 100%);
-  transform: translateX(-50%);
+  translate: -50% 0;
   white-space: nowrap;
 }
 
 .scale span:first-child {
   left: 0;
-  transform: none;
+  translate: none;
 }
 
 .scale span:last-child {
   left: auto;
   right: 0;
-  transform: none;
+  translate: none;
 }
-
-/* Small screens: globe on top, timeline, then the story. */
 
 @media (max-width: 760px) {
   .root {
@@ -529,16 +604,17 @@
 
   .masthead {
     grid-area: head;
-    padding: 20px 16px 0;
+    padding: 12px 16px 0;
   }
 
   .title {
-    font-size: 32px;
+    margin-top: 8px;
+    font-size: 44px;
   }
 
   .card {
     grid-area: card;
-    padding: 4px 16px 40px;
+    padding: 8px 16px 48px;
   }
 
   .controls {
@@ -547,11 +623,11 @@
   }
 
   .timeline {
-    padding: 10px 16px 12px;
+    padding: 12px 16px;
   }
 
   .eras {
-    height: 14px;
+    height: 12px;
   }
 
   .eraBand span {
@@ -573,7 +649,16 @@
     animation: none;
   }
 
-  .playhead {
+  .playhead,
+  .tick::after,
+  .home svg,
+  .step,
+  .play {
     transition: none;
+  }
+
+  .step:active,
+  .play:active {
+    scale: none;
   }
 }

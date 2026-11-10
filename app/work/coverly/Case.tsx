@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { media } from "@/lib/media";
 import { CoverMarquee } from "../../coverly/CoverMarquee";
 import { fetchLandingCovers } from "../../coverly/landing-data";
@@ -47,7 +48,10 @@ export default async function CoverlyCase({ home }: { home?: string }) {
           </div>
         </section>
       }
-      facts={[{ label: "When", value: "2026" }]}
+      facts={[
+        { label: "When", value: "2026" },
+        { label: "Live", value: <Link href="/coverly">Open coverly</Link> },
+      ]}
       overview="Coverly is a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting. The brand borrows from the print viewing booth, where proofs are judged under neutral grey and even light, and lets the covers carry all the colour."
       frames={[
         {

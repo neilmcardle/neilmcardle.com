@@ -3,6 +3,15 @@ import { describe, it, expect } from "vitest";
 import { getAllModules, getCurriculum, loadModule } from "./content";
 import { PHASES, phaseForModule } from "./curriculum";
 
+const hasGit = (() => {
+  try {
+    execSync("git rev-parse --is-inside-work-tree", { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
 describe("loadModule", () => {
   it("normalises frontmatter into meta", async () => {
     const result = await loadModule("make-a-real-file-yours");
@@ -148,7 +157,7 @@ describe("filenames", () => {
     }
   });
 
-  it("keeps every tracked filename lowercase", () => {
+  it.skipIf(!hasGit)("keeps every tracked filename lowercase", () => {
     const tracked = execSync("git ls-files content/spark", {
       encoding: "utf-8",
       cwd: process.cwd(),
@@ -163,17 +172,20 @@ describe("filenames", () => {
     ).toEqual([]);
   });
 
-  it("matches what git tracks against what is on disk", async () => {
-    const tracked = execSync("git ls-files content/spark", {
-      encoding: "utf-8",
-      cwd: process.cwd(),
-    })
-      .split("\n")
-      .filter(Boolean)
-      .map((file) => file.replace(/^.*\//, "").replace(/\.mdx$/, ""))
-      .sort();
+  it.skipIf(!hasGit)(
+    "matches what git tracks against what is on disk",
+    async () => {
+      const tracked = execSync("git ls-files content/spark", {
+        encoding: "utf-8",
+        cwd: process.cwd(),
+      })
+        .split("\n")
+        .filter(Boolean)
+        .map((file) => file.replace(/^.*\//, "").replace(/\.mdx$/, ""))
+        .sort();
 
-    const onDisk = (await getAllModules()).slice().sort();
-    expect(tracked).toEqual(onDisk);
-  });
+      const onDisk = (await getAllModules()).slice().sort();
+      expect(tracked).toEqual(onDisk);
+    },
+  );
 });

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
-import Shell from "../_signature/Shell";
-import Header from "../_signature/Header";
-import shell from "../_signature/signature.module.css";
-import { share } from "../shared-metadata";
+import Shell from "@/app/_signature/Shell";
+import Header from "@/app/_signature/Header";
+import kit from "./kit.module.css";
+import { share } from "@/app/shared-metadata";
 import { db, suggestions } from "@/lib/db";
 import SuggestForm from "./SuggestForm";
 import styles from "./suggest.module.css";
@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 
 const TITLE = "Suggest a change · Neil McArdle";
 const DESCRIPTION =
-  "Tell me what this site should do differently. If I like it, an AI agent builds it, I check it, and it goes live.";
+  "Tell me what this site should do differently. If I like it, an AI agent builds it, I check it and it goes live.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -55,21 +55,28 @@ export default async function SuggestPage() {
 
   return (
     <Shell>
-      <Header contact="/#contact" />
-      <main lang="en-GB">
-        <section className={`${shell.wrap} ${styles.hero}`}>
-          <h1 className={styles.title}>Suggest a change.</h1>
-          <p className={styles.lede}>{DESCRIPTION}</p>
+      <div className={kit.bar}>
+        <Header contact="/#contact" />
+      </div>
+      <main id="main" lang="en-GB" className={`${kit.root} ${kit.scope}`}>
+        <section className={`${kit.wrap} ${styles.hero}`}>
+          <h1 className={kit.title}>Suggest a change.</h1>
+          <p className={styles.lede}>
+            <span className={styles.subject}>
+              Tell me what this site should do differently.
+            </span>{" "}
+            If I like it, an AI agent builds it, I check it and it goes live.
+          </p>
           <div className={styles.formWrap}>
             <SuggestForm />
           </div>
         </section>
 
         <section
-          className={`${shell.wrap} ${styles.section}`}
+          className={`${kit.wrap} ${styles.section}`}
           aria-labelledby="built"
         >
-          <h2 id="built" className={shell.label}>
+          <h2 id="built" className={styles.heading}>
             Built from suggestions
           </h2>
           {built.length ? (
@@ -82,7 +89,7 @@ export default async function SuggestPage() {
                     {item.prUrl ? (
                       <>
                         {" · "}
-                        <a className={styles.link} href={item.prUrl}>
+                        <a className={kit.link} href={item.prUrl}>
                           See the change
                         </a>
                       </>
@@ -96,9 +103,11 @@ export default async function SuggestPage() {
           )}
         </section>
       </main>
-      <footer className={`${shell.wrap} ${styles.footer}`}>
-        <span>Neil McArdle · London</span>
-        <Link className={styles.link} href="/">
+      <footer className={`${kit.wrap} ${styles.footer}`}>
+        <Link className={styles.more} href="/#contact">
+          Tell me more.
+        </Link>
+        <Link className={kit.link} href="/">
           neilmcardle.com
         </Link>
       </footer>

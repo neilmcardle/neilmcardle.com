@@ -110,7 +110,7 @@ export default function PromptrPage() {
               });
             }
           } catch (e) {
-            if (e instanceof Error && e.message !== "Unexpected token") {
+            if (!(e instanceof SyntaxError)) {
               throw e;
             }
           }

@@ -2,48 +2,128 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ElementType, WfElement } from "./wireframe-canvas";
-import { renderElement } from "./wireframe-element";
+import { renderElement } from "@/app/doodlewire/components/wireframe-element";
 import {
   addTemplate,
   loadTemplates,
   resetAllTemplates,
-} from "./template-store";
+} from "@/app/doodlewire/components/template-store";
 
 interface Step {
   type: ElementType;
   title: string;
   hint: string;
-  // Nominal size for the preview component. Not used for the saved template.
   previewBbox: { w: number; h: number };
-  // Optional label saved with the trained template. For icon-type steps
-  // this carries the canonical icon name (close, check, add, search…) so
-  // a future drawing matched against this template renders the right
-  // Lucide icon, not a blank square.
   label?: string;
 }
 
-// Element types the recogniser knows, plus specific common icons trained
-// under the generic "icon" type with a label. Drawing all of them means a
-// brand-new user can build a real wireframe out of the box, including the
-// icons most apps need (close, tick, add, search).
 const STEPS: Step[] = [
-  { type: "button", title: "Button", hint: "A small filled or outlined rectangle.", previewBbox: { w: 140, h: 40 } },
-  { type: "input", title: "Text input", hint: "A wider thin rectangle. A field to type into.", previewBbox: { w: 240, h: 40 } },
-  { type: "text", title: "Text", hint: "A line or two of horizontal strokes for body text.", previewBbox: { w: 240, h: 60 } },
-  { type: "heading", title: "Heading", hint: "A short thick bar, or write the word.", previewBbox: { w: 220, h: 40 } },
-  { type: "link", title: "Link", hint: "Underline a short piece of text.", previewBbox: { w: 120, h: 24 } },
-  { type: "toggle", title: "Toggle", hint: "A pill shape with a circle at one end.", previewBbox: { w: 44, h: 24 } },
-  { type: "dropdown", title: "Dropdown", hint: "A rectangle with a small triangle on the right.", previewBbox: { w: 200, h: 40 } },
-  { type: "card", title: "Card", hint: "A larger rounded rectangle, often with a shadow.", previewBbox: { w: 240, h: 160 } },
-  { type: "divider", title: "Divider", hint: "A single thin horizontal line.", previewBbox: { w: 240, h: 2 } },
-  { type: "image", title: "Image", hint: "A rectangle with an X through it.", previewBbox: { w: 200, h: 140 } },
-  { type: "icon", title: "Icon", hint: "A tiny simple shape: star, gear, anything.", previewBbox: { w: 28, h: 28 } },
-  { type: "icon", title: "Close (X)", hint: "Two diagonal lines crossing.", previewBbox: { w: 28, h: 28 }, label: "close" },
-  { type: "icon", title: "Tick", hint: "A short tick mark: down then up to the right.", previewBbox: { w: 28, h: 28 }, label: "check" },
-  { type: "icon", title: "Plus", hint: "Two short lines crossing at right angles.", previewBbox: { w: 28, h: 28 }, label: "add" },
-  { type: "icon", title: "Search", hint: "A circle with a short line off its bottom-right.", previewBbox: { w: 28, h: 28 }, label: "search" },
-  { type: "badge", title: "Badge", hint: "A small rounded label.", previewBbox: { w: 80, h: 24 } },
-  { type: "nav", title: "Nav", hint: "A row of short labels along the top.", previewBbox: { w: 320, h: 48 } },
+  {
+    type: "button",
+    title: "Button",
+    hint: "A small filled or outlined rectangle.",
+    previewBbox: { w: 140, h: 40 },
+  },
+  {
+    type: "input",
+    title: "Text input",
+    hint: "A wider thin rectangle. A field to type into.",
+    previewBbox: { w: 240, h: 40 },
+  },
+  {
+    type: "text",
+    title: "Text",
+    hint: "A line or two of horizontal strokes for body text.",
+    previewBbox: { w: 240, h: 60 },
+  },
+  {
+    type: "heading",
+    title: "Heading",
+    hint: "A short thick bar, or write the word.",
+    previewBbox: { w: 220, h: 40 },
+  },
+  {
+    type: "link",
+    title: "Link",
+    hint: "Underline a short piece of text.",
+    previewBbox: { w: 120, h: 24 },
+  },
+  {
+    type: "toggle",
+    title: "Toggle",
+    hint: "A pill shape with a circle at one end.",
+    previewBbox: { w: 44, h: 24 },
+  },
+  {
+    type: "dropdown",
+    title: "Dropdown",
+    hint: "A rectangle with a small triangle on the right.",
+    previewBbox: { w: 200, h: 40 },
+  },
+  {
+    type: "card",
+    title: "Card",
+    hint: "A larger rounded rectangle, often with a shadow.",
+    previewBbox: { w: 240, h: 160 },
+  },
+  {
+    type: "divider",
+    title: "Divider",
+    hint: "A single thin horizontal line.",
+    previewBbox: { w: 240, h: 2 },
+  },
+  {
+    type: "image",
+    title: "Image",
+    hint: "A rectangle with an X through it.",
+    previewBbox: { w: 200, h: 140 },
+  },
+  {
+    type: "icon",
+    title: "Icon",
+    hint: "A tiny simple shape: star, gear, anything.",
+    previewBbox: { w: 28, h: 28 },
+  },
+  {
+    type: "icon",
+    title: "Close (X)",
+    hint: "Two diagonal lines crossing.",
+    previewBbox: { w: 28, h: 28 },
+    label: "close",
+  },
+  {
+    type: "icon",
+    title: "Tick",
+    hint: "A short tick mark: down then up to the right.",
+    previewBbox: { w: 28, h: 28 },
+    label: "check",
+  },
+  {
+    type: "icon",
+    title: "Plus",
+    hint: "Two short lines crossing at right angles.",
+    previewBbox: { w: 28, h: 28 },
+    label: "add",
+  },
+  {
+    type: "icon",
+    title: "Search",
+    hint: "A circle with a short line off its bottom-right.",
+    previewBbox: { w: 28, h: 28 },
+    label: "search",
+  },
+  {
+    type: "badge",
+    title: "Badge",
+    hint: "A small rounded label.",
+    previewBbox: { w: 80, h: 24 },
+  },
+  {
+    type: "nav",
+    title: "Nav",
+    hint: "A row of short labels along the top.",
+    previewBbox: { w: 320, h: 48 },
+  },
 ];
 
 interface LearnMyStyleProps {
@@ -52,14 +132,17 @@ interface LearnMyStyleProps {
   onTemplatesAdded: () => void;
 }
 
-export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStyleProps) {
+export function LearnMyStyle({
+  open,
+  onClose,
+  onTemplatesAdded,
+}: LearnMyStyleProps) {
   const [stepIdx, setStepIdx] = useState(0);
   const [savedThisStep, setSavedThisStep] = useState(false);
   const [resetState, setResetState] = useState<"idle" | "confirming">("idle");
   const [storedCount, setStoredCount] = useState(0);
   const [isNarrow, setIsNarrow] = useState(false);
 
-  // Stack the two columns and tighten padding on narrow screens (phones).
   useEffect(() => {
     if (typeof window === "undefined") return;
     const mq = window.matchMedia("(max-width: 640px)");
@@ -97,20 +180,16 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
 
   if (!open) return null;
   const step = STEPS[stepIdx];
-  // On narrow screens, scale the preview element down so tall components
-  // (card, image, text…) can't push the drawing pad and its
-  // buttons below the footer. Cap to ~100px tall and ~100% of the cell width.
   const previewTargetH = isNarrow ? 100 : step.previewBbox.h;
-  const previewScale = isNarrow ? Math.min(1, previewTargetH / step.previewBbox.h) : 1;
+  const previewScale = isNarrow
+    ? Math.min(1, previewTargetH / step.previewBbox.h)
+    : 1;
 
   function handleSave(strokes: { points: { x: number; y: number }[] }[]) {
     if (strokes.length === 0) return;
     addTemplate({
       type: step.type,
       strokes,
-      // Labelled steps (specific icons like close / check) carry the
-      // canonical label through to the template, so a matched drawing
-      // renders the right glyph rather than a blank square.
       label: step.label,
       source: "onboarding",
     });
@@ -149,7 +228,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(10,10,10,0.55)",
+        background: "rgb(0 0 0 / 0.6)",
         display: "flex",
         alignItems: isNarrow ? "stretch" : "center",
         justifyContent: "center",
@@ -166,9 +245,9 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
           width: "100%",
           maxWidth: 880,
           maxHeight: isNarrow ? "none" : "calc(100vh - 40px)",
-          background: "#ffffff",
-          borderRadius: isNarrow ? 0 : 14,
-          boxShadow: isNarrow ? "none" : "0 24px 60px rgba(0,0,0,0.3)",
+          background: "var(--color-raised)",
+          borderRadius: isNarrow ? 0 : 20,
+          boxShadow: isNarrow ? "none" : "var(--edge-lifted)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -180,37 +259,67 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             alignItems: "center",
             justifyContent: "space-between",
             padding: isNarrow ? "12px 14px" : "14px 20px",
-            borderBottom: "1px solid rgba(0,0,0,0.08)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
             gap: 8,
           }}
         >
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: "#0a0a0a" }}>Learn my style</div>
-            <div style={{ fontSize: 12, color: "rgba(0,0,0,0.55)", marginTop: 2 }}>
-              {stepIdx + 1} of {STEPS.length}{isNarrow ? "" : " · draw it however you like"}
+            <h2
+              style={{
+                margin: 0,
+                fontWeight: 500,
+                fontSize: 16,
+                color: "var(--color-ink)",
+              }}
+            >
+              Learn my style
+            </h2>
+            <div
+              style={{ fontSize: 13, color: "var(--color-text)", marginTop: 2 }}
+            >
+              {stepIdx + 1} of {STEPS.length}
+              {isNarrow ? "" : " · draw it however you like"}
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
             {storedCount > 0 && (
               <button
                 type="button"
                 onClick={handleResetClick}
                 style={{
-                  background: resetState === "confirming" ? "#dc2626" : "transparent",
-                  border: resetState === "confirming" ? "1px solid #dc2626" : "1px solid rgba(0,0,0,0.12)",
-                  color: resetState === "confirming" ? "#ffffff" : "rgba(0,0,0,0.6)",
-                  fontSize: 12,
+                  background:
+                    resetState === "confirming"
+                      ? "var(--color-ink)"
+                      : "transparent",
+                  border: resetState === "confirming" ? "none" : "none",
+                  color:
+                    resetState === "confirming"
+                      ? "var(--color-bg)"
+                      : "var(--color-text)",
+                  fontSize: 13,
                   fontWeight: 500,
                   padding: "6px 12px",
                   borderRadius: 999,
                   cursor: "pointer",
-                  transition: "background 0.15s, color 0.15s, border-color 0.15s",
+                  transition:
+                    "background 0.15s var(--ease-out), color 0.15s var(--ease-out), border-color 0.15s var(--ease-out)",
                   whiteSpace: "nowrap",
                 }}
               >
                 {resetState === "confirming"
-                  ? (isNarrow ? `Forget ${storedCount}?` : `Yes, forget all ${storedCount}`)
-                  : (isNarrow ? `Forget (${storedCount})` : `Forget all my drawings (${storedCount})`)}
+                  ? isNarrow
+                    ? `Forget ${storedCount}?`
+                    : `Yes, forget all ${storedCount}`
+                  : isNarrow
+                    ? `Forget (${storedCount})`
+                    : `Forget all my drawings (${storedCount})`}
               </button>
             )}
             <button
@@ -221,7 +330,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
               style={{
                 background: "transparent",
                 border: "none",
-                color: "rgba(0,0,0,0.55)",
+                color: "var(--color-text)",
                 cursor: "pointer",
                 width: 32,
                 height: 32,
@@ -231,7 +340,16 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                 justifyContent: "center",
               }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -239,17 +357,24 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
           </div>
         </header>
 
-        {/* Thin progress bar, less noisy than 19 dots */}
-        <div style={{ height: 2, background: "rgba(0,0,0,0.06)", position: "relative" }}>
+        <div
+          style={{
+            height: 2,
+            background: "rgba(255,255,255,0.06)",
+            position: "relative",
+          }}
+        >
           <div
             style={{
               position: "absolute",
               left: 0,
               top: 0,
               bottom: 0,
-              width: `${progress}%`,
-              background: "#0a0a0a",
-              transition: "width 0.25s ease",
+              width: "100%",
+              transform: `scaleX(${progress / 100})`,
+              transformOrigin: "left center",
+              background: "var(--color-ink)",
+              transition: "transform 0.24s var(--ease-out)",
             }}
           />
         </div>
@@ -263,13 +388,16 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             minHeight: 0,
           }}
         >
-          {/* Preview of the component */}
           <div
             style={{
               padding: isNarrow ? 16 : 28,
-              borderRight: isNarrow ? "none" : "1px solid rgba(0,0,0,0.06)",
-              borderBottom: isNarrow ? "1px solid rgba(0,0,0,0.06)" : "none",
-              background: "#fafaf9",
+              borderRight: isNarrow
+                ? "none"
+                : "1px solid rgba(255,255,255,0.06)",
+              borderBottom: isNarrow
+                ? "1px solid rgba(255,255,255,0.06)"
+                : "none",
+              background: "var(--color-bg)",
               minHeight: isNarrow ? 0 : 360,
               display: "flex",
               flexDirection: "column",
@@ -277,7 +405,14 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
               flexShrink: 0,
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.5)", letterSpacing: 0.4, textTransform: "uppercase" }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "var(--color-text)",
+                letterSpacing: 0,
+              }}
+            >
               This is a {step.title.toLowerCase()}
             </div>
             <div
@@ -288,6 +423,9 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                 alignItems: "center",
                 justifyContent: "center",
                 overflow: "hidden",
+                background: "#ffffff",
+                borderRadius: 10,
+                padding: 16,
               }}
             >
               <div
@@ -317,15 +455,22 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
                       label: step.label,
                       bbox: { x: 0, y: 0, ...step.previewBbox },
                     } as WfElement,
-                    () => { /* preview labels are not editable */ },
+                    () => {},
                   )}
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: 13, color: "rgba(0,0,0,0.65)", lineHeight: 1.5 }}>{step.hint}</div>
+            <div
+              style={{
+                fontSize: 13,
+                color: "var(--color-text)",
+                lineHeight: 1.5,
+              }}
+            >
+              {step.hint}
+            </div>
           </div>
 
-          {/* Drawing pad */}
           <div
             style={{
               padding: isNarrow ? 16 : 28,
@@ -335,10 +480,22 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
               minHeight: isNarrow ? 240 : 360,
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(0,0,0,0.5)", letterSpacing: 0.4, textTransform: "uppercase" }}>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "var(--color-text)",
+                letterSpacing: 0,
+              }}
+            >
               Draw it how you would
             </div>
-            <DrawingPad key={stepIdx} onSave={handleSave} saved={savedThisStep} compact={isNarrow} />
+            <DrawingPad
+              key={stepIdx}
+              onSave={handleSave}
+              saved={savedThisStep}
+              compact={isNarrow}
+            />
           </div>
         </div>
 
@@ -348,8 +505,8 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             alignItems: "center",
             justifyContent: "space-between",
             padding: isNarrow ? "10px 14px" : "14px 20px",
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            background: "#fafaf9",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--color-bg)",
             gap: 4,
           }}
         >
@@ -360,7 +517,8 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             style={{
               background: "transparent",
               border: "none",
-              color: stepIdx === 0 ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.55)",
+              color:
+                stepIdx === 0 ? "var(--color-underline)" : "var(--color-text)",
               fontSize: 13,
               fontWeight: 500,
               cursor: stepIdx === 0 ? "not-allowed" : "pointer",
@@ -375,7 +533,7 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             style={{
               background: "transparent",
               border: "none",
-              color: "rgba(0,0,0,0.55)",
+              color: "var(--color-text)",
               fontSize: 13,
               fontWeight: 500,
               cursor: "pointer",
@@ -388,17 +546,17 @@ export function LearnMyStyle({ open, onClose, onTemplatesAdded }: LearnMyStylePr
             type="button"
             onClick={next}
             style={{
-              background: "#0a0a0a",
-              color: "#ffffff",
+              background: "var(--color-ink)",
+              color: "var(--color-bg)",
               border: "none",
               padding: "8px 16px",
               borderRadius: 999,
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: "pointer",
             }}
           >
-            {stepIdx === STEPS.length - 1 ? "Done" : "Next"}
+            {stepIdx === STEPS.length - 1 ? "Finish" : "Next"}
           </button>
         </footer>
       </div>
@@ -416,7 +574,9 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const strokesRef = useRef<{ points: { x: number; y: number }[] }[]>([]);
-  const currentRef = useRef<{ points: { x: number; y: number }[] } | null>(null);
+  const currentRef = useRef<{ points: { x: number; y: number }[] } | null>(
+    null,
+  );
   const dprRef = useRef(1);
   const [hasStrokes, setHasStrokes] = useState(false);
   const [autoSaved, setAutoSaved] = useState(saved);
@@ -433,7 +593,6 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
     canvas.style.width = `${r.width}px`;
     canvas.style.height = `${r.height}px`;
     redraw();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -454,12 +613,16 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
     ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    const all = [...strokesRef.current, ...(currentRef.current ? [currentRef.current] : [])];
+    const all = [
+      ...strokesRef.current,
+      ...(currentRef.current ? [currentRef.current] : []),
+    ];
     for (const s of all) {
       if (s.points.length === 0) continue;
       ctx.beginPath();
       ctx.moveTo(s.points[0].x, s.points[0].y);
-      for (let i = 1; i < s.points.length; i++) ctx.lineTo(s.points[i].x, s.points[i].y);
+      for (let i = 1; i < s.points.length; i++)
+        ctx.lineTo(s.points[i].x, s.points[i].y);
       ctx.stroke();
     }
   }
@@ -527,7 +690,12 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
           onPointerMove={onMove}
           onPointerUp={onUp}
           onPointerCancel={onUp}
-          style={{ display: "block", width: "100%", height: "100%", cursor: "crosshair" }}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            cursor: "crosshair",
+          }}
         />
         {!hasStrokes && (
           <div
@@ -537,7 +705,7 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "rgba(0,0,0,0.3)",
+              color: "var(--color-text)",
               fontSize: 13,
               pointerEvents: "none",
             }}
@@ -553,11 +721,11 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
           disabled={!hasStrokes}
           style={{
             background: "transparent",
-            border: "1px solid rgba(0,0,0,0.12)",
-            color: hasStrokes ? "rgba(0,0,0,0.7)" : "rgba(0,0,0,0.3)",
+            border: "none",
+            color: hasStrokes ? "var(--color-text)" : "var(--color-underline)",
             padding: "6px 12px",
             borderRadius: 999,
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 500,
             cursor: hasStrokes ? "pointer" : "not-allowed",
           }}
@@ -569,21 +737,30 @@ function DrawingPad({ onSave, saved, compact }: DrawingPadProps) {
           onClick={save}
           disabled={!hasStrokes || autoSaved}
           style={{
-            background: autoSaved ? "#16a34a" : hasStrokes ? "#0a0a0a" : "rgba(0,0,0,0.1)",
-            color: hasStrokes || autoSaved ? "#ffffff" : "rgba(0,0,0,0.4)",
+            background: autoSaved
+              ? "var(--color-ink)"
+              : hasStrokes
+                ? "var(--color-ink)"
+                : "rgba(255,255,255,0.06)",
+            color:
+              hasStrokes || autoSaved
+                ? "var(--color-bg)"
+                : "var(--color-underline)",
             border: "none",
             padding: "6px 14px",
             borderRadius: 999,
-            fontSize: 12,
-            fontWeight: 600,
+            fontSize: 13,
+            fontWeight: 500,
             cursor: hasStrokes && !autoSaved ? "pointer" : "not-allowed",
-            transition: "background 0.15s",
+            transition: "background 0.15s var(--ease-out)",
           }}
         >
           {autoSaved ? "Saved" : "Save"}
         </button>
         {!compact && (
-          <span style={{ fontSize: 11, color: "rgba(0,0,0,0.45)", marginLeft: 4 }}>
+          <span
+            style={{ fontSize: 13, color: "var(--color-text)", marginLeft: 4 }}
+          >
             Save more than one variation if you want.
           </span>
         )}

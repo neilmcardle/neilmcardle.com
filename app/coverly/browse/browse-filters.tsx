@@ -70,6 +70,7 @@ export function BrowseFilters({ total }: { total: number }) {
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [query, setQuery] = useState(sp.get("q") ?? "");
   const barRef = useRef<HTMLDivElement>(null);
+  const triggerRefs = useRef(new Map<string, HTMLButtonElement>());
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -79,6 +80,18 @@ export function BrowseFilters({ total }: { total: number }) {
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
   }, []);
+
+  useEffect(() => {
+    if (!openKey) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      triggerRefs.current.get(openKey)?.focus();
+      setOpenKey(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [openKey]);
 
   const valuesOf = (key: string) =>
     sp.get(key)?.split(",").filter(Boolean) ?? [];
@@ -215,15 +228,21 @@ export function BrowseFilters({ total }: { total: number }) {
         {CATS.map((cat) => {
           const selected = selectedFor(cat);
           const isOpen = openKey === cat.key;
+          const panelId = `coverly-filter-${cat.key}`;
           return (
             <div key={cat.key} className="relative">
               <button
+                type="button"
+                ref={(el) => {
+                  if (el) triggerRefs.current.set(cat.key, el);
+                  else triggerRefs.current.delete(cat.key);
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   setOpenKey(isOpen ? null : cat.key);
                 }}
                 aria-expanded={isOpen}
-                aria-haspopup="true"
+                aria-controls={panelId}
                 className={`flex h-[34px] max-w-[15rem] items-center gap-1.5 rounded-[0.625rem] border px-3 text-sm transition-colors ${
                   selected.length
                     ? "border-foreground bg-foreground text-background"
@@ -252,95 +271,96 @@ export function BrowseFilters({ total }: { total: number }) {
                 )}
               </button>
 
-              {isOpen && (
+              <div
+                id={panelId}
+                role="group"
+                aria-label={`${cat.label} filters`}
+                hidden={!isOpen}
+                className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-52 rounded-[0.875rem] border bg-card p-1.5 shadow-xl"
+              >
+                <div className="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {cat.label}
+                  </span>
+                  {selected.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerRefs.current.get(cat.key)?.focus();
+                        clearCat(cat);
+                      }}
+                      aria-label={`Clear ${cat.label.toLowerCase()} filter`}
+                      className="text-xs text-muted-foreground underline hover:text-foreground"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <div
-                  role="menu"
-                  className="absolute left-0 top-[calc(100%+6px)] z-30 min-w-52 rounded-[0.875rem] border bg-card p-1.5 shadow-xl"
+                  className={
+                    cat.kind === "color"
+                      ? "flex flex-wrap gap-1.5 px-1 pb-1"
+                      : "flex flex-col"
+                  }
                 >
-                  <div className="flex items-center justify-between gap-2 px-2 pb-1.5 pt-1">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {cat.label}
-                    </span>
-                    {selected.length > 0 && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          clearCat(cat);
-                        }}
-                        className="text-xs text-muted-foreground underline hover:text-foreground"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-                  <div
-                    className={
-                      cat.kind === "color"
-                        ? "flex flex-wrap gap-1.5 px-1 pb-1"
-                        : "flex flex-col"
-                    }
-                  >
-                    {cat.options.map((opt) => {
-                      const on = selected.includes(opt);
-                      if (cat.kind === "color") {
-                        return (
-                          <button
-                            key={opt}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggle(cat, opt);
-                            }}
-                            aria-pressed={on}
-                            title={on ? `Remove ${cap(opt)}` : cap(opt)}
-                            className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${
-                              on ? "border-foreground" : "border-transparent"
-                            }`}
-                            style={{
-                              backgroundColor:
-                                FAMILY_SWATCH[
-                                  opt as keyof typeof FAMILY_SWATCH
-                                ],
-                            }}
-                          >
-                            {on && (
-                              <X
-                                className="h-3.5 w-3.5 text-white [filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.55))]"
-                                strokeWidth={3}
-                              />
-                            )}
-                            <span className="sr-only">{opt}</span>
-                          </button>
-                        );
-                      }
+                  {cat.options.map((opt) => {
+                    const on = selected.includes(opt);
+                    if (cat.kind === "color") {
                       return (
                         <button
+                          type="button"
                           key={opt}
                           onClick={(e) => {
                             e.stopPropagation();
                             toggle(cat, opt);
                           }}
-                          role="menuitemcheckbox"
-                          aria-checked={on}
-                          className="flex w-full items-center gap-2 rounded-[0.5rem] px-2 py-1.5 text-left text-sm hover:bg-muted"
+                          aria-pressed={on}
+                          title={on ? `Remove ${cap(opt)}` : cap(opt)}
+                          className={`flex h-6 w-6 items-center justify-center rounded-full border-2 transition ${
+                            on ? "border-foreground" : "border-transparent"
+                          }`}
+                          style={{
+                            backgroundColor:
+                              FAMILY_SWATCH[opt as keyof typeof FAMILY_SWATCH],
+                          }}
                         >
-                          <span
-                            className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[0.25rem] border ${
-                              on
-                                ? "border-foreground bg-foreground text-background"
-                                : "border-border"
-                            }`}
-                          >
-                            {on && (
-                              <Check className="h-3 w-3" strokeWidth={3} />
-                            )}
-                          </span>
-                          {cap(opt)}
+                          {on && (
+                            <X
+                              className="h-3.5 w-3.5 text-white [filter:drop-shadow(0_1px_1px_rgba(0,0,0,0.55))]"
+                              strokeWidth={3}
+                            />
+                          )}
+                          <span className="sr-only">{cap(opt)}</span>
                         </button>
                       );
-                    })}
-                  </div>
+                    }
+                    return (
+                      <button
+                        type="button"
+                        key={opt}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggle(cat, opt);
+                        }}
+                        aria-pressed={on}
+                        className="flex w-full items-center gap-2 rounded-[0.5rem] px-2 py-1.5 text-left text-sm hover:bg-muted"
+                      >
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[0.25rem] border ${
+                            on
+                              ? "border-foreground bg-foreground text-background"
+                              : "border-border"
+                          }`}
+                        >
+                          {on && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        {cap(opt)}
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

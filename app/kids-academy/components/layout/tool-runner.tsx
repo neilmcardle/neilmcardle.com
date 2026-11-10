@@ -1,45 +1,64 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type {
   CurriculumTopic,
   ChildProfile,
   ToolResult,
-} from '@/app/kids-academy/types/curriculum'
-import { setProgress } from '@/app/kids-academy/lib/progress'
-import { CelebrationAnimation } from '@/app/kids-academy/components/progress/celebration-animation'
-import { getTool } from '@/app/kids-academy/components/interactive/registry'
+} from "@/app/kids-academy/types/curriculum";
+import { getProgress, setProgress } from "@/app/kids-academy/lib/progress";
+import { CelebrationAnimation } from "@/app/kids-academy/components/progress/celebration-animation";
+import { getTool } from "@/app/kids-academy/components/interactive/registry";
 
 type Props = {
-  topic: CurriculumTopic
-  childProfile: ChildProfile
-}
+  topic: CurriculumTopic;
+  childProfile: ChildProfile;
+};
 
 export function ToolRunner({ topic, childProfile }: Props) {
-  const [showCelebration, setShowCelebration] = useState(false)
-  const startedAt = useRef<number>(Date.now())
+  const [showCelebration, setShowCelebration] = useState(false);
+  const startedAt = useRef<number>(Date.now());
+  const celebrated = useRef(false);
+  const alreadyDone = useRef(false);
 
-  const Tool = getTool(topic.id)
+  const Tool = getTool(topic.id);
 
   useEffect(() => {
-    setProgress(topic.id, { status: 'in_progress' })
-    startedAt.current = Date.now()
-  }, [topic.id])
+    const done = getProgress(topic.id).status === "completed";
+    alreadyDone.current = done;
+    celebrated.current = false;
+    setProgress(topic.id, done ? {} : { status: "in_progress" });
+    startedAt.current = Date.now();
+  }, [topic.id]);
+
+  function celebrate(timeSpentSeconds?: number) {
+    setProgress(topic.id, {
+      status: "completed",
+      percentage: 100,
+      timeSpentSeconds:
+        timeSpentSeconds || Math.round((Date.now() - startedAt.current) / 1000),
+    });
+    alreadyDone.current = true;
+    if (!celebrated.current) {
+      celebrated.current = true;
+      setShowCelebration(true);
+    }
+  }
 
   function handleProgress(p: number) {
-    const next = Math.min(100, Math.max(0, Math.round(p)))
-    setProgress(topic.id, { percentage: next, status: next >= 100 ? 'completed' : 'in_progress' })
+    const next = Math.min(100, Math.max(0, Math.round(p)));
+    if (next >= 100) {
+      celebrate();
+      return;
+    }
+    if (alreadyDone.current) return;
+    setProgress(topic.id, { percentage: next, status: "in_progress" });
   }
 
   function handleComplete(result: ToolResult) {
-    setProgress(topic.id, {
-      status: 'completed',
-      percentage: 100,
-      timeSpentSeconds: result.durationSeconds || Math.round((Date.now() - startedAt.current) / 1000),
-    })
-    setShowCelebration(true)
+    celebrate(result.durationSeconds);
   }
 
   if (!Tool) {
@@ -62,7 +81,7 @@ export function ToolRunner({ topic, childProfile }: Props) {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -81,5 +100,5 @@ export function ToolRunner({ topic, childProfile }: Props) {
         onDismiss={() => setShowCelebration(false)}
       />
     </>
-  )
+  );
 }

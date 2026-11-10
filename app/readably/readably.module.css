@@ -1,59 +1,163 @@
-.head {
-  margin-bottom: clamp(16px, 3vw, 24px);
+.article {
+  max-width: var(--column);
+  padding-top: var(--space-16);
+  padding-bottom: var(--space-12);
+  color: var(--text);
 }
 
-.intro {
-  margin: 20px 0 28px;
-  color: var(--muted);
-  font-size: 18px;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  text-wrap: pretty;
-}
-
-a.button {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 20px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--bg);
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1;
-  transition: opacity 0.2s var(--ease);
-}
-
-a.button:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  a.button:hover {
-    opacity: 0.88;
+@media (min-width: 700px) {
+  .article {
+    padding-top: calc(var(--space-16) * 2);
   }
 }
 
-.quote {
-  margin: 8px 0 24px;
-  padding-left: 16px;
-  box-shadow: inset 2px 0 0 var(--underline);
+.head {
+  margin-bottom: var(--space-4);
 }
 
-.quote blockquote {
-  margin: 0;
+.intro {
+  margin: var(--space-6) 0 var(--space-8);
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.5;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
+.subject {
   color: var(--ink);
+  font-weight: 500;
 }
 
-.quote blockquote p {
-  margin: 0;
+.h2 {
+  margin: var(--space-12) 0 var(--space-2);
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  scroll-margin-top: var(--space-16);
 }
 
-.quote figcaption {
-  margin-top: 8px;
+.p {
+  margin: 0 0 var(--space-4);
+  text-wrap: pretty;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
+  padding-left: var(--space-6);
+}
+
+.list li {
+  padding-left: var(--space-1);
+  text-wrap: pretty;
+}
+
+.list li::marker {
+  color: var(--underline);
+}
+
+.numbered {
+  list-style: decimal;
+}
+
+.bulleted {
+  list-style: disc;
+}
+
+.numbered li::marker {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+a.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  box-shadow: var(--edge);
+  color: var(--bg);
   font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  transition: scale var(--duration-press) var(--ease);
+}
+
+a.button::before {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+a.button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  background: rgb(255 255 255 / 0.5);
+  opacity: 0;
+  transition: opacity var(--duration-hover) var(--ease);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.button:hover::after {
+    opacity: 1;
+  }
+}
+
+a.button:active {
+  scale: var(--press-scale);
+}
+
+.table {
+  margin: var(--space-2) 0 var(--space-6);
+  overflow-x: auto;
+  border-radius: var(--radius-frame);
+  background: var(--raised);
+  box-shadow: var(--edge);
+  overscroll-behavior-x: contain;
+}
+
+.table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: top;
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+.table tr:last-child th,
+.table tr:last-child td {
+  box-shadow: none;
+}
+
+.table th {
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--text);
+  font-weight: 400;
 }
 
 .prices table {
@@ -65,21 +169,42 @@ a.button:focus-visible {
   color: var(--ink);
 }
 
+.quote {
+  margin: var(--space-2) 0 var(--space-6);
+  padding-left: var(--space-4);
+  box-shadow: inset 2px 0 0 var(--underline);
+}
+
+.quote blockquote {
+  margin: 0;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.quote blockquote p {
+  margin: 0;
+}
+
+.quote figcaption {
+  margin-top: var(--space-2);
+  font-size: 13px;
+}
+
 .questions {
-  border-top: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 1px 0 var(--line);
 }
 
 .question {
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 -1px 0 var(--line);
 }
 
 .question summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 52px;
-  padding: 12px 0;
+  gap: var(--space-4);
+  min-height: 48px;
+  padding: var(--space-3) 0;
   color: var(--ink);
   cursor: pointer;
   list-style: none;
@@ -90,13 +215,11 @@ a.button:focus-visible {
 }
 
 .question summary:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-chip);
 }
 
 .question p {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   text-wrap: pretty;
 }
 
@@ -105,7 +228,7 @@ a.button:focus-visible {
   flex: none;
   width: 12px;
   height: 12px;
-  color: var(--muted);
+  color: var(--text);
 }
 
 .icon::before,
@@ -119,7 +242,7 @@ a.button:focus-visible {
   margin-top: -0.75px;
   border-radius: 1px;
   background: currentColor;
-  transition: rotate 0.2s var(--ease);
+  transition: rotate var(--duration-enter) var(--ease);
 }
 
 .icon::after {
@@ -131,30 +254,22 @@ a.button:focus-visible {
 }
 
 .end {
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 
 .end .button {
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .icon::before,
   .icon::after,
-  .button {
+  a.button,
+  a.button::after {
     transition: none;
   }
-}
 
-.numbered {
-  list-style: decimal;
-}
-
-.bulleted {
-  list-style: disc;
-}
-
-.numbered li::marker {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  a.button:active {
+    scale: none;
+  }
 }

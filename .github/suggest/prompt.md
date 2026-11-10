@@ -13,13 +13,13 @@ Make no changes, and say why in one sentence, if the suggestion:
 How to work:
 
 - This is Next.js 16 with the App Router. APIs may differ from what you remember. Read the relevant guide in node_modules/next/dist/docs/ before using a Next.js API you are unsure of.
-- The homepage is app/page.tsx and its parts live in app/_signature/. Styles are CSS modules next to each component.
+- The homepage is app/page.tsx and its parts live in app/_home/. The shared header, footer and case study layout live in app/_signature/. Styles are CSS modules next to each component.
 - Find the smallest change that does what the suggestion asks. Match the surrounding code.
 - Write no code comments.
 - Copy uses British English, sentence case, and never uses em dashes.
 - The closing contact line always says "Tell me more." Never add an about section, a CV link, years of experience or a list of companies.
 - Do not add dependencies.
-- When you have finished, run `npx tsc --noEmit` and fix anything you broke.
+- You cannot run commands. A type check runs after you finish, so read the types of anything you change and keep them correct.
 
 End with one or two plain sentences saying what you changed, or why you changed nothing.
 

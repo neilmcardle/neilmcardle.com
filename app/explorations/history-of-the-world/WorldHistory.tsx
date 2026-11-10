@@ -29,8 +29,8 @@ import {
   yearLabel,
   type HistoryEvent,
   type LatLon,
-} from "./events";
-import landData from "./land.json";
+} from "@/app/explorations/history-of-the-world/events";
+import landData from "@/app/explorations/history-of-the-world/land.json";
 import styles from "./world.module.css";
 
 const LAND = landData as unknown as GeoPermissibleObjects;
@@ -385,20 +385,26 @@ export default function WorldHistory() {
       <aside className={styles.panel}>
         <header className={styles.masthead}>
           <Link href="/" className={styles.home}>
-            Neil McArdle
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M10 3 5 8l5 5" />
+            </svg>
+            Home
           </Link>
-          <h1 className={styles.title}>A History of the World</h1>
+          <h1 className={styles.title}>A history of the world</h1>
           <p className={styles.lede}>
-            {EVENTS.length} moments across 300,000 years, from the first people
-            to the present. Drag the globe, scrub the timeline or press play.
+            I put {EVENTS.length} moments from 300,000 years on one globe, from
+            the first people to the present. Drag the globe, scrub the timeline
+            or press play.
           </p>
         </header>
 
         <article className={styles.card} aria-live="polite" key={active.id}>
-          <p className={styles.era}>{era.name}</p>
-          <p className={styles.when}>{active.when}</p>
           <h2 className={styles.event}>{active.title}</h2>
-          <p className={styles.place}>{active.place}</p>
+          <p className={styles.meta}>
+            <span className={styles.when}>{active.when}</span>
+            <span aria-hidden="true"> · </span>
+            {active.place}
+          </p>
           <p className={styles.body}>{active.body}</p>
         </article>
 
@@ -406,14 +412,14 @@ export default function WorldHistory() {
           <button
             type="button"
             className={styles.step}
+            aria-label="Previous event"
             onClick={() => {
               setPlaying(false);
               go(index - 1);
             }}
             disabled={index === 0}
-            aria-label="Previous event"
           >
-            ←
+            Previous
           </button>
           <button
             type="button"
@@ -431,17 +437,17 @@ export default function WorldHistory() {
           <button
             type="button"
             className={styles.step}
+            aria-label="Next event"
             onClick={() => {
               setPlaying(false);
               go(index + 1);
             }}
             disabled={index === EVENTS.length - 1}
-            aria-label="Next event"
           >
-            →
+            Next
           </button>
           <span className={styles.count}>
-            {index + 1} / {EVENTS.length}
+            {index + 1} of {EVENTS.length} · {era.name}
           </span>
         </nav>
       </aside>
@@ -517,7 +523,7 @@ export default function WorldHistory() {
             </text>
           </g>
         </svg>
-        <p className={styles.hint}>Drag to turn · scroll to zoom</p>
+        <p className={styles.hint}>Drag to turn the globe. Scroll to zoom.</p>
       </div>
 
       <section className={styles.timeline} aria-label="Timeline">

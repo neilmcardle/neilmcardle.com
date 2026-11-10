@@ -104,3 +104,16 @@ export async function signedUrl(
     throw new Error(`Could not sign ${path}: ${error?.message ?? "no url"}`);
   return data.signedUrl;
 }
+
+export async function removeOrderFiles(orderId: string): Promise<void> {
+  const supabase = createAdminClient();
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .remove([
+      `${orderId}/print.png`,
+      `${orderId}/preview.png`,
+      `${orderId}/drawing.json`,
+    ]);
+  if (error)
+    throw new Error(`Storage remove failed for ${orderId}: ${error.message}`);
+}

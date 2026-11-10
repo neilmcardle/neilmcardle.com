@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, {
+  Fragment,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+} from "react";
+import Link from "next/link";
 import BackLink from "@/components/BackLink";
+import s from "./tessera.module.css";
 
 type Player = "p1" | "p2";
 type Point = {
@@ -22,7 +30,11 @@ type Triangle = {
 };
 type EdgeMap = Map<string, Player>;
 type OwnerMap = Map<string, Player>;
-type ConfirmDialog = { message: string; onConfirm: () => void };
+type ConfirmDialog = {
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
+};
 
 const SPACING = 64;
 const H = (SPACING * Math.sqrt(3)) / 2;
@@ -87,15 +99,21 @@ function buildBoard(size: number) {
   return { points, edges, triangles };
 }
 
+function edgeLabel(A: Point, B: Point, size: number) {
+  const [first, second] =
+    A.r < B.r || (A.r === B.r && A.c <= B.c) ? [A, B] : [B, A];
+  const row = (p: Point) => p.r + size + 1;
+  if (first.r === second.r) {
+    return `Line in row ${row(first)} between dots ${first.c + 1} and ${second.c + 1}`;
+  }
+  return `Line from row ${row(first)} dot ${first.c + 1} to row ${row(second)} dot ${second.c + 1}`;
+}
+
 const COLORS = {
-  p1: "#d05c92",
-  p2: "#3a96b0",
-  p1dark: "#a04068",
-  p2dark: "#266978",
-  p1soft: "rgba(208,92,146,0.16)",
-  p2soft: "rgba(58,150,176,0.16)",
-  ink: "#2b2622",
-  ghost: "#d8cfc0",
+  p1: "#e07aa8",
+  p2: "#4fb4cf",
+  p1soft: "rgba(224,122,168,0.2)",
+  p2soft: "rgba(79,180,207,0.2)",
 };
 
 function rollDie() {
@@ -122,16 +140,14 @@ function playDiceSound() {
     if (!_diceAudioPool) {
       _diceAudioPool = DICE_SOUNDS.map((src) => {
         const a = new Audio(src);
-        a.volume = 1.0;
+        a.volume = 0.2;
         return a;
       });
     }
     const a = _diceAudioPool[Math.floor(Math.random() * _diceAudioPool.length)];
     a.currentTime = 0;
     a.play().catch(() => {});
-  } catch (e) {
-    // audio not available; ignore
-  }
+  } catch {}
 }
 
 let _turnAudio: HTMLAudioElement | null = null;
@@ -140,13 +156,11 @@ function playTurnSound() {
   try {
     if (!_turnAudio) {
       _turnAudio = new Audio(TURN_SOUND);
-      _turnAudio.volume = 1.0;
+      _turnAudio.volume = 0.2;
     }
     _turnAudio.currentTime = 0;
     _turnAudio.play().catch(() => {});
-  } catch (e) {
-    // audio not available; ignore
-  }
+  } catch {}
 }
 
 let _lineVoices: HTMLAudioElement[] | null = null;
@@ -157,7 +171,7 @@ function playLineSound() {
     if (!_lineVoices) {
       _lineVoices = Array.from({ length: 4 }, () => {
         const a = new Audio("/tessera/board-line-sound.m4a");
-        a.volume = 0.7;
+        a.volume = 0.2;
         return a;
       });
     }
@@ -165,9 +179,7 @@ function playLineSound() {
     _lineVoiceIdx = (_lineVoiceIdx + 1) % _lineVoices.length;
     a.currentTime = 0;
     a.play().catch(() => {});
-  } catch (e) {
-    // audio not available; ignore
-  }
+  } catch {}
 }
 
 let _cheerAudio: HTMLAudioElement | null = null;
@@ -176,13 +188,11 @@ function playCheerSound() {
   try {
     if (!_cheerAudio) {
       _cheerAudio = new Audio("/tessera/game-win-crowd-cheer.mp3");
-      _cheerAudio.volume = 0.7;
+      _cheerAudio.volume = 0.2;
     }
     _cheerAudio.currentTime = 0;
     _cheerAudio.play().catch(() => {});
-  } catch (e) {
-    // audio not available; ignore
-  }
+  } catch {}
 }
 
 const PIPS: Record<number, number[][]> = {
@@ -235,33 +245,16 @@ function Die({
   return (
     <button
       type="button"
-      className={prompt ? "die-prompt" : ""}
+      className={`${s.die} ${prompt ? s.dieReady : ""} ${rolling ? s.dieRolling : ""}`}
       onClick={onClick}
       disabled={disabled}
       aria-label={
-        value === null ? "Roll the die" : `Die showing ${value}. Roll again.`
+        value === null
+          ? "Roll the die"
+          : prompt
+            ? `Roll the die. It shows ${value}.`
+            : `The die shows ${value}.`
       }
-      style={{
-        width: 64,
-        height: 64,
-        borderRadius: 12,
-        background: "#fbf7ef",
-        border: "none",
-        appearance: "none",
-        WebkitAppearance: "none",
-        font: "inherit",
-        color: "inherit",
-        boxShadow: `0 0 0 2px ${prompt ? "#b8860b" : COLORS.ink}, 0 4px 0 0 rgba(43,38,34,0.25), 0 6px 14px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-        display: "grid",
-        gridTemplateColumns: "repeat(3,1fr)",
-        gridTemplateRows: "repeat(3,1fr)",
-        padding: 9,
-        cursor: disabled ? "default" : "pointer",
-        opacity: disabled && !rolling ? 0.45 : 1,
-        userSelect: "none",
-        transform: rolling ? "rotate(18deg) scale(1.06)" : "none",
-        transition: "transform 0.15s, opacity 0.2s, box-shadow 0.15s",
-      }}
     >
       {Array.from({ length: 9 }).map((_, idx) => {
         const row = Math.floor(idx / 3);
@@ -270,30 +263,16 @@ function Die({
           ([r, c]) => r === row && c === col,
         );
         return (
-          <div
-            key={idx}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 9,
-                height: 9,
-                borderRadius: "50%",
-                background: on ? COLORS.ink : "transparent",
-              }}
-            />
-          </div>
+          <span key={idx} className={s.pipCell}>
+            <span className={`${s.pip} ${on ? s.pipOn : ""}`} />
+          </span>
         );
       })}
     </button>
   );
 }
 
-export default function Tessera() {
+export default function TesseraLab() {
   const [size, setSize] = useState(1);
   const board = useMemo(() => buildBoard(size), [size]);
   const { points, edges, triangles } = board;
@@ -308,14 +287,6 @@ export default function Tessera() {
   const [budget, setBudget] = useState(0);
   const [rolling, setRolling] = useState(false);
   const [message, setMessage] = useState("");
-  type ConfettiParticle = {
-    id: number;
-    left: number;
-    color: string;
-    delay: number;
-    duration: number;
-  };
-  const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialog | null>(
     null,
   );
@@ -392,29 +363,6 @@ export default function Tessera() {
     [triByEdge],
   );
 
-  const endTurnOrContinue = useCallback(
-    (newBudget: number, gained: number, player: Player) => {
-      if (gameOverCheck()) return;
-      if (newBudget <= 0) {
-        setTurn(player === "p1" ? "p2" : "p1");
-        setBudget(0);
-        setDie(null);
-        setMessage("");
-      } else {
-        setMessage(
-          `${gained ? `Captured ${gained}! ` : ""}${newBudget} line${newBudget > 1 ? "s" : ""} left.`,
-        );
-      }
-    },
-    [],
-  );
-
-  function gameOverCheck() {
-    return false;
-  }
-
-  const humanPlayer = mode === "cpu" ? "p1" : turn;
-
   const handleEdgeClick = (key: string) => {
     if (rolling || budget <= 0 || drawn.has(key)) return;
     if (mode === "cpu" && turn !== "p1") return;
@@ -457,11 +405,6 @@ export default function Tessera() {
       }
     }, 70);
   };
-
-  const legalEdges = useMemo(
-    () => edges.filter((e) => !drawn.has(e.key)).map((e) => e.key),
-    [edges, drawn],
-  );
 
   const pickCpuEdge = useCallback(
     (dmap: EdgeMap, omap: OwnerMap) => {
@@ -538,50 +481,19 @@ export default function Tessera() {
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line
   }, [turn, mode, gameOver]);
 
   useEffect(() => {
     if (!gameOver) return;
-
     if (winner === "tie") {
-      const tieParticles = [];
-      for (let i = 0; i < 24; i++) {
-        tieParticles.push({
-          id: i,
-          left: Math.random() * 100,
-          color: COLORS.ink,
-          delay: Math.random() * 0.2,
-          duration: 2.5 + Math.random() * 0.5,
-        });
-      }
-      setConfetti(tieParticles);
       playTurnSound();
-      playLineSound();
-      const t = setTimeout(() => setConfetti([]), 3500);
-      return () => clearTimeout(t);
+      return;
     }
-
-    const particles = [];
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        id: i,
-        left: Math.random() * 100,
-        color: winner === "p1" ? COLORS.p1 : COLORS.p2,
-        delay: Math.random() * 0.2,
-        duration: 2.5 + Math.random() * 0.5,
-      });
-    }
-    setConfetti(particles);
     if (winner === "p1" || winner === "p2") {
       const scored: Player = winner;
       setWins((w) => ({ ...w, [scored]: w[scored] + 1 }));
     }
-
     playCheerSound();
-    playLineSound();
-    const timer = setTimeout(() => setConfetti([]), 3500);
-    return () => clearTimeout(timer);
   }, [gameOver, winner]);
 
   const reset = (newMode = mode) => {
@@ -593,7 +505,6 @@ export default function Tessera() {
     setBudget(0);
     setRolling(false);
     setMessage("");
-    setConfetti([]);
   };
 
   const changeSize = (newSize: number) => {
@@ -605,11 +516,6 @@ export default function Tessera() {
     setBudget(0);
     setRolling(false);
     setMessage("");
-    setConfetti([]);
-  };
-
-  const requestConfirm = (message: string, onConfirm: () => void) => {
-    setConfirmDialog({ message, onConfirm });
   };
 
   const canHumanAct = !(mode === "cpu" && turn === "p2");
@@ -618,881 +524,457 @@ export default function Tessera() {
 
   const inProgress = drawn.size > 0 && !gameOver;
 
+  const confirm = (
+    message: string,
+    confirmLabel: string,
+    onConfirm: () => void,
+  ) => {
+    setConfirmDialog({ message, confirmLabel, onConfirm });
+  };
+
+  const chooseMode = (m: "cpu" | "hotseat") => {
+    if (m === mode) return;
+    if (!inProgress) reset(m);
+    else
+      confirm(
+        "Switching opponent ends this game and clears the board.",
+        "End game and switch",
+        () => reset(m),
+      );
+  };
+
+  const sides: Player[] = ["p1", "p2"];
+  const resultLine =
+    winner === "tie"
+      ? `A tie, ${scores.p1} triangles each.`
+      : winner
+        ? `${nameOf(winner)} wins, ${Math.max(scores.p1, scores.p2)} triangles to ${Math.min(scores.p1, scores.p2)}.`
+        : null;
+
+  const dieHint = gameOver
+    ? "The board is full."
+    : rolling
+      ? "Rolling…"
+      : budget > 0
+        ? canHumanAct
+          ? `Draw ${budget} more line${budget > 1 ? "s" : ""}. ${message}`.trim()
+          : `${nameOf(turn)} is drawing.`
+        : needsRoll
+          ? `${nameOf(turn)}, roll the die.`
+          : `${nameOf(turn)} is rolling.`;
+
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        boxSizing: "border-box",
-        background: "#f7f1e3",
-        fontFamily: "'Georgia', serif",
-        color: COLORS.ink,
-        padding: "12px 12px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-      }}
-    >
-      <BackLink
-        aria-label="Back to neilmcardle.com"
-        style={{
-          position: "fixed",
-          top: "calc(env(safe-area-inset-top, 0px) + 10px)",
-          left: 10,
-          zIndex: 100,
-          width: 36,
-          height: 36,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 999,
-          background: "transparent",
-          color: COLORS.ink,
-          textDecoration: "none",
-          border: `2px solid ${COLORS.ink}`,
-        }}
-      >
-        <span
-          aria-hidden
-          style={{
-            fontSize: 18,
-            lineHeight: 1,
-            fontWeight: 700,
-            marginTop: -2,
-          }}
-        >
-          ←
-        </span>
-      </BackLink>
-      <style>{`
-        @keyframes drawIn { from { stroke-dashoffset: 70; } to { stroke-dashoffset: 0; } }
-        @keyframes wash { from { opacity:0; transform:scale(0.6);} to {opacity:1; transform:scale(1);} }
-        .edge-line { stroke-dasharray: 70; animation: drawIn 0.25s ease forwards; }
-        .tri-fill { transform-origin: center; transform-box: fill-box; animation: wash 0.3s ease forwards; }
-        .btn { cursor:pointer; border:none; background:transparent; padding:8px 16px; border-radius:10px; font-family:'Helvetica Neue',sans-serif; font-weight:600; font-size:14px; box-shadow: 0 0 0 2px ${COLORS.ink}, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08); transition:transform .1s, box-shadow .15s; }
-        .btn:hover { transform:translateY(-1px); }
-        .btn:active { transform:translateY(2px); box-shadow: 0 0 0 2px ${COLORS.ink}, 0 1px 0 0 rgba(43,38,34,0.2), 0 2px 6px rgba(43,38,34,0.1), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -1px 0 rgba(0,0,0,0.1); }
-        @keyframes dieJiggle {
-          0%,100% { transform: rotate(-4deg) translateY(0); }
-          25% { transform: rotate(4deg) translateY(-3px); }
-          50% { transform: rotate(-3deg) translateY(0); }
-          75% { transform: rotate(3deg) translateY(-2px); }
-        }
-        @keyframes glowPulse {
-          0%,100% { box-shadow: 0 4px 0 rgba(43,38,34,0.25), 0 0 0 0 rgba(218,165,32,0.55); }
-          50% { box-shadow: 0 4px 0 rgba(43,38,34,0.25), 0 0 0 12px rgba(218,165,32,0); }
-        }
-        @keyframes btnPulse {
-          0%,100% { transform: scale(1); box-shadow:0 3px 0 rgba(43,38,34,0.2), 0 0 0 0 rgba(218,165,32,0.5); }
-          50% { transform: scale(1.05); box-shadow:0 3px 0 rgba(43,38,34,0.2), 0 0 0 10px rgba(218,165,32,0); }
-        }
-        @keyframes arrowBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
-        @keyframes dotSlideLeft { 0% { transform: translateX(200px) scaleY(0.3); opacity: 0; } 20% { opacity: 1; } 50% { transform: translateX(0) scaleY(1.2); } 100% { transform: translateX(0) scaleY(1); opacity: 1; } }
-        @keyframes dotSlideRight { 0% { transform: translateX(-200px) scaleY(0.3); opacity: 0; } 20% { opacity: 1; } 50% { transform: translateX(0) scaleY(1.2); } 100% { transform: translateX(0) scaleY(1); opacity: 1; } }
-        .die-prompt { animation: dieJiggle 1.1s ease-in-out infinite, glowPulse 1.6s ease-in-out infinite; border-radius:12px; }
-        .btn-prompt { animation: btnPulse 1.4s ease-in-out infinite; border-color:#b8860b !important; }
-        .roll-arrow { animation: arrowBob 1s ease-in-out infinite; }
-        .dot-active-p1 { animation: dotSlideLeft 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .dot-active-p2 { animation: dotSlideRight 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        @keyframes hexDraw { 0% { stroke-dashoffset: 1000; opacity: 1; } 90% { stroke-dashoffset: 0; opacity: 1; } 100% { opacity: 0; } }
-        @keyframes confettiFall {
-          0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
-        }
-        @keyframes confettiBurst {
-          0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-          100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
-        }
-        .confetti { 
-          position: fixed;
-          pointer-events: none;
-          will-change: transform;
-        }
-        .confetti-fall { animation: confettiFall 3s ease-out forwards; }
-        @keyframes boardFill { 
-          0% { opacity: 0; transform: scale(0.95); } 
-          75% { opacity: 0; transform: scale(0.95); } 
-          85% { opacity: 0.5; transform: scale(1); }
-          100% { opacity: 0.3; transform: scale(1); } 
-        }
-        @keyframes winnerPulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); }
-        }
-        @keyframes winnerGlow {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.2), 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08); }
-          50% { box-shadow: 0 0 0 12px rgba(0,0,0,0), 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08); }
-        }
-        .hex-victory { animation: hexDraw 2s ease-in-out forwards; }
-        .board-victory-overlay { animation: boardFill 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .winner-button { animation: winnerPulse 0.6s ease-in-out infinite, winnerGlow 2s ease-in-out infinite !important; }
-      `}</style>
+    <div className={s.root}>
+      <div className={s.column}>
+        <BackLink className={s.back}>Back to neilmcardle.com</BackLink>
 
-      <h1
-        style={{
-          margin: "4px 0 14px",
-          letterSpacing: 1,
-          fontWeight: 700,
-          lineHeight: 1,
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 6,
-        }}
-      >
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <img
-            src="/tessera/logo.svg"
-            alt=""
-            aria-hidden
-            width={56}
-            height={49}
-            style={{ display: "block" }}
-          />
-          <span style={{ fontSize: "clamp(28px, 6vw, 40px)" }}>Tessera</span>
-        </span>
-        <span
-          style={{
-            fontSize: "clamp(10px, 2vw, 12px)",
-            fontWeight: 500,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            opacity: 0.55,
-          }}
-        >
-          The Triangle Game
-        </span>
-      </h1>
+        <header className={s.head}>
+          <h1 className={s.title}>
+            <span className={s.logo} aria-hidden="true" />
+            Tessera
+          </h1>
+          <p className={s.lede}>
+            <span className={s.subject}>
+              I made Tessera as a quiet dice game for two.
+            </span>{" "}
+            Roll the die, draw that many lines and close triangles to claim
+            them. Whoever holds the most triangles when the board is full wins.
+          </p>
+        </header>
 
-      <div style={{ position: "relative", marginBottom: 32 }}>
-        <div
-          style={{
-            display: "flex",
-            gap: 14,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Score
-            name={p1Name}
-            onName={setP1Name}
-            val={scores.p1}
-            color={COLORS.p1}
-            darkColor={COLORS.p1dark}
-            active={turn === "p1"}
-          />
-          <div
-            style={{
-              fontFamily: "'Helvetica Neue',sans-serif",
-              fontWeight: 700,
-              opacity: 0.5,
-            }}
-          >
-            vs
-          </div>
-          <Score
-            name={p2Name}
-            onName={setP2Name}
-            val={scores.p2}
-            color={COLORS.p2}
-            darkColor={COLORS.p2dark}
-            active={turn === "p2"}
-            fillColor={COLORS.p2}
-          />
-        </div>
-
-        <svg
-          className={turn === "p1" ? "dot-active-p1" : "dot-active-p2"}
-          style={{
-            position: "absolute",
-            bottom: -28,
-            left: turn === "p1" ? "calc(50% - 112px)" : "calc(50% + 96px)",
-            width: 20,
-            height: 20,
-          }}
-          viewBox="0 0 20 20"
-        >
-          <polygon
-            points="4,5 16,5 18,10 16,15 4,15 2,10"
-            fill="#27ae60"
-            stroke="#27ae60"
-            strokeWidth="1"
-          />
-        </svg>
-      </div>
-
-      <svg
-        viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
-        style={{
-          width: "min(92vw, 460px, 50vh)",
-          height: "auto",
-          touchAction: "none",
-          flexShrink: 0,
-        }}
-      >
-        {triangles.map((t) => {
-          const o = owners.get(t.key);
-          if (!o) return null;
-          const pts = t.pts
-            .map((i) => `${points[i].x},${points[i].y}`)
-            .join(" ");
-          return (
-            <polygon
-              key={t.key}
-              className="tri-fill"
-              points={pts}
-              fill={o === "p1" ? COLORS.p1soft : COLORS.p2soft}
-              stroke="none"
-            />
-          );
-        })}
-
-        {edges.map((e) => {
-          const owner = drawn.get(e.key);
-          const A = points[e.a],
-            B = points[e.b];
-          const isDrawn = !!owner;
-          const interactive =
-            budget > 0 && canHumanAct && !isDrawn && !rolling && !gameOver;
-          return (
-            <g key={e.key}>
-              <line
-                x1={A.x}
-                y1={A.y}
-                x2={B.x}
-                y2={B.y}
-                stroke="transparent"
-                strokeWidth={20}
-                style={{
-                  cursor: interactive ? "pointer" : "default",
-                  touchAction: "none",
-                }}
-                onPointerDown={(ev) => {
-                  ev.preventDefault();
-                  handleEdgeClick(e.key);
-                }}
-              />
-              <line
-                x1={A.x}
-                y1={A.y}
-                x2={B.x}
-                y2={B.y}
-                className={isDrawn ? "edge-line" : ""}
-                stroke={
-                  isDrawn
-                    ? owner === "p1"
-                      ? COLORS.p1
-                      : COLORS.p2
-                    : COLORS.ghost
+        <section className={s.game} aria-label="Game">
+          <div className={s.scores}>
+            {sides.map((p) => (
+              <Score
+                key={p}
+                name={p === "p1" ? p1Name : p2Name}
+                fallback={p === "p1" ? "Player 1" : "Player 2"}
+                onName={p === "p1" ? setP1Name : setP2Name}
+                val={scores[p]}
+                color={p === "p1" ? COLORS.p1 : COLORS.p2}
+                active={turn === p && !gameOver}
+                status={
+                  gameOver
+                    ? winner === p
+                      ? "Winner"
+                      : winner === "tie"
+                        ? "Tie"
+                        : ""
+                    : turn === p
+                      ? mode === "cpu" && p === "p2"
+                        ? "Computer's turn"
+                        : "Your turn"
+                      : ""
                 }
-                strokeWidth={isDrawn ? 4 : 2}
-                strokeLinecap="round"
-                strokeDasharray={isDrawn ? "0" : "2 6"}
-                pointerEvents="none"
-                opacity={isDrawn ? 1 : interactive ? 0.9 : 0.5}
               />
-            </g>
-          );
-        })}
-
-        {points.map((p) => (
-          <circle key={p.id} cx={p.x} cy={p.y} r={4.5} fill={COLORS.ink} />
-        ))}
-      </svg>
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          marginTop: 18,
-          marginBottom: 24,
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: 92,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-            gap: 4,
-          }}
-        >
-          {wins.p1 > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                requestConfirm("Clear the win tally?", () =>
-                  setWins({ p1: 0, p2: 0 }),
-                )
-              }
-              aria-label="Clear the win tally"
-              title="Clear the win tally"
-              style={{
-                cursor: "pointer",
-                background: "none",
-                border: "none",
-                padding: 0,
-                font: "inherit",
-                color: "inherit",
-              }}
-            >
-              <TallyMarks count={wins.p1} color={COLORS.p1} align="flex-end" />
-            </button>
-          )}
-          <div style={{ height: 20 }}>
-            {budget > 0 && turn === "p1" && (
-              <span
-                style={{
-                  fontFamily: "'Helvetica Neue',sans-serif",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {budget} line{budget > 1 ? "s" : ""} left
-              </span>
-            )}
+            ))}
           </div>
-        </div>
-        <Die
-          value={die || 1}
-          rolling={rolling}
-          prompt={needsRoll}
-          onClick={doRoll}
-          disabled={
-            rolling ||
-            budget > 0 ||
-            gameOver ||
-            (mode === "cpu" && turn === "p2")
-          }
-        />
-        <div
-          style={{
-            width: 92,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: 4,
-          }}
-        >
-          {wins.p2 > 0 && (
-            <button
-              type="button"
-              onClick={() =>
-                requestConfirm("Clear the win tally?", () =>
-                  setWins({ p1: 0, p2: 0 }),
-                )
-              }
-              aria-label="Clear the win tally"
-              title="Clear the win tally"
-              style={{
-                cursor: "pointer",
-                background: "none",
-                border: "none",
-                padding: 0,
-                font: "inherit",
-                color: "inherit",
-              }}
-            >
-              <TallyMarks
-                count={wins.p2}
-                color={COLORS.p2}
-                align="flex-start"
-              />
-            </button>
-          )}
-          <div style={{ height: 20 }}>
-            {budget > 0 && turn === "p2" && (
-              <span
-                style={{
-                  fontFamily: "'Helvetica Neue',sans-serif",
-                  fontWeight: 700,
-                  fontSize: 15,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {budget} line{budget > 1 ? "s" : ""} left
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
 
-      <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-        <button
-          className="btn"
-          onClick={() => {
-            if (!inProgress) {
-              reset("cpu");
-            } else {
-              requestConfirm("Switch mode and start a new game?", () =>
-                reset("cpu"),
-              );
-            }
-          }}
-          style={{
-            background: mode === "cpu" ? "#ffffff" : "transparent",
-            boxShadow:
-              mode === "cpu"
-                ? `0 0 0 2px #2b2622, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`
-                : `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-          }}
-        >
-          vs CPU
-        </button>
-        <button
-          className="btn"
-          onClick={() => {
-            if (!inProgress) {
-              reset("hotseat");
-            } else {
-              requestConfirm("Switch mode and start a new game?", () =>
-                reset("hotseat"),
-              );
-            }
-          }}
-          style={{
-            background: mode === "hotseat" ? "#ffffff" : "transparent",
-            boxShadow:
-              mode === "hotseat"
-                ? `0 0 0 2px #2b2622, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`
-                : `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-          }}
-        >
-          Pass & Play
-        </button>
-        <button
-          className={`btn ${gameOver ? "winner-button" : ""}`}
-          onClick={() => {
-            if (!inProgress) {
-              reset();
-            } else {
-              requestConfirm(
-                "End this game now? The current board will be cleared.",
-                () => reset(),
-              );
-            }
-          }}
-          style={{
-            background: gameOver ? "#ffffff" : "transparent",
-            boxShadow: gameOver
-              ? `0 0 0 2px #2b2622, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`
-              : `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-            transition: "background 0.3s, box-shadow 0.3s",
-          }}
-        >
-          {inProgress ? "End game" : "New game"}
-        </button>
-        <button
-          className="btn"
-          onClick={() => setSettingsOpen(true)}
-          title="Settings"
-          aria-label="Settings"
-          style={{
-            width: 38,
-            height: 38,
-            padding: 0,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "transparent",
-          }}
-        >
           <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={COLORS.ink}
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
+            className={s.board}
+            viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
+            role="group"
+            aria-label="Board"
           >
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </button>
-      </div>
+            {triangles.map((t) => {
+              const o = owners.get(t.key);
+              if (!o) return null;
+              const pts = t.pts
+                .map((i) => `${points[i].x},${points[i].y}`)
+                .join(" ");
+              return (
+                <polygon
+                  key={t.key}
+                  className={s.triFill}
+                  points={pts}
+                  fill={o === "p1" ? COLORS.p1soft : COLORS.p2soft}
+                  stroke="none"
+                />
+              );
+            })}
 
-      <div
-        style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}
-      >
-        {[
-          { label: "Small", s: 1 },
-          { label: "Medium", s: 2 },
-          { label: "Large", s: 3 },
-        ].map(({ label, s }) => {
-          const selected = size === s;
-          return (
+            {edges.map((e) => {
+              const owner = drawn.get(e.key);
+              const A = points[e.a],
+                B = points[e.b];
+              const isDrawn = !!owner;
+              const interactive =
+                budget > 0 && canHumanAct && !isDrawn && !rolling && !gameOver;
+              return (
+                <g key={e.key}>
+                  <line
+                    x1={A.x}
+                    y1={A.y}
+                    x2={B.x}
+                    y2={B.y}
+                    className={s.edgeHit}
+                    stroke="transparent"
+                    strokeWidth={20}
+                    style={{
+                      cursor: interactive ? "pointer" : "default",
+                      touchAction: "none",
+                    }}
+                    role={isDrawn ? undefined : "button"}
+                    tabIndex={isDrawn ? undefined : 0}
+                    aria-label={isDrawn ? undefined : edgeLabel(A, B, size)}
+                    aria-disabled={isDrawn ? undefined : !interactive}
+                    onPointerDown={(ev) => {
+                      ev.preventDefault();
+                      handleEdgeClick(e.key);
+                    }}
+                    onKeyDown={(ev) => {
+                      if (isDrawn) return;
+                      if (ev.key !== "Enter" && ev.key !== " ") return;
+                      ev.preventDefault();
+                      handleEdgeClick(e.key);
+                    }}
+                  />
+                  <line
+                    x1={A.x}
+                    y1={A.y}
+                    x2={B.x}
+                    y2={B.y}
+                    className={isDrawn ? s.edgeLine : s.ghost}
+                    stroke={
+                      isDrawn
+                        ? owner === "p1"
+                          ? COLORS.p1
+                          : COLORS.p2
+                        : undefined
+                    }
+                    strokeWidth={isDrawn ? 4 : 2}
+                    strokeLinecap="round"
+                    strokeDasharray={isDrawn ? undefined : "2 6"}
+                    pointerEvents="none"
+                    opacity={isDrawn ? 1 : interactive ? 1 : 0.6}
+                  />
+                </g>
+              );
+            })}
+
+            {points.map((p) => (
+              <circle key={p.id} className={s.dot} cx={p.x} cy={p.y} r={4.5} />
+            ))}
+          </svg>
+
+          {resultLine && (
+            <p className={s.banner} aria-live="polite">
+              {resultLine}
+            </p>
+          )}
+
+          <div className={s.dice}>
+            {sides.map((p, i) => {
+              const tally = (
+                <div
+                  key={`${p}-side`}
+                  className={`${s.side} ${i === 0 ? s.sideLeft : s.sideRight}`}
+                >
+                  {wins[p] > 0 && (
+                    <button
+                      type="button"
+                      className={s.tally}
+                      onClick={() =>
+                        confirm(
+                          "Clear the win tally for both players?",
+                          "Clear tally",
+                          () => setWins({ p1: 0, p2: 0 }),
+                        )
+                      }
+                      aria-label={`${nameOf(p)} has won ${wins[p]} ${wins[p] === 1 ? "game" : "games"}. Clear the win tally.`}
+                      title="Clear the win tally"
+                    >
+                      <TallyMarks
+                        count={wins[p]}
+                        color={p === "p1" ? COLORS.p1 : COLORS.p2}
+                        align={i === 0 ? "flex-end" : "flex-start"}
+                      />
+                    </button>
+                  )}
+                  {budget > 0 && turn === p && (
+                    <span className={s.left}>
+                      {budget} line{budget > 1 ? "s" : ""} left
+                    </span>
+                  )}
+                </div>
+              );
+              if (i === 0) {
+                return (
+                  <Fragment key={p}>
+                    {tally}
+                    <Die
+                      value={die || 1}
+                      rolling={rolling}
+                      prompt={needsRoll}
+                      onClick={doRoll}
+                      disabled={
+                        rolling ||
+                        budget > 0 ||
+                        gameOver ||
+                        (mode === "cpu" && turn === "p2")
+                      }
+                    />
+                  </Fragment>
+                );
+              }
+              return tally;
+            })}
+          </div>
+          <p
+            className={`${s.dieHint} ${needsRoll ? s.dieHintOn : ""}`}
+            aria-live="polite"
+          >
+            {dieHint}
+          </p>
+
+          <div className={s.controls}>
+            <div className={s.segmented} role="group" aria-label="Opponent">
+              <button
+                type="button"
+                className={s.segment}
+                aria-pressed={mode === "cpu"}
+                onClick={() => chooseMode("cpu")}
+              >
+                Play the computer
+              </button>
+              <button
+                type="button"
+                className={s.segment}
+                aria-pressed={mode === "hotseat"}
+                onClick={() => chooseMode("hotseat")}
+              >
+                Play a friend
+              </button>
+            </div>
+            <span className={s.spacer} />
             <button
-              key={s}
-              aria-label={label}
+              type="button"
+              className={`${s.btn} ${gameOver ? s.btnStrong : ""}`}
               onClick={() => {
-                if (size === s) return;
-                if (!inProgress) {
-                  changeSize(s);
-                } else {
-                  requestConfirm(
-                    `End current game and start a new ${label} board?`,
-                    () => changeSize(s),
+                if (!inProgress) reset();
+                else
+                  confirm(
+                    "End this game? The board will be cleared.",
+                    "End game",
+                    () => reset(),
                   );
-                }
-              }}
-              style={{
-                background: "transparent",
-                border: "none",
-                padding: 4,
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "none",
               }}
             >
-              <HexIcon s={s} selected={selected} />
+              {inProgress ? "End game" : "New game"}
             </button>
-          );
-        })}
+            <button
+              type="button"
+              className={`${s.btn} ${s.btnIcon}`}
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Open settings"
+              title="Settings"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            className={`${s.segmented} ${s.sizes}`}
+            role="group"
+            aria-label="Board size"
+          >
+            {[
+              { label: "Small", s: 1 },
+              { label: "Medium", s: 2 },
+              { label: "Large", s: 3 },
+            ].map(({ label, s: n }) => (
+              <button
+                key={n}
+                type="button"
+                className={s.segment}
+                aria-pressed={size === n}
+                onClick={() => {
+                  if (size === n) return;
+                  if (!inProgress) changeSize(n);
+                  else
+                    confirm(
+                      `A ${label.toLowerCase()} board ends this game and clears the board.`,
+                      `End game and resize`,
+                      () => changeSize(n),
+                    );
+                }}
+              >
+                <HexIcon s={n} selected={size === n} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <nav className={s.foot} aria-label="Tessera">
+          <Link className={s.back} href="/tessera/support">
+            Support
+          </Link>
+          <Link className={s.back} href="/tessera/privacy">
+            Privacy
+          </Link>
+        </nav>
       </div>
 
       {settingsOpen && (
-        <div
-          onClick={() => setSettingsOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(43,38,34,0.45)",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            zIndex: 200,
-            padding: 16,
-            paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
-          }}
-        >
+        <div className={s.scrim} onClick={() => setSettingsOpen(false)}>
           <div
+            className={s.dialog}
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="Settings"
-            style={{
-              width: "100%",
-              maxWidth: 420,
-              background: "#fbf5e7",
-              border: `2px solid ${COLORS.ink}`,
-              borderRadius: 20,
-              padding: "22px 22px 18px",
-              fontFamily: "'Helvetica Neue',sans-serif",
-              color: COLORS.ink,
-              display: "flex",
-              flexDirection: "column",
-              gap: 18,
-              alignSelf: "center",
-            }}
+            aria-labelledby="tessera-settings-title"
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 20,
-                  fontWeight: 800,
-                  letterSpacing: "-0.01em",
-                }}
-              >
+            <div className={s.dialogHead}>
+              <h2 id="tessera-settings-title" className={s.dialogTitle}>
                 Settings
-              </span>
+              </h2>
               <button
                 type="button"
                 autoFocus
+                className={`${s.btn} ${s.btnText}`}
                 onClick={() => setSettingsOpen(false)}
-                aria-label="Close settings"
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 999,
-                  border: `2px solid ${COLORS.ink}`,
-                  background: "transparent",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  color: COLORS.ink,
-                  lineHeight: 1,
-                }}
               >
-                ✕
+                Close
               </button>
             </div>
 
-            <SettingRow label="Sound" hint={muted ? "Off" : "On"}>
-              <ToggleSwitch
-                on={!muted}
-                onChange={(v) => {
-                  setMuted(!v);
-                  setSoundMuted(!v);
+            <div className={s.row}>
+              <span className={s.rowLabel} id="tessera-sound-label">
+                Sound
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={!muted}
+                aria-labelledby="tessera-sound-label"
+                className={s.switch}
+                onClick={() => {
+                  setMuted(!muted);
+                  setSoundMuted(!muted);
                 }}
-              />
-            </SettingRow>
+              >
+                <span className={s.switchThumb} />
+              </button>
+            </div>
 
-            <div style={{ height: 1, background: "rgba(43,38,34,0.12)" }} />
+            <div className={s.divider} />
 
             <a
+              className={s.more}
               href="https://neilmcardle.com"
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "12px 14px",
-                borderRadius: 14,
-                border: `2px solid ${COLORS.ink}`,
-                background: "transparent",
-                textDecoration: "none",
-                color: COLORS.ink,
-                fontSize: 15,
-                fontWeight: 700,
-              }}
             >
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 10,
-                }}
-              >
-                <img
-                  src="/me.png"
-                  alt=""
-                  aria-hidden
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 999,
-                    objectFit: "cover",
-                    border: `1px solid ${COLORS.ink}`,
-                  }}
-                />
-                More from Neil
-              </span>
-              <span aria-hidden style={{ fontSize: 14, opacity: 0.6 }}>
-                ↗
-              </span>
+              <img src="/me.png" alt="" aria-hidden className={s.avatar} />
+              More from Neil, opens in a new tab
             </a>
 
-            <div
-              style={{
-                fontSize: 12,
-                lineHeight: 1.5,
-                opacity: 0.65,
-                textAlign: "center",
-                marginTop: 4,
-              }}
-            >
-              Tessera is free to play, with no ads.
-            </div>
-
-            <div
-              style={{
-                fontSize: 11,
-                lineHeight: 1.5,
-                opacity: 0.5,
-                textAlign: "center",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-              }}
-            >
-              Built solo by Neil McArdle · v1.0
-            </div>
+            <p className={s.small}>
+              Tessera is free to play, with no ads. I built it on my own.
+              Version 1.0.
+            </p>
           </div>
         </div>
       )}
 
       {confirmDialog && (
-        <div
-          onClick={() => setConfirmDialog(null)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(43,38,34,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-            padding: 20,
-          }}
-        >
+        <div className={s.scrim} onClick={() => setConfirmDialog(null)}>
           <div
+            className={s.dialog}
             onClick={(e) => e.stopPropagation()}
-            role="dialog"
+            role="alertdialog"
             aria-modal="true"
             aria-labelledby="tessera-confirm-message"
-            style={{
-              background: "#fbf7ef",
-              borderRadius: 16,
-              padding: "24px 24px 20px",
-              maxWidth: 320,
-              textAlign: "center",
-              boxShadow: "0 0 0 2px #2b2622, 0 12px 40px rgba(43,38,34,0.3)",
-            }}
           >
-            <p
-              id="tessera-confirm-message"
-              style={{
-                fontFamily: "'Helvetica Neue',sans-serif",
-                fontSize: 16,
-                fontWeight: 600,
-                margin: "0 0 20px",
-                lineHeight: 1.4,
-              }}
-            >
+            <p id="tessera-confirm-message" className={s.dialogText}>
               {confirmDialog.message}
             </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            <div className={s.dialogActions}>
               <button
                 type="button"
                 autoFocus
-                className="btn"
+                className={`${s.btn} ${s.btnText}`}
                 onClick={() => setConfirmDialog(null)}
-                style={{
-                  background: "transparent",
-                  boxShadow: `0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-                }}
               >
-                Cancel
+                Keep playing
               </button>
               <button
                 type="button"
-                className="btn"
+                className={`${s.btn} ${s.btnStrong}`}
                 onClick={() => {
                   confirmDialog.onConfirm();
                   setConfirmDialog(null);
                 }}
-                style={{
-                  background: "#ffffff",
-                  boxShadow: `0 0 0 2px #2b2622, 0 3px 0 0 rgba(43,38,34,0.3), 0 6px 16px rgba(43,38,34,0.12), inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.08)`,
-                }}
               >
-                Confirm
+                {confirmDialog.confirmLabel}
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {confetti.map((p) => (
-        <div
-          key={p.id}
-          className="confetti confetti-fall"
-          style={{
-            left: `${p.left}%`,
-            top: "-20px",
-            width: "12px",
-            height: "12px",
-            background: p.color,
-            borderRadius: "2px",
-            opacity: 0.8,
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
     </div>
   );
 }
 
-function SettingRow({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 12,
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <span style={{ fontSize: 15, fontWeight: 700 }}>{label}</span>
-        {hint ? (
-          <span style={{ fontSize: 12, opacity: 0.55 }}>{hint}</span>
-        ) : null}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function ToggleSwitch({
-  on,
-  onChange,
-}: {
-  on: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      role="switch"
-      aria-checked={on}
-      onClick={() => onChange(!on)}
-      style={{
-        width: 50,
-        height: 28,
-        borderRadius: 999,
-        border: `2px solid #2b2622`,
-        background: on ? "#2b2622" : "transparent",
-        position: "relative",
-        cursor: "pointer",
-        padding: 0,
-        transition: "background 180ms ease",
-      }}
-    >
-      <span
-        style={{
-          position: "absolute",
-          top: 2,
-          left: on ? 24 : 2,
-          width: 20,
-          height: 20,
-          borderRadius: 999,
-          background: on ? "#fbf5e7" : "#2b2622",
-          transition: "left 180ms ease, background 180ms ease",
-        }}
-      />
-    </button>
-  );
-}
-
-function HexIcon({ s, selected }: { s: number; selected: boolean }) {
-  const R = s === 1 ? 5 : s === 2 ? 8 : 11;
-  const c = 12;
+function HexIcon({ s: n, selected }: { s: number; selected: boolean }) {
+  const R = n === 1 ? 3.5 : n === 2 ? 5 : 6.5;
+  const c = 8;
   const h = (R * Math.sqrt(3)) / 2;
-  const points = [
+  const pts = [
     [c + R, c],
     [c + R / 2, c + h],
     [c - R / 2, c + h],
@@ -1503,12 +985,12 @@ function HexIcon({ s, selected }: { s: number; selected: boolean }) {
     .map(([x, y]) => `${x},${y}`)
     .join(" ");
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden>
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
       <polygon
-        points={points}
-        fill={selected ? "#2b2622" : "none"}
-        stroke="#2b2622"
-        strokeWidth={2}
+        points={pts}
+        fill={selected ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth={1.5}
         strokeLinejoin="round"
       />
     </svg>
@@ -1530,10 +1012,9 @@ function TallyMarks({
     groups.push(Math.min(5, remaining));
     remaining -= 5;
   }
-
   const tilt = [-4, 3, -2, 4, -3];
   return (
-    <div
+    <span
       style={{
         display: "flex",
         flexWrap: "wrap",
@@ -1544,10 +1025,11 @@ function TallyMarks({
       {groups.map((g, gi) => (
         <svg
           key={gi}
-          width="38"
-          height="36"
+          width="30"
+          height="28"
           viewBox="0 0 38 36"
           style={{ overflow: "visible" }}
+          aria-hidden
         >
           {Array.from({ length: Math.min(g, 4) }).map((_, j) => (
             <line
@@ -1575,101 +1057,55 @@ function TallyMarks({
           )}
         </svg>
       ))}
-    </div>
+    </span>
   );
 }
 
 function Score({
   name,
+  fallback,
   onName,
   val,
   color,
-  darkColor,
   active,
-  tag,
-  fillColor,
+  status,
 }: {
   name: string;
+  fallback: string;
   onName: (v: string) => void;
   val: number;
   color: string;
-  darkColor: string;
   active: boolean;
-  tag?: string;
-  fillColor?: string;
+  status: string;
 }) {
-  const fillBg = fillColor || color;
-  const txt = active ? "#ffffff" : darkColor || color;
-  const bg = active ? fillBg : "transparent";
-
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 4,
-        padding: "16px 22px",
-        borderRadius: 18,
-        border: `2px solid ${color}`,
-        background: bg,
-        color: txt,
-        minWidth: 140,
-        transition:
-          "background 180ms ease, color 180ms ease, transform 180ms ease",
-        transform: active ? "scale(1.03)" : "scale(1)",
-      }}
-    >
-      <input
-        value={name}
-        onChange={(e) => onName(e.target.value)}
-        onFocus={(e) => e.target.select()}
-        maxLength={14}
-        spellCheck={false}
-        aria-label="Player name"
-        placeholder="Name"
-        title="Tap to rename"
-        style={{
-          background: "transparent",
-          border: "none",
-          outline: "none",
-          boxShadow: "none",
-
-          WebkitAppearance: "none",
-          appearance: "none",
-          textAlign: "center",
-          fontFamily: "'Helvetica Neue',sans-serif",
-          fontSize: 18,
-          fontWeight: 700,
-          letterSpacing: "-0.01em",
-          color: txt,
-          width: "100%",
-          padding: 0,
-        }}
-      />
-      {tag ? (
+    <div className={`${s.score} ${active ? s.scoreActive : ""}`}>
+      <div className={s.scoreTop}>
         <span
-          style={{
-            fontFamily: "'Helvetica Neue',sans-serif",
-            fontSize: 11,
-            fontWeight: 500,
-            opacity: 0.75,
-          }}
-        >
-          {tag}
-        </span>
-      ) : null}
-      <span
-        style={{
-          fontFamily: "'Helvetica Neue',sans-serif",
-          fontSize: 48,
-          fontWeight: 800,
-          lineHeight: 1,
-          marginTop: 4,
-        }}
+          className={s.swatch}
+          style={{ background: color }}
+          aria-hidden="true"
+        />
+        <input
+          className={s.name}
+          value={name}
+          onChange={(e) => onName(e.target.value)}
+          onFocus={(e) => e.target.select()}
+          maxLength={14}
+          spellCheck={false}
+          aria-label={`Name for ${fallback}`}
+          placeholder={fallback}
+          title="Rename"
+        />
+      </div>
+      <p
+        className={s.scoreValue}
+        aria-label={`${name.trim() || fallback} has ${val} triangles`}
       >
         {val}
+      </p>
+      <span className={`${s.turn} ${active ? s.turnOn : ""}`}>
+        {status || " "}
       </span>
     </div>
   );

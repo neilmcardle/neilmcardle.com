@@ -91,6 +91,7 @@ function handLabel(
 export type YboDialProps = {
   totalMinutes: number;
   label?: string;
+  valueText?: string;
   seconds?: number | null;
   className?: string;
   onChange?: (totalMinutes: number) => void;
@@ -99,6 +100,7 @@ export type YboDialProps = {
 export default function YboDial({
   totalMinutes,
   label,
+  valueText,
   seconds = null,
   className,
   onChange,
@@ -252,8 +254,12 @@ export default function YboDial({
       ref={svgRef}
       viewBox={`0 0 ${VB} ${VB}`}
       className={className}
-      role="img"
+      role={onChange ? "slider" : "img"}
       aria-label={label ?? "clock"}
+      aria-valuemin={onChange ? 0 : undefined}
+      aria-valuemax={onChange ? 720 - SNAP : undefined}
+      aria-valuenow={onChange ? dial : undefined}
+      aria-valuetext={onChange ? valueText : undefined}
       tabIndex={onChange ? 0 : -1}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}

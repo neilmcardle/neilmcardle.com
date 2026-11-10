@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import { hexToHsl } from "@/lib/coverly/color";
 import type { MapPoint } from "./actions";
@@ -49,6 +56,7 @@ export function ColourMap({
   selectedId: string | null;
 }) {
   const router = useRouter();
+  const descId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewRef = useRef({ k: 1, tx: 0, ty: 0 });
   const imagesRef = useRef(new Map<string, HTMLImageElement | null>());
@@ -423,7 +431,7 @@ export function ColourMap({
       <div className="mb-2 flex items-center justify-end gap-3">
         {capped > 0 && (
           <span className="text-[11px] text-muted-foreground">
-            {capped.toLocaleString()} more covers here — zoom in to see them
+            {capped.toLocaleString()} more covers here. Zoom in to see them.
           </span>
         )}
         <button
@@ -438,8 +446,15 @@ export function ColourMap({
       <div className="relative h-[min(72dvh,720px)] overflow-hidden rounded-[1rem] border bg-card">
         <canvas
           ref={canvasRef}
+          role="img"
+          aria-label={`Colour map of ${points.length.toLocaleString()} covers, plotted by hue from left to right and by lightness from light at the top to dark at the bottom`}
+          aria-describedby={descId}
           className="h-full w-full cursor-crosshair touch-none"
         />
+        <p id={descId} className="sr-only">
+          The map works with a pointer only. To filter covers by colour with a
+          keyboard, use the colour swatches in the Colour filter above.
+        </p>
         {hover && tip && (
           <div
             style={{ left: tip.left, top: tip.top }}

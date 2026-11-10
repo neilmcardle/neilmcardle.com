@@ -7,40 +7,40 @@ export type Era = {
 
 export const ERAS: Era[] = [
   {
-    name: "Prehistoric & Megalithic Foundations",
+    name: "Prehistoric and megalithic",
     range: "15,000 BCE–3000 BCE",
     start: "15,000 BCE",
     styles: [
-      "Paleolithic & Neolithic Cave Settlements",
-      "Megalithic Post-and-Lintel Structures",
-      "Neolithic Stone-Built Settlements",
+      "Palaeolithic and Neolithic cave settlements",
+      "Megalithic post-and-lintel structures",
+      "Neolithic stone-built settlements",
     ],
   },
   {
-    name: "The Ancient Civilisations",
+    name: "The first civilisations",
     range: "3000 BCE–500 BCE",
     start: "3000 BCE",
     styles: [
       "Ancient Egyptian",
       "Mesopotamian",
-      "Indus Valley Architecture",
-      "Minoan & Mycenaean",
+      "Indus Valley architecture",
+      "Minoan and Mycenaean",
     ],
   },
   {
-    name: "The Antiquity / Classical Eras",
+    name: "Classical antiquity",
     range: "850 BCE–500 CE",
     start: "850 BCE",
     styles: ["Ancient Greek", "Etruscan", "Ancient Roman"],
   },
   {
-    name: "The Medieval Eras",
+    name: "The medieval period",
     range: "500 CE–1400 CE",
     start: "500",
-    styles: ["Byzantine", "Romanesque / Anglo-Norman", "Gothic"],
+    styles: ["Byzantine", "Romanesque and Anglo-Norman", "Gothic"],
   },
   {
-    name: "The Renaissance & Early Modern Eras",
+    name: "Renaissance and early modern",
     range: "1400s–1700s",
     start: "1400",
     styles: [
@@ -53,19 +53,19 @@ export const ERAS: Era[] = [
     ],
   },
   {
-    name: "The Golden Age of Symmetry",
+    name: "The golden age of symmetry",
     range: "1700s–1830s",
     start: "1700",
     styles: [
       "Georgian",
       "Palladian",
       "Neoclassical",
-      "Federal & Empire",
+      "Federal and Empire",
       "Regency",
     ],
   },
   {
-    name: "The Industrial & Reform Movements",
+    name: "Industry and reform",
     range: "1830s–1910s",
     start: "1830",
     styles: [
@@ -77,7 +77,7 @@ export const ERAS: Era[] = [
     ],
   },
   {
-    name: "The 20th Century & Rise of Modernism",
+    name: "The 20th century and modernism",
     range: "1900s–1970s",
     start: "1900",
     styles: [
@@ -85,20 +85,20 @@ export const ERAS: Era[] = [
       "Art Deco",
       "Bauhaus",
       "International Style",
-      "Mid-Century Modern",
+      "Mid-century modern",
       "Brutalism",
     ],
   },
   {
-    name: "Postmodern & Contemporary Eras",
-    range: "1970s–Present",
+    name: "Postmodern and contemporary",
+    range: "1970s to now",
     start: "1970",
     styles: [
       "Postmodernism",
-      "High-Tech / Industrial",
+      "High-tech and industrial",
       "Deconstructivism",
       "Minimalism",
-      "Japandi & Sustainable Contemporary",
+      "Japandi and sustainable contemporary",
     ],
   },
 ];
@@ -115,21 +115,21 @@ export const BUILT: Built[] = [
   {
     scene: "caves",
     era: 0,
-    style: "Paleolithic & Neolithic Cave Settlements",
+    style: "Palaeolithic and Neolithic cave settlements",
     building: "Cave dwellings in a limestone cliff",
     line: "Homes dug into or built around natural rock.",
   },
   {
     scene: "stonehenge",
     era: 0,
-    style: "Megalithic Post-and-Lintel Structures",
+    style: "Megalithic post-and-lintel structures",
     building: "Stonehenge, Wiltshire",
     line: "Huge upright stones capped with a horizontal stone: the first beam-on-post structure.",
   },
   {
     scene: "skarabrae",
     era: 0,
-    style: "Neolithic Stone-Built Settlements",
+    style: "Neolithic stone-built settlements",
     building: "Skara Brae, Orkney",
     line: "A village of eight stone houses on Orkney, with stone beds, dressers and hearths still in place.",
   },
@@ -150,16 +150,16 @@ export const BUILT: Built[] = [
   {
     scene: "indus",
     era: 1,
-    style: "Indus Valley Architecture",
+    style: "Indus Valley architecture",
     building: "Mohenjo-daro, Pakistan",
     line: "Planned grid cities of fired brick with drains under every street, public baths and granaries.",
   },
   {
     scene: "liongate",
     era: 1,
-    style: "Minoan & Mycenaean",
+    style: "Minoan and Mycenaean",
     building: "The Lion Gate at Mycenae",
-    line: 'Mycenaean Greece built hilltop citadels from giant "Cyclopean" stones.',
+    line: "Mycenaean Greece built hilltop citadels from giant “Cyclopean” stones.",
   },
   {
     scene: "parthenon",
@@ -192,7 +192,7 @@ export const BUILT: Built[] = [
   {
     scene: "romanesque",
     era: 3,
-    style: "Romanesque / Anglo-Norman",
+    style: "Romanesque and Anglo-Norman",
     building: "A Norman cathedral, after Durham",
     line: "Heavy walls, round arches, thick piers and small windows.",
   },
@@ -269,7 +269,7 @@ export const BUILT: Built[] = [
   {
     scene: "federal",
     era: 5,
-    style: "Federal & Empire",
+    style: "Federal and Empire",
     building: "The Massachusetts State House, Boston",
     line: "Federal (USA, 1780–1830) is light and elegant, like Bulfinch’s Massachusetts State House.",
   },
@@ -346,7 +346,7 @@ export const BUILT: Built[] = [
   {
     scene: "midcentury",
     era: 7,
-    style: "Mid-Century Modern",
+    style: "Mid-century modern",
     building: "A 1960 California house",
     line: "Modernism made domestic, roughly 1945–1969: open plans, low rooflines, exposed beams, big glass walls to the garden.",
   },
@@ -367,7 +367,7 @@ export const BUILT: Built[] = [
   {
     scene: "lloyds",
     era: 8,
-    style: "High-Tech / Industrial",
+    style: "High-tech and industrial",
     building: "The Lloyd’s building, London",
     line: "The building’s structure and services put on show: exposed steel, ducts, lifts and stairs on the outside.",
   },
@@ -388,7 +388,7 @@ export const BUILT: Built[] = [
   {
     scene: "bosco",
     era: 8,
-    style: "Japandi & Sustainable Contemporary",
+    style: "Japandi and sustainable contemporary",
     building: "Bosco Verticale, Milan",
     line: "Sustainable contemporary design cuts energy and carbon, often with planting built in.",
   },

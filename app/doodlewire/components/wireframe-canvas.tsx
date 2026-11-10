@@ -1,26 +1,39 @@
 "use client";
 
 import BackLink from "@/components/BackLink";
+import styles from "../doodlewire.module.css";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ElementCell } from "./element-cell";
-import { clusterStrokes, type StrokeCluster } from "./cluster-strokes";
-import { exportAsHtml, exportAsReact } from "./export";
+import {
+  clusterStrokes,
+  type StrokeCluster,
+} from "@/app/doodlewire/components/cluster-strokes";
+import {
+  exportAsHtml,
+  exportAsReact,
+} from "@/app/doodlewire/components/export";
 import {
   captureWireframePng,
   defaultPngFilename,
   savePng,
-} from "./exportImage";
+} from "@/app/doodlewire/components/exportImage";
 import { LearnMyStyle } from "./learn-my-style";
-import { normalize, rankTemplates } from "./point-cloud-recognizer";
-import { classifyShape, type ShapeGuess } from "./shape-heuristics";
-import { snapToStandard } from "./snap-size";
+import {
+  normalize,
+  rankTemplates,
+} from "@/app/doodlewire/components/point-cloud-recognizer";
+import {
+  classifyShape,
+  type ShapeGuess,
+} from "@/app/doodlewire/components/shape-heuristics";
+import { snapToStandard } from "@/app/doodlewire/components/snap-size";
 import {
   deleteTemplate,
   loadTemplates,
   recordHit,
   type Template,
-} from "./template-store";
+} from "@/app/doodlewire/components/template-store";
 
 export const ELEMENT_TYPES = [
   "button",
@@ -85,9 +98,7 @@ function saveDocument(pages: PageSnapshot[], currentPage: number): void {
       DOC_STORAGE_KEY,
       JSON.stringify({ pages, currentPage }),
     );
-  } catch {
-    // Quota exceeded or storage disabled — persistence is best-effort.
-  }
+  } catch {}
 }
 
 function loadDocument(): { pages: PageSnapshot[]; currentPage: number } | null {
@@ -235,7 +246,6 @@ export default function WireframeCanvas() {
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -1036,9 +1046,7 @@ export default function WireframeCanvas() {
       });
       const trimmed = existing.slice(-500);
       localStorage.setItem(key, JSON.stringify(trimmed));
-    } catch {
-      // Storage may be full or disabled. Feedback is best-effort.
-    }
+    } catch {}
 
     if (el.templateId) {
       if (correct) {
@@ -1060,6 +1068,7 @@ export default function WireframeCanvas() {
   return (
     <div
       ref={containerRef}
+      className={styles.tokens}
       style={{
         position: "fixed",
         inset: 0,
@@ -1090,7 +1099,7 @@ export default function WireframeCanvas() {
           height: "100%",
           display: "block",
           transform: `translateY(${-keyboardShift}px)`,
-          transition: "transform 0.2s ease",
+          transition: "transform 0.2s var(--ease-out)",
         }}
       />
 
@@ -1120,7 +1129,8 @@ export default function WireframeCanvas() {
           inset: 0,
           pointerEvents: "none",
           transform: `translateY(${-(scrollY + keyboardShift)}px)`,
-          transition: keyboardShift > 0 ? "transform 0.2s ease" : "none",
+          transition:
+            keyboardShift > 0 ? "transform 0.2s var(--ease-out)" : "none",
         }}
       >
         {elements.map((el, i) => (
@@ -1161,7 +1171,7 @@ export default function WireframeCanvas() {
           display: "block",
           pointerEvents: "none",
           transform: `translateY(${-keyboardShift}px)`,
-          transition: "transform 0.2s ease",
+          transition: "transform 0.2s var(--ease-out)",
         }}
       />
 
@@ -1186,7 +1196,7 @@ export default function WireframeCanvas() {
           inset: 0,
           pointerEvents: "none",
           opacity: chromeVisible ? 1 : 0,
-          transition: "opacity 700ms ease",
+          transition: "opacity 700ms var(--ease-out)",
         }}
       >
         <TopBar />
@@ -1333,13 +1343,13 @@ function LearnHint() {
     >
       <span
         style={{
-          color: "rgba(0,0,0,0.32)",
-          fontSize: 15,
+          color: "var(--color-text)",
+          fontSize: 13,
           fontWeight: 500,
           letterSpacing: "0.01em",
         }}
       >
-        Doodles away!
+        Draw a button, a card or a heading. I will tidy it up.
       </span>
     </div>
   );
@@ -1373,16 +1383,16 @@ function DotDeleteButton({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#ffffff",
-        color: "#0a0a0a",
-        border: "1px solid rgba(0,0,0,0.2)",
+        background: "var(--color-raised)",
+        color: "var(--color-ink)",
+        border: "none",
         borderRadius: 999,
         padding: 0,
-        fontSize: 11,
+        fontSize: 13,
         lineHeight: 1,
         cursor: "pointer",
         pointerEvents: "auto",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
+        boxShadow: "var(--edge-lifted)",
         zIndex: 45,
       }}
     >
@@ -1420,16 +1430,16 @@ function ClusterRecogniseButton({
         alignItems: "center",
         gap: 6,
         padding: "0 10px",
-        background: "#0a0a0a",
-        color: "#ffffff",
+        background: "var(--color-ink)",
+        color: "var(--color-bg)",
         border: "none",
         borderRadius: 999,
-        fontSize: 11,
-        fontWeight: 600,
+        fontSize: 13,
+        fontWeight: 500,
         whiteSpace: "nowrap",
         cursor: "pointer",
         pointerEvents: "auto",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        boxShadow: "var(--edge-lifted)",
         zIndex: 46,
       }}
     >
@@ -1488,11 +1498,11 @@ function SnipActionBar({
         alignItems: "center",
         justifyContent: "flex-end",
         gap: 4,
-        background: "#0a0a0a",
-        color: "#ffffff",
+        background: "var(--color-ink)",
+        color: "var(--color-bg)",
         borderRadius: 999,
         padding: 4,
-        boxShadow: "0 8px 20px rgba(0,0,0,0.22)",
+        boxShadow: "var(--edge-lifted)",
         pointerEvents: "auto",
         zIndex: 50,
       }}
@@ -1506,8 +1516,8 @@ function SnipActionBar({
         style={{
           background: "transparent",
           border: "none",
-          color: "rgba(255,255,255,0.8)",
-          fontSize: 12,
+          color: "var(--color-bg)",
+          fontSize: 13,
           fontWeight: 500,
           padding: "0 12px",
           height: 28,
@@ -1525,11 +1535,11 @@ function SnipActionBar({
         }}
         disabled={saving}
         style={{
-          background: "#ffffff",
-          color: "#0a0a0a",
+          background: "var(--color-raised)",
+          color: "var(--color-ink)",
           border: "none",
-          fontSize: 12,
-          fontWeight: 600,
+          fontSize: 13,
+          fontWeight: 500,
           padding: "0 14px",
           height: 28,
           borderRadius: 999,
@@ -1537,7 +1547,7 @@ function SnipActionBar({
           opacity: saving ? 0.7 : 1,
         }}
       >
-        {saving ? "Saving…" : "Download PNG"}
+        {saving ? "Saving…" : "Save as PNG"}
       </button>
     </div>
   );
@@ -1592,26 +1602,23 @@ function TopBar() {
       }}
     >
       <BackLink
-        aria-label="Back to neilmcardle.com"
         style={{
-          color: "rgba(0,0,0,0.45)",
-          display: "flex",
-          transition: "color 0.15s",
+          display: "inline-flex",
+          alignItems: "center",
+          height: 36,
+          padding: "0 16px",
+          borderRadius: 999,
+          background: "var(--color-raised)",
+          boxShadow: "var(--edge-lifted)",
+          color: "var(--color-ink)",
+          fontSize: 13,
+          fontWeight: 500,
+          textDecoration: "none",
           pointerEvents: "auto",
         }}
+        aria-label="Back to neilmcardle.com"
       >
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M19 12H5M12 5l-7 7 7 7" />
-        </svg>
+        Back
       </BackLink>
     </header>
   );
@@ -1626,10 +1633,10 @@ interface FlashMessage {
   action?: { label: string; onClick: () => void };
 }
 
-const FLASH_DOT: Record<FlashKind, string> = {
-  local: "#16a34a",
-  removed: "#dc2626",
-  info: "#f59e0b",
+const FLASH_ICON: Record<FlashKind, string> = {
+  local: "M3.5 8.5l3 3 6-7",
+  removed: "M4 8h8",
+  info: "M8 4.5v4.5M8 11.5v.01",
 };
 
 interface ScrollHandleProps {
@@ -1733,7 +1740,7 @@ function SettingsItem({
   confirming?: boolean;
   onClick: () => void;
 }) {
-  const idleBg = confirming ? "rgba(220,38,38,0.1)" : "transparent";
+  const idleBg = confirming ? "rgba(255,255,255,0.06)" : "transparent";
   return (
     <button
       type="button"
@@ -1746,17 +1753,18 @@ function SettingsItem({
         padding: "8px 10px",
         background: idleBg,
         border: "none",
-        borderRadius: 6,
+        borderRadius: 7,
         fontSize: 13,
         fontWeight: confirming ? 600 : 500,
-        color: confirming || destructive ? "#dc2626" : "#0a0a0a",
+        color:
+          confirming || destructive ? "var(--color-ink)" : "var(--color-ink)",
         cursor: "pointer",
         textAlign: "left",
       }}
       onMouseEnter={(e) => {
         if (!confirming)
           (e.currentTarget as HTMLElement).style.background =
-            "rgba(0,0,0,0.05)";
+            "rgba(255,255,255,0.06)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.background = idleBg;
@@ -1764,7 +1772,7 @@ function SettingsItem({
     >
       {icon}
       <span style={{ flex: 1 }}>
-        {confirming ? "Tap again to confirm" : label}
+        {confirming ? "Tap again to confirm. This cannot be undone." : label}
       </span>
       {badge != null && (
         <span
@@ -1776,10 +1784,10 @@ function SettingsItem({
             height: 18,
             padding: "0 6px",
             borderRadius: 999,
-            background: "#0a0a0a",
-            color: "#ffffff",
-            fontSize: 10,
-            fontWeight: 700,
+            background: "var(--color-ink)",
+            color: "var(--color-bg)",
+            fontSize: 13,
+            fontWeight: 500,
             lineHeight: 1,
           }}
         >
@@ -1815,10 +1823,10 @@ function PageIndicator({
         alignItems: "center",
         gap: 2,
         padding: "5px 8px",
-        background: "#ffffff",
-        border: "1px solid rgba(0,0,0,0.1)",
+        background: "var(--color-raised)",
+        border: "none",
         borderRadius: 999,
-        boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
+        boxShadow: "var(--edge-lifted)",
         pointerEvents: "auto",
         zIndex: 40,
       }}
@@ -1845,11 +1853,14 @@ function PageIndicator({
         >
           <span
             style={{
-              width: i === current ? 9 : 7,
-              height: i === current ? 9 : 7,
+              width: 9,
+              height: 9,
+              transform: i === current ? "none" : "scale(0.78)",
               borderRadius: 999,
-              background: i === current ? "#0a0a0a" : "rgba(0,0,0,0.22)",
-              transition: "width 0.15s, height 0.15s, background 0.15s",
+              background:
+                i === current ? "var(--color-ink)" : "var(--color-underline)",
+              transition:
+                "transform 0.15s var(--ease-out), background 0.15s var(--ease-out)",
             }}
           />
         </button>
@@ -1858,7 +1869,7 @@ function PageIndicator({
         style={{
           width: 1,
           height: 14,
-          background: "rgba(0,0,0,0.1)",
+          background: "rgba(255,255,255,0.06)",
           margin: "0 3px",
         }}
       />
@@ -1878,7 +1889,7 @@ function PageIndicator({
           borderRadius: 999,
           cursor: "pointer",
           padding: 0,
-          color: "#0a0a0a",
+          color: "var(--color-ink)",
         }}
       >
         <svg
@@ -1922,26 +1933,33 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
             gap: 9,
             maxWidth: "min(86vw, 420px)",
             padding: message.action ? "5px 5px 5px 14px" : "9px 15px",
-            background: "#ffffff",
-            color: "#0a0a0a",
-            border: "1px solid rgba(0,0,0,0.1)",
+            background: "var(--color-raised)",
+            color: "var(--color-ink)",
+            border: "none",
             borderRadius: 999,
-            fontSize: 12.5,
+            fontSize: 13,
             fontWeight: 500,
             lineHeight: 1.35,
             letterSpacing: "0.005em",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+            boxShadow: "var(--edge-lifted)",
           }}
         >
-          <span
-            style={{
-              flexShrink: 0,
-              width: 7,
-              height: 7,
-              borderRadius: 999,
-              background: FLASH_DOT[message.kind],
-            }}
-          />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+            style={{ flexShrink: 0 }}
+          >
+            <path
+              d={FLASH_ICON[message.kind]}
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <span style={{ whiteSpace: "nowrap" }}>{message.text}</span>
           {message.action && (
             <button
@@ -1955,12 +1973,12 @@ function FlashPill({ message }: { message: FlashMessage | null }) {
                 flexShrink: 0,
                 padding: "0 12px",
                 height: 28,
-                background: "#0a0a0a",
-                color: "#ffffff",
+                background: "var(--color-ink)",
+                color: "var(--color-bg)",
                 border: "none",
                 borderRadius: 999,
-                fontSize: 12,
-                fontWeight: 600,
+                fontSize: 13,
+                fontWeight: 500,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
               }}
@@ -1996,11 +2014,11 @@ function UndoRedoBar({
         display: "inline-flex",
         alignItems: "center",
         gap: 4,
-        background: "#ffffff",
-        border: "1px solid rgba(0,0,0,0.1)",
+        background: "var(--color-raised)",
+        border: "none",
         borderRadius: 999,
         padding: 4,
-        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
+        boxShadow: "var(--edge-lifted)",
         zIndex: 40,
         pointerEvents: "auto",
       }}
@@ -2152,11 +2170,11 @@ function Toolbar({
         display: "flex",
         alignItems: "center",
         gap: 4,
-        background: "#ffffff",
-        border: "1px solid rgba(0,0,0,0.1)",
+        background: "var(--color-raised)",
+        border: "none",
         borderRadius: 999,
         padding: 4,
-        boxShadow: "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.08)",
+        boxShadow: "var(--edge-lifted)",
         zIndex: 40,
         pointerEvents: "auto",
       }}
@@ -2166,7 +2184,7 @@ function Toolbar({
           <ToolBtn
             active={mode === "move"}
             onClick={() => setMode("move")}
-            label="Move (drag, resize & edit elements)"
+            label="Move, resize and edit elements"
             icon={
               <svg
                 width="16"
@@ -2210,7 +2228,7 @@ function Toolbar({
           <ToolBtn
             active={mode === "ink"}
             onClick={() => setMode("ink")}
-            label="Ink (annotations, won't be recognised)"
+            label="Ink, for notes that stay as drawn"
             icon={
               <svg
                 width="16"
@@ -2229,7 +2247,7 @@ function Toolbar({
           <ToolBtn
             active={mode === "snip"}
             onClick={() => setMode("snip")}
-            label="Snip (drag to export a region as PNG)"
+            label="Snip, drag to save an area as a PNG"
             icon={
               <svg
                 width="16"
@@ -2269,7 +2287,7 @@ function Toolbar({
             style={{
               width: 1,
               height: 20,
-              background: "rgba(0,0,0,0.08)",
+              background: "rgba(255,255,255,0.06)",
               margin: "0 4px",
             }}
           />
@@ -2281,21 +2299,25 @@ function Toolbar({
             type="button"
             onClick={onExport}
             disabled={!hasContent}
-            aria-label="Export"
-            title="Export"
+            aria-label="Export your wireframe"
+            title="Export your wireframe"
             style={{
               marginLeft: 4,
               width: 36,
               height: 32,
               borderRadius: 999,
-              background: hasContent ? "#0a0a0a" : "rgba(0,0,0,0.1)",
-              color: hasContent ? "#ffffff" : "rgba(0,0,0,0.4)",
+              background: hasContent
+                ? "var(--color-brand)"
+                : "rgba(255,255,255,0.06)",
+              color: hasContent
+                ? "var(--color-on-brand)"
+                : "var(--color-underline)",
               border: "none",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: hasContent ? "pointer" : "not-allowed",
-              transition: "background 0.15s",
+              transition: "background 0.15s var(--ease-out)",
             }}
           >
             <svg
@@ -2317,7 +2339,7 @@ function Toolbar({
             style={{
               width: 1,
               height: 20,
-              background: "rgba(0,0,0,0.08)",
+              background: "rgba(255,255,255,0.06)",
               margin: "0 4px",
             }}
           />
@@ -2328,7 +2350,7 @@ function Toolbar({
             <ToolBtn
               active={settingsOpen}
               onClick={() => setSettingsOpen((v) => !v)}
-              label="Settings"
+              label="Open settings"
               icon={
                 <svg
                   width="16"
@@ -2352,10 +2374,10 @@ function Toolbar({
                   bottom: "calc(100% + 10px)",
                   right: -4,
                   minWidth: 220,
-                  background: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.08)",
+                  background: "var(--color-raised)",
+                  border: "none",
                   borderRadius: 10,
-                  boxShadow: "0 10px 28px rgba(0,0,0,0.16)",
+                  boxShadow: "var(--edge-lifted)",
                   padding: 4,
                   zIndex: 60,
                 }}
@@ -2371,7 +2393,8 @@ function Toolbar({
                 <button
                   type="button"
                   onClick={onToggleAutoRecognise}
-                  aria-label={`Auto-recognise ${autoRecognise ? "on" : "off"}`}
+                  role="switch"
+                  aria-checked={autoRecognise}
                   style={{
                     width: "100%",
                     display: "inline-flex",
@@ -2380,16 +2403,16 @@ function Toolbar({
                     padding: "8px 10px",
                     background: "transparent",
                     border: "none",
-                    borderRadius: 6,
+                    borderRadius: 7,
                     fontSize: 13,
                     fontWeight: 500,
-                    color: "#0a0a0a",
+                    color: "var(--color-ink)",
                     cursor: "pointer",
                     textAlign: "left",
                   }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.background =
-                      "rgba(0,0,0,0.05)";
+                      "rgba(255,255,255,0.06)";
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.background =
@@ -2405,20 +2428,26 @@ function Toolbar({
                       height: 20,
                       flexShrink: 0,
                       borderRadius: 999,
-                      background: autoRecognise ? "#0a0a0a" : "rgba(0,0,0,0.2)",
-                      transition: "background 0.15s",
+                      background: autoRecognise
+                        ? "var(--color-ink)"
+                        : "var(--color-underline)",
+                      transition: "background 0.15s var(--ease-out)",
                     }}
                   >
                     <span
                       style={{
                         position: "absolute",
                         top: 2,
-                        left: autoRecognise ? 16 : 2,
+                        left: 2,
                         width: 16,
                         height: 16,
                         borderRadius: 999,
-                        background: "#ffffff",
-                        transition: "left 0.15s",
+                        background: autoRecognise
+                          ? "var(--color-bg)"
+                          : "var(--color-ink)",
+                        transform: autoRecognise ? "translateX(14px)" : "none",
+                        transition:
+                          "transform var(--duration-toggle) var(--ease-out) var(--ease-out)",
                       }}
                     />
                   </span>
@@ -2426,7 +2455,7 @@ function Toolbar({
                 <div
                   style={{
                     height: 1,
-                    background: "rgba(0,0,0,0.08)",
+                    background: "rgba(255,255,255,0.06)",
                     margin: "4px 6px",
                   }}
                 />
@@ -2475,16 +2504,17 @@ function ToolBtn({ active, disabled, onClick, label, icon }: ToolBtnProps) {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        background: active ? "#0a0a0a" : "transparent",
+        background: active ? "var(--color-ink)" : "transparent",
         color: active
-          ? "#ffffff"
+          ? "var(--color-bg)"
           : disabled
-            ? "rgba(0,0,0,0.3)"
-            : "rgba(0,0,0,0.7)",
+            ? "var(--color-underline)"
+            : "var(--color-text)",
         border: "none",
         borderRadius: 999,
         cursor: disabled ? "not-allowed" : "pointer",
-        transition: "background 0.15s, color 0.15s",
+        transition:
+          "background 0.15s var(--ease-out), color 0.15s var(--ease-out)",
       }}
     >
       {icon}
@@ -2503,10 +2533,10 @@ function ThinkingPill() {
         alignItems: "center",
         gap: 8,
         padding: "6px 12px",
-        background: "rgba(10,10,10,0.92)",
-        color: "#ffffff",
+        background: "var(--color-raised)",
+        color: "var(--color-bg)",
         borderRadius: 999,
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: 500,
         letterSpacing: "0.01em",
         zIndex: 50,
@@ -2517,7 +2547,7 @@ function ThinkingPill() {
           width: 6,
           height: 6,
           borderRadius: 999,
-          background: "#ffffff",
+          background: "var(--color-raised)",
           animation: "wfPulse 1.2s ease-in-out infinite",
         }}
       />
@@ -2574,9 +2604,7 @@ function ExportDialog({
       await navigator.clipboard.writeText(code);
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
-    } catch {
-      // Clipboard API may be unavailable on non-secure origins. Falls through silently.
-    }
+    } catch {}
   }
 
   async function downloadImage() {
@@ -2610,7 +2638,7 @@ function ExportDialog({
       style={{
         position: "absolute",
         inset: 0,
-        background: "rgba(10,10,10,0.5)",
+        background: "rgb(0 0 0 / 0.6)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -2626,10 +2654,10 @@ function ExportDialog({
           maxHeight: "80vh",
           display: "flex",
           flexDirection: "column",
-          background: "#ffffff",
-          borderRadius: 12,
+          background: "var(--color-raised)",
+          borderRadius: 20,
           overflow: "hidden",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          boxShadow: "var(--edge-lifted)",
         }}
       >
         <div
@@ -2638,26 +2666,35 @@ function ExportDialog({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "14px 18px",
-            borderBottom: "1px solid rgba(0,0,0,0.08)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
           }}
         >
-          <div style={{ fontWeight: 600, fontSize: 14 }}>Export wireframe</div>
+          <h2
+            style={{
+              margin: 0,
+              fontWeight: 500,
+              fontSize: 16,
+              color: "var(--color-ink)",
+            }}
+          >
+            Export your wireframe
+          </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
             style={{
-              width: 28,
-              height: 28,
+              height: 36,
+              padding: "0 12px",
               borderRadius: 999,
               background: "transparent",
               border: "none",
               cursor: "pointer",
-              fontSize: 18,
-              color: "rgba(0,0,0,0.5)",
+              fontSize: 13,
+              fontWeight: 500,
+              color: "var(--color-text)",
             }}
           >
-            ×
+            Close
           </button>
         </div>
 
@@ -2693,7 +2730,7 @@ function ExportDialog({
             display: "flex",
             justifyContent: "flex-end",
             padding: "10px 18px",
-            borderBottom: "1px solid rgba(0,0,0,0.06)",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           {format === "image" ? (
@@ -2705,14 +2742,17 @@ function ExportDialog({
                 padding: "0 16px",
                 height: 36,
                 borderRadius: 999,
-                background: downloadDone ? "#16a34a" : "#0a0a0a",
-                color: "#ffffff",
+                background: downloadDone
+                  ? "var(--color-ink)"
+                  : "var(--color-ink)",
+                color: "var(--color-bg)",
                 border: "none",
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 500,
                 cursor: downloading ? "default" : "pointer",
                 opacity: downloading ? 0.6 : 1,
-                transition: "background 0.15s, opacity 0.15s",
+                transition:
+                  "background 0.15s var(--ease-out), opacity 0.15s var(--ease-out)",
               }}
             >
               {downloadDone === "shared"
@@ -2721,7 +2761,7 @@ function ExportDialog({
                   ? "Saved"
                   : downloading
                     ? "Saving…"
-                    : "Save image"}
+                    : "Save as PNG"}
             </button>
           ) : (
             <button
@@ -2731,13 +2771,13 @@ function ExportDialog({
                 padding: "0 16px",
                 height: 36,
                 borderRadius: 999,
-                background: copied ? "#16a34a" : "#0a0a0a",
-                color: "#ffffff",
+                background: copied ? "var(--color-ink)" : "var(--color-ink)",
+                color: "var(--color-bg)",
                 border: "none",
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 500,
                 cursor: "pointer",
-                transition: "background 0.15s",
+                transition: "background 0.15s var(--ease-out)",
               }}
             >
               {copied
@@ -2751,31 +2791,31 @@ function ExportDialog({
             style={{
               flex: 1,
               padding: 24,
-              background: "#fafaf9",
-              color: "#0a0a0a",
+              background: "var(--color-bg)",
+              color: "var(--color-ink)",
               display: "flex",
               flexDirection: "column",
               gap: 8,
               overflow: "auto",
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 600 }}>
-              Save the whole screen as PNG
+            <div style={{ fontSize: 13, fontWeight: 500 }}>
+              Save the whole canvas as a PNG
             </div>
             <div
               style={{
-                fontSize: 12,
-                color: "rgba(0,0,0,0.6)",
+                fontSize: 13,
+                color: "var(--color-text)",
                 lineHeight: 1.55,
               }}
             >
-              Captures every element and stroke currently on the canvas. On
-              mobile this opens the share sheet so you can save to Photos,
-              Files, or send it. On desktop it downloads a PNG. Tip — use the
-              Snip tool in the toolbar to capture just a region.
+              This captures every element and stroke on the canvas. On a phone
+              it opens the share sheet, so you can save it to Photos or Files or
+              send it. On a computer it downloads a PNG. To capture just one
+              area, use the Snip tool in the toolbar.
             </div>
             {downloadError && (
-              <div style={{ fontSize: 12, color: "#dc2626" }}>
+              <div style={{ fontSize: 13, color: "var(--color-ink)" }}>
                 {downloadError}
               </div>
             )}
@@ -2786,10 +2826,10 @@ function ExportDialog({
               flex: 1,
               margin: 0,
               padding: 18,
-              background: "#fafaf9",
-              color: "#0a0a0a",
+              background: "var(--color-bg)",
+              color: "var(--color-ink)",
               fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-              fontSize: 12,
+              fontSize: 13,
               lineHeight: 1.55,
               overflow: "auto",
               whiteSpace: "pre",
@@ -2818,7 +2858,7 @@ function SavedImagePreview({ dataUrl, onClose }: SavedImagePreviewProps) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(10,10,10,0.78)",
+        background: "rgb(0 0 0 / 0.6)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -2841,23 +2881,22 @@ function SavedImagePreview({ dataUrl, onClose }: SavedImagePreviewProps) {
           gap: 14,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={dataUrl}
-          alt="Doodlewire capture"
+          alt="Your DoodleWire canvas as an image"
           style={{
             maxWidth: "100%",
             maxHeight: "60vh",
             objectFit: "contain",
             borderRadius: 10,
             background: "#ffffff",
-            boxShadow: "0 12px 36px rgba(0,0,0,0.4)",
+            boxShadow: "var(--edge-lifted)",
           }}
         />
         <div
           style={{
             fontSize: 13,
-            color: "rgba(255,255,255,0.92)",
+            color: "var(--color-ink)",
             textAlign: "center",
             lineHeight: 1.5,
             padding: "0 12px",
@@ -2873,18 +2912,18 @@ function SavedImagePreview({ dataUrl, onClose }: SavedImagePreviewProps) {
             type="button"
             onClick={onClose}
             style={{
-              background: "#ffffff",
-              color: "#0a0a0a",
+              background: "var(--color-raised)",
+              color: "var(--color-ink)",
               border: "none",
               padding: "0 22px",
               height: 40,
               borderRadius: 999,
-              fontSize: 14,
-              fontWeight: 600,
+              fontSize: 13,
+              fontWeight: 500,
               cursor: "pointer",
             }}
           >
-            Done
+            Close
           </button>
         </div>
       </div>
@@ -2909,13 +2948,14 @@ function FormatTab({
         padding: "0 14px",
         height: 32,
         borderRadius: 999,
-        background: active ? "#0a0a0a" : "transparent",
-        color: active ? "#ffffff" : "rgba(0,0,0,0.6)",
-        border: active ? "none" : "1px solid rgba(0,0,0,0.1)",
+        background: active ? "var(--color-ink)" : "transparent",
+        color: active ? "var(--color-bg)" : "var(--color-text)",
+        border: "none",
         fontSize: 13,
         fontWeight: 500,
         cursor: "pointer",
-        transition: "background 0.15s, color 0.15s, border-color 0.15s",
+        transition:
+          "background 0.15s var(--ease-out), color 0.15s var(--ease-out), border-color 0.15s var(--ease-out)",
         whiteSpace: "nowrap",
       }}
     >

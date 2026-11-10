@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { streamWithFallback, SystemBlock } from "@/app/api/ai/book-mind/_lib/anthropic";
+import {
+  streamWithFallback,
+  SystemBlock,
+} from "@/app/api/ai/book-mind/_lib/anthropic";
 import { checkPromptrRateLimit, getClientIp } from "../_lib/rateLimit";
 
 export const runtime = "nodejs";
@@ -43,7 +46,7 @@ Begin your JSON response immediately.`;
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  const rate = checkPromptrRateLimit(ip);
+  const rate = await checkPromptrRateLimit(ip);
   if (!rate.allowed) {
     return NextResponse.json(
       { error: rate.message ?? "Rate limit exceeded" },
@@ -55,7 +58,10 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
 
   const prompt = (body.prompt ?? "").trim();
@@ -77,7 +83,6 @@ export async function POST(req: NextRequest) {
     },
   ];
 
-  // Client accumulates raw text deltas and JSON.parses at the end.
   const stream = new ReadableStream({
     async start(controller) {
       try {
@@ -93,7 +98,9 @@ export async function POST(req: NextRequest) {
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : "Refine failed";
-        controller.enqueue(encoder.encode(`\n{"error":${JSON.stringify(message)}}`));
+        controller.enqueue(
+          encoder.encode(`\n{"error":${JSON.stringify(message)}}`),
+        );
       } finally {
         controller.close();
       }

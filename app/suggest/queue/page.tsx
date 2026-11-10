@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import { desc } from "drizzle-orm";
-import Shell from "../../_signature/Shell";
-import Header from "../../_signature/Header";
-import shell from "../../_signature/signature.module.css";
+import Shell from "@/app/_signature/Shell";
+import Header from "@/app/_signature/Header";
+import kit from "../kit.module.css";
 import { db, suggestions, type Suggestion } from "@/lib/db";
 import { MONTHLY_CAP_PENCE, monthSpend, pence } from "@/lib/suggest/budget";
 import { isOwner } from "@/lib/suggest/owner";
-import { build, lock, markLive, reject, stop, unlock } from "./actions";
+import {
+  build,
+  lock,
+  markLive,
+  reject,
+  stop,
+  unlock,
+} from "@/app/suggest/queue/actions";
 import styles from "../suggest.module.css";
 
 export const dynamic = "force-dynamic";
@@ -115,8 +122,13 @@ export default async function QueuePage({
   if (!owner) {
     return (
       <Shell>
-        <Header contact="/#contact" />
-        <main className={`${shell.wrap} ${styles.queue}`}>
+        <div className={kit.bar}>
+          <Header contact="/#contact" />
+        </div>
+        <main
+          id="main"
+          className={`${kit.root} ${kit.scope} ${kit.wrap} ${styles.queue}`}
+        >
           <div className={styles.queueHead}>
             <h1 className={styles.queueTitle}>Suggestions</h1>
           </div>
@@ -141,8 +153,13 @@ export default async function QueuePage({
 
   return (
     <Shell>
-      <Header contact="/#contact" />
-      <main className={`${shell.wrap} ${styles.queue}`}>
+      <div className={kit.bar}>
+        <Header contact="/#contact" />
+      </div>
+      <main
+        id="main"
+        className={`${kit.root} ${kit.scope} ${kit.wrap} ${styles.queue}`}
+      >
         <div className={styles.queueHead}>
           <h1 className={styles.queueTitle}>Suggestions</h1>
           <p className={styles.spend}>

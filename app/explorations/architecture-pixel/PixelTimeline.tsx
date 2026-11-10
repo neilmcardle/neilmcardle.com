@@ -8,6 +8,7 @@ import {
   useState,
   type CSSProperties,
   type PointerEvent,
+  type ReactNode,
 } from "react";
 import {
   bake,
@@ -24,8 +25,8 @@ import {
   W,
   windTime,
   type Baked,
-} from "./engine/engine";
-import { SCENES } from "./scenes";
+} from "@/app/explorations/architecture-pixel/engine/engine";
+import { SCENES } from "@/app/explorations/architecture-pixel/scenes";
 import {
   BAND,
   BUILT,
@@ -65,6 +66,9 @@ function sunAt(hour: number) {
     warm: (1 - smooth(0.15, 0.5, arc)) * day,
   };
 }
+
+const named = (part: string) =>
+  (part.charAt(0).toUpperCase() + part.slice(1)).replace(/'/g, "\u2019");
 
 const clock = (hour: number) =>
   `${String(Math.floor(hour)).padStart(2, "0")}:00`;
@@ -454,11 +458,11 @@ export default function PixelTimeline() {
   const parts = useMemo(
     () =>
       scene.parts
-        .map((name, id) => ({ name, id }))
+        .map((name, id) => ({ name: named(name), id }))
         .filter((p) => p.id > 0 && p.name),
     [scene],
   );
-  const label = picked ? scene.parts[picked.part] : "";
+  const label = picked ? named(scene.parts[picked.part]) : "";
   const chipStyle = picked
     ? ({
         "--x": `${(picked.ix / W) * 100}%`,
@@ -474,9 +478,11 @@ export default function PixelTimeline() {
   );
   const at = Math.abs(moment.hour - hour) <= 0.5 ? moment.name : "";
 
+  const lede =
+    "I drew a history of architecture as small pixel dioramas. Scrub through time, change the light and tap a building to name its parts.";
   const credit = (
     <>
-      Pixel engine adapted from{" "}
+      I adapted the pixel engine from{" "}
       <a
         href="https://github.com/amirmushichge/pixel-plays"
         target="_blank"
@@ -487,9 +493,24 @@ export default function PixelTimeline() {
       by Amir Mushich, MIT licence.
     </>
   );
-  const sheetHead = (title: string) => (
+  const playControl = (
+    <span className={styles.timeRight}>
+      <output className={styles.clock}>{clock(hour)}</output>
+      <button
+        type="button"
+        className={styles.play}
+        aria-pressed={!playing}
+        aria-label={playing ? "Pause time" : "Play time"}
+        onClick={() => setPlaying(!playing)}
+      >
+        {playing ? "Pause" : "Play"}
+      </button>
+    </span>
+  );
+  const sheetHead = (title: string, extra?: ReactNode) => (
     <div className={styles.sheetHead}>
       <h2 className={styles.sheetTitle}>{title}</h2>
+      {extra}
       <button
         type="button"
         className={styles.close}
@@ -503,7 +524,10 @@ export default function PixelTimeline() {
   return (
     <main className={styles.root} data-locked={locked || undefined}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Architecture in Pixels</h1>
+        <div>
+          <h1 className={styles.title}>Architecture in Pixels</h1>
+          <p className={styles.lede}>{lede}</p>
+        </div>
         <button
           type="button"
           className={styles.about}
@@ -570,11 +594,12 @@ export default function PixelTimeline() {
       </div>
 
       <div className={styles.readout} aria-live="polite">
-        <p className={styles.era}>
-          {era.name} <span className={styles.range}>{era.range}</span>
-        </p>
         <h2 className={styles.style}>{built.style}</h2>
         <p className={styles.building}>{built.building}</p>
+        <p className={styles.era}>
+          <span>{era.name}</span>
+          <span className={styles.range}>{era.range}</span>
+        </p>
         <p className={styles.line}>{built.line}</p>
       </div>
 
@@ -673,23 +698,14 @@ export default function PixelTimeline() {
         data-open={sheet === "light" || undefined}
         aria-label="Light"
       >
-        {sheetHead("Light")}
+        {sheetHead("Light", compact ? playControl : null)}
         <div className={styles.time}>
-          <div className={styles.timeHead}>
-            <span>Time of day</span>
-            <span className={styles.timeRight}>
-              <output className={styles.clock}>{clock(hour)}</output>
-              <button
-                type="button"
-                className={styles.play}
-                aria-pressed={!playing}
-                aria-label={playing ? "Pause time" : "Play time"}
-                onClick={() => setPlaying(!playing)}
-              >
-                {playing ? "Pause" : "Play"}
-              </button>
-            </span>
-          </div>
+          {!compact && (
+            <div className={styles.timeHead}>
+              <span>Time of day</span>
+              {playControl}
+            </div>
+          )}
           <div
             className={styles.sky}
             data-night={night || undefined}
@@ -758,6 +774,7 @@ export default function PixelTimeline() {
         aria-label="About"
       >
         {sheetHead("About")}
+        <p className={styles.sheetText}>{lede}</p>
         <p className={styles.sheetText}>{credit}</p>
       </section>
 

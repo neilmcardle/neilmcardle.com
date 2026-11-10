@@ -1,13 +1,42 @@
 import { NextResponse } from "next/server";
 import { createCoverlyPublicClient } from "@/lib/coverly/supabase/public";
 import { renderDeck, type DeckCover } from "@/lib/coverly/pdf/deck";
+import { checkOrigin } from "@/lib/auth/checkOrigin";
+import { clientIp, hit, waitPhrase } from "@/lib/rateLimit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_COVERS = 120;
+const HOUR = 60 * 60 * 1000;
+const DECKS_PER_HOUR = 10;
+const DECKS_PER_DAY = 300;
 
 export async function POST(req: Request) {
+  const originError = checkOrigin(req);
+  if (originError) return originError;
+
+  const mine = await hit(
+    `coverly-deck:ip:${clientIp(req)}`,
+    DECKS_PER_HOUR,
+    HOUR,
+  );
+  if (!mine.allowed) {
+    return NextResponse.json(
+      {
+        error: `Too many decks. Try again in ${waitPhrase(mine.retryAfterSeconds)}.`,
+      },
+      { status: 429 },
+    );
+  }
+  const everyone = await hit("coverly-deck:day", DECKS_PER_DAY, 24 * HOUR);
+  if (!everyone.allowed) {
+    return NextResponse.json(
+      { error: "Deck exports are busy today. Try again tomorrow." },
+      { status: 429 },
+    );
+  }
+
   let body: { boardName?: unknown; coverIds?: unknown };
   try {
     body = await req.json();
@@ -24,9 +53,13 @@ export async function POST(req: Request) {
       : "Untitled board";
 
   const coverIds = Array.isArray(body.coverIds)
-    ? body.coverIds
-        .filter((id): id is string => typeof id === "string")
-        .slice(0, MAX_COVERS)
+    ? Array.from(
+        new Set(
+          body.coverIds.filter(
+            (id): id is string => typeof id === "string" && id.length <= 64,
+          ),
+        ),
+      ).slice(0, MAX_COVERS)
     : [];
 
   if (coverIds.length === 0) {
@@ -45,7 +78,11 @@ export async function POST(req: Request) {
     .eq("delisted", false);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("coverly deck lookup failed", error);
+    return NextResponse.json(
+      { error: "Could not load the covers. Try again." },
+      { status: 500 },
+    );
   }
 
   const byId = new Map(

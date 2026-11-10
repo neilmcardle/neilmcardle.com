@@ -13,7 +13,11 @@ import MessageBody from "./MessageBody";
 import CardRenderer, { tryParseAnalyticalResponse } from "./CardRenderer";
 import ReadingView from "./ReadingView";
 import { addRule } from "../../utils/bookmindMemory";
-import { hasUsedTrial, markTrialUsed } from "../../utils/bookMindTrial";
+import {
+  clearTrialUsed,
+  hasUsedTrial,
+  markTrialUsed,
+} from "../../utils/bookMindTrial";
 import styles from "../../styles/studio.module.css";
 
 type Mind = ReturnType<typeof useBookMind>;
@@ -392,9 +396,7 @@ export default function BookMindChat({
   const [menuOpen, setMenuOpen] = useState(false);
   const [slashIndex, setSlashIndex] = useState(0);
   const [reading, setReading] = useState<string | null>(null);
-  const [trialUsed, setTrialUsed] = useState(() =>
-    hasUsedTrial(userId, bookId),
-  );
+  const [trialUsed, setTrialUsed] = useState(() => hasUsedTrial(userId));
 
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -410,8 +412,19 @@ export default function BookMindChat({
       : "";
 
   useEffect(() => {
-    setTrialUsed(hasUsedTrial(userId, bookId));
-  }, [userId, bookId]);
+    setTrialUsed(hasUsedTrial(userId));
+  }, [userId]);
+
+  useEffect(() => {
+    if (!trialMode || !mind.error) return;
+    if (/free question/i.test(mind.error)) {
+      markTrialUsed(userId);
+      setTrialUsed(true);
+    } else {
+      clearTrialUsed(userId);
+      setTrialUsed(false);
+    }
+  }, [mind.error, trialMode, userId]);
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 200);
@@ -451,7 +464,7 @@ export default function BookMindChat({
     setAttached([]);
     if (selection) setDismissedSelection(selectedText ?? null);
     if (trialMode) {
-      markTrialUsed(userId, bookId);
+      markTrialUsed(userId);
       setTrialUsed(true);
     }
   };
@@ -638,9 +651,7 @@ export default function BookMindChat({
                 ) : (
                   "Book Mind has read your book. Ask anything, or start here."
                 )}
-                {trialMode &&
-                  !locked &&
-                  " You have one free question on this book."}
+                {trialMode && !locked && " You have one free question."}
               </p>
             )}
             {chapters.length > 0 && !locked && (
@@ -694,7 +705,7 @@ export default function BookMindChat({
 
       {locked ? (
         <div className={styles.bmTrial}>
-          <p>You have used the free question on this book.</p>
+          <p>You have used your free question.</p>
           <button type="button" onClick={onUpgrade}>
             See Pro
           </button>

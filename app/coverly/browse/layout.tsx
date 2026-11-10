@@ -8,7 +8,7 @@ export default function BrowseLayout({
   return (
     <div className="flex flex-col bg-background">
       <CoverlyAppHeader />
-      <div id="coverly-main">{children}</div>
+      <main id="coverly-main">{children}</main>
     </div>
   );
 }

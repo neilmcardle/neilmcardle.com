@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import YboDial, { INK, ORDER, wrapDial } from "./YboDial";
+import Link from "next/link";
+import YboDial, { ORDER, wrapDial } from "@/app/time-teacher/YboDial";
+import styles from "./time.module.css";
 
 const ONES = [
   "zero",
@@ -96,23 +98,29 @@ export default function YboPage() {
   const parts = phraseParts(hour, minutes);
 
   return (
-    <main
-      className="relative flex min-h-screen flex-col items-center justify-start gap-8 px-6 py-8"
-      style={{ background: INK.page }}
-    >
-      <button
-        type="button"
-        onClick={() => setFollowing(true)}
-        className="absolute right-6 top-6 rounded-full border border-stone-700 px-4 py-1.5 text-sm text-stone-400 transition-colors hover:border-stone-500 hover:text-stone-100"
-      >
-        Current time
-      </button>
-
-      <div className="flex flex-col items-center gap-5">
-        <p
-          aria-live="polite"
-          className="min-h-[1.2em] font-serif text-3xl tracking-tight"
+    <main className={styles.root}>
+      <style>{"html,body{background:#0d0d0c}"}</style>
+      <header className={styles.bar}>
+        <Link className={styles.home} href="/">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M10 3 5 8l5 5" />
+          </svg>
+          Home
+        </Link>
+        <button
+          type="button"
+          className={styles.now}
+          onClick={() => setFollowing(true)}
+          aria-pressed={following}
         >
+          <span className={styles.live} aria-hidden="true" />
+          Show the time now
+        </button>
+      </header>
+
+      <h1 className={styles.title}>
+        <span className={styles.hidden}>Time Teacher: </span>
+        <span aria-live="polite" className={styles.phrase}>
           {parts.map((part, i) => (
             <span
               key={part + i}
@@ -122,19 +130,21 @@ export default function YboPage() {
               {i < parts.length - 1 ? " " : ""}
             </span>
           ))}
-        </p>
-      </div>
+        </span>
+      </h1>
 
       <YboDial
         totalMinutes={totalMinutes}
         seconds={seconds}
         onChange={handleChange}
-        label={`The time is ${parts.join(" ")}`}
-        className="h-auto w-[min(78vh,98vw)] focus:outline-none"
+        label="Clock time"
+        valueText={parts.join(" ")}
+        className={styles.dial}
       />
 
-      <p className="hidden text-xs text-stone-600 sm:block">
-        Drag a hand to set the time. Arrow keys work too.
+      <p className={styles.hint}>
+        Drag a hand to set the time.
+        <span className={styles.keys}> Arrow keys work too.</span>
       </p>
     </main>
   );

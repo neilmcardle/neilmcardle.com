@@ -6,6 +6,7 @@ import { createServerClient } from "@supabase/ssr";
 import { CookieOptions } from "@supabase/ssr";
 import { getUserById, updateUser } from "@/lib/db/users";
 import { checkOrigin } from "@/lib/auth/checkOrigin";
+import { isProUser } from "@/lib/billing/proStatus";
 import { PRO_TRIAL_DAYS } from "@/lib/billing/plan";
 
 export async function POST(req: NextRequest) {
@@ -74,10 +75,7 @@ export async function POST(req: NextRequest) {
         const { user: dbUser } = await getUserById(user.id);
 
         if (dbUser) {
-          if (
-            dbUser.subscriptionTier === "pro" &&
-            dbUser.subscriptionStatus === "active"
-          ) {
+          if (isProUser(dbUser)) {
             return NextResponse.json(
               { error: "Already subscribed to Pro" },
               { status: 400 },
@@ -96,7 +94,15 @@ export async function POST(req: NextRequest) {
           }
         }
       }
-    } catch {}
+    } catch (err) {
+      if (supabaseUserId) {
+        console.error("Checkout account lookup failed", err);
+        return NextResponse.json(
+          { error: "We could not check your account. Please try again." },
+          { status: 500 },
+        );
+      }
+    }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 

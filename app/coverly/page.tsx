@@ -235,8 +235,8 @@ export default async function CoverlyPage() {
                 <div className={styles.rightsDemo}>
                   <b>Rights and takedowns</b>
                   <p>
-                    Own a cover in the catalogue? Use the takedown form to ask
-                    for it to be removed.
+                    Own a cover in the catalogue? Email us to ask for it to be
+                    removed.
                   </p>
                   <Link href="/coverly/takedown" className={styles.textLink}>
                     Request a takedown

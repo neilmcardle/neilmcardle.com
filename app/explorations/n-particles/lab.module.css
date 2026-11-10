@@ -1,0 +1,218 @@
+.page {
+  --color-bg: #0d0d0c;
+  --color-raised: #161615;
+  --color-raised-hover: #1d1d1b;
+  --color-ink: #ecebe7;
+  --color-text: #8f8c86;
+  --color-underline: #48463f;
+  --color-line: rgb(255 255 255 / 0.06);
+  --edge:
+    0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+  --radius-frame: 20px;
+  --weight-subject: 500;
+  --ease-out: cubic-bezier(0.2, 0.8, 0, 1);
+  --duration-press: 160ms;
+  --stage-ground: #f3f1ec;
+
+  color-scheme: dark;
+  display: grid;
+  align-content: start;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "intro"
+    "figure"
+    "dials";
+  gap: 24px;
+  min-height: 100svh;
+  padding: 16px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page ::selection {
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+.intro {
+  grid-area: intro;
+  display: grid;
+  gap: 8px;
+  max-width: 600px;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 24px;
+  font-weight: var(--weight-subject);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0;
+  max-width: 64ch;
+  text-wrap: pretty;
+}
+
+.subject {
+  color: var(--color-ink);
+  font-weight: var(--weight-subject);
+}
+
+.figure {
+  grid-area: figure;
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  min-height: 0;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-frame);
+  background: var(--stage-ground);
+  box-shadow:
+    0 -16px 0 var(--color-bg),
+    var(--edge);
+  cursor: grab;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.caption {
+  max-width: 600px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.caption a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-underline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--duration-press) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .caption a:hover {
+    text-decoration-color: var(--color-ink);
+  }
+}
+
+.caption a:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.dials {
+  grid-area: dials;
+  border-radius: var(--radius-frame);
+  background: var(--color-raised);
+  box-shadow: var(--edge);
+}
+
+.dials :global(.dialkit-panel-header) {
+  display: none;
+}
+
+.dials :global(.dialkit-root) {
+  --dial-glass-bg: var(--color-raised);
+  --dial-dropdown-bg: var(--color-raised-hover);
+  --dial-surface: rgb(255 255 255 / 0.04);
+  --dial-surface-hover: rgb(255 255 255 / 0.07);
+  --dial-surface-active: rgb(255 255 255 / 0.09);
+  --dial-surface-subtle: rgb(255 255 255 / 0.05);
+  --dial-text-root: var(--color-ink);
+  --dial-text-section: var(--color-text);
+  --dial-text-label: var(--color-text);
+  --dial-text-focus: var(--color-ink);
+  --dial-text-primary: var(--color-ink);
+  --dial-text-secondary: var(--color-text);
+  --dial-text-tertiary: var(--color-text);
+  --dial-border: var(--color-line);
+  --dial-border-hover: rgb(255 255 255 / 0.11);
+  --dial-focus-ring: var(--color-ink);
+  --dial-radius: 10px;
+  --dial-shadow: none;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+}
+
+.dials :global(.dialkit-panel-inner.dialkit-panel-inline) {
+  padding: 16px;
+  border: 0;
+  border-radius: var(--radius-frame);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@media (min-width: 600px) and (max-width: 959px) {
+  .stage {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 960px) {
+  .page {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "intro intro"
+      "figure dials";
+    gap: 24px 32px;
+    height: 100svh;
+    padding: 32px;
+    overflow: hidden;
+  }
+
+  .figure {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .stage {
+    position: relative;
+    aspect-ratio: auto;
+    box-shadow: var(--edge);
+  }
+
+  .dials {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}
+
+.dials :global(.dialkit-slider-value),
+.dials :global(.dialkit-slider-input) {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.dials :global(.dialkit-root *) {
+  transition-timing-function: var(--ease-out) !important;
+}
+
+.dials :global(.dialkit-segmented-pill) {
+  transition: none !important;
+}

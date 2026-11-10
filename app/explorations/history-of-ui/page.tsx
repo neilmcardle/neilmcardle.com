@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { Courier_Prime, Pixelify_Sans, VT323 } from "next/font/google";
-import { share } from "../../shared-metadata";
 import History from "./History";
+
+import { share } from "../../shared-metadata";
 
 const vt323 = VT323({
   weight: "400",
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ebe8e4",
+  themeColor: "#0d0d0c",
 };
 
 export default function HistoryOfUiPage() {
@@ -49,7 +50,7 @@ export default function HistoryOfUiPage() {
         pixel.variable,
       ].join(" ")}
     >
-      <style>{"html,body{background:#ebe8e4}"}</style>
+      <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
       <History />
     </div>
   );

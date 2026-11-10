@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, CookieOptions } from "@supabase/ssr";
 import { getUserById, getUserByEmail } from "@/lib/db/users";
+import { hit, waitPhrase } from "@/lib/rateLimit";
+import { devProEmails, isProUser } from "@/lib/billing/proStatus";
 
 export interface ProAuthResult {
   ok: boolean;
@@ -9,39 +11,16 @@ export interface ProAuthResult {
 }
 
 const DAILY_CAP = 200;
-const userUsage = new Map<string, { count: number; resetTime: number }>();
 
-if (
-  !process.env.UPSTASH_REDIS_REST_URL &&
-  process.env.NODE_ENV === "production"
-) {
-  console.warn(
-    "[requirePro] UPSTASH_REDIS_REST_URL is unset. Daily AI cap is in-memory and " +
-      "bypassable across cold starts and concurrent lambdas. Provision Upstash to fix.",
-  );
-}
-
-function checkDailyCap(userId: string): { allowed: boolean; message?: string } {
-  const now = Date.now();
-  const entry = userUsage.get(userId);
-
-  if (entry && now < entry.resetTime) {
-    if (entry.count >= DAILY_CAP) {
-      const hoursLeft = Math.ceil((entry.resetTime - now) / (1000 * 60 * 60));
-      return {
-        allowed: false,
-        message: `You've reached the daily AI usage limit (${DAILY_CAP} calls). Resets in ${hoursLeft} ${hoursLeft === 1 ? "hour" : "hours"}.`,
-      };
-    }
-    entry.count++;
-  } else {
-    userUsage.set(userId, {
-      count: 1,
-      resetTime: now + 24 * 60 * 60 * 1000,
-    });
-  }
-
-  return { allowed: true };
+async function checkDailyCap(
+  userId: string,
+): Promise<{ allowed: boolean; message?: string }> {
+  const result = await hit(`ai:user:${userId}`, DAILY_CAP, 24 * 60 * 60 * 1000);
+  if (result.allowed) return { allowed: true };
+  return {
+    allowed: false,
+    message: `You've reached the daily AI usage limit (${DAILY_CAP} calls). Try again in ${waitPhrase(result.retryAfterSeconds)}.`,
+  };
 }
 
 export interface ResolvedUser {
@@ -94,7 +73,7 @@ export async function resolveAuthedUser(
     const { user: fallbackUser } = await getUserByEmail(user.email);
     if (fallbackUser) {
       console.warn(
-        `[requirePro] id lookup failed but email lookup succeeded for ${user.email}. ` +
+        `[requirePro] id lookup failed but email lookup succeeded. ` +
           `auth.id=${user.id}, public.users.id=${fallbackUser.id}.`,
       );
       dbUser = fallbackUser;
@@ -102,28 +81,20 @@ export async function resolveAuthedUser(
   }
 
   if (!dbUser && process.env.NODE_ENV === "development") {
-    const devProEmails = [
-      "neil@neilmcardle.com",
-      "neilmcardlemail@gmail.com",
-      "hello@makeebook.ink",
-    ];
-    if (user.email && devProEmails.includes(user.email)) {
+    if (user.email && devProEmails().includes(user.email.toLowerCase())) {
       return { ok: true, user: identity, isPro: true };
     }
   }
 
-  let isPro = false;
-  if (dbUser) {
-    if (dbUser.isGrandfathered) isPro = true;
-    else if (dbUser.hasLifetimeAccess) isPro = true;
-    else if (
-      dbUser.subscriptionStatus === "active" &&
-      dbUser.subscriptionTier === "pro"
-    )
-      isPro = true;
-  }
+  return { ok: true, user: identity, isPro: isProUser(dbUser) };
+}
 
-  return { ok: true, user: identity, isPro };
+export async function dailyCapResponse(
+  userId: string,
+): Promise<NextResponse | null> {
+  const cap = await checkDailyCap(userId);
+  if (cap.allowed) return null;
+  return NextResponse.json({ error: cap.message }, { status: 429 });
 }
 
 export async function requirePro(req: NextRequest): Promise<ProAuthResult> {
@@ -145,7 +116,7 @@ export async function requirePro(req: NextRequest): Promise<ProAuthResult> {
     };
   }
 
-  const cap = checkDailyCap(resolved.user.id);
+  const cap = await checkDailyCap(resolved.user.id);
   if (!cap.allowed) {
     return {
       ok: false,

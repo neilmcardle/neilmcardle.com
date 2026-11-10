@@ -104,22 +104,25 @@ function EraSection({ era }: { era: Era }) {
       ref={ref}
       id={era.id}
       className={styles.era}
-      style={themeVars(era)}
       aria-labelledby={`${era.id}-title`}
     >
       <div className={styles.caption}>
-        <p className={styles.year}>{era.year}</p>
         <h2 id={`${era.id}-title`} className={styles.title}>
           {era.title}
         </h2>
-        <p className={styles.credit}>{era.credit}</p>
+        <p className={styles.credit}>
+          <span className={styles.year}>{era.year}</span>
+          <span>{era.credit}</span>
+        </p>
         <p className={styles.body}>{era.body}</p>
         <p className={styles.hint}>{era.hint}</p>
       </div>
-      <div className={styles.stage} data-era={era.id}>
-        <ActiveContext.Provider value={active}>
-          {mounted ? <Comp /> : <Waiting />}
-        </ActiveContext.Provider>
+      <div className={styles.frame} style={themeVars(era)}>
+        <div className={styles.stage} data-era={era.id}>
+          <ActiveContext.Provider value={active}>
+            {mounted ? <Comp /> : <Waiting />}
+          </ActiveContext.Provider>
+        </div>
       </div>
     </section>
   );
@@ -138,7 +141,6 @@ function Rail({ current }: { current: number }) {
     <nav
       className={styles.rail}
       data-hidden={current < 0 || undefined}
-      style={{ color: ERAS[Math.max(0, current)].theme.ink }}
       aria-label="Eras"
     >
       <ol>
@@ -150,8 +152,9 @@ function Rail({ current }: { current: number }) {
               aria-current={i === current ? "true" : undefined}
               className={styles.railItem}
             >
-              <span className={styles.railYear}>{era.year.slice(0, 4)}</span>
               <span className={styles.railName}>{era.title}</span>
+              <span className={styles.railYear}>{era.year.slice(0, 4)}</span>
+              <span className={styles.railMark} aria-hidden="true" />
             </button>
           </li>
         ))}
@@ -199,10 +202,11 @@ export default function History() {
           Neil McArdle
         </Link>
         <div className={styles.introText}>
-          <h1 className={styles.introTitle}>A Brief History of UI</h1>
+          <h1 className={styles.introTitle}>A brief history of UI</h1>
           <p className={styles.introLede}>
             <span className={styles.subject}>Sixty years of interfaces</span>,
-            from the light pen to the prompt box.
+            from the light pen to the prompt box. I rebuilt sixteen of them so
+            you can use them again.
           </p>
           <button type="button" className={styles.start} onClick={start}>
             Start in 1963
@@ -212,8 +216,8 @@ export default function History() {
           {ERAS.map((era) => (
             <li key={era.id}>
               <a href={`#${era.id}`}>
-                <span>{era.year}</span>
-                {era.title}
+                <span className={styles.indexYear}>{era.year}</span>
+                <span>{era.title}</span>
               </a>
             </li>
           ))}

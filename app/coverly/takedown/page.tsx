@@ -19,8 +19,9 @@ export default function TakedownPage() {
 
       <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
         Coverly is a research tool for book cover designers. It shows covers at
-        reduced resolution, hotlinked from their source and never rehosted,
-        alongside the publisher. {RIGHTS_NOTICE}
+        reduced resolution, loaded from their source rather than stored here,
+        alongside the publisher. Covers are only copied into PDF decks that you
+        export. {RIGHTS_NOTICE}
       </p>
 
       <h2 className="mt-10 text-sm font-semibold">

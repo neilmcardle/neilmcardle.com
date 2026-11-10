@@ -1,38 +1,17 @@
 import { NextResponse } from "next/server";
 import { db, suggestions } from "@/lib/db";
+import { clientIp, hit } from "@/lib/rateLimit";
 
 const MAX_LENGTH = 500;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const HOUR = 60 * 60 * 1000;
 const RATE_LIMIT_MAX = 3;
 const DAILY_LIMIT = 100;
-const ipBuckets = new Map<string, { count: number; resetAt: number }>();
-let daily = { count: 0, resetAt: Date.now() + 24 * 60 * 60 * 1000 };
 
-function getClientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) {
-    const first = fwd.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  if (now >= daily.resetAt) {
-    daily = { count: 0, resetAt: now + 24 * 60 * 60 * 1000 };
-  }
-  if (daily.count >= DAILY_LIMIT) return false;
-  const entry = ipBuckets.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    ipBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-  } else if (entry.count >= RATE_LIMIT_MAX) {
-    return false;
-  } else {
-    entry.count++;
-  }
-  daily.count++;
-  return true;
+async function withinLimits(ip: string): Promise<boolean> {
+  const mine = await hit(`suggest:ip:${ip}`, RATE_LIMIT_MAX, HOUR);
+  if (!mine.allowed) return false;
+  const everyone = await hit("suggest:day", DAILY_LIMIT, 24 * HOUR);
+  return everyone.allowed;
 }
 
 export async function POST(request: Request) {
@@ -64,7 +43,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!checkRateLimit(getClientIp(request))) {
+  if (!(await withinLimits(clientIp(request)))) {
     return NextResponse.json(
       { error: "That’s plenty for now. Try again in an hour." },
       { status: 429 },

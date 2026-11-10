@@ -16,8 +16,8 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 14px;
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  gap: 12px;
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
   font-size: 13px;
   color: var(--muted);
 }

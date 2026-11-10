@@ -20,7 +20,7 @@ export default function Status({
   return (
     <Shell>
       <Header contact="/#contact" />
-      <main className={`${shell.wrap} ${styles.main}`}>
+      <main id="main" className={`${shell.wrap} ${styles.main}`}>
         <p className={`${shell.heavy} ${styles.code}`} aria-hidden="true">
           {code}
         </p>

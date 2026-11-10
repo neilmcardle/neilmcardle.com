@@ -7,6 +7,7 @@ export type Piece = {
   image?: string;
   film?: string;
   local?: boolean;
+  live?: { label: string; href: string };
 };
 
 export const WORK: Piece[] = [
@@ -16,6 +17,7 @@ export const WORK: Piece[] = [
     line: "A peaceful place for authors to write.",
     kind: "Product",
     href: "/work/makeebook",
+    live: { label: "makeebook.ink", href: "https://makeebook.ink" },
     image: "/home/leads/makeebook.jpg",
     film: "/home/makeebook.mp4",
     local: true,
@@ -26,6 +28,7 @@ export const WORK: Piece[] = [
     line: "Inspiration for your next book cover.",
     kind: "Product",
     href: "/work/coverly",
+    live: { label: "Open coverly", href: "/coverly" },
     image: "/home/leads/coverly-books.jpg",
     film: "/home/coverly.mp4",
     local: true,
@@ -36,6 +39,10 @@ export const WORK: Piece[] = [
     line: "Wireframe from your phone.",
     kind: "iOS app",
     href: "/work/doodlewire",
+    live: {
+      label: "App Store",
+      href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
+    },
     image: "/home/leads/doodlewire.jpg",
     local: true,
   },
@@ -110,10 +117,26 @@ export const EXPLORATIONS: Piece[] = [
     href: "/explorations/architecture-pixel",
     image: "/home/peek/architecture-pixel.jpg",
   },
+  {
+    id: "n-particles",
+    title: "N Particles",
+    line: "My N, drawn in particles.",
+    kind: "Lab",
+    href: "/explorations/n-particles",
+    image: "/home/peek/n-particles.jpg",
+  },
 ];
 
 export const PLAY: Piece[] = [
   ...EXPLORATIONS,
+  {
+    id: "companies",
+    title: "How Big Companies Started",
+    line: "What the 100 biggest cost to start.",
+    kind: "Lab",
+    href: "/explorations/how-companies-started",
+    image: "/home/peek/how-companies-started.jpg",
+  },
   {
     id: "chess",
     title: "Chess Path",

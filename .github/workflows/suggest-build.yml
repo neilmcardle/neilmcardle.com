@@ -52,6 +52,9 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code@2.1.306
 
+      - name: Save git config
+        run: cp .git/config "$RUNNER_TEMP/git-config"
+
       - name: Run the agent
         id: agent
         continue-on-error: true
@@ -66,15 +69,26 @@ jobs:
             --model claude-haiku-5-5 \
             --max-budget-usd "$MAX_BUDGET_USD" \
             --permission-mode dontAsk \
-            --allowedTools "Read" "Edit" "Write" "Glob" "Grep" "Bash(npx tsc --noEmit)" \
-            --disallowedTools "WebFetch" "WebSearch" "Task" \
+            --allowedTools "Read" "Edit" "Write" "Glob" "Grep" \
+            --disallowedTools "Bash" "WebFetch" "WebSearch" "Task" \
             --output-format json > "$RUNNER_TEMP/result.json"
 
       - name: Keep only safe changes
         run: |
-          git checkout -- .github package.json package-lock.json 2>/dev/null || true
-          git ls-files --others --exclude-standard -z | grep -zE '^(\.github/|\.env)' | xargs -0 -r rm -f
-          git diff --stat
+          cp "$RUNNER_TEMP/git-config" .git/config
+          rm -rf .git/hooks
+          mkdir .git/hooks
+          git -c core.hooksPath=/dev/null -c core.fsmonitor=false checkout -- .github package.json package-lock.json .npmrc 2>/dev/null || true
+          git -c core.hooksPath=/dev/null -c core.fsmonitor=false ls-files --others --exclude-standard -z | grep -zE '^(\.github/|\.env|\.npmrc|\.yarnrc|\.nvmrc)' | xargs -0 -r rm -f
+          rm -rf node_modules
+          git -c core.hooksPath=/dev/null -c core.fsmonitor=false diff --stat
+
+      - name: Type check
+        id: types
+        continue-on-error: true
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx tsc --noEmit
 
       - name: Open a pull request
         id: pr
@@ -82,6 +96,7 @@ jobs:
           PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          export GIT_CONFIG_COUNT=2 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null GIT_CONFIG_KEY_1=core.fsmonitor GIT_CONFIG_VALUE_1=false
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to open."
@@ -97,6 +112,9 @@ jobs:
           {
             printf 'A visitor suggested:\n\n> %s\n\n' "${SUGGESTION:0:500}"
             printf 'What the agent did:\n\n%s\n' "$summary"
+            if [ "${{ steps.types.outcome }}" != "success" ]; then
+              printf '\nThe type check failed. Look at the run log before merging.\n'
+            fi
           } > "$RUNNER_TEMP/body.md"
           url=$(gh pr create --base main --head "$branch" \
             --title "Suggestion: ${SUGGESTION:0:60}" \

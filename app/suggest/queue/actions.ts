@@ -44,7 +44,11 @@ export async function unlock(formData: FormData) {
   }
   const submitted = formData.get("password");
   const token = await ownerToken();
-  if (!token || typeof submitted !== "string" || !passwordMatches(submitted)) {
+  if (
+    !token ||
+    typeof submitted !== "string" ||
+    !(await passwordMatches(submitted))
+  ) {
     redirect(`${QUEUE}?error=1`);
   }
   attempts.delete(ip);

@@ -90,11 +90,3 @@ export const MAJOR_PATTERNS = [
   "pan books",
   "wildfire",
 ];
-
-export function classifyImprint(imprint: string | null): PublisherTier | null {
-  if (!imprint) return null;
-  const value = imprint.toLowerCase();
-  if (SELF_PATTERNS.some((p) => value.includes(p))) return "self";
-  if (MAJOR_PATTERNS.some((p) => value.includes(p))) return "major";
-  return "independent";
-}

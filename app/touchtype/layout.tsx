@@ -6,6 +6,15 @@ export const metadata: Metadata = {
     "A touch-typing tutor with two modes. A playful course for kids and a focused practice ground for adults. Single page, no install.",
 };
 
-export default function TouchtypeLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+export default function TouchtypeLabLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
+      <main id="main">{children}</main>
+    </>
+  );
 }

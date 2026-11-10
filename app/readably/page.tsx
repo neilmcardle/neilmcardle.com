@@ -3,8 +3,7 @@ import { share } from "@/app/shared-metadata";
 import Shell from "@/app/_signature/Shell";
 import Header from "@/app/_signature/Header";
 import Finale from "@/app/_signature/Finale";
-import bar from "@/app/_signature/case.module.css";
-import article from "@/app/writing/_article/article.module.css";
+import kit from "./kit.module.css";
 import styles from "./readably.module.css";
 
 const TITLE = "Readably – accessible ebooks for Christian publishers";
@@ -79,36 +78,40 @@ const QUESTIONS = [
 export default function ReadablyPage() {
   return (
     <Shell>
-      <div className={bar.bar}>
+      <div className={kit.bar}>
         <Header back="/" backLabel="Home" />
       </div>
-      <div className={article.main}>
-        <article className={article.article}>
+      <main id="main" className={`${kit.root} ${kit.scope} ${kit.wrap}`}>
+        <article className={styles.article}>
           <header className={styles.head}>
-            <h1 className={article.title}>
+            <h1 className={kit.title}>
               Accessible ebooks for Christian publishers
             </h1>
             <p className={styles.intro}>
-              I fix backlist ePubs so they meet the European Accessibility Act:
-              image descriptions, reading order, navigation and accessibility
-              metadata. The book looks the same. It now works for every reader.
+              <span className={styles.subject}>
+                I fix backlist ePubs so they meet the European Accessibility
+                Act.
+              </span>{" "}
+              Image descriptions, reading order, navigation and accessibility
+              metadata. The book looks the same, and now it works for every
+              reader.
             </p>
             <a className={styles.button} href={MAIL}>
-              Get a free check on one title
+              Email me for a free check
             </a>
           </header>
 
           <section>
-            <h2 id="why-now" className={article.h2}>
+            <h2 id="why-now" className={styles.h2}>
               Why now
             </h2>
-            <p className={article.p}>
+            <p className={styles.p}>
               Since 28 June 2025, ebooks sold into the EU have to meet the
               European Accessibility Act. UK and US publishers are covered too
               for every ebook they sell into the EU, unless they have fewer than
               10 staff and turnover under €2m.
             </p>
-            <p className={article.p}>
+            <p className={styles.p}>
               Most ebooks made before then fall short in the same places:
               pictures with no descriptions, text read aloud in the wrong order,
               and missing accessibility metadata, which is the information
@@ -117,19 +120,14 @@ export default function ReadablyPage() {
           </section>
 
           <section>
-            <h2 id="who-i-am" className={article.h2}>
-              Who I am
+            <h2 id="done-before" className={styles.h2}>
+              I’ve done this 200 times
             </h2>
-            <p className={article.p}>
-              I’m Neil McArdle, a Christian designer and ebook specialist based
-              in London.
-            </p>
-            <p className={article.p}>
-              Over two years I made more than 200 accessible ePub3 books for The
-              Banner of Truth. That meant taking printed books from scan to
-              finished ebook: cleaning the text, writing image descriptions,
-              adding accessibility metadata, and checking every file with
-              EPUBCheck.
+            <p className={styles.p}>
+              I made more than 200 accessible ePub3 books for The Banner of
+              Truth. I took printed books from scan to finished ebook: cleaning
+              the text, writing image descriptions, adding accessibility
+              metadata and checking every file with EPUBCheck.
             </p>
             {QUOTE ? (
               <figure className={styles.quote}>
@@ -142,10 +140,10 @@ export default function ReadablyPage() {
           </section>
 
           <section>
-            <h2 id="free-check" className={article.h2}>
+            <h2 id="free-check" className={styles.h2}>
               How the free check works
             </h2>
-            <ol className={`${article.list} ${styles.numbered}`}>
+            <ol className={`${styles.list} ${styles.numbered}`}>
               <li>
                 Email me one of your ebooks, or tell me which title to buy.
               </li>
@@ -158,14 +156,14 @@ export default function ReadablyPage() {
                 what fails, and what it would take to fix.
               </li>
             </ol>
-            <p className={article.p}>No cost and no obligation.</p>
+            <p className={styles.p}>No cost and no obligation.</p>
           </section>
 
           <section>
-            <h2 id="what-i-check" className={article.h2}>
+            <h2 id="what-i-check" className={styles.h2}>
               What I check
             </h2>
-            <ul className={`${article.list} ${styles.bulleted}`}>
+            <ul className={`${styles.list} ${styles.bulleted}`}>
               {CHECKS.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -173,15 +171,15 @@ export default function ReadablyPage() {
           </section>
 
           <section>
-            <h2 id="prices" className={article.h2}>
+            <h2 id="prices" className={styles.h2}>
               Prices
             </h2>
-            <p className={article.p}>
+            <p className={styles.p}>
               Prices are per title. Every file comes back with a passing
               validation report.
             </p>
             <div
-              className={`${article.table} ${styles.prices}`}
+              className={`${styles.table} ${styles.prices}`}
               tabIndex={0}
               role="region"
               aria-labelledby="prices"
@@ -205,14 +203,14 @@ export default function ReadablyPage() {
                 </tbody>
               </table>
             </div>
-            <p className={article.p}>
+            <p className={styles.p}>
               Backlist of 20 or more titles: 15% off. Turnaround is five working
               days per title, with backlists delivered in monthly batches.
             </p>
           </section>
 
           <section>
-            <h2 id="questions" className={article.h2}>
+            <h2 id="questions" className={styles.h2}>
               Questions
             </h2>
             <div className={styles.questions}>
@@ -229,10 +227,10 @@ export default function ReadablyPage() {
           </section>
 
           <section className={styles.end}>
-            <h2 id="start" className={article.h2}>
+            <h2 id="start" className={styles.h2}>
               Start with one title
             </h2>
-            <p className={article.p}>
+            <p className={styles.p}>
               Send me any ebook from your list and I’ll show you exactly where
               it stands.
             </p>
@@ -241,7 +239,7 @@ export default function ReadablyPage() {
             </a>
           </section>
         </article>
-      </div>
+      </main>
       <Finale signOff />
     </Shell>
   );

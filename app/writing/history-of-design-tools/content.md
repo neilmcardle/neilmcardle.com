@@ -40,7 +40,7 @@ Sutherland later won the Turing Award (1988) for this work. Sketchpad is treated
 
 **Xerox Star (1981).** Xerox's attempt to sell these ideas: the first commercial computer with a desktop, icons, folders and WYSIWYG documents. It was expensive and sold poorly. Apple's engineers had toured PARC, and the Lisa (1983) and Macintosh (1984) took the ideas to a mass market.
 
-**Why it matters now.** Every core idea in Figma (direct manipulation, an infinite zoomable canvas, reusable components) was demonstrated in 1963. What took 50 years was making it cheap, fast and shared.
+**Why it matters now.** Every core idea in Figma (direct manipulation, a large zoomable drawing sheet, reusable components) was demonstrated in 1963. What took 50 years was making it cheap, fast and shared.
 
 ## 1984–1994: The Mac makes everyone a publisher
 
@@ -104,11 +104,11 @@ It won an Apple Design Award in 2012. In December 2015 it left the Mac App Store
 
 **Adobe abandons Fireworks (2013).** Adobe stopped developing Fireworks in 2013, saying it overlapped with Photoshop, Illustrator and Edge. Fireworks users moved to Sketch in large numbers; Sketch's team had courted that community directly.
 
-**Creative Cloud (2013).** On 6 May 2013 Adobe announced that Creative Suite 6 would be the last boxed version. All future tools would be rented by subscription. Designers reacted angrily, but Adobe's recurring revenue grew from under $2 billion to over $19 billion by 2024.
+**Creative Cloud (2013).** On 6 May 2013 Adobe announced that Creative Suite 6 would be the last boxed version. All future tools would be rented by subscription. Designers reacted angrily, but Adobe's subscription revenue grew from about $1.1 billion in 2013 to over $20 billion in 2024.
 
 > I learned Illustrator in 2014 from a textbook for CS6, the last version Adobe ever sold in a box. By the time I opened it, the boxes had gone.
 
-**Canva (2013).** Launched in Sydney by Melanie Perkins, Cliff Obrecht and Cameron Adams, Canva went after the people Adobe ignored: non-designers. It runs in a browser, starts you from a template rather than a blank page, and is free to start. Teachers, marketers and small businesses made it one of the most-used design tools in the world. It matters to this history because it proved the biggest market for design tools is people who are not designers: the same market today's prompt-to-design AI tools are chasing.
+**Canva (2013).** Founded in Perth by Melanie Perkins, Cliff Obrecht and Cameron Adams, and launched from Sydney, Canva went after the people Adobe ignored: non-designers. It runs in a browser, starts you from a template rather than a blank page, and is free to start. Teachers, marketers and small businesses made it one of the most-used design tools in the world. It matters to this history because it proved the biggest market for design tools is people who are not designers: the same market today's prompt-to-design AI tools are chasing.
 
 **InVision (2011) and the "stack" era.** Sketch files lived on one person's laptop, so tools grew up around them. InVision was the biggest: upload static screens, link them into a clickable prototype, share a link and collect comments. It was valued at $1.9 billion in 2018. Teams also paid for hand-off tools (Zeplin), version control (Abstract) and animation tools (Principle), and synced files between them.
 
@@ -152,7 +152,7 @@ The newest shift replaces drawing with describing what you want. It started with
 
 **Prompt-to-interface tools (2024–26).** Figma Make, Google Stitch, Claude Design, Paper, v0, Lovable and Bolt all turn a written prompt into a working interface or app. They are too new to judge, so they sit in the To watch list below. Google's Stitch 2.0 launch in March 2026 was followed by a fall in Figma's share price.
 
-Trade commentators reported Figma's share price down about 35% for 2026 by spring, though its own results still showed customers spending more: net dollar retention (how much existing customers' spending grew) was 136% in its Q2 2026 results.
+Figma's own results still showed customers spending more: net dollar retention (how much existing customers' spending grew) was 136% in its Q2 2026 results.
 
 **Config 2026: Figma's response.** Figma repositioned its canvas as a shared space for people, code and AI agents. Announcements included Code Layers (real code as a material on the canvas, beside vectors), a Figma agent with reusable skills and connectors to tools like Slack and GitHub, generative plugins built from a prompt, Figma Motion for animation, AI shaders, and Weave tools for AI image tasks.
 
@@ -184,7 +184,7 @@ Tools that scored 3–5 out of 10 on the scorecard: worth knowing, but not turni
 - **Affinity (2014)**: Serif's one-off-price rivals to Illustrator and Photoshop; bought by Canva in 2024.
 - **Lottie (2015)**: Airbnb's format for playing designers' animations inside apps.
 - **Apple Pencil (2015)**: the stylus that made iPad drawing professional.
-- **Modulz (2016)**: early web-native design tool; its team went on to make Radix and Paper.
+- **Modulz (2016)**: early web-native design tool. It produced the Radix UI library, and its co-founder Stephen Haney later started Paper.
 - **Adobe XD (2016)**: Adobe's Sketch rival; frozen after the Figma deal.
 - **Penpot (2021)**: open-source, browser-based, saves designs in web standards.
 - **DALL·E 2 (2022)**: OpenAI's text-to-image model; the first many people saw.

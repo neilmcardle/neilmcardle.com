@@ -9,7 +9,11 @@ import {
   createUser,
 } from "@/lib/db/users";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { expireSession, fulfilPaidSession } from "@/lib/vector-paint/orders";
+import {
+  expireSession,
+  fulfilPaidSession,
+  handleRefund,
+} from "@/lib/vector-paint/orders";
 import {
   sendTrialEnding,
   sendSubscriptionCanceled,
@@ -17,6 +21,7 @@ import {
 } from "@/lib/email/makeebook";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
@@ -89,6 +94,10 @@ export async function POST(req: NextRequest) {
         await handleCheckoutSessionExpired(
           event.data.object as Stripe.Checkout.Session,
         );
+        break;
+
+      case "charge.refunded":
+        await handleRefund(event.data.object as Stripe.Charge, stripe);
         break;
 
       case "invoice.payment_succeeded":
@@ -261,9 +270,19 @@ async function handleTrialWillEnd(
   }
   const trialEndsAt = new Date(trialEndSec * 1000);
 
+  if (
+    subscription.status !== "trialing" ||
+    trialEndsAt.getTime() <= Date.now()
+  ) {
+    console.log(
+      `[stripe webhook] trial already over for ${subscription.id}; skipping trial-ending email.`,
+    );
+    return;
+  }
+
   try {
     await sendTrialEnding({ to: user.email, trialEndsAt });
-    console.log(`✉️  Trial-ending email sent to ${user.email}`);
+    console.log(`✉️  Trial-ending email sent to user ${user.id}`);
   } catch (err) {
     console.error(
       `[stripe webhook] trial-ending email failed for user ${user.id}:`,
@@ -297,10 +316,10 @@ async function handleCheckoutSessionExpired(session: Stripe.Checkout.Session) {
 
   try {
     await sendAbandonedCheckout({ to: email, resumeUrl });
-    console.log(`✉️  Abandoned-checkout email sent to ${email}`);
+    console.log(`✉️  Abandoned-checkout email sent`);
   } catch (err) {
     console.error(
-      `[stripe webhook] abandoned-checkout email failed for ${email}:`,
+      `[stripe webhook] abandoned-checkout email failed for session ${session.id}:`,
       err,
     );
   }
@@ -394,7 +413,7 @@ async function handleCheckoutSessionCompleted(
       throw createError ?? new Error(`createUser returned no row for ${email}`);
 
     user = newUser;
-    console.log(`✅ New user invited and created: ${user.id} (${email})`);
+    console.log(`✅ New user invited and created: ${user.id}`);
   }
 
   if (!user) {

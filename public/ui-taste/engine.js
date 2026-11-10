@@ -180,7 +180,7 @@ function itemHTML(it) {
     <div class="ctl">${chips}${dials}${checks}</div>
     ${refsHTML(it, s)}
     ${out}
-    <div class="decide"><div class="dv">${decideHTML(it)}</div><input class="note" data-note placeholder="Note, shared by both repos" value="${esc(rec(it).n || "")}" aria-label="Note"></div>
+    <div class="decide"><div class="dv">${decideHTML(it)}</div><label class="noteField">Note<input class="note" data-note placeholder="Shared by both systems" value="${esc(rec(it).n || "")}"></label></div>
   </article>`;
 }
 
@@ -468,19 +468,21 @@ menu.addEventListener("click", async (e) => {
   if (x === "copy") {
     try {
       await navigator.clipboard.writeText(toMarkdown());
-      say("Copied");
+      say("Copied as markdown");
     } catch (err) {
-      say("Copy failed, use Download instead");
+      say("Copy did not work. Use Download as markdown instead.");
     }
   }
   if (
     x === "reset" &&
-    confirm("Clear every choice and note, for both repos?")
+    confirm(
+      "Clear every choice and note, for both systems? This cannot be undone.",
+    )
   ) {
     S = {};
     save();
     render();
-    say("Cleared");
+    say("Every choice cleared");
   }
 });
 document.getElementById("importFile").addEventListener("change", async (e) => {
@@ -491,9 +493,11 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
     S = migrate(j.state || j);
     save();
     render();
-    say("Imported");
+    say("Choices imported");
   } catch (err) {
-    say("That file is not a UI taste download");
+    say(
+      "That file is not a UI Taste download. Choose the ui-taste.json file you saved.",
+    );
   }
   e.target.value = "";
   menu.hidden = true;

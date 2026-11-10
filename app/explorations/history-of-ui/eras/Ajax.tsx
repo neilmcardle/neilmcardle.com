@@ -14,13 +14,13 @@ const PLACES: Record<string, Place[]> = {
   coffee: [
     { name: "Bean There", street: "14 Market St", x: 81, y: 54 },
     { name: "The Grind House", street: "201 River Rd", x: -117, y: 27 },
-    { name: "Second Cup Café", street: "9 Mill Lane", x: 18, y: -104 },
+    { name: "Halfway Café", street: "9 Mill Lane", x: 18, y: -104 },
     { name: "Drip & Draw", street: "77 Canal Walk", x: 189, y: -36 },
   ],
   pizza: [
     { name: "Slice of Life", street: "3 Market St", x: -54, y: -18 },
     { name: "Forno Rosso", street: "48 High St", x: 135, y: 117 },
-    { name: "Dough Bros", street: "12 Bridge St", x: -171, y: -94 },
+    { name: "Crust & Crumb", street: "12 Bridge St", x: -171, y: -94 },
   ],
   books: [
     { name: "Chapter & Verse", street: "5 Abbey Row", x: 40, y: 135 },

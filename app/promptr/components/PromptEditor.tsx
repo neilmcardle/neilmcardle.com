@@ -1,7 +1,3 @@
-// The prompt editor — large auto-growing textarea + a helper row with
-// the character count and primary actions. Kept visually quiet so the
-// prompt itself is the main thing on the page.
-
 import { useEffect, useRef } from "react";
 
 interface PromptEditorProps {
@@ -27,9 +23,6 @@ export default function PromptEditor({
 }: PromptEditorProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-grow: clear the height first, then set to scrollHeight so the
-  // textarea matches the content exactly. Capped at 600px so very long
-  // prompts scroll inside the box instead of eating the page.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -42,7 +35,9 @@ export default function PromptEditor({
   const busy = isScoring || isRefining;
 
   return (
-    <section style={{ padding: "8px 24px 24px", maxWidth: 860, margin: "0 auto" }}>
+    <section
+      style={{ padding: "8px 24px 24px", maxWidth: 860, margin: "0 auto" }}
+    >
       <div
         style={{
           background: "#fff",
@@ -92,7 +87,8 @@ export default function PromptEditor({
               fontVariantNumeric: "tabular-nums",
             }}
           >
-            {value.length.toLocaleString()} / {MAX_CHARS.toLocaleString()} characters
+            {value.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}{" "}
+            characters
           </span>
           <div style={{ display: "flex", gap: 8 }}>
             <button
@@ -106,8 +102,12 @@ export default function PromptEditor({
                 borderRadius: 10,
                 border: "1px solid rgba(0,0,0,0.1)",
                 background: "#fff",
-                color: tooShort || overLimit || busy ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.75)",
-                cursor: tooShort || overLimit || busy ? "not-allowed" : "pointer",
+                color:
+                  tooShort || overLimit || busy
+                    ? "rgba(0,0,0,0.3)"
+                    : "rgba(0,0,0,0.75)",
+                cursor:
+                  tooShort || overLimit || busy ? "not-allowed" : "pointer",
                 transition: "all 0.15s",
               }}
             >
@@ -123,9 +123,12 @@ export default function PromptEditor({
                 padding: "9px 18px",
                 borderRadius: 10,
                 border: "none",
-                background: tooShort || overLimit || busy ? "rgba(0,0,0,0.12)" : "#111",
-                color: tooShort || overLimit || busy ? "rgba(0,0,0,0.4)" : "#fff",
-                cursor: tooShort || overLimit || busy ? "not-allowed" : "pointer",
+                background:
+                  tooShort || overLimit || busy ? "rgba(0,0,0,0.12)" : "#111",
+                color:
+                  tooShort || overLimit || busy ? "rgba(0,0,0,0.4)" : "#fff",
+                cursor:
+                  tooShort || overLimit || busy ? "not-allowed" : "pointer",
                 transition: "all 0.15s",
               }}
             >
@@ -135,10 +138,29 @@ export default function PromptEditor({
         </div>
       </div>
       {tooShort && value.length > 0 && (
-        <p style={{ fontFamily: "var(--font-inter)", fontSize: 12, color: "rgba(0,0,0,0.4)", marginTop: 8, marginLeft: 4 }}>
+        <p
+          style={{
+            fontFamily: "var(--font-inter)",
+            fontSize: 12,
+            color: "rgba(0,0,0,0.4)",
+            marginTop: 8,
+            marginLeft: 4,
+          }}
+        >
           Give it a little more to work with. Twelve characters or so.
         </p>
       )}
+      <p
+        style={{
+          margin: "10px 4px 0",
+          fontFamily: "var(--font-inter)",
+          fontSize: 12,
+          color: "rgba(0,0,0,0.6)",
+        }}
+      >
+        Your prompt is sent to Anthropic&rsquo;s Claude to score it. It is not
+        stored.
+      </p>
     </section>
   );
 }

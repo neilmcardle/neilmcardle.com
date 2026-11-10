@@ -202,7 +202,7 @@ export default async function SparkPage() {
               id="check"
               number="03"
               title="Check you have it."
-              desc="Short questions at the end of each module, with the reasoning behind every answer."
+              desc="Short questions inside some modules, with the reasoning behind every answer."
             >
               <CheckDemo />
             </FeatureCard>

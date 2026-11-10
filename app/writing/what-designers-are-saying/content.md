@@ -40,7 +40,7 @@ The pattern doesn't come from one or two episodes. No single video accounts for 
 
 ## What people say, in their own words
 
-I read 763 passages where speakers described something changing ("used to", "anymore", "a year ago") plus passages around each rising or falling term, then grouped them. Quotes are named by episode, not by person, because the transcripts don't mark who is speaking. Dates are to the month.
+I read 763 passages where speakers described something changing ("used to", "anymore", "a year ago") plus passages around each rising or falling term, then grouped them. Quotes are credited to the episode they come from, which is often named after its guest. The transcripts don't mark who is speaking, so a quote may be the host's. Dates are to the month.
 
 ### 1. The canvas changed job: it's no longer the starting point
 
@@ -133,7 +133,7 @@ The data is 99 YouTube transcripts published between December 2025 and early Nov
 **How it was done**
 
 1. **Counting.** I counted how many videos in each quarter use a term at least twice. Then I checked that no single episode drives the count.
-2. **Reading.** I pulled every passage where someone describes change, plus sample passages around each rising or falling term, about 400 in all. I grouped them into themes without starting from a list of expected themes.
+2. **Reading.** I pulled every passage where someone describes change, plus sample passages around each rising or falling term: 763 change passages in all. I grouped them into themes without starting from a list of expected themes.
 3. **Checking.** Every quote was matched word for word against the transcripts.
 
 **Limits, most serious first**

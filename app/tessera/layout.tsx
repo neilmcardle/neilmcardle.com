@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TesseraLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default function TesseraLabLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
+      <main id="main">{children}</main>
+    </>
+  );
 }

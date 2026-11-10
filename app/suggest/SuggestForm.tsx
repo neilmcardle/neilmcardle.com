@@ -55,7 +55,7 @@ export default function SuggestForm() {
     return (
       <div className={styles.sentWrap}>
         <p ref={done} className={styles.sent} tabIndex={-1}>
-          Thanks. If I build it, it&rsquo;ll appear below.
+          Thanks. If I build it, you&rsquo;ll see it in the list below.
         </p>
         <button
           type="button"
@@ -93,6 +93,7 @@ export default function SuggestForm() {
         <div className={styles.meta}>
           {invalid ? (
             <p id="sg-error" className={styles.fieldError}>
+              <Alert />
               {invalid}
             </p>
           ) : (
@@ -115,6 +116,7 @@ export default function SuggestForm() {
       </div>
       {error ? (
         <p className={styles.formError} role="alert">
+          <Alert />
           {error}
         </p>
       ) : null}
@@ -123,12 +125,21 @@ export default function SuggestForm() {
         type="submit"
         disabled={state === "sending"}
       >
-        {state === "sending" ? "Sending…" : "Send suggestion"}
+        {state === "sending" ? "Sending" : "Send suggestion"}
       </button>
       <p className={styles.small}>
         Leave out names and contact details. If I build your suggestion, your
         words appear on this page.
       </p>
     </form>
+  );
+}
+
+function Alert() {
+  return (
+    <svg className={styles.alert} viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.25" />
+      <path d="M8 4.75v3.75M8 11h.01" />
+    </svg>
   );
 }

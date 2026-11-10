@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { share } from "../../shared-metadata";
 import PixelTimeline from "./PixelTimeline";
+
+import { share } from "../../shared-metadata";
 
 const DESCRIPTION =
   "A history of architecture as small pixel dioramas. Scrub through time, change the light and tap a building to name its parts.";
@@ -18,9 +19,10 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0d0d0c",
+  colorScheme: "dark",
 };
 
-export default function ArchitecturePixelPage() {
+export default function ArchitecturePixelLabPage() {
   return (
     <>
       <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>

@@ -538,7 +538,7 @@ function BrowseCard({
             }}
             className="h-full w-full bg-muted object-cover"
           />
-          <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/35 to-transparent p-2.5 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100">
+          <div className="pointer-events-none absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/35 to-transparent p-2.5 opacity-0 transition-opacity duration-200 group-hover/card:opacity-100 group-has-[:focus-visible]/card:opacity-100">
             <p className="line-clamp-2 text-[13px] font-medium leading-tight text-white">
               {cover.title}
             </p>
@@ -549,7 +549,7 @@ function BrowseCard({
           </div>
         </div>
       </button>
-      <div className="absolute left-2 top-2 z-10 flex gap-1 opacity-0 transition-opacity group-hover/card:opacity-100">
+      <div className="absolute left-2 top-2 z-10 flex gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover/card:opacity-100 group-has-[:focus-visible]/card:opacity-100">
         <HeartButton liked={liked} onToggle={onLike} />
       </div>
       <AddToBoard

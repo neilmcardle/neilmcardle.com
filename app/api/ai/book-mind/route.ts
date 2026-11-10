@@ -1,32 +1,31 @@
-// Editorial chat endpoint. Client sends structured prompt sections; the
-// server stitches them, picks a model for the tier, and streams deltas via SSE.
-
-import { NextRequest, NextResponse } from 'next/server';
-import { requireProUser } from './_lib/proAuth';
+import { NextRequest, NextResponse } from "next/server";
+import { requireBookMindAccess } from "@/lib/auth/requireBookMindAccess";
+import { refundFreeQuestion } from "@/lib/ai/questionGrant";
+import { voiceFor } from "@/lib/ai/bookMindVoices";
 import {
   streamWithFallback,
   pickAnthropicModel,
   SystemBlock,
   AnthropicMessage,
   ModelTier,
-} from './_lib/anthropic';
+} from "./_lib/anthropic";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 export const maxDuration = 60;
 
 interface ChatRequest {
-  // Voice → memory → context. Only context is marked as a cache breakpoint.
-  voice: string;
-  memory?: string;
-  context: string;
-
-  messages: AnthropicMessage[];
-
-  tier: 'spotlight' | 'scene' | 'wide';
-
-  // Escalate quality on wide-tier requests.
+  voice: unknown;
+  memory?: unknown;
+  context?: unknown;
+  messages: unknown;
+  tier: "spotlight" | "scene" | "wide";
   deep?: boolean;
 }
+
+const MAX_MESSAGES = 24;
+const MAX_MESSAGE_CHARS = 60_000;
+const MAX_MEMORY_CHARS = 20_000;
+const MAX_CONTEXT_CHARS = 600_000;
 
 const encoder = new TextEncoder();
 
@@ -39,54 +38,88 @@ function sseError(error: string): Uint8Array {
 }
 
 function sseDone(): Uint8Array {
-  return encoder.encode('data: [DONE]\n\n');
+  return encoder.encode("data: [DONE]\n\n");
+}
+
+function bad(error: string) {
+  return NextResponse.json({ error }, { status: 400 });
+}
+
+function readMessages(raw: unknown): AnthropicMessage[] | string {
+  if (!Array.isArray(raw) || raw.length === 0) return "No messages provided";
+  if (raw.length > MAX_MESSAGES) return "Too many messages";
+  const messages: AnthropicMessage[] = [];
+  let total = 0;
+  for (const m of raw) {
+    const role = (m as { role?: unknown })?.role;
+    const content = (m as { content?: unknown })?.content;
+    if (
+      (role !== "user" && role !== "assistant") ||
+      typeof content !== "string"
+    ) {
+      return "Invalid message";
+    }
+    total += content.length;
+    messages.push({ role, content });
+  }
+  if (total > MAX_MESSAGE_CHARS) return "Messages are too long";
+  if (messages[messages.length - 1].role !== "user") return "Invalid message";
+  return messages;
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await requireProUser(req);
-  if (!auth.ok) return auth.response!;
-
   let body: ChatRequest;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    return bad("Invalid request body");
   }
 
-  if (!body.messages || body.messages.length === 0) {
-    return NextResponse.json({ error: 'No messages provided' }, { status: 400 });
-  }
-  if (!body.voice) {
-    return NextResponse.json({ error: 'Missing voice block' }, { status: 400 });
-  }
+  const voice = voiceFor(body?.voice);
+  if (!voice) return bad("Unknown voice");
 
-  // Voice + memory are small and per-surface (uncached). Context gets the
-  // cache breakpoint because it is large and stable across a session.
-  // Compose-from-scratch flows (Cmd-K with no selection, /draft, /dialogue)
-  // legitimately have no context — voice alone is a valid system prompt.
-  const systemBlocks: SystemBlock[] = [
-    { type: 'text', text: body.voice },
-  ];
-  if (body.memory && body.memory.trim()) {
-    systemBlocks.push({ type: 'text', text: body.memory });
+  const messages = readMessages(body.messages);
+  if (typeof messages === "string") return bad(messages);
+
+  const memory = typeof body.memory === "string" ? body.memory : "";
+  const context = typeof body.context === "string" ? body.context : "";
+  if (memory.length > MAX_MEMORY_CHARS) return bad("Memory is too long");
+  if (context.length > MAX_CONTEXT_CHARS)
+    return bad("The book is too long to send in one go");
+
+  const auth = await requireBookMindAccess(req, {
+    allowFreeQuestion: body.voice === "chat",
+  });
+  if (!auth.ok) return auth.response!;
+
+  const refundIfFree = async () => {
+    if (auth.usedFreeQuestion && auth.user)
+      await refundFreeQuestion(auth.user.id);
+  };
+
+  if (auth.usedFreeQuestion) body.deep = false;
+
+  const systemBlocks: SystemBlock[] = [{ type: "text", text: voice }];
+  if (memory.trim()) {
+    systemBlocks.push({ type: "text", text: memory });
   }
-  if (body.context && body.context.trim()) {
+  if (context.trim()) {
     systemBlocks.push({
-      type: 'text',
-      text: body.context,
-      cache_control: { type: 'ephemeral' },
+      type: "text",
+      text: context,
+      cache_control: { type: "ephemeral" },
     });
   }
 
-  const tier: ModelTier = body.tier === 'wide' && body.deep ? 'background' : 'live';
+  const tier: ModelTier =
+    body.tier === "wide" && body.deep ? "background" : "live";
 
   const modelUsed = pickAnthropicModel(tier);
 
+  let answered = false;
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Emit a one-shot meta line so the client knows what tier and model
-        // this response is using.
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({ meta: { tier: body.tier, deep: !!body.deep, model: modelUsed } })}\n\n`,
@@ -96,16 +129,20 @@ export async function POST(req: NextRequest) {
         for await (const delta of streamWithFallback({
           tier,
           systemBlocks,
-          messages: body.messages,
+          messages,
           maxTokens: 4096,
           temperature: 0.7,
-          label: `chat:${body.tier ?? 'auto'}${body.deep ? ':deep' : ''}`,
+          label: `chat:${body.tier ?? "auto"}${body.deep ? ":deep" : ""}`,
         })) {
+          if (delta) answered = true;
           controller.enqueue(sseChunk(delta));
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Stream error';
-        controller.enqueue(sseError(message));
+        if (!answered) await refundIfFree();
+        console.error("[book mind] stream failed", err);
+        controller.enqueue(
+          sseError("Book Mind could not answer just now. Try again."),
+        );
       } finally {
         controller.enqueue(sseDone());
         controller.close();
@@ -115,9 +152,9 @@ export async function POST(req: NextRequest) {
 
   return new Response(stream, {
     headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
     },
   });
 }

@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import Shell from "../_signature/Shell";
-import Header from "../_signature/Header";
-import Finale from "../_signature/Finale";
+import Shell from "@/app/_signature/Shell";
+import Header from "@/app/_signature/Header";
+import Finale from "@/app/_signature/Finale";
 import Policy from "./Policy";
-import shell from "../_signature/signature.module.css";
-import styles from "../_signature/privacy.module.css";
+import kit from "./kit.module.css";
+import styles from "./privacy.module.css";
 
 export const metadata: Metadata = {
   title: "Privacy Policy · Neil McArdle",
@@ -18,10 +18,14 @@ export const viewport: Viewport = {
 export default function PrivacyPage() {
   return (
     <Shell>
-      <Header />
-      <article className={`${shell.wrap} ${styles.policy}`}>
-        <Policy />
-      </article>
+      <div className={kit.bar}>
+        <Header />
+      </div>
+      <main id="main" className={`${kit.root} ${kit.scope}`}>
+        <article className={`${kit.wrap} ${styles.policy}`}>
+          <Policy />
+        </article>
+      </main>
       <Finale />
     </Shell>
   );

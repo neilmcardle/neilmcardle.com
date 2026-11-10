@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type React from "react";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: "Time Teacher",
@@ -6,6 +7,14 @@ export const metadata: Metadata = {
     "A learning clock that lights up the words you say to tell the time.",
 };
 
-export default function YboLayout({ children }: { children: React.ReactNode }) {
+export const viewport: Viewport = {
+  themeColor: "#0d0d0c",
+};
+
+export default function TimeTeacherLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

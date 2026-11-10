@@ -57,7 +57,7 @@ export const AVIS: Chapter[] = [
   },
   {
     label: "The result",
-    body: "A/B tests against the existing checkout, with conversion as the main measure. The three-step version lifted conversion 5%, and a second round refined how protection is presented.",
+    body: "A/B tests against the existing checkout, with conversion as the main measure. The three-step version increased step conversion, and a second round refined how protection is presented.",
     visual: (
       <video
         className={styles.film}

@@ -17,8 +17,6 @@ export const viewport: Viewport = {
   themeColor: "#ECE5D8",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function VectorPaintLayout({

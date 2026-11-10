@@ -25,15 +25,17 @@ export default function WorkPage() {
   return (
     <Shell>
       <Header />
-      <div className={`${shell.wrap} ${styles.opening}`}>
-        <h1 className={styles.title}>All work</h1>
-        <p className={styles.intro}>
-          Products I design and build, the work behind them, and the things I
-          make for fun.
-        </p>
-      </div>
-      <Work />
-      <Index />
+      <main id="main">
+        <div className={`${shell.wrap} ${styles.opening}`}>
+          <h1 className={styles.title}>All work</h1>
+          <p className={styles.intro}>
+            Products I design and build, the work behind them, and the things I
+            make for fun.
+          </p>
+        </div>
+        <Work />
+        <Index />
+      </main>
       <Finale copyEmail />
     </Shell>
   );

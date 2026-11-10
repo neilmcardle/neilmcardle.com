@@ -2,6 +2,14 @@ import type Stripe from "stripe";
 import type { VectorPaintProduct } from "./products";
 
 const GELATO_ORDERS_BASE = "https://order.gelatoapis.com/v4";
+const GELATO_TIMEOUT_MS = 20_000;
+
+export class GelatoUnconfirmedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GelatoUnconfirmedError";
+  }
+}
 
 interface GelatoShippingAddress {
   firstName: string;
@@ -48,6 +56,24 @@ function shippingAddressFromSession(
   };
 }
 
+export async function cancelGelatoOrder(gelatoOrderId: string): Promise<void> {
+  const apiKey = process.env.GELATO_API_KEY;
+  if (!apiKey) throw new Error("GELATO_API_KEY not configured");
+  const res = await fetch(
+    `${GELATO_ORDERS_BASE}/orders/${encodeURIComponent(gelatoOrderId)}:cancel`,
+    {
+      method: "POST",
+      headers: { "X-API-KEY": apiKey },
+      signal: AbortSignal.timeout(GELATO_TIMEOUT_MS),
+    },
+  );
+  if (!res.ok) {
+    throw new Error(
+      `Gelato cancel failed (${res.status}): ${(await res.text()).slice(0, 300)}`,
+    );
+  }
+}
+
 export async function createGelatoOrder(args: {
   orderId: string;
   session: Stripe.Checkout.Session;
@@ -74,7 +100,15 @@ export async function createGelatoOrder(args: {
   if (isGelatoDryRun()) {
     console.log(
       "[Gelato dry run] would POST /v4/orders",
-      JSON.stringify({ ...body, shippingAddress: "[redacted]" }),
+      JSON.stringify({
+        ...body,
+        customerReferenceId: "[redacted]",
+        shippingAddress: "[redacted]",
+        items: body.items.map((item) => ({
+          ...item,
+          files: item.files.map((file) => ({ ...file, url: "[redacted]" })),
+        })),
+      }),
     );
     return {
       id: `dry-run-${args.orderId}`,
@@ -86,17 +120,33 @@ export async function createGelatoOrder(args: {
   const apiKey = process.env.GELATO_API_KEY;
   if (!apiKey) throw new Error("GELATO_API_KEY not configured");
 
-  const res = await fetch(`${GELATO_ORDERS_BASE}/orders`, {
-    method: "POST",
-    headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${GELATO_ORDERS_BASE}/orders`, {
+      method: "POST",
+      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(GELATO_TIMEOUT_MS),
+    });
+  } catch (err) {
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new GelatoUnconfirmedError(
+      `No answer from Gelato (${reason}). Check Gelato for order reference ${args.orderId} before resubmitting.`,
+    );
+  }
   if (!res.ok) {
     throw new Error(
       `Gelato order create failed (${res.status}): ${(await res.text()).slice(0, 500)}`,
     );
   }
-  const json = (await res.json()) as { id: string; fulfillmentStatus: string };
+  let json: { id: string; fulfillmentStatus: string };
+  try {
+    json = (await res.json()) as { id: string; fulfillmentStatus: string };
+  } catch {
+    throw new GelatoUnconfirmedError(
+      `Gelato accepted the request but the reply could not be read. Check Gelato for order reference ${args.orderId} before resubmitting.`,
+    );
+  }
   return {
     id: json.id,
     fulfillmentStatus: json.fulfillmentStatus,

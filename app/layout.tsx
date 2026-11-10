@@ -189,9 +189,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
         />
         <div className="min-h-screen flex flex-col">
-          <main id="main" className="flex-1">
-            {children}
-          </main>
+          <div className="flex-1">{children}</div>
         </div>
         <NavTracker />
         <NeilAgent />

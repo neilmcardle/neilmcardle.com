@@ -15,31 +15,11 @@ import { parseDrawingPayload } from "@/lib/vector-paint/drawing";
 import { storeOrderFiles } from "@/lib/vector-paint/render";
 import { createPendingOrder, updateOrder } from "@/lib/vector-paint/orders";
 import { checkOrigin } from "@/lib/auth/checkOrigin";
+import { clientIp, hit } from "@/lib/rateLimit";
 
 const MAX_QUANTITY = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
-const ipBuckets = new Map<string, { count: number; resetAt: number }>();
-
-function clientIp(req: NextRequest): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
-function withinRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipBuckets.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    ipBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
-  entry.count++;
-  return true;
-}
 
 function fail(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
@@ -52,7 +32,15 @@ export async function POST(req: NextRequest) {
   if (!ORDERS_ENABLED) return fail("Canvas orders are not open yet.", 503);
   if (!process.env.STRIPE_SECRET_KEY)
     return fail("Ordering is not set up yet.", 500);
-  if (!withinRateLimit(clientIp(req)))
+  if (
+    !(
+      await hit(
+        `vector-paint:ip:${clientIp(req)}`,
+        RATE_LIMIT_MAX,
+        RATE_LIMIT_WINDOW_MS,
+      )
+    ).allowed
+  )
     return fail("Too many tries. Wait a minute and try again.", 429);
 
   let body: Record<string, unknown>;

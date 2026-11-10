@@ -30,7 +30,7 @@ export const PROJECTS: Project[] = [
     image: "/home/leads/avis-card.jpg",
     alt: "Avis checkout, five steps cut to three",
     film: "/work/avis/avis-3-step-c.mp4",
-    proof: { value: "+5%", label: "conversion in testing" },
+    proof: { value: "Increased", label: "step conversion" },
     wide: true,
     hero: "/work/avis/hero-cover.jpg",
     darkCue: true,

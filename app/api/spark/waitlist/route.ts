@@ -5,7 +5,6 @@ import { sparkWaitlist } from "@/lib/db/schema";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Per-IP rate limit. In-memory; resets on cold start.
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();
@@ -34,7 +33,10 @@ function checkRateLimit(ip: string): boolean {
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   if (!checkRateLimit(ip)) {
-    return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
+    return NextResponse.json(
+      { error: "Too many requests. Try again in a minute." },
+      { status: 429 },
+    );
   }
 
   let body: { email?: unknown; source?: unknown; website?: unknown };
@@ -44,20 +46,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  // Honeypot: real users never fill this hidden field. Bots usually do.
   if (typeof body.website === "string" && body.website.length > 0) {
     return NextResponse.json({ ok: true });
   }
 
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!email || email.length > 320 || !EMAIL_RE.test(email)) {
     return NextResponse.json({ error: "Enter a valid email" }, { status: 400 });
   }
 
-  const source = typeof body.source === "string" ? body.source.slice(0, 64) : null;
+  const source =
+    typeof body.source === "string" ? body.source.slice(0, 64) : null;
 
   try {
-    await db.insert(sparkWaitlist).values({ email, source }).onConflictDoNothing();
+    await db
+      .insert(sparkWaitlist)
+      .values({ email, source })
+      .onConflictDoNothing();
   } catch (err) {
     console.error("[spark/waitlist] insert failed", err);
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
@@ -77,13 +83,12 @@ export async function POST(request: Request) {
           "",
           "Spark is a course that takes designers to full-stack engineer. Built for designers, by a designer, so they can build for themselves.",
           "",
-          "I'm building it in public, evening by evening. You'll hear from me when the first modules land.",
+          "I'm building it in public, evening by evening. You'll hear from me when new modules land.",
           "",
           "Neil",
         ].join("\n"),
       });
     } catch (err) {
-      // Email failure must not fail the signup. The row is already saved.
       console.error("[spark/waitlist] resend send failed", err);
     }
   }

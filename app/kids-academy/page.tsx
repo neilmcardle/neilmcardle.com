@@ -24,9 +24,9 @@ export default function KidsAcademyHome() {
           </h1>
 
           <p className="font-ka-body text-lg text-slate-600 max-w-xl">
-            Every topic in the UK National Curriculum gets its own hands-on
-            lesson. No videos, no worksheets, no boring quizzes. Just things
-            your child can tap, drag, and explore.
+            Hands-on lessons built on the national curriculum for England. No
+            videos, no worksheets, no boring quizzes. Just things your child can
+            tap, drag, and explore.
           </p>
 
           <Link
@@ -38,15 +38,16 @@ export default function KidsAcademyHome() {
           </Link>
 
           <p className="text-xs text-slate-500 max-w-md">
-            Free to use. No sign-up, no ads, no tracking. Year 3 lessons are
-            ready now. The other year groups are on the way.
+            Free to use. No sign-up, no ads and no advertising trackers; I only
+            count page views anonymously. Year 3 lessons are ready now. The
+            other year groups are on the way.
           </p>
         </div>
       </section>
 
       <footer className="px-6 sm:px-10 py-6 text-center text-xs text-slate-400">
-        Built by Neil McArdle. Lessons match the statutory UK National
-        Curriculum.
+        Built by Neil McArdle. Lessons follow the national curriculum for
+        England.
       </footer>
     </main>
   );

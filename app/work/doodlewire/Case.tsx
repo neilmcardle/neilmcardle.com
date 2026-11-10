@@ -18,7 +18,20 @@ export default function DoodleWireCase({ home }: { home?: string }) {
           />
         </section>
       }
-      facts={[{ label: "When", value: "2026" }]}
+      facts={[
+        { label: "When", value: "2026" },
+        {
+          label: "Live",
+          value: (
+            <a
+              href="https://apps.apple.com/us/app/doodlewire/id6771274835"
+              rel="noopener"
+            >
+              App Store
+            </a>
+          ),
+        },
+      ]}
       overview="DoodleWire is a phone sketchpad for interface ideas. Draw a screen with your finger, and the ink snaps into a clean low-fidelity wireframe on an 8pt grid. Share it as an image, as a spec for AI tools or as a single HTML file."
       frames={[
         {

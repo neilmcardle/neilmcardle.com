@@ -14,10 +14,11 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   turbopack: {},
+
+  experimental: {
+    cssChunking: "graph",
+  },
 
   devIndicators: {
     position: "bottom-right",

@@ -1,10 +1,3 @@
-/**
- * The events on the globe. Coordinates are [latitude, longitude].
- * `year` is the year the event is placed at on the timeline (negative = BCE);
- * `when` is how the date is written, so approximate dates can say so.
- * `route` draws a journey as a sequence of points.
- */
-
 export type LatLon = [number, number];
 
 export type HistoryEvent = {
@@ -571,7 +564,7 @@ export const EVENTS: HistoryEvent[] = [
     year: 1687,
     when: "1687 CE",
     title: "The Scientific Revolution",
-    place: "Cambridge, England",
+    place: "Cambridge and London, England",
     at: [52.2, 0.12],
     body: "Isaac Newton's Principia showed that the same laws govern a falling apple and the orbit of the Moon. Experiment and mathematics became the way to understand nature.",
   },
@@ -750,11 +743,6 @@ export const EVENTS: HistoryEvent[] = [
 
 EVENTS.sort((a, b) => a.year - b.year);
 
-/**
- * The timeline is not linear: 300,000 years of prehistory would otherwise
- * squash everything since the pyramids into a sliver. Each era gets a share
- * of the width, and time is linear within it.
- */
 const STOPS: [number, number][] = [
   [START, 0],
   [-10000, 0.12],

@@ -1,0 +1,706 @@
+{
+  "asOf": "2026-11-10",
+  "source": "https://companiesmarketcap.com/",
+  "companies": [
+    {
+      "rank": 1,
+      "name": "Apple",
+      "symbol": "AAPL",
+      "marketCapBn": 5096.3,
+      "country": "USA"
+    },
+    {
+      "rank": 2,
+      "name": "NVIDIA",
+      "symbol": "NVDA",
+      "marketCapBn": 4314.3,
+      "country": "USA"
+    },
+    {
+      "rank": 3,
+      "name": "Microsoft",
+      "symbol": "MSFT",
+      "marketCapBn": 4048.6,
+      "country": "USA"
+    },
+    {
+      "rank": 4,
+      "name": "Alphabet (Google)",
+      "symbol": "GOOG",
+      "marketCapBn": 3516.2,
+      "country": "USA"
+    },
+    {
+      "rank": 5,
+      "name": "Amazon",
+      "symbol": "AMZN",
+      "marketCapBn": 2886.4,
+      "country": "USA"
+    },
+    {
+      "rank": 6,
+      "name": "TSMC",
+      "symbol": "TSM",
+      "marketCapBn": 2015.6,
+      "country": "Taiwan"
+    },
+    {
+      "rank": 7,
+      "name": "SpaceX",
+      "symbol": "SPCX",
+      "marketCapBn": 1929.5,
+      "country": "USA"
+    },
+    {
+      "rank": 8,
+      "name": "Saudi Aramco",
+      "symbol": "2222.SR",
+      "marketCapBn": 1683.3,
+      "country": "Saudi Arabia"
+    },
+    {
+      "rank": 9,
+      "name": "Meta Platforms (Facebook)",
+      "symbol": "META",
+      "marketCapBn": 1639.9,
+      "country": "USA"
+    },
+    {
+      "rank": 10,
+      "name": "Broadcom",
+      "symbol": "AVGO",
+      "marketCapBn": 1525.1,
+      "country": "USA"
+    },
+    {
+      "rank": 11,
+      "name": "Tesla",
+      "symbol": "TSLA",
+      "marketCapBn": 1494.3,
+      "country": "USA"
+    },
+    {
+      "rank": 12,
+      "name": "Eli Lilly",
+      "symbol": "LLY",
+      "marketCapBn": 1257.7,
+      "country": "USA"
+    },
+    {
+      "rank": 13,
+      "name": "Berkshire Hathaway",
+      "symbol": "BRK-B",
+      "marketCapBn": 1231.4,
+      "country": "USA"
+    },
+    {
+      "rank": 14,
+      "name": "Walmart",
+      "symbol": "WMT",
+      "marketCapBn": 997,
+      "country": "USA"
+    },
+    {
+      "rank": 15,
+      "name": "Samsung",
+      "symbol": "005930.KS",
+      "marketCapBn": 972,
+      "country": "South Korea"
+    },
+    {
+      "rank": 16,
+      "name": "JPMorgan Chase",
+      "symbol": "JPM",
+      "marketCapBn": 908.4,
+      "country": "USA"
+    },
+    {
+      "rank": 17,
+      "name": "AMD",
+      "symbol": "AMD",
+      "marketCapBn": 834.1,
+      "country": "USA"
+    },
+    {
+      "rank": 18,
+      "name": "Micron Technology",
+      "symbol": "MU",
+      "marketCapBn": 829.5,
+      "country": "USA"
+    },
+    {
+      "rank": 19,
+      "name": "Visa",
+      "symbol": "V",
+      "marketCapBn": 787.7,
+      "country": "USA"
+    },
+    {
+      "rank": 20,
+      "name": "Johnson & Johnson",
+      "symbol": "JNJ",
+      "marketCapBn": 679.1,
+      "country": "USA"
+    },
+    {
+      "rank": 21,
+      "name": "Exxon Mobil",
+      "symbol": "XOM",
+      "marketCapBn": 672,
+      "country": "USA"
+    },
+    {
+      "rank": 22,
+      "name": "SK Hynix",
+      "symbol": "000660.KS",
+      "marketCapBn": 640.7,
+      "country": "South Korea"
+    },
+    {
+      "rank": 23,
+      "name": "ASML",
+      "symbol": "ASML",
+      "marketCapBn": 583.2,
+      "country": "Netherlands"
+    },
+    {
+      "rank": 24,
+      "name": "Mastercard",
+      "symbol": "MA",
+      "marketCapBn": 571.3,
+      "country": "USA"
+    },
+    {
+      "rank": 25,
+      "name": "AbbVie",
+      "symbol": "ABBV",
+      "marketCapBn": 518.4,
+      "country": "USA"
+    },
+    {
+      "rank": 26,
+      "name": "Tencent",
+      "symbol": "TCEHY",
+      "marketCapBn": 480.4,
+      "country": "China"
+    },
+    {
+      "rank": 27,
+      "name": "China Construction Bank",
+      "symbol": "601939.SS",
+      "marketCapBn": 475.8,
+      "country": "China"
+    },
+    {
+      "rank": 28,
+      "name": "Costco",
+      "symbol": "COST",
+      "marketCapBn": 472.5,
+      "country": "USA"
+    },
+    {
+      "rank": 29,
+      "name": "CXMT",
+      "symbol": "688825.SS",
+      "marketCapBn": 424.3,
+      "country": "China"
+    },
+    {
+      "rank": 30,
+      "name": "Coca-Cola",
+      "symbol": "KO",
+      "marketCapBn": 413.1,
+      "country": "USA"
+    },
+    {
+      "rank": 31,
+      "name": "Chevron",
+      "symbol": "CVX",
+      "marketCapBn": 411.3,
+      "country": "USA"
+    },
+    {
+      "rank": 32,
+      "name": "Palantir",
+      "symbol": "PLTR",
+      "marketCapBn": 407.7,
+      "country": "USA"
+    },
+    {
+      "rank": 33,
+      "name": "Roche",
+      "symbol": "RO.SW",
+      "marketCapBn": 396.3,
+      "country": "Switzerland"
+    },
+    {
+      "rank": 34,
+      "name": "Procter & Gamble",
+      "symbol": "PG",
+      "marketCapBn": 390.1,
+      "country": "USA"
+    },
+    {
+      "rank": 35,
+      "name": "Cisco",
+      "symbol": "CSCO",
+      "marketCapBn": 388.9,
+      "country": "USA"
+    },
+    {
+      "rank": 36,
+      "name": "Agricultural Bank of China",
+      "symbol": "601288.SS",
+      "marketCapBn": 387.5,
+      "country": "China"
+    },
+    {
+      "rank": 37,
+      "name": "Oracle",
+      "symbol": "ORCL",
+      "marketCapBn": 373.5,
+      "country": "USA"
+    },
+    {
+      "rank": 38,
+      "name": "Merck",
+      "symbol": "MRK",
+      "marketCapBn": 366.7,
+      "country": "USA"
+    },
+    {
+      "rank": 39,
+      "name": "ICBC",
+      "symbol": "1398.HK",
+      "marketCapBn": 362.7,
+      "country": "China"
+    },
+    {
+      "rank": 40,
+      "name": "UnitedHealth",
+      "symbol": "UNH",
+      "marketCapBn": 356.3,
+      "country": "USA"
+    },
+    {
+      "rank": 41,
+      "name": "Home Depot",
+      "symbol": "HD",
+      "marketCapBn": 352.6,
+      "country": "USA"
+    },
+    {
+      "rank": 42,
+      "name": "Bank of America",
+      "symbol": "BAC",
+      "marketCapBn": 348.8,
+      "country": "USA"
+    },
+    {
+      "rank": 43,
+      "name": "General Electric",
+      "symbol": "GE",
+      "marketCapBn": 348.1,
+      "country": "USA"
+    },
+    {
+      "rank": 44,
+      "name": "Bank of China",
+      "symbol": "601988.SS",
+      "marketCapBn": 337.9,
+      "country": "China"
+    },
+    {
+      "rank": 45,
+      "name": "Intel",
+      "symbol": "INTC",
+      "marketCapBn": 315.6,
+      "country": "USA"
+    },
+    {
+      "rank": 46,
+      "name": "Novartis",
+      "symbol": "NVS",
+      "marketCapBn": 309.1,
+      "country": "Switzerland"
+    },
+    {
+      "rank": 47,
+      "name": "HSBC",
+      "symbol": "HSBC",
+      "marketCapBn": 308.5,
+      "country": "UK"
+    },
+    {
+      "rank": 48,
+      "name": "Philip Morris International",
+      "symbol": "PM",
+      "marketCapBn": 301,
+      "country": "USA"
+    },
+    {
+      "rank": 49,
+      "name": "Applied Materials",
+      "symbol": "AMAT",
+      "marketCapBn": 294.1,
+      "country": "USA"
+    },
+    {
+      "rank": 50,
+      "name": "AstraZeneca",
+      "symbol": "AZN",
+      "marketCapBn": 293.7,
+      "country": "UK"
+    },
+    {
+      "rank": 51,
+      "name": "Morgan Stanley",
+      "symbol": "MS",
+      "marketCapBn": 292.4,
+      "country": "USA"
+    },
+    {
+      "rank": 52,
+      "name": "Royal Bank Of Canada",
+      "symbol": "RY",
+      "marketCapBn": 282.7,
+      "country": "Canada"
+    },
+    {
+      "rank": 53,
+      "name": "Shell",
+      "symbol": "SHEL",
+      "marketCapBn": 280,
+      "country": "UK"
+    },
+    {
+      "rank": 54,
+      "name": "Lam Research",
+      "symbol": "LRCX",
+      "marketCapBn": 276.5,
+      "country": "USA"
+    },
+    {
+      "rank": 55,
+      "name": "Caterpillar",
+      "symbol": "CAT",
+      "marketCapBn": 274,
+      "country": "USA"
+    },
+    {
+      "rank": 56,
+      "name": "SAP",
+      "symbol": "SAP",
+      "marketCapBn": 274,
+      "country": "Germany"
+    },
+    {
+      "rank": 57,
+      "name": "Palo Alto Networks",
+      "symbol": "PANW",
+      "marketCapBn": 270.8,
+      "country": "USA"
+    },
+    {
+      "rank": 58,
+      "name": "Kweichow Moutai",
+      "symbol": "600519.SS",
+      "marketCapBn": 270.6,
+      "country": "China"
+    },
+    {
+      "rank": 59,
+      "name": "Texas Instruments",
+      "symbol": "TXN",
+      "marketCapBn": 270.4,
+      "country": "USA"
+    },
+    {
+      "rank": 60,
+      "name": "Nestlé",
+      "symbol": "NESN.SW",
+      "marketCapBn": 268.7,
+      "country": "Switzerland"
+    },
+    {
+      "rank": 61,
+      "name": "L'Oréal",
+      "symbol": "OR.PA",
+      "marketCapBn": 267.7,
+      "country": "France"
+    },
+    {
+      "rank": 62,
+      "name": "Thermo Fisher Scientific",
+      "symbol": "TMO",
+      "marketCapBn": 267.4,
+      "country": "USA"
+    },
+    {
+      "rank": 63,
+      "name": "RTX",
+      "symbol": "RTX",
+      "marketCapBn": 264.9,
+      "country": "USA"
+    },
+    {
+      "rank": 64,
+      "name": "Netflix",
+      "symbol": "NFLX",
+      "marketCapBn": 262.6,
+      "country": "USA"
+    },
+    {
+      "rank": 65,
+      "name": "Alibaba",
+      "symbol": "BABA",
+      "marketCapBn": 262.2,
+      "country": "China"
+    },
+    {
+      "rank": 66,
+      "name": "Goldman Sachs",
+      "symbol": "GS",
+      "marketCapBn": 261.4,
+      "country": "USA"
+    },
+    {
+      "rank": 67,
+      "name": "Toyota",
+      "symbol": "TM",
+      "marketCapBn": 257.4,
+      "country": "Japan"
+    },
+    {
+      "rank": 68,
+      "name": "Wells Fargo",
+      "symbol": "WFC",
+      "marketCapBn": 256.6,
+      "country": "USA"
+    },
+    {
+      "rank": 69,
+      "name": "Amgen",
+      "symbol": "AMGN",
+      "marketCapBn": 251.6,
+      "country": "USA"
+    },
+    {
+      "rank": 70,
+      "name": "Mitsubishi UFJ Financial",
+      "symbol": "MUFG",
+      "marketCapBn": 244.3,
+      "country": "Japan"
+    },
+    {
+      "rank": 71,
+      "name": "PetroChina",
+      "symbol": "0857.HK",
+      "marketCapBn": 239.3,
+      "country": "China"
+    },
+    {
+      "rank": 72,
+      "name": "Linde",
+      "symbol": "LIN",
+      "marketCapBn": 238.9,
+      "country": "UK"
+    },
+    {
+      "rank": 73,
+      "name": "Arista Networks",
+      "symbol": "ANET",
+      "marketCapBn": 235.2,
+      "country": "USA"
+    },
+    {
+      "rank": 74,
+      "name": "CrowdStrike",
+      "symbol": "CRWD",
+      "marketCapBn": 234.1,
+      "country": "USA"
+    },
+    {
+      "rank": 75,
+      "name": "Siemens",
+      "symbol": "SIE.DE",
+      "marketCapBn": 232.6,
+      "country": "Germany"
+    },
+    {
+      "rank": 76,
+      "name": "IBM",
+      "symbol": "IBM",
+      "marketCapBn": 232.6,
+      "country": "USA"
+    },
+    {
+      "rank": 77,
+      "name": "China Mobile",
+      "symbol": "0941.HK",
+      "marketCapBn": 225,
+      "country": "China"
+    },
+    {
+      "rank": 78,
+      "name": "LVMH",
+      "symbol": "MC.PA",
+      "marketCapBn": 221.8,
+      "country": "France"
+    },
+    {
+      "rank": 79,
+      "name": "Dell",
+      "symbol": "DELL",
+      "marketCapBn": 220.2,
+      "country": "USA"
+    },
+    {
+      "rank": 80,
+      "name": "GE Vernova",
+      "symbol": "GEV",
+      "marketCapBn": 219.5,
+      "country": "USA"
+    },
+    {
+      "rank": 81,
+      "name": "American Express",
+      "symbol": "AXP",
+      "marketCapBn": 217.5,
+      "country": "USA"
+    },
+    {
+      "rank": 82,
+      "name": "BHP Group",
+      "symbol": "BHP",
+      "marketCapBn": 210.6,
+      "country": "Australia"
+    },
+    {
+      "rank": 83,
+      "name": "Gilead Sciences",
+      "symbol": "GILD",
+      "marketCapBn": 210,
+      "country": "USA"
+    },
+    {
+      "rank": 84,
+      "name": "Inditex",
+      "symbol": "ITX.MC",
+      "marketCapBn": 208.8,
+      "country": "Spain"
+    },
+    {
+      "rank": 85,
+      "name": "Walt Disney",
+      "symbol": "DIS",
+      "marketCapBn": 205.7,
+      "country": "USA"
+    },
+    {
+      "rank": 86,
+      "name": "Toronto Dominion Bank",
+      "symbol": "TD",
+      "marketCapBn": 202.9,
+      "country": "Canada"
+    },
+    {
+      "rank": 87,
+      "name": "Citigroup",
+      "symbol": "C",
+      "marketCapBn": 201.9,
+      "country": "USA"
+    },
+    {
+      "rank": 88,
+      "name": "Arm Holdings",
+      "symbol": "ARM",
+      "marketCapBn": 199.3,
+      "country": "UK"
+    },
+    {
+      "rank": 89,
+      "name": "Amphenol",
+      "symbol": "APH",
+      "marketCapBn": 199.3,
+      "country": "USA"
+    },
+    {
+      "rank": 90,
+      "name": "McDonald",
+      "symbol": "MCD",
+      "marketCapBn": 198.6,
+      "country": "USA"
+    },
+    {
+      "rank": 91,
+      "name": "Commonwealth Bank",
+      "symbol": "CBA.AX",
+      "marketCapBn": 198,
+      "country": "Australia"
+    },
+    {
+      "rank": 92,
+      "name": "KLA",
+      "symbol": "KLAC",
+      "marketCapBn": 197.2,
+      "country": "USA"
+    },
+    {
+      "rank": 93,
+      "name": "MediaTek",
+      "symbol": "2454.TW",
+      "marketCapBn": 196.6,
+      "country": "Taiwan"
+    },
+    {
+      "rank": 94,
+      "name": "Shopify",
+      "symbol": "SHOP",
+      "marketCapBn": 195.6,
+      "country": "Canada"
+    },
+    {
+      "rank": 95,
+      "name": "Allianz SE",
+      "symbol": "ALV.DE",
+      "marketCapBn": 194.7,
+      "country": "Germany"
+    },
+    {
+      "rank": 96,
+      "name": "Pepsico",
+      "symbol": "PEP",
+      "marketCapBn": 193.3,
+      "country": "USA"
+    },
+    {
+      "rank": 97,
+      "name": "TotalEnergies",
+      "symbol": "TTE",
+      "marketCapBn": 193.2,
+      "country": "France"
+    },
+    {
+      "rank": 98,
+      "name": "Abbott Laboratories",
+      "symbol": "ABT",
+      "marketCapBn": 191.4,
+      "country": "USA"
+    },
+    {
+      "rank": 99,
+      "name": "Analog Devices",
+      "symbol": "ADI",
+      "marketCapBn": 191.2,
+      "country": "USA"
+    },
+    {
+      "rank": 100,
+      "name": "International Holding Company",
+      "symbol": "IHC.AE",
+      "marketCapBn": 191.1,
+      "country": "UAE"
+    }
+  ]
+}

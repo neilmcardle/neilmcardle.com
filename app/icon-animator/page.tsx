@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback, ReactNode } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useId,
+  useContext,
+  createContext,
+  ReactNode,
+} from "react";
 import BackLink from "@/components/BackLink";
 
 type IconDef = { id: string; name: string; el: React.ReactNode };
@@ -562,6 +570,40 @@ const ALLOWED = new Set([
   "symbol",
 ]);
 
+const ALLOWED_ATTRIBUTES = new Set([
+  "d",
+  "cx",
+  "cy",
+  "r",
+  "rx",
+  "ry",
+  "x",
+  "y",
+  "x1",
+  "y1",
+  "x2",
+  "y2",
+  "width",
+  "height",
+  "points",
+  "fill",
+  "fill-rule",
+  "fill-opacity",
+  "clip-rule",
+  "stroke",
+  "stroke-width",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-miterlimit",
+  "stroke-dasharray",
+  "stroke-dashoffset",
+  "stroke-opacity",
+  "opacity",
+  "transform",
+  "viewbox",
+  "id",
+]);
+
 function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   if (typeof window === "undefined") return null;
   const doc = new DOMParser().parseFromString(raw, "image/svg+xml");
@@ -569,13 +611,26 @@ function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   const svg = doc.querySelector("svg");
   if (!svg) return null;
   svg.querySelectorAll("*").forEach((el) => {
-    if (!ALLOWED.has(el.tagName.toLowerCase())) el.remove();
+    if (!ALLOWED.has(el.tagName.toLowerCase())) {
+      el.remove();
+      return;
+    }
+    for (const attr of Array.from(el.attributes)) {
+      const name = attr.name.toLowerCase();
+      const keep =
+        name === "href" || name === "xlink:href"
+          ? attr.value.trim().startsWith("#")
+          : ALLOWED_ATTRIBUTES.has(name);
+      if (!keep) el.removeAttribute(attr.name);
+    }
   });
   return {
     viewBox: svg.getAttribute("viewBox") ?? "0 0 24 24",
     inner: svg.innerHTML,
   };
 }
+
+const FieldLabelContext = createContext<string | undefined>(undefined);
 
 function Field({
   label,
@@ -586,6 +641,7 @@ function Field({
   hint?: string;
   children: ReactNode;
 }) {
+  const labelId = useId();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <div
@@ -597,6 +653,7 @@ function Field({
         }}
       >
         <span
+          id={labelId}
           style={{
             fontFamily: "var(--font-inter)",
             fontSize: 12,
@@ -619,7 +676,9 @@ function Field({
           </span>
         )}
       </div>
-      {children}
+      <FieldLabelContext.Provider value={labelId}>
+        {children}
+      </FieldLabelContext.Provider>
     </div>
   );
 }
@@ -633,10 +692,15 @@ function Select<T extends string>({
   onChange: (v: T) => void;
   options: { label: string; value: T }[];
 }) {
+  const labelledBy = useContext(FieldLabelContext);
+  const [focusRing, setFocusRing] = useState(false);
   return (
     <select
       value={value}
+      aria-labelledby={labelledBy}
       onChange={(e) => onChange(e.target.value as T)}
+      onFocus={(e) => setFocusRing(e.currentTarget.matches(":focus-visible"))}
+      onBlur={() => setFocusRing(false)}
       style={{
         width: "100%",
         fontFamily: "var(--font-inter)",
@@ -647,7 +711,8 @@ function Select<T extends string>({
         borderRadius: 8,
         color: "rgba(0,0,0,0.78)",
         cursor: "pointer",
-        outline: "none",
+        outline: focusRing ? "2px solid #111" : "none",
+        outlineOffset: 2,
         appearance: "none",
         backgroundImage:
           "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
@@ -678,9 +743,11 @@ function Slider({
   max: number;
   step: number;
 }) {
+  const labelledBy = useContext(FieldLabelContext);
   return (
     <input
       type="range"
+      aria-labelledby={labelledBy}
       value={value}
       onChange={(e) => onChange(parseFloat(e.target.value))}
       min={min}
@@ -706,6 +773,9 @@ function Toggle({
 }) {
   return (
     <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
       onClick={() => onChange(!checked)}
       style={{
         display: "flex",
@@ -759,6 +829,7 @@ function ColorSwatch({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const labelledBy = useContext(FieldLabelContext);
   return (
     <label
       style={{
@@ -789,6 +860,7 @@ function ColorSwatch({
       </span>
       <input
         type="color"
+        aria-labelledby={labelledBy}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
@@ -806,24 +878,48 @@ function OriginPicker({
 }) {
   return (
     <div
+      role="group"
+      aria-label="Transform origin"
       style={{ display: "grid", gridTemplateColumns: "repeat(3,20px)", gap: 4 }}
     >
-      {ORIGIN_POINTS.map((pt) => (
-        <button
-          key={pt.id}
-          title={pt.label}
-          onClick={() => onChange(pt.css)}
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: 4,
-            border: "none",
-            cursor: "pointer",
-            background: value === pt.css ? "#111" : "rgba(0,0,0,0.08)",
-            transition: "background 0.15s",
-          }}
-        />
-      ))}
+      {ORIGIN_POINTS.map((pt) => {
+        const selected = value === pt.css;
+        return (
+          <button
+            key={pt.id}
+            type="button"
+            title={pt.label}
+            aria-label={pt.label}
+            aria-pressed={selected}
+            onClick={() => onChange(pt.css)}
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 4,
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: selected ? "#111" : "rgba(0,0,0,0.08)",
+              transition: "background 0.15s",
+            }}
+          >
+            {selected && (
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "#fff",
+                }}
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -1429,6 +1525,8 @@ export default function IconAnimator() {
                   <button
                     onClick={() => setIconId("__custom__")}
                     title="Loaded custom SVG"
+                    aria-label="Loaded custom SVG"
+                    aria-pressed={iconId === "__custom__"}
                     style={{
                       width: 36,
                       height: 36,
@@ -1531,6 +1629,8 @@ export default function IconAnimator() {
                     <button
                       key={ic.id}
                       title={ic.name}
+                      aria-label={ic.name}
+                      aria-pressed={active}
                       onClick={() => {
                         setIconId(ic.id);
                         setCustomIcon(null);
@@ -1674,6 +1774,7 @@ export default function IconAnimator() {
                     <button
                       onClick={() => setPlaying((p) => !p)}
                       title={playing ? "Pause" : "Play"}
+                      aria-label={playing ? "Pause" : "Play"}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -1717,6 +1818,7 @@ export default function IconAnimator() {
                         setResetKey((k) => k + 1);
                       }}
                       title="Reset"
+                      aria-label="Reset"
                       style={{
                         display: "flex",
                         alignItems: "center",

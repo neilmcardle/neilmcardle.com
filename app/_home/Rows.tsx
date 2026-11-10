@@ -43,6 +43,8 @@ export default function Rows({
     setOn(true);
   };
 
+  const hasLive = pieces.some((piece) => piece.live);
+
   return (
     <>
       <ul
@@ -51,7 +53,7 @@ export default function Rows({
         onPointerLeave={() => setOn(false)}
       >
         {pieces.map((piece) => (
-          <li key={piece.id}>
+          <li key={piece.id} className={styles.rowItem}>
             <Link
               className={styles.row}
               href={piece.local ? `${base}${piece.href}` : piece.href}
@@ -62,6 +64,23 @@ export default function Rows({
               <span className={styles.rowLine}>{piece.line}</span>
               <span className={styles.rowKind}>{piece.kind}</span>
             </Link>
+            {piece.live ? (
+              <a
+                className={styles.live}
+                href={piece.live.href}
+                aria-label={`${piece.live.label}, the live ${piece.title}`}
+                {...(piece.live.href.startsWith("http")
+                  ? { rel: "noopener" }
+                  : {})}
+              >
+                {piece.live.label}
+                <svg viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                </svg>
+              </a>
+            ) : hasLive ? (
+              <span className={styles.live} aria-hidden="true" />
+            ) : null}
           </li>
         ))}
       </ul>

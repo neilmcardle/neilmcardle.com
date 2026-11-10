@@ -1,33 +1,48 @@
 import type Stripe from "stripe";
 import { Resend } from "resend";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, lt, or, sql } from "drizzle-orm";
 import { db, vectorPaintOrders, type VectorPaintOrder } from "@/lib/db";
-import { createGelatoOrder } from "./gelato";
+import {
+  cancelGelatoOrder,
+  createGelatoOrder,
+  GelatoUnconfirmedError,
+} from "./gelato";
 import { isProductId, VECTOR_PAINT_PRODUCTS } from "./products";
 import { signedUrl } from "./render";
 
 const PRINT_URL_TTL_SECONDS = 60 * 60 * 24 * 14;
+const STALE_CLAIM_MINUTES = 10;
 
-async function alertOps(orderId: string, sessionId: string, message: string) {
+async function sendOps(subject: string, text: string) {
   const to = process.env.VECTOR_PAINT_OPS_EMAIL;
   const from = process.env.MAKEEBOOK_EMAIL_FROM;
   const key = process.env.RESEND_API_KEY;
   if (!to || !from || !key) {
-    console.error(
-      `[vector paint] no ops alert configured; order ${orderId} failed: ${message}`,
-    );
+    console.error(`[vector paint] no ops email configured: ${subject}`);
     return;
   }
   try {
-    await new Resend(key).emails.send({
-      from,
-      to,
-      subject: `Vector Paint order ${orderId.slice(0, 8).toUpperCase()} did not reach Gelato`,
-      text: `The customer has paid but the order failed to submit.\n\nOrder: ${orderId}\nStripe session: ${sessionId}\nError: ${message}\n\nStripe retries the webhook automatically. If it keeps failing, submit by hand or refund.`,
-    });
+    await new Resend(key).emails.send({ from, to, subject, text });
   } catch (err) {
-    console.error("[vector paint] ops alert failed to send", err);
+    console.error("[vector paint] ops email failed to send", err);
   }
+}
+
+async function alertOps(
+  orderId: string,
+  sessionId: string,
+  message: string,
+  unconfirmed = false,
+) {
+  const ref = orderId.slice(0, 8).toUpperCase();
+  await sendOps(
+    unconfirmed
+      ? `Vector Paint order ${ref} may or may not be at Gelato`
+      : `Vector Paint order ${ref} did not reach Gelato`,
+    unconfirmed
+      ? `The customer has paid, but Gelato did not confirm the order. It will not be retried automatically, so it cannot print twice.\n\nOrder: ${orderId}\nStripe session: ${sessionId}\nError: ${message}\n\nSearch Gelato for order reference ${orderId}. If it is there, set the order to submitted. If not, submit by hand or refund.`
+      : `The customer has paid but the order failed to submit.\n\nOrder: ${orderId}\nStripe session: ${sessionId}\nError: ${message}\n\nStripe retries the webhook automatically. If it keeps failing, submit by hand or refund.`,
+  );
 }
 
 export async function createPendingOrder(values: {
@@ -87,7 +102,16 @@ export async function fulfilPaidSession(
     .where(
       and(
         eq(vectorPaintOrders.id, orderId),
-        inArray(vectorPaintOrders.status, ["pending", "failed", "expired"]),
+        or(
+          inArray(vectorPaintOrders.status, ["pending", "failed", "expired"]),
+          and(
+            eq(vectorPaintOrders.status, "paid"),
+            lt(
+              vectorPaintOrders.updatedAt,
+              new Date(Date.now() - STALE_CLAIM_MINUTES * 60 * 1000),
+            ),
+          ),
+        ),
       ),
     )
     .returning();
@@ -125,6 +149,14 @@ export async function fulfilPaidSession(
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    if (err instanceof GelatoUnconfirmedError) {
+      await updateOrder(claimed.id, {
+        status: "unconfirmed",
+        error: message.slice(0, 1000),
+      });
+      await alertOps(claimed.id, session.id, message, true);
+      return;
+    }
     await updateOrder(claimed.id, {
       status: "failed",
       error: message.slice(0, 1000),
@@ -132,6 +164,65 @@ export async function fulfilPaidSession(
     await alertOps(claimed.id, session.id, message);
     throw err;
   }
+}
+
+export async function handleRefund(
+  charge: Stripe.Charge,
+  stripe: Stripe,
+): Promise<void> {
+  const paymentIntent =
+    typeof charge.payment_intent === "string"
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
+  if (!paymentIntent) return;
+
+  const sessions = await stripe.checkout.sessions.list({
+    payment_intent: paymentIntent,
+    limit: 1,
+  });
+  const orderId = sessions.data[0]?.metadata?.order_id;
+  if (!orderId) return;
+
+  const [order] = await db
+    .select()
+    .from(vectorPaintOrders)
+    .where(eq(vectorPaintOrders.id, orderId))
+    .limit(1);
+  if (!order || order.status === "refunded") return;
+
+  const ref = order.id.slice(0, 8).toUpperCase();
+
+  if (!charge.refunded) {
+    await sendOps(
+      `Vector Paint order ${ref} was partly refunded`,
+      `Order ${order.id} was partly refunded. The print has not been cancelled. Check whether it should be.`,
+    );
+    return;
+  }
+
+  let printNote: string;
+  if (order.gelatoOrderId && order.status === "submitted") {
+    try {
+      await cancelGelatoOrder(order.gelatoOrderId);
+      printNote = `The Gelato order ${order.gelatoOrderId} was cancelled.`;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      printNote = `Cancelling Gelato order ${order.gelatoOrderId} failed: ${message}. Cancel it by hand if it has not shipped.`;
+    }
+  } else if (order.status === "unconfirmed") {
+    printNote = `Gelato never confirmed this order. Search Gelato for order reference ${order.id} and cancel it if it is there.`;
+  } else {
+    printNote = "No print had been sent to Gelato.";
+  }
+
+  await updateOrder(order.id, {
+    status: "refunded",
+    error: printNote.slice(0, 1000),
+  });
+  await sendOps(
+    `Vector Paint order ${ref} was refunded`,
+    `Order ${order.id} was refunded in full.\n\n${printNote}`,
+  );
 }
 
 export async function expireSession(

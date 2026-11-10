@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!body.chapters || body.chapters.length === 0) {
+  if (!Array.isArray(body?.chapters) || body.chapters.length === 0) {
     await refundIfGranted();
     return NextResponse.json(
       { error: "No chapters provided" },
@@ -47,11 +47,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const text = (value: unknown) => (typeof value === "string" ? value : "");
   const manuscriptBlock = body.chapters
-    .map(
-      (ch, i) =>
-        `[CHAPTER ${i + 1}] [${ch.type.toUpperCase()}] ${ch.title || `Chapter ${i + 1}`}\n${ch.content}`,
-    )
+    .map((ch, i) => {
+      const type = text(ch?.type).toUpperCase() || "CHAPTER";
+      const title = text(ch?.title) || `Chapter ${i + 1}`;
+      return `[CHAPTER ${i + 1}] [${type}] ${title}\n${text(ch?.content)}`;
+    })
     .join("\n\n---\n\n");
 
   const systemBlocks: SystemBlock[] = [

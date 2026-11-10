@@ -1,0 +1,116 @@
+.tokens {
+  --color-bg: #0d0d0c;
+  --color-raised: #161615;
+  --color-raised-hover: #1d1d1b;
+  --color-ink: #ecebe7;
+  --color-text: #8f8c86;
+  --color-underline: #48463f;
+  --color-line: rgb(255 255 255 / 0.06);
+  --color-brand: #e893ad;
+  --color-on-brand: #0d0d0c;
+  --edge:
+    0 0 0 1px rgb(255 255 255 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.4),
+    0 2px 4px 0 rgb(0 0 0 / 0.3);
+  --edge-hover:
+    0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
+    0 2px 4px 0 rgb(0 0 0 / 0.4);
+  --edge-lifted:
+    0 0 0 1px rgb(255 255 255 / 0.08), 0 14px 36px 0 rgb(0 0 0 / 0.5);
+  --ease-out: cubic-bezier(0.2, 0.8, 0, 1);
+  --duration-toggle: 240ms;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tokens button:focus-visible,
+.tokens a:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.tokens ::selection {
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+.page {
+  composes: tokens;
+  color-scheme: dark;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.column {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(600px + 32px);
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.back,
+.link {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-underline);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.link {
+  color: var(--color-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .back:hover,
+  .link:hover {
+    color: var(--color-ink);
+    text-decoration-color: var(--color-ink);
+  }
+}
+
+.title {
+  margin: 48px 0 0;
+  font-size: 44px;
+  line-height: 1.02;
+  font-weight: 520;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+@media (min-width: 700px) {
+  .title {
+    font-size: 56px;
+  }
+}
+
+.meta {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.article {
+  max-width: 64ch;
+}
+
+.article p {
+  margin: 16px 0 0;
+  text-wrap: pretty;
+}
+
+.subject {
+  color: var(--color-ink);
+  font-weight: 500;
+}

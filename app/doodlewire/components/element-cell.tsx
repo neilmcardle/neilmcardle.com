@@ -1,16 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ELEMENT_TYPES, type ElementType, type WfElement } from "./wireframe-canvas";
-import { buttonVariant, headingLevel, ICON_CHOICES, pickIcon, renderElement } from "./wireframe-element";
-import { getResizeMode, resizeBbox, type ResizeHandle } from "./snap-size";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  ELEMENT_TYPES,
+  type ElementType,
+  type WfElement,
+} from "./wireframe-canvas";
+import {
+  buttonVariant,
+  headingLevel,
+  ICON_CHOICES,
+  pickIcon,
+  renderElement,
+} from "@/app/doodlewire/components/wireframe-element";
+import {
+  getResizeMode,
+  resizeBbox,
+  type ResizeHandle,
+} from "@/app/doodlewire/components/snap-size";
 
 interface ElementCellProps {
   element: WfElement;
   selected: boolean;
-  // True only in Move mode — the element captures pointer events for
-  // selecting, dragging, resizing and text editing. In other modes it's
-  // inert so the user can draw straight over it.
   interactive: boolean;
   onSelect: () => void;
   onMove: (dx: number, dy: number) => void;
@@ -28,11 +45,7 @@ interface ElementCellProps {
   canBackward: boolean;
 }
 
-// Pixels of pointer movement before a pointerdown is treated as a drag
-// instead of a tap. Slightly generous so a fingertip stay-put still
-// registers as a tap on touch devices.
 const TAP_DRAG_THRESHOLD = 8;
-
 
 export function ElementCell({
   element,
@@ -56,21 +69,17 @@ export function ElementCell({
   const [dragging, setDragging] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [thanked, setThanked] = useState(false);
-  // Which popover is open: element-type grid, icon grid, heading-level
-  // grid, or none. Only one is ever open, so the positioning and
-  // outside-click logic is shared between them.
-  const [openMenu, setOpenMenu] = useState<"type" | "icon" | "level" | "variant" | null>(null);
+  const [openMenu, setOpenMenu] = useState<
+    "type" | "icon" | "level" | "variant" | null
+  >(null);
   const resizeMode = getResizeMode(element.type);
-  // Small elements (icons ~20px) are hard to grab. Extend the
-  // draggable area outward so the effective hit target is at least ~44px.
-  const hitPad = Math.max(0, (44 - Math.min(element.bbox.w, element.bbox.h)) / 2);
+  const hitPad = Math.max(
+    0,
+    (44 - Math.min(element.bbox.w, element.bbox.h)) / 2,
+  );
   const menuRef = useRef<HTMLDivElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
-  // Toolbar offset relative to the element wrapper. Computed by clamping
-  // against the viewport so the toolbar never spills off any edge —
-  // a CSS anchor alone can't do this since the element's screen position
-  // and the toolbar's width are both unknown ahead of time.
   const [toolbarPos, setToolbarPos] = useState<{ left: number; top: number }>({
     left: 0,
     top: -38,
@@ -84,50 +93,45 @@ export function ElementCell({
     const bw = bar.offsetWidth || 200;
     const bh = bar.offsetHeight || 30;
     const GAP = 6;
-    const M = 8; // viewport margin
+    const M = 8;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // Horizontal: right-align to the element, then clamp into the viewport.
     let left = wr.width - bw;
     let screenLeft = wr.left + left;
     if (screenLeft < M) left += M - screenLeft;
     screenLeft = wr.left + left;
     if (screenLeft + bw > vw - M) left -= screenLeft + bw - (vw - M);
 
-    // Vertical: above the element; flip below if that clips the top edge.
     let top = -bh - GAP;
     if (wr.top + top < M) top = wr.height + GAP;
-    // If below also clips the bottom, sit it just inside the top margin.
     if (wr.top + top + bh > vh - M && wr.top - bh - GAP < M) {
       top = M - wr.top;
     }
     setToolbarPos({ left, top });
   }, []);
 
-  // Reposition whenever the toolbar becomes visible via selection, and on
-  // viewport changes. Hover and drag trigger it through event handlers.
   useLayoutEffect(() => {
     if (selected) positionToolbar();
-  }, [selected, element.bbox.x, element.bbox.y, element.bbox.w, element.bbox.h, positionToolbar]);
+  }, [
+    selected,
+    element.bbox.x,
+    element.bbox.y,
+    element.bbox.w,
+    element.bbox.h,
+    positionToolbar,
+  ]);
 
   useEffect(() => {
     window.addEventListener("resize", positionToolbar);
     return () => window.removeEventListener("resize", positionToolbar);
   }, [positionToolbar]);
-  // The popover sits at fixed viewport coordinates so it can flip above
-  // or below the cell, and slide horizontally to stay inside the viewport
-  // when the cell is near an edge.
-  // top OR bottom is set, never both — `bottom` anchors the popover by its
-  // own bottom edge (so its rendered height doesn't matter), `top` anchors
-  // by the top edge when we've flipped to below the wrapper.
   const [menuFixed, setMenuFixed] = useState<{
     left: number;
     top: number | null;
     bottom: number | null;
   } | null>(null);
 
-  // Close the open popover when clicking elsewhere.
   useEffect(() => {
     if (!openMenu) return;
     function onDocDown(e: PointerEvent) {
@@ -139,9 +143,6 @@ export function ElementCell({
     return () => document.removeEventListener("pointerdown", onDocDown);
   }, [openMenu]);
 
-  // Place the popover so it stays inside the viewport. Prefer above the cell
-  // and right-aligned to it; flip below if there is no room above; clamp
-  // horizontally when the cell is near a left or right edge.
   useEffect(() => {
     if (!openMenu) {
       setMenuFixed(null);
@@ -158,16 +159,14 @@ export function ElementCell({
       const vh = window.innerHeight;
       let left = r.right - POPOVER_W;
       if (left < GAP) left = GAP;
-      if (left + POPOVER_W > vw - GAP) left = Math.max(GAP, vw - GAP - POPOVER_W);
-      // Prefer placing above with a `bottom` anchor — that way the popover
-      // hugs the wrapper regardless of how tall it actually renders. Fall
-      // back to placing below (anchored by `top`) only when there is no room
-      // above for the worst-case height.
+      if (left + POPOVER_W > vw - GAP)
+        left = Math.max(GAP, vw - GAP - POPOVER_W);
       if (r.top - GAP - POPOVER_MAX_H >= GAP) {
         setMenuFixed({ left, top: null, bottom: vh - r.top + GAP });
       } else {
         let top = r.bottom + GAP;
-        if (top + POPOVER_MAX_H > vh - GAP) top = Math.max(GAP, vh - GAP - POPOVER_MAX_H);
+        if (top + POPOVER_MAX_H > vh - GAP)
+          top = Math.max(GAP, vh - GAP - POPOVER_MAX_H);
         setMenuFixed({ left, top, bottom: null });
       }
     }
@@ -194,7 +193,10 @@ export function ElementCell({
       if (!movedPastThreshold) {
         const totalDx = ev.clientX - startX;
         const totalDy = ev.clientY - startY;
-        if (Math.abs(totalDx) <= TAP_DRAG_THRESHOLD && Math.abs(totalDy) <= TAP_DRAG_THRESHOLD) {
+        if (
+          Math.abs(totalDx) <= TAP_DRAG_THRESHOLD &&
+          Math.abs(totalDy) <= TAP_DRAG_THRESHOLD
+        ) {
           return;
         }
         movedPastThreshold = true;
@@ -218,8 +220,6 @@ export function ElementCell({
       document.removeEventListener("pointerup", onUpDoc);
       document.removeEventListener("pointercancel", onUpDoc);
       setDragging(false);
-      // A tap (no drag) in Move mode toggles selection — selecting shows the
-      // toolbar/handles; tapping again (or tapping empty canvas) deselects.
       if (!movedPastThreshold) onSelect();
     }
 
@@ -282,10 +282,6 @@ export function ElementCell({
         top: element.bbox.y,
         width: element.bbox.w,
         height: element.bbox.h,
-        // Drawing is primary: outside Move mode the element lets pen strokes
-        // fall through to the canvas so the user can doodle on top of it. It
-        // only captures pointer events (select / drag / resize / edit text)
-        // while the Move tool is active.
         pointerEvents: interactive ? "auto" : "none",
         cursor: dragging ? "grabbing" : resizing ? "default" : "grab",
         touchAction: "none",
@@ -296,7 +292,7 @@ export function ElementCell({
               ? "1.5px solid rgba(10,10,10,0.4)"
               : "none",
         outlineOffset: 4,
-        transition: "outline-color 0.15s",
+        transition: "outline-color 0.15s var(--ease-out)",
       }}
       className="group"
     >
@@ -314,8 +310,6 @@ export function ElementCell({
         element,
         onLabelChange,
         (h) => {
-          // The text element auto-grows: apply the measured height as a
-          // height-only resize so the bbox follows the wrapped text.
           if (Math.abs(h - element.bbox.h) > 0.5) {
             onResize({ ...element.bbox, h });
           }
@@ -329,10 +323,6 @@ export function ElementCell({
         onStart={startResize}
       />
 
-
-      {/* Per-element toolbar. Position is computed by positionToolbar() so
-          it stays clamped inside the viewport on every edge. Visible
-          whenever the element is selected; otherwise fades in on hover. */}
       <div
         ref={toolbarRef}
         data-skip-export="1"
@@ -345,12 +335,12 @@ export function ElementCell({
           alignItems: "center",
           gap: 2,
           padding: 2,
-          background: "#0a0a0a",
-          color: "#ffffff",
+          background: "var(--color-raised)",
+          color: "var(--color-ink)",
           borderRadius: 999,
-          boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
+          boxShadow: "var(--edge-lifted)",
           opacity: selected ? 1 : 0,
-          transition: "opacity 0.15s",
+          transition: "opacity 0.15s var(--ease-out)",
           pointerEvents: selected ? "auto" : "none",
         }}
         className="group-hover:!opacity-100"
@@ -368,21 +358,31 @@ export function ElementCell({
             display: "inline-flex",
             alignItems: "center",
             gap: 4,
-            padding: "0 8px",
-            height: 24,
-            background: openMenu === "type" ? "rgba(255,255,255,0.12)" : "transparent",
-            color: "#ffffff",
+            padding: "0 10px",
+            height: 32,
+            background:
+              openMenu === "type" ? "rgba(255,255,255,0.12)" : "transparent",
+            color: "var(--color-ink)",
             border: "none",
             borderRadius: 999,
             cursor: "pointer",
-            fontSize: 11,
+            fontSize: 13,
             fontWeight: 500,
             letterSpacing: 0.2,
             textTransform: "capitalize",
           }}
         >
           {element.type}
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="9"
+            height="9"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
@@ -395,7 +395,16 @@ export function ElementCell({
               setOpenMenu((v) => (v === "icon" ? null : "icon"));
             }}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="3" y="3" width="7" height="7" rx="1" />
               <rect x="14" y="3" width="7" height="7" rx="1" />
               <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -412,7 +421,7 @@ export function ElementCell({
               setOpenMenu((v) => (v === "level" ? null : "level"));
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.2 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: 0.2 }}>
               H{headingLevel(element.level)}
             </span>
           </ToolBtn>
@@ -426,7 +435,7 @@ export function ElementCell({
               setOpenMenu((v) => (v === "variant" ? null : "variant"));
             }}
           >
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.2 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, letterSpacing: 0.2 }}>
               {buttonVariant(element.variant) === "secondary" ? "2°" : "1°"}
             </span>
           </ToolBtn>
@@ -440,9 +449,25 @@ export function ElementCell({
             onLayer("backward");
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="3" width="13" height="13" rx="1.5" />
-            <rect x="8" y="8" width="13" height="13" rx="1.5" fill="#0a0a0a" />
+            <rect
+              x="8"
+              y="8"
+              width="13"
+              height="13"
+              rx="1.5"
+              fill="currentColor"
+            />
           </svg>
         </ToolBtn>
         <ToolBtn
@@ -453,33 +478,94 @@ export function ElementCell({
             onLayer("forward");
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="8" y="8" width="13" height="13" rx="1.5" />
-            <rect x="3" y="3" width="13" height="13" rx="1.5" fill="#0a0a0a" />
+            <rect
+              x="3"
+              y="3"
+              width="13"
+              height="13"
+              rx="1.5"
+              fill="currentColor"
+            />
           </svg>
         </ToolBtn>
         <Divider />
-        <ToolBtn label="Looks right" onClick={handleConfirm} highlighted={thanked}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <ToolBtn
+          label="Looks right"
+          onClick={handleConfirm}
+          highlighted={thanked}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M7 10v12" />
             <path d="M15 5.88 14 12h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 24H7V10l4.93-8.66A2 2 0 0 1 13.7 0H14a2 2 0 0 1 2 2v3.88z" />
           </svg>
         </ToolBtn>
         <ToolBtn label="Wrong, redraw" onClick={handleReject}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M17 14V2" />
             <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H17v12l-4.93 8.66A2 2 0 0 1 10.3 24H10a2 2 0 0 1-2-2v-3.88z" />
           </svg>
         </ToolBtn>
         <Divider />
-        <ToolBtn label="Duplicate" onClick={(e) => { e.stopPropagation(); onDuplicate(); }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <ToolBtn
+          label="Duplicate"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDuplicate();
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="9" y="9" width="11" height="11" rx="2" />
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
         </ToolBtn>
-        <ToolBtn label="Delete" onClick={(e) => { e.stopPropagation(); onRemove(); }}>
-          <span style={{ fontSize: 14, lineHeight: 1, padding: "0 2px" }}>×</span>
+        <ToolBtn
+          label="Delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+        >
+          <span style={{ fontSize: 13, lineHeight: 1, padding: "0 2px" }}>
+            ×
+          </span>
         </ToolBtn>
       </div>
 
@@ -493,10 +579,10 @@ export function ElementCell({
             left: menuFixed.left,
             top: menuFixed.top ?? undefined,
             bottom: menuFixed.bottom ?? undefined,
-            background: "#ffffff",
-            border: "1px solid rgba(0,0,0,0.1)",
+            background: "var(--color-raised)",
+            border: "none",
             borderRadius: 10,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            boxShadow: "var(--edge-lifted)",
             padding: 4,
             zIndex: 60,
             display: "grid",
@@ -520,22 +606,28 @@ export function ElementCell({
               }}
               style={{
                 padding: "6px 8px",
-                background: t === element.type ? "#0a0a0a" : "transparent",
-                color: t === element.type ? "#ffffff" : "#0a0a0a",
+                background:
+                  t === element.type ? "var(--color-ink)" : "transparent",
+                color:
+                  t === element.type ? "var(--color-bg)" : "var(--color-ink)",
                 border: "none",
-                borderRadius: 6,
-                fontSize: 11,
+                borderRadius: 7,
+                fontSize: 13,
                 fontWeight: 500,
                 textAlign: "left",
                 cursor: "pointer",
                 textTransform: "capitalize",
-                transition: "background 0.1s",
+                transition: "background 0.1s var(--ease-out)",
               }}
               onMouseEnter={(e) => {
-                if (t !== element.type) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                if (t !== element.type)
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(255,255,255,0.06)";
               }}
               onMouseLeave={(e) => {
-                if (t !== element.type) (e.currentTarget as HTMLElement).style.background = "transparent";
+                if (t !== element.type)
+                  (e.currentTarget as HTMLElement).style.background =
+                    "transparent";
               }}
             >
               {t}
@@ -554,10 +646,10 @@ export function ElementCell({
             left: menuFixed.left,
             top: menuFixed.top ?? undefined,
             bottom: menuFixed.bottom ?? undefined,
-            background: "#ffffff",
-            border: "1px solid rgba(0,0,0,0.1)",
+            background: "var(--color-raised)",
+            border: "none",
             borderRadius: 10,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            boxShadow: "var(--edge-lifted)",
             padding: 6,
             zIndex: 60,
             display: "grid",
@@ -588,18 +680,22 @@ export function ElementCell({
                   alignItems: "center",
                   justifyContent: "center",
                   aspectRatio: "1 / 1",
-                  background: current ? "#0a0a0a" : "transparent",
-                  color: current ? "#ffffff" : "#0a0a0a",
+                  background: current ? "var(--color-ink)" : "transparent",
+                  color: current ? "var(--color-bg)" : "var(--color-ink)",
                   border: "none",
-                  borderRadius: 6,
+                  borderRadius: 7,
                   cursor: "pointer",
-                  transition: "background 0.1s",
+                  transition: "background 0.1s var(--ease-out)",
                 }}
                 onMouseEnter={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "rgba(255,255,255,0.06)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "transparent";
                 }}
               >
                 <Icon width={17} height={17} strokeWidth={1.8} />
@@ -619,10 +715,10 @@ export function ElementCell({
             left: menuFixed.left,
             top: menuFixed.top ?? undefined,
             bottom: menuFixed.bottom ?? undefined,
-            background: "#ffffff",
-            border: "1px solid rgba(0,0,0,0.1)",
+            background: "var(--color-raised)",
+            border: "none",
             borderRadius: 10,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            boxShadow: "var(--edge-lifted)",
             padding: 4,
             zIndex: 60,
             display: "grid",
@@ -646,20 +742,24 @@ export function ElementCell({
                 }}
                 style={{
                   padding: "8px 8px",
-                  background: current ? "#0a0a0a" : "transparent",
-                  color: current ? "#ffffff" : "#0a0a0a",
+                  background: current ? "var(--color-ink)" : "transparent",
+                  color: current ? "var(--color-bg)" : "var(--color-ink)",
                   border: "none",
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
+                  borderRadius: 7,
+                  fontSize: 13,
+                  fontWeight: 500,
                   cursor: "pointer",
-                  transition: "background 0.1s",
+                  transition: "background 0.1s var(--ease-out)",
                 }}
                 onMouseEnter={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "rgba(255,255,255,0.06)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "transparent";
                 }}
               >
                 H{lvl}
@@ -679,10 +779,10 @@ export function ElementCell({
             left: menuFixed.left,
             top: menuFixed.top ?? undefined,
             bottom: menuFixed.bottom ?? undefined,
-            background: "#ffffff",
-            border: "1px solid rgba(0,0,0,0.1)",
+            background: "var(--color-raised)",
+            border: "none",
             borderRadius: 10,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            boxShadow: "var(--edge-lifted)",
             padding: 4,
             zIndex: 60,
             display: "grid",
@@ -706,21 +806,25 @@ export function ElementCell({
                 }}
                 style={{
                   padding: "8px 8px",
-                  background: current ? "#0a0a0a" : "transparent",
-                  color: current ? "#ffffff" : "#0a0a0a",
+                  background: current ? "var(--color-ink)" : "transparent",
+                  color: current ? "var(--color-bg)" : "var(--color-ink)",
                   border: "none",
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
+                  borderRadius: 7,
+                  fontSize: 13,
+                  fontWeight: 500,
                   cursor: "pointer",
                   textTransform: "capitalize",
-                  transition: "background 0.1s",
+                  transition: "background 0.1s var(--ease-out)",
                 }}
                 onMouseEnter={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "rgba(0,0,0,0.06)";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "rgba(255,255,255,0.06)";
                 }}
                 onMouseLeave={(e) => {
-                  if (!current) (e.currentTarget as HTMLElement).style.background = "transparent";
+                  if (!current)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "transparent";
                 }}
               >
                 {v}
@@ -736,16 +840,25 @@ export function ElementCell({
 interface ToolBtnProps {
   label: string;
   disabled?: boolean;
-  // Green "confirmed" flash (thumbs-up feedback).
   highlighted?: boolean;
-  // Subtle white background while a paired popover is open.
   active?: boolean;
   onClick: (e: React.MouseEvent) => void;
   children: React.ReactNode;
 }
 
-function ToolBtn({ label, disabled, highlighted, active, onClick, children }: ToolBtnProps) {
-  const baseBg = highlighted ? "#16a34a" : active ? "rgba(255,255,255,0.12)" : "transparent";
+function ToolBtn({
+  label,
+  disabled,
+  highlighted,
+  active,
+  onClick,
+  children,
+}: ToolBtnProps) {
+  const baseBg = highlighted
+    ? "var(--color-ink)"
+    : active
+      ? "rgba(255,255,255,0.12)"
+      : "transparent";
   return (
     <button
       type="button"
@@ -755,23 +868,30 @@ function ToolBtn({ label, disabled, highlighted, active, onClick, children }: To
       title={label}
       disabled={disabled}
       style={{
-        width: 24,
-        height: 24,
+        width: 32,
+        height: 32,
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
         background: baseBg,
-        color: disabled ? "rgba(255,255,255,0.3)" : "#ffffff",
+        color: disabled
+          ? "var(--color-underline)"
+          : highlighted
+            ? "var(--color-bg)"
+            : "var(--color-ink)",
         border: "none",
         borderRadius: 999,
         cursor: disabled ? "not-allowed" : "pointer",
-        transition: "background 0.15s",
+        transition: "background 0.15s var(--ease-out)",
       }}
       onMouseEnter={(e) => {
-        if (!disabled && !highlighted && !active) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.12)";
+        if (!disabled && !highlighted && !active)
+          (e.currentTarget as HTMLElement).style.background =
+            "rgba(255,255,255,0.12)";
       }}
       onMouseLeave={(e) => {
-        if (!highlighted) (e.currentTarget as HTMLElement).style.background = baseBg;
+        if (!highlighted)
+          (e.currentTarget as HTMLElement).style.background = baseBg;
       }}
     >
       {children}
@@ -780,7 +900,16 @@ function ToolBtn({ label, disabled, highlighted, active, onClick, children }: To
 }
 
 function Divider() {
-  return <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.18)", margin: "0 1px" }} />;
+  return (
+    <div
+      style={{
+        width: 1,
+        height: 14,
+        background: "rgba(255,255,255,0.06)",
+        margin: "0 1px",
+      }}
+    />
+  );
 }
 
 interface ResizeHandlesProps {
@@ -790,21 +919,37 @@ interface ResizeHandlesProps {
   onStart: (e: React.PointerEvent, handle: ResizeHandle) => void;
 }
 
-function ResizeHandles({ mode, resizing, selected, onStart }: ResizeHandlesProps) {
+function ResizeHandles({
+  mode,
+  resizing,
+  selected,
+  onStart,
+}: ResizeHandlesProps) {
   if (mode === "none") return null;
   const visible = resizing || selected;
-  // Resize axes per type: width-flow elements (button, input, dropdown, …)
-  // only stretch horizontally; flowBoth (card, image) get width, height and
-  // corner; centred types resize uniformly from the corner. Sizing within
-  // each axis is free (continuous) — see resizeBbox.
   const showE = mode === "flowWidth" || mode === "flowBoth";
   const showS = mode === "flowBoth";
-  const showSE = mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
+  const showSE =
+    mode === "flowBoth" || mode === "centredSquare" || mode === "centredBoth";
   return (
     <>
-      {showE && <EdgeHandle axis="x" visible={visible} onStart={(e) => onStart(e, "e")} />}
-      {showS && <EdgeHandle axis="y" visible={visible} onStart={(e) => onStart(e, "s")} />}
-      {showSE && <CornerHandle visible={visible} onStart={(e) => onStart(e, "se")} />}
+      {showE && (
+        <EdgeHandle
+          axis="x"
+          visible={visible}
+          onStart={(e) => onStart(e, "e")}
+        />
+      )}
+      {showS && (
+        <EdgeHandle
+          axis="y"
+          visible={visible}
+          onStart={(e) => onStart(e, "s")}
+        />
+      )}
+      {showSE && (
+        <CornerHandle visible={visible} onStart={(e) => onStart(e, "se")} />
+      )}
     </>
   );
 }
@@ -828,18 +973,28 @@ function EdgeHandle({
       className="wf-resize-handle group-hover:!opacity-100"
       style={{
         position: "absolute",
-        // Larger touch targets than the visible pill so a fingertip can
-        // grab them reliably. Visual pill is centred inside the hit area.
         ...(horizontal
-          ? { right: -16, top: "50%", transform: "translate(0, -50%)", width: 32, height: 44 }
-          : { bottom: -16, left: "50%", transform: "translate(-50%, 0)", width: 44, height: 32 }),
+          ? {
+              right: -16,
+              top: "50%",
+              transform: "translate(0, -50%)",
+              width: 32,
+              height: 44,
+            }
+          : {
+              bottom: -16,
+              left: "50%",
+              transform: "translate(-50%, 0)",
+              width: 44,
+              height: 32,
+            }),
         background: "transparent",
         border: "none",
         borderRadius: 0,
         padding: 0,
         cursor: horizontal ? "ew-resize" : "ns-resize",
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.15s",
+        transition: "opacity 0.15s var(--ease-out)",
         zIndex: 10,
         display: "inline-flex",
         alignItems: "center",
@@ -876,7 +1031,6 @@ function CornerHandle({
       className="wf-resize-handle group-hover:!opacity-100"
       style={{
         position: "absolute",
-        // 32×32 hit area with a 12×12 pill centred inside it.
         right: -16,
         bottom: -16,
         width: 32,
@@ -887,7 +1041,7 @@ function CornerHandle({
         padding: 0,
         cursor: "nwse-resize",
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.15s",
+        transition: "opacity 0.15s var(--ease-out)",
         zIndex: 10,
         display: "inline-flex",
         alignItems: "center",

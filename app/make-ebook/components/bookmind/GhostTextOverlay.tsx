@@ -103,8 +103,7 @@ export default function GhostTextOverlay({
         credentials: "include",
         signal: controller.signal,
         body: JSON.stringify({
-          voice:
-            "Continue with one sentence, max 20 words. Match the voice exactly. No preamble. Start with a space. No em dashes.",
+          voice: "ghost",
           context: `=== TEXT SO FAR ===\n${ctx.textBefore.slice(-800)}\n=== END ===`,
           messages: [{ role: "user", content: "Continue from here." }],
           tier: "spotlight",

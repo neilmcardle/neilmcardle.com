@@ -28,6 +28,7 @@ export const users = pgTable("users", {
   lifetimePaymentId: text("lifetime_payment_id"),
 
   aiBriefUsedAt: timestamp("ai_brief_used_at"),
+  aiQuestionUsedAt: timestamp("ai_question_used_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -76,7 +77,14 @@ export const vectorPaintOrders = pgTable("vector_paint_orders", {
   id: uuid("id").defaultRandom().primaryKey(),
   status: text("status")
     .$type<
-      "pending" | "paid" | "submitted" | "dry_run" | "failed" | "expired"
+      | "pending"
+      | "paid"
+      | "submitted"
+      | "dry_run"
+      | "failed"
+      | "unconfirmed"
+      | "refunded"
+      | "expired"
     >()
     .default("pending")
     .notNull(),

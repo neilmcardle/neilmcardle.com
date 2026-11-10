@@ -219,12 +219,12 @@
         h(
           "h1",
           { class: "two-tone" },
-          "From your first move to grandmaster ideas. ",
-          h(
-            "span",
-            { class: "dim" },
-            "Lessons, puzzles and a sparring partner, all running on your device.",
-          ),
+          "From your first move to grandmaster ideas.",
+        ),
+        h(
+          "p",
+          { class: "lede" },
+          "Lessons, puzzles and a sparring partner, all running on your device.",
         ),
         h(
           "div",
@@ -234,28 +234,26 @@
                 "a",
                 { class: "btn primary", href: "#/lesson/" + next.lesson.id },
                 (done ? "Continue: " : "Start: ") + next.lesson.title,
-                arrow(),
               )
             : h(
                 "span",
                 { class: "badge" },
                 "Every lesson complete. Keep going with puzzles and games.",
               ),
-          h("a", { class: "btn", href: "#/puzzles" }, "Puzzles"),
+          h("a", { class: "btn", href: "#/puzzles" }, "Solve puzzles"),
           h("a", { class: "btn", href: "#/play" }, "Play the computer"),
         ),
         h(
           "div",
           { class: "stats" },
-          stat(done + " / " + total, "lessons"),
-          stat(Math.round(state.puzzle.rating), "puzzle rating"),
+          stat(done + " of " + total, "Lessons done"),
+          stat(Math.round(state.puzzle.rating), "Puzzle rating"),
           stat(
             `${state.stats.w}–${state.stats.d}–${state.stats.l}`,
             h(
               "span",
               { title: "Games won, drawn and lost" },
-              h("span", { class: "wide-only" }, "games "),
-              "W–D–L",
+              "Won, drawn, lost",
             ),
           ),
         ),
@@ -285,11 +283,7 @@
             h("strong", {}, stage.title),
             h("small", {}, stage.level),
             next && next.stage === stage
-              ? h(
-                  "span",
-                  { class: "tag", style: "color: var(--hue)" },
-                  "Up next",
-                )
+              ? h("span", { class: "tag" }, "Up next")
               : null,
           ),
           h(
@@ -343,8 +337,22 @@
       h("strong", {}, String(v)),
       h("span", {}, label),
     );
-  const arrow = () =>
-    h("span", { class: "arrow-end", "aria-hidden": "true" }, "→");
+  const ICONS = {
+    first: '<path d="M6 6v12M18 6l-8 6 8 6"/>',
+    prev: '<path d="M15 6l-6 6 6 6"/>',
+    next: '<path d="M9 6l6 6-6 6"/>',
+    last: '<path d="M18 6v12M6 6l8 6-8 6"/>',
+  };
+  function iconBtn(name, label, onclick, extra) {
+    const b = h("button", {
+      class: "btn icon" + (extra ? " " + extra : ""),
+      "aria-label": label,
+      title: label,
+      onclick,
+    });
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+    return b;
+  }
 
   const stageHue = (si) => `--hue: var(--hue-${Math.min(si, 6)})`;
 
@@ -452,7 +460,7 @@
         h(
           "p",
           {},
-          "Lesson not found. ",
+          "I can't find that lesson. ",
           h("a", { href: "#/" }, "Back to the path"),
         ),
       );
@@ -470,16 +478,11 @@
 
     panel.setAttribute("style", stageHue(entry.si));
     const crumbs = h(
-      "div",
-      { class: "crumbs" },
-      h("a", { href: "#/" }, "Path"),
+      "nav",
+      { class: "crumbs", "aria-label": "Breadcrumb" },
+      h("a", { href: "#/" }, "The path"),
       h("span", { "aria-hidden": "true" }, "/"),
-      h(
-        "span",
-        { class: "tag", style: "color: var(--hue)" },
-        `Stage ${entry.si + 1}`,
-      ),
-      stage.title,
+      h("span", {}, `Stage ${entry.si + 1}: ${stage.title}`),
     );
     const title = h(
       "h2",
@@ -542,20 +545,19 @@
                   renderStep();
                 },
               },
-              "← Back",
+              "Back",
             )
           : h("span"),
         h(
           "span",
           { class: "muted" },
-          `${stepIdx + 1} / ${lesson.steps.length}`,
+          `Step ${stepIdx + 1} of ${lesson.steps.length}`,
         ),
         last
           ? h(
               "button",
               { class: "btn primary", onclick: finish },
               "Finish lesson",
-              arrow(),
             )
           : h(
               "button",
@@ -566,8 +568,7 @@
                   renderStep();
                 },
               },
-              "Next",
-              arrow(),
+              "Next step",
             ),
       );
     }
@@ -598,7 +599,7 @@
           board.setMarks(found.slice());
           board.flashSquare(sq, "good");
           if (found.length === step.squares.length)
-            say(step.success || "Well done!", "good");
+            say(step.success || "Well done.", "good");
         } else {
           board.flashSquare(sq, "bad");
           say(`That's **${sq}**. Try again.`, "bad");
@@ -624,7 +625,7 @@
       say(prompt);
       const solved = () => {
         board.set(ch, { movable: null });
-        say(step.success || "Correct!", "good");
+        say(step.success || "Correct.", "good");
       };
       handlers.move = (m) => {
         if (idx >= step.solution.length) return;
@@ -761,7 +762,7 @@
           const userWon = ch.turn !== user;
           if (userWon)
             end(
-              step.success || "Checkmate. Well played!",
+              step.success || "Checkmate. Well played.",
               ["mate", "win"].includes(step.goal),
             );
           else
@@ -771,8 +772,8 @@
         if (result) {
           end(
             step.goal === "hold"
-              ? step.success || `Draw by ${result}. You held it!`
-              : `Draw by ${result}. That doesn't reach the goal; try again.`,
+              ? step.success || `Draw by ${result}. You held it.`
+              : `Draw by ${result}. That doesn't reach the goal. Press **Restart** and try again.`,
             step.goal === "hold",
           );
           return true;
@@ -783,13 +784,13 @@
           lastMove.promotion &&
           !ch.attacked(Chess.sqIndex(lastMove.to), ch.turn)
         ) {
-          end(step.success || "Promoted safely. The rest is technique!", true);
+          end(step.success || "Promoted safely. The rest is technique.", true);
           return true;
         }
         if (byUser && step.goal === "hold") {
           if (balance(ch) < startBalance - 2) {
             end(
-              "You have lost material and the position. Restart and try again.",
+              "You have lost material and the position. Press **Restart** and try again.",
               false,
             );
             return true;
@@ -883,50 +884,27 @@
         h(
           "div",
           { class: "game-controls" },
-          h(
-            "button",
-            {
-              class: "btn small",
-              onclick: () => {
-                ply = 0;
-                show();
-              },
+          iconBtn("first", "First move", () => {
+            ply = 0;
+            show();
+          }),
+          iconBtn("prev", "Previous move", () => {
+            ply = Math.max(0, ply - 1);
+            show();
+          }),
+          iconBtn(
+            "next",
+            "Next move",
+            () => {
+              ply = Math.min(sans.length, ply + 1);
+              show();
             },
-            "⏮",
+            "primary",
           ),
-          h(
-            "button",
-            {
-              class: "btn small",
-              onclick: () => {
-                ply = Math.max(0, ply - 1);
-                show();
-              },
-            },
-            "◀",
-          ),
-          h(
-            "button",
-            {
-              class: "btn small primary",
-              onclick: () => {
-                ply = Math.min(sans.length, ply + 1);
-                show();
-              },
-            },
-            "▶",
-          ),
-          h(
-            "button",
-            {
-              class: "btn small",
-              onclick: () => {
-                ply = sans.length;
-                show();
-              },
-            },
-            "⏭",
-          ),
+          iconBtn("last", "Last move", () => {
+            ply = sans.length;
+            show();
+          }),
         ),
         notesEl,
         moveList,
@@ -1010,14 +988,14 @@
       ),
     );
     panel.append(
-      h(
-        "div",
-        { class: "row spread" },
-        h("div", {}, "Your puzzle rating ", ratingEl, " ", streakEl),
-        themeSel,
-      ),
       title,
       meta,
+      h(
+        "div",
+        { class: "row spread puzzle-bar" },
+        h("div", {}, "Your puzzle rating ", ratingEl, streakEl),
+        h("label", {}, "Theme", themeSel),
+      ),
       feedback,
       h(
         "div",
@@ -1034,12 +1012,15 @@
           },
           "Hint",
         ),
-        h("button", { class: "btn small", onclick: showSolution }, "Solution"),
+        h(
+          "button",
+          { class: "btn small", onclick: showSolution },
+          "Show solution",
+        ),
         h(
           "button",
           { class: "btn small primary", onclick: next },
           "Next puzzle",
-          arrow(),
         ),
       ),
       h(
@@ -1056,7 +1037,7 @@
     const updateHeader = () => {
       ratingEl.textContent = Math.round(state.puzzle.rating);
       streakEl.textContent =
-        state.puzzle.streak > 1 ? `· streak ${state.puzzle.streak}` : "";
+        state.puzzle.streak > 1 ? `, streak ${state.puzzle.streak}` : "";
     };
 
     function pick() {
@@ -1131,7 +1112,7 @@
     function solvedIt() {
       finished = true;
       board.set(ch, { movable: null });
-      let msg = "Solved!";
+      let msg = "Solved.";
       if (!failed) {
         const d = rate(1);
         state.puzzle.streak++;
@@ -1156,7 +1137,7 @@
         board.flashSquare(played.to, "bad");
         if (!failed) fail();
         say(
-          `**${played.san}** isn't the answer. Try again, or press Solution.`,
+          `**${played.san}** isn't the answer. Try again, or press Show solution.`,
           "bad",
         );
         later(() => {
@@ -1277,7 +1258,7 @@
         h(
           "button",
           { class: "btn small", onclick: () => board.flip() },
-          "Flip",
+          "Flip board",
         ),
         h("button", { class: "btn small", onclick: resign }, "Resign"),
         h(
@@ -1325,7 +1306,7 @@
           msg =
             ch.turn === state.play.side
               ? "Checkmate. The computer wins this one."
-              : "Checkmate. You win!";
+              : "Checkmate. You win.";
         else msg = `Draw by ${over}.`;
         status.className =
           "feedback " + (msg.includes("You win") ? "good" : "");
@@ -1347,7 +1328,7 @@
           thinking
             ? "Computer is thinking…"
             : ch.turn === state.play.side
-              ? `Your move${ch.inCheck() ? ": you are in check!" : "."}`
+              ? `Your move${ch.inCheck() ? ". You are in check." : "."}`
               : "",
         );
       }
@@ -1500,7 +1481,7 @@
         const r = Engine.search(fen, { time: 1500 });
         if (!r.move) return;
         board.setArrows([r.uci]);
-        evalEl.innerHTML = `<div class="score">${Engine.formatScore(r.score, ch.turn)}</div><div class="pv">depth ${r.depth} · ${esc(r.pv.join(" "))}</div>`;
+        evalEl.innerHTML = `<div class="score">${Engine.formatScore(r.score, ch.turn)}</div><div class="pv">Depth ${r.depth} · ${esc(r.pv.join(" "))}</div>`;
       });
     }
 
@@ -1518,73 +1499,45 @@
       h(
         "p",
         { class: "muted small" },
-        "Use ← and → to step through the moves.",
+        "Use the left and right arrow keys to step through the moves.",
       ),
       h(
         "div",
         { class: "tools" },
-        h(
-          "button",
-          {
-            class: "btn small",
-            onclick: () => {
-              ply = 0;
-              show();
-            },
-          },
-          "⏮",
-        ),
-        h(
-          "button",
-          {
-            class: "btn small",
-            onclick: () => {
-              ply = Math.max(0, ply - 1);
-              show();
-            },
-          },
-          "◀",
-        ),
-        h(
-          "button",
-          {
-            class: "btn small",
-            onclick: () => {
-              ply = Math.min(sans.length, ply + 1);
-              show();
-            },
-          },
-          "▶",
-        ),
-        h(
-          "button",
-          {
-            class: "btn small",
-            onclick: () => {
-              ply = sans.length;
-              show();
-            },
-          },
-          "⏭",
-        ),
+        iconBtn("first", "First move", () => {
+          ply = 0;
+          show();
+        }),
+        iconBtn("prev", "Previous move", () => {
+          ply = Math.max(0, ply - 1);
+          show();
+        }),
+        iconBtn("next", "Next move", () => {
+          ply = Math.min(sans.length, ply + 1);
+          show();
+        }),
+        iconBtn("last", "Last move", () => {
+          ply = sans.length;
+          show();
+        }),
         h(
           "button",
           { class: "btn small", onclick: () => board.flip() },
-          "Flip",
+          "Flip board",
         ),
         h(
           "button",
           { class: "btn small primary", onclick: analyse },
           "Evaluate",
         ),
-        h("label", { class: "check" }, autoBox, "auto"),
+        h("label", { class: "check" }, autoBox, "Evaluate every move"),
       ),
       evalEl,
       moveList,
       h(
         "details",
         { class: "io" },
-        h("summary", {}, "Load / export a position"),
+        h("summary", {}, "Load or export a position"),
         h("label", {}, "FEN", fenInput),
         h(
           "div",
@@ -1745,7 +1698,7 @@
         h(
           "span",
           { class: "dim" },
-          "Where should we start? You can jump anywhere later.",
+          "Where do you want to start? You can jump to any stage later.",
         ),
       ),
       h(
@@ -1819,12 +1772,12 @@
               a.remove();
             },
           },
-          "Export",
+          "Export progress",
         ),
         h(
           "label",
           { class: "btn" },
-          "Import",
+          "Import progress",
           h("input", {
             type: "file",
             accept: "application/json",
@@ -1839,7 +1792,9 @@
                     JSON.stringify(JSON.parse(t)),
                   );
                 } catch (err) {
-                  alert("Could not read that file.");
+                  alert(
+                    "That file isn't a Chess Path progress file. Choose the chess-path-progress.json file you exported.",
+                  );
                   return;
                 }
                 state = loadState();
@@ -1863,7 +1818,7 @@
         h(
           "button",
           {
-            class: "btn danger",
+            class: "btn",
             onclick: () => {
               if (confirm("Erase all progress in this browser?")) {
                 state = defaults();
@@ -1874,13 +1829,13 @@
               }
             },
           },
-          "Reset",
+          "Erase progress",
         ),
       ),
       h(
         "div",
         { class: "modal-actions" },
-        h("button", { class: "btn primary", onclick: close }, "Done"),
+        h("button", { class: "btn primary", onclick: close }, "Close"),
       ),
     ]);
   }

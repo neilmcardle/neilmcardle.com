@@ -45,7 +45,8 @@ export default async function VectorPaintOrderSuccessPage({
   const found = await loadOrder(session_id);
   const sent =
     found?.order.status === "submitted" || found?.order.status === "dry_run";
-  const failed = found?.order.status === "failed";
+  const failed =
+    found?.order.status === "failed" || found?.order.status === "unconfirmed";
 
   return (
     <div className={receipt.receipt}>
@@ -84,7 +85,7 @@ export default async function VectorPaintOrderSuccessPage({
           </h1>
           <p className={receipt.receiptLead}>
             {failed
-              ? "Your payment went through, but the print did not reach the printer first time. It is retried automatically, and if it still does not go through we will send it by hand or refund you in full. You do not need to do anything."
+              ? "Your payment went through, but the print did not reach the printer first time. We have been told and are sorting it out: we will get it to the printer or refund you in full. You do not need to do anything."
               : found?.product
                 ? `Thank you. Your ${found.product.sizeLabel.toLowerCase()} canvas, ${formatCm(found.product)}, is on its way to the printer.`
                 : "Thank you. Your canvas is on its way to the printer."}

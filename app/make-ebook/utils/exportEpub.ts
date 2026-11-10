@@ -3,6 +3,15 @@ import { uuidv4 } from "./uuid";
 import { today } from "./constants";
 import { generateEpubCSS, TypographyPreset } from "./typographyPresets";
 
+export function xml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 const HTML_ENTITIES: Record<string, string> = {
   "&nbsp;": "&#160;",
   "&ndash;": "&#8211;",
@@ -319,7 +328,7 @@ export async function exportEpub({
       let contentNum = 1;
       return sortedChapters.map((ch, idx) => {
         const getTitle = (chapter: Chapter, contentNumber: number) => {
-          if (chapter.title?.trim()) return chapter.title.trim();
+          if (chapter.title?.trim()) return xml(chapter.title.trim());
           switch (chapter.type) {
             case "frontmatter":
               return "Front Matter";
@@ -364,13 +373,13 @@ export async function exportEpub({
       <body>
         <h2>Publisher Information</h2>
         <ul style="list-style-type: none; padding-left: 0;">
-          <li><strong>Title:</strong> ${safeTitle}</li>
-          <li><strong>Author:</strong> ${safeAuthor}</li>
-          <li><strong>Publisher:</strong> ${safePublisher}</li>
+          <li><strong>Title:</strong> ${xml(safeTitle)}</li>
+          <li><strong>Author:</strong> ${xml(safeAuthor)}</li>
+          <li><strong>Publisher:</strong> ${xml(safePublisher)}</li>
           <li><strong>ISBN:</strong> ${isbn ? isbn : "N/A"}</li>
           <li><strong>Publication Date:</strong> ${safeDate}</li>
-          <li><strong>Language:</strong> ${safeLang}</li>
-          <li><strong>Description:</strong> ${safeBlurb}</li>
+          <li><strong>Language:</strong> ${xml(safeLang)}</li>
+          <li><strong>Description:</strong> ${xml(safeBlurb)}</li>
           ${
             subjects.length
               ? `<li><strong>Tags/Subjects:</strong> ${subjects.join(", ")}</li>`
@@ -390,7 +399,7 @@ export async function exportEpub({
 
     const getChapterTitle = (chapter: Chapter, contentNumber: number) => {
       if (chapter.title?.trim()) {
-        return chapter.title.trim();
+        return xml(chapter.title.trim());
       }
 
       switch (chapter.type) {
@@ -495,7 +504,7 @@ export async function exportEpub({
             return sortedChapters
               .map((ch, idx) => {
                 const getTitle = (chapter: Chapter, contentNumber: number) => {
-                  if (chapter.title?.trim()) return chapter.title.trim();
+                  if (chapter.title?.trim()) return xml(chapter.title.trim());
                   switch (chapter.type) {
                     case "frontmatter":
                       return "Front Matter";
@@ -555,14 +564,14 @@ export async function exportEpub({
     `<?xml version="1.0" encoding="UTF-8"?>
     <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0">
       <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-        <dc:identifier id="BookId">${bookId}</dc:identifier>
-        <dc:title>${safeTitle}</dc:title>
-        <dc:language>${safeLang}</dc:language>
-        <dc:creator>${safeAuthor}</dc:creator>
-        <dc:description>${safeBlurb}</dc:description>
-        <dc:publisher>${safePublisher}</dc:publisher>
+        <dc:identifier id="BookId">${xml(bookId)}</dc:identifier>
+        <dc:title>${xml(safeTitle)}</dc:title>
+        <dc:language>${xml(safeLang)}</dc:language>
+        <dc:creator>${xml(safeAuthor)}</dc:creator>
+        <dc:description>${xml(safeBlurb)}</dc:description>
+        <dc:publisher>${xml(safePublisher)}</dc:publisher>
         <dc:date>${safeDate}</dc:date>
-        ${subjects.map((s) => `<dc:subject>${s}</dc:subject>`).join("\n          ")}
+        ${subjects.map((s) => `<dc:subject>${xml(s)}</dc:subject>`).join("\n          ")}
         ${coverMeta}
         <meta property="dcterms:modified">${new Date().toISOString().slice(0, 19)}Z</meta>
       </metadata>
@@ -585,12 +594,12 @@ export async function exportEpub({
     `<?xml version="1.0" encoding="UTF-8"?>
     <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
       <head>
-        <meta name="dtb:uid" content="${bookId}"/>
+        <meta name="dtb:uid" content="${xml(bookId)}"/>
         <meta name="dtb:depth" content="1"/>
         <meta name="dtb:totalPageCount" content="0"/>
         <meta name="dtb:maxPageNumber" content="0"/>
       </head>
-      <docTitle><text>${safeTitle}</text></docTitle>
+      <docTitle><text>${xml(safeTitle)}</text></docTitle>
       <navMap>
         ${
           coverFile
@@ -613,7 +622,7 @@ export async function exportEpub({
           return sortedChapters
             .map((ch, i) => {
               const getTitle = (chapter: Chapter, contentNumber: number) => {
-                if (chapter.title?.trim()) return chapter.title.trim();
+                if (chapter.title?.trim()) return xml(chapter.title.trim());
                 switch (chapter.type) {
                   case "frontmatter":
                     return "Front Matter";

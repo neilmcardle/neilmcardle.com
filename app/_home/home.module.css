@@ -349,6 +349,58 @@
   list-style: none;
 }
 
+.rowItem {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.rowItem .row {
+  flex: 1;
+  min-width: 0;
+}
+
+.live {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  width: 112px;
+  gap: 4px;
+  min-height: 44px;
+  margin: -12px 0;
+  color: var(--ink);
+  font-size: 13px;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--underline);
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+.live svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.live:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .live:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
 .row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
