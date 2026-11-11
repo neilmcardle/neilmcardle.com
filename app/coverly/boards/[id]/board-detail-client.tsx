@@ -3,9 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Download, Loader2, TriangleAlert, Trash2 } from "lucide-react";
+import {
+  Check,
+  Download,
+  Link2,
+  Loader2,
+  TriangleAlert,
+  Trash2,
+} from "lucide-react";
 import { type CoverCard } from "@/lib/coverly/queries";
-import { deleteBoard, useBoards } from "@/lib/coverly/use-boards";
+import {
+  clearBoardShare,
+  deleteBoard,
+  setBoardShare,
+  useBoards,
+} from "@/lib/coverly/use-boards";
 import { useHydrated } from "@/lib/coverly/use-hydrated";
 import { fetchBoardCovers } from "./actions";
 
@@ -16,6 +28,9 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
   const [covers, setCovers] = useState<CoverCard[] | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const board = boards.find((b) => b.id === boardId) ?? null;
   const coverKey = board ? board.covers.join(",") : "";
@@ -70,6 +85,78 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
     }
   };
 
+  const handleShare = async () => {
+    if (!board || sharing || board.covers.length === 0) return;
+    setSharing(true);
+    setShareError(null);
+    try {
+      const res = await fetch("/api/coverly/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ boardName: board.name, coverIds: board.covers }),
+      });
+      const info = (await res.json().catch(() => null)) as {
+        token?: string;
+        revokeKey?: string;
+        error?: string;
+      } | null;
+      if (!res.ok || !info?.token || !info?.revokeKey) {
+        setShareError(info?.error ?? "Could not create a link");
+        return;
+      }
+      setBoardShare(board.id, { token: info.token, revokeKey: info.revokeKey });
+    } catch {
+      setShareError("Could not create a link");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleUnshare = async () => {
+    if (!board?.share || sharing) return;
+    if (
+      !confirm(
+        "Stop sharing this board? The existing link stops working immediately.",
+      )
+    ) {
+      return;
+    }
+    setSharing(true);
+    setShareError(null);
+    try {
+      const res = await fetch("/api/coverly/share/revoke", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: board.share.token,
+          revokeKey: board.share.revokeKey,
+        }),
+      });
+      if (!res.ok) {
+        const info = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setShareError(info?.error ?? "Could not stop sharing");
+        return;
+      }
+      clearBoardShare(board.id);
+    } catch {
+      setShareError("Could not stop sharing");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleCopy = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   const handleDelete = () => {
     if (!board || !confirm(`Delete board "${board.name}"?`)) return;
     deleteBoard(board.id);
@@ -108,6 +195,9 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
   }
 
   const list = resolved ?? [];
+  const shareUrl = board.share
+    ? `${window.location.origin}/coverly/share/${board.share.token}`
+    : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -132,6 +222,20 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
               )}
               {exporting ? "Building deck…" : "Export PDF"}
             </button>
+            {!board.share && (
+              <button
+                onClick={handleShare}
+                disabled={sharing || list.length === 0}
+                className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm hover:bg-muted disabled:opacity-40"
+              >
+                {sharing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                ) : (
+                  <Link2 className="h-4 w-4" strokeWidth={2} />
+                )}
+                {sharing ? "Creating link…" : "Share"}
+              </button>
+            )}
             <button
               onClick={handleDelete}
               className="flex items-center gap-2 rounded-full border bg-card px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
@@ -140,6 +244,16 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
               Delete
             </button>
           </div>
+          {shareError && (
+            <p
+              role="status"
+              aria-live="assertive"
+              className="flex items-center gap-1.5 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-600"
+            >
+              <TriangleAlert className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+              {shareError}
+            </p>
+          )}
           {exportError && (
             <p
               role="status"
@@ -152,6 +266,36 @@ export function BoardDetailClient({ boardId }: { boardId: string }) {
           )}
         </div>
       </div>
+
+      {board.share && (
+        <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border bg-muted/40 px-4 py-3">
+          <span className="text-sm font-medium">
+            Anyone with this link can view this board as it was when you shared
+            it
+          </span>
+          <code className="min-w-0 flex-1 truncate rounded-lg bg-background px-3 py-1.5 font-mono text-2xs text-muted-foreground">
+            {shareUrl}
+          </code>
+          <button
+            onClick={() => shareUrl && handleCopy(shareUrl)}
+            className="flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3.5 py-1.5 text-sm hover:bg-background"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5" strokeWidth={2} />
+            ) : (
+              <Link2 className="h-3.5 w-3.5" strokeWidth={2} />
+            )}
+            {copied ? "Copied" : "Copy link"}
+          </button>
+          <button
+            onClick={handleUnshare}
+            disabled={sharing}
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-red-600 disabled:opacity-40"
+          >
+            Stop sharing
+          </button>
+        </div>
+      )}
 
       {list.length === 0 ? (
         <div className="rounded-2xl border bg-card p-12 text-center">

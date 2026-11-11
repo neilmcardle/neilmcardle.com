@@ -19,7 +19,14 @@ export async function fetchBoardCovers(
       .in("id", coverIds)
       .eq("delisted", false);
 
-    return withHeights((data as CoverCard[]) ?? []);
+    const byId = new Map(
+      ((data as CoverCard[]) ?? []).map((cover) => [cover.id, cover]),
+    );
+    const ordered = coverIds
+      .map((id) => byId.get(id))
+      .filter((cover): cover is CoverCard => cover !== undefined);
+
+    return withHeights(ordered);
   } catch {
     return [];
   }
