@@ -4,7 +4,10 @@ import { toDisplayCover } from "../utils/assetStore";
 import { clearVersions, versionKey } from "../utils/versionStore";
 import { uuidv4 } from "../utils/uuid";
 import { Endnote, EndnoteReference } from "../types";
-import { exportEpub } from "../utils/exportEpub";
+import { renderBook } from "../export/render";
+import { bookIdentifier, buildEpub } from "../export/epub";
+import { fileName } from "./save/useExports";
+import { newId } from "../model/book";
 import {
   loadBookLibrary,
   loadBookById,
@@ -269,20 +272,39 @@ export function useLibrary({
       migratedChapters,
     );
 
-    await exportEpub({
-      title: book.title,
-      author: book.author,
-      blurb: book.blurb,
-      publisher: book.publisher,
-      pubDate: book.pubDate,
-      isbn: book.isbn,
-      language: book.language,
-      genre: book.genre,
-      tags: book.tags,
-      coverFile: book.coverFile || null,
-      chapters: migratedChapters,
-      endnoteReferences: migratedEndnoteRefs,
-    });
+    const coverFile = await toDisplayCover(book.coverFile);
+    const blob = await buildEpub(
+      renderBook({
+        title: book.title || "",
+        author: book.author || "",
+        blurb: book.blurb || "",
+        publisher: book.publisher || "",
+        pubDate: book.pubDate || "",
+        isbn: book.isbn || "",
+        language: book.language || "",
+        genre: book.genre || "",
+        tags: book.tags || [],
+        coverFile,
+        chapters: migratedChapters,
+        endnotes: book.endnotes || [],
+        endnoteReferences: migratedEndnoteRefs,
+        typography: book.typography,
+      }),
+      {
+        identifier: bookIdentifier(book.isbn || "", newId()),
+        modified: new Date(),
+      },
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName(book.title || "", "epub");
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   }
 
   return {

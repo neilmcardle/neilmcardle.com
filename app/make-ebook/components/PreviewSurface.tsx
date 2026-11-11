@@ -3,13 +3,18 @@
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import type { Chapter } from "../types";
 import styles from "../styles/studio.module.css";
 import { htmlToText } from "../model/text";
+import { useBook } from "../providers/BookProvider";
+import { shallowEqual } from "../providers/store";
+import { renderBook } from "../export/render";
+import { previewDocument } from "../export/preview";
+import TypographyPicker from "./TypographyPicker";
 
 type DeviceId = "kindle" | "ipad" | "phone";
 type ReadingMode = "page" | "scroll";
@@ -49,8 +54,6 @@ const PAGE_COLOURS = [
     muted: "#8e8b82",
   },
 ] as const;
-
-const COLUMN_GAP = 40;
 
 function Arrow({ direction = "right" }: { direction?: "right" | "left" }) {
   return (
@@ -95,67 +98,86 @@ export default function PreviewSurface({
   const [mode, setMode] = useState<ReadingMode>("page");
   const [page, setPage] = useState(0);
   const [pages, setPages] = useState(1);
-  const [pageWidth, setPageWidth] = useState(0);
+  const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const columnsRef = useRef<HTMLDivElement>(null);
+  const meta = useBook(
+    (s) => ({
+      title: s.title,
+      author: s.author,
+      language: s.language,
+      typography: s.typography,
+      endnotes: s.endnotes,
+      endnoteReferences: s.endnoteReferences,
+    }),
+    shallowEqual,
+  );
 
   const device = DEVICES.find((d) => d.id === deviceId) ?? DEVICES[0];
   const colour = PAGE_COLOURS.find((c) => c.id === colourId) ?? PAGE_COLOURS[0];
-  const chapter = chapters[selectedChapter];
+
+  const book = useMemo(
+    () =>
+      renderBook({
+        title: meta.title,
+        author: meta.author,
+        blurb: "",
+        publisher: "",
+        pubDate: "",
+        isbn: "",
+        language: meta.language,
+        genre: "",
+        tags: [],
+        coverFile: null,
+        chapters,
+        endnotes: meta.endnotes,
+        endnoteReferences: meta.endnoteReferences,
+        typography: meta.typography,
+      }),
+    [chapters, meta],
+  );
+
+  const srcDoc = useMemo(
+    () =>
+      previewDocument(book, selectedChapter, {
+        fontPx: device.size,
+        page: colour.page,
+        ink: colour.ink,
+        muted: colour.muted,
+        paged: mode === "page",
+      }),
+    [book, selectedChapter, device.size, colour, mode],
+  );
+
+  const scroller = () => frameRef.current?.contentDocument?.body ?? null;
+
+  const measure = useCallback(() => {
+    const body = scroller();
+    if (!body || mode !== "page") return;
+    const width = body.clientWidth || 1;
+    const total = Math.max(1, Math.round(body.scrollWidth / width));
+    setPages(total);
+    setPage((p) => Math.min(p, total - 1));
+  }, [mode]);
 
   useEffect(() => {
     setPage(0);
-  }, [selectedChapter, deviceId, mode]);
+  }, [selectedChapter, deviceId, mode, srcDoc]);
 
-  const measure = useCallback(() => {
-    const viewport = viewportRef.current;
-    const columns = columnsRef.current;
-    if (!viewport || !columns) return;
-    const width = viewport.clientWidth;
-    columns.style.columnWidth = `${width}px`;
-    const total = Math.max(
-      1,
-      Math.round((columns.scrollWidth + COLUMN_GAP) / (width + COLUMN_GAP)),
-    );
-    setPageWidth(width);
-    setPages(total);
-    setPage((p) => Math.min(p, total - 1));
-  }, []);
+  useEffect(() => {
+    const body = scroller();
+    if (!body || mode !== "page") return;
+    body.scrollTo({ left: page * body.clientWidth, behavior: "smooth" });
+  }, [page, mode]);
 
-  useLayoutEffect(() => {
-    if (mode !== "page") return;
-    measure();
-    const viewport = viewportRef.current;
-    if (!viewport) return;
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
     const observer = new ResizeObserver(measure);
-    observer.observe(viewport);
+    observer.observe(frame);
     return () => observer.disconnect();
-  }, [mode, measure, deviceId, selectedChapter, chapters]);
+  }, [measure]);
 
   const { loc, percent } = readingPosition(chapters, selectedChapter);
-
-  const body = chapter?.content?.trim() ? (
-    <div
-      className={styles.pageBody}
-      dangerouslySetInnerHTML={{ __html: chapter.content }}
-    />
-  ) : (
-    <p className={styles.previewEmpty}>Nothing in this chapter yet.</p>
-  );
-
-  const heading = (
-    <>
-      <p className={styles.pageChapter}>
-        {chapter?.type === "frontmatter"
-          ? "Front matter"
-          : chapter?.type === "backmatter"
-            ? "Back matter"
-            : `Chapter ${selectedChapter + 1}`}
-      </p>
-      <p className={styles.pageTitle}>{chapter?.title || "Untitled"}</p>
-    </>
-  );
 
   return (
     <div className={styles.previewStage} data-tour="preview">
@@ -174,20 +196,16 @@ export default function PreviewSurface({
         }
       >
         <div className={styles.screen}>
-          {mode === "page" ? (
+          <iframe
+            ref={frameRef}
+            className={styles.pageFrame}
+            title={`Preview of ${book.chapters[selectedChapter]?.title ?? "this chapter"}`}
+            sandbox="allow-same-origin"
+            srcDoc={srcDoc}
+            onLoad={measure}
+          />
+          {mode === "page" && (
             <>
-              <div ref={viewportRef} className={styles.pageViewport}>
-                <div
-                  ref={columnsRef}
-                  className={styles.pageColumns}
-                  style={{
-                    transform: `translateX(${-page * (pageWidth + COLUMN_GAP)}px)`,
-                  }}
-                >
-                  {heading}
-                  {body}
-                </div>
-              </div>
               <button
                 type="button"
                 className={`${styles.turn} ${styles.turnPrev}`}
@@ -203,11 +221,6 @@ export default function PreviewSurface({
                 onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
               />
             </>
-          ) : (
-            <div className={styles.pageScroll}>
-              {heading}
-              {body}
-            </div>
           )}
           <div className={styles.pageFoot}>
             <span>{device.label}</span>
@@ -285,6 +298,8 @@ export default function PreviewSurface({
             </button>
           </div>
         )}
+
+        <TypographyPicker />
       </div>
     </div>
   );

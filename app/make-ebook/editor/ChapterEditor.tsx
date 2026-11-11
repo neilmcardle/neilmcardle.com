@@ -10,13 +10,10 @@ import React, {
   useRef,
   useState,
   type ChangeEvent,
-  type HTMLAttributes,
 } from "react";
 import type { Command } from "prosemirror-state";
-import type { EditorView } from "prosemirror-view";
 import { redo, undo } from "prosemirror-history";
 import { useTheme } from "../../../lib/contexts/ThemeContext";
-import EditorContextMenu from "../components/EditorContextMenu";
 import { useIsMac } from "../components/PlatformKey";
 import {
   addLink,
@@ -30,10 +27,9 @@ import {
   setBlockLevel,
   toggleInline,
 } from "./commands";
-import { contextGroups, type ContextTarget } from "./contextMenu";
+import { ChapterContextMenu, type ContextTarget } from "./contextMenu";
 import { EndnoteDialog, ImageCaptionDialog } from "./EditorDialogs";
 import EditorStyles from "./EditorStyles";
-import { textStats } from "../model/text";
 import {
   copySelection,
   promptForAnchor,
@@ -43,72 +39,14 @@ import {
 import type { EditorHandle } from "./registry";
 import { CompactToolbar, Toolbar } from "./Toolbar";
 import type { ToolbarAction } from "./toolbarItems";
-import { domRangeAt, rectAt, useEditorView } from "./useEditorView";
-
-export type ChapterEditorProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  "onChange"
-> & {
-  value: string;
-  onChange: (html: string) => void;
-  disabled?: boolean;
-  placeholder?: string;
-  minHeight?: number;
-  showWordCount?: boolean;
-  onFocusStateChange?: (focused: boolean) => void;
-  className?: string;
-  externalVersion?: number;
-  onCreateEndnote?: (selectedText: string, chapterId?: string) => string;
-  chapterId?: string;
-  hasEndnotes?: boolean;
-  hideToolbar?: boolean;
-  contentClassName?: string;
-  onInlineEditRequest?: (args: {
-    selectedText: string;
-    range: Range;
-    rect: DOMRect;
-    instruction?: string;
-  }) => void;
-  onComposeRequest?: (args: { range: Range; rect: DOMRect }) => void;
-};
-
-const EMPTY_VALUES = new Set(["", "<p><br></p>", "<p></p>", "<br>", "<br/>"]);
-
-function countWords(html: string) {
-  const { text, words } = textStats(html);
-  return { words, chars: text.length };
-}
-
-function useReadingProgress(viewRef: { current: EditorView | null }) {
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const el = viewRef.current?.dom as HTMLElement | undefined;
-    if (!el) return;
-    const read = () => {
-      const range = el.scrollHeight - el.clientHeight;
-      setProgress(
-        range > 8 ? Math.min(1, Math.max(0, el.scrollTop / range)) : 0,
-      );
-    };
-    read();
-    el.addEventListener("scroll", read, { passive: true });
-    el.addEventListener("input", read);
-    const observer = new ResizeObserver(read);
-    observer.observe(el);
-    return () => {
-      el.removeEventListener("scroll", read);
-      el.removeEventListener("input", read);
-      observer.disconnect();
-    };
-  }, [viewRef]);
-  return progress;
-}
-
-function selectionRect(view: EditorView, range: Range | null): DOMRect {
-  const { empty, head } = view.state.selection;
-  if (!empty && range) return range.getBoundingClientRect();
-  return rectAt(view, head) ?? new DOMRect();
-}
+import {
+  countWords,
+  EMPTY_VALUES,
+  selectionRect,
+  useReadingProgress,
+  type ChapterEditorProps,
+} from "./chapterEditorParts";
+import { domRangeAt, useEditorView } from "./useEditorView";
 
 const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
   function ChapterEditor(
@@ -292,6 +230,26 @@ const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
       },
       [disabled, viewRef],
     );
+
+    const makeBold = useCallback(
+      () => command(toggleInline("bold")),
+      [command],
+    );
+
+    const makeItalic = useCallback(
+      () => command(toggleInline("italic")),
+      [command],
+    );
+
+    const copyOut = useCallback(() => {
+      const view = viewRef.current;
+      if (view) void copySelection(view, false);
+    }, [viewRef]);
+
+    const cutOut = useCallback(() => {
+      const view = viewRef.current;
+      if (view) void copySelection(view, true);
+    }, [viewRef]);
 
     const openEndnote = useCallback(() => {
       const view = viewRef.current;
@@ -497,24 +455,21 @@ const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
         )}
 
         {contextMenu && (
-          <EditorContextMenu
-            x={contextMenu.x}
-            y={contextMenu.y}
-            groups={contextGroups(contextMenu, {
+          <ChapterContextMenu
+            target={contextMenu}
+            handlers={{
               modKey,
               onInlineEditRequest,
               onComposeRequest,
               canEndnote: !!onCreateEndnote,
-              bold: () => command(toggleInline("bold")),
-              italic: () => command(toggleInline("italic")),
+              bold: makeBold,
+              italic: makeItalic,
               endnote: openEndnote,
               image: chooseImage,
               anchor: insertAnchorId,
-              copy: () =>
-                viewRef.current && void copySelection(viewRef.current, false),
-              cut: () =>
-                viewRef.current && void copySelection(viewRef.current, true),
-            })}
+              copy: copyOut,
+              cut: cutOut,
+            }}
             onClose={() => setContextMenu(null)}
           />
         )}

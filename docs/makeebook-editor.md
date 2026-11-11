@@ -69,7 +69,7 @@ When a chapter opens, its HTML is parsed once. Edits are serialised 150 ms after
 
 1. Add it to `schema.ts` with `parseDOM` and `toDOM`. Put a specific parse rule (an `a` with a data attribute, say) at a higher `priority` than the general one.
 2. Add round-trip cases to `editor/html.dom.test.ts`: the HTML you expect to store must come back unchanged.
-3. If the EPUB export needs it, check `EPUB_SAFE_CONFIG` in `utils/pasteCleaner.ts` and `normalizeHtmlForEpub` in `utils/exportEpub.ts`, and update the golden snapshot only if the change is intended.
+3. Teach the exporter to write it: a case in `block` or `leaf` in `export/xhtml.ts`, and in `export/docx.ts` for Word. Update the export golden snapshots only if the change is intended (`docs/makeebook-export.md`).
 4. If it needs CSS in the editor, add it to `EditorStyles.tsx` and run the visual browser test.
 
 ## Adding a command

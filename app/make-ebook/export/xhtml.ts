@@ -83,7 +83,7 @@ const CLOSE: Record<string, string> = {
 
 function inline(parent: PMNode, target: XhtmlTarget): string {
   let out = "";
-  let open: Mark[] = [];
+  const open: Mark[] = [];
   const closeTo = (keep: number) => {
     while (open.length > keep) out += CLOSE[open.pop()!.type.name] ?? "";
   };

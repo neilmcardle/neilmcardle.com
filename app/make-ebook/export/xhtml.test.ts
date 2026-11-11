@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { xml } from "./exportEpub";
+import { escapeXml as xml } from "./xhtml";
 
 describe("xml", () => {
   it("escapes characters that break EPUB markup", () => {

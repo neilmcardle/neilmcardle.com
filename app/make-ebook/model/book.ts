@@ -5,6 +5,7 @@ import type {
   EndnoteReference,
 } from "../types";
 import { uuidv4 } from "../utils/uuid";
+import { normalisePreset, type TypographyPreset } from "../export/styles";
 
 export const SCHEMA_VERSION = 1;
 
@@ -20,6 +21,7 @@ export type Book = {
   isbn: string;
   language: string;
   genre: string;
+  typography: TypographyPreset;
   tags: string[];
   coverFile: string | null;
   chapters: Chapter[];
@@ -60,6 +62,7 @@ export function newBook(userId: string): Book {
     isbn: "",
     language: "",
     genre: "",
+    typography: "default",
     tags: [],
     coverFile: null,
     chapters: [],
@@ -193,6 +196,7 @@ export function normaliseBook(value: unknown, userId: string): Book {
     isbn: text(raw.isbn),
     language: text(raw.language),
     genre: text(raw.genre),
+    typography: normalisePreset(raw.typography),
     tags: list(raw.tags, (t) => (typeof t === "string" ? t : null)),
     coverFile: text(raw.coverFile, raw.cover_image_url, raw.coverImage) || null,
     chapters: list(raw.chapters, normaliseChapter),

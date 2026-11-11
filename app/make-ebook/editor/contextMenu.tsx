@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import type { ContextMenuGroup } from "../components/EditorContextMenu";
+import EditorContextMenu, {
+  type ContextMenuGroup,
+} from "../components/EditorContextMenu";
 
 export type ContextTarget = {
   x: number;
@@ -225,4 +227,23 @@ export function contextGroups(
     { id: "insert", items: insert },
     { id: "clipboard", items: clipboard },
   ];
+}
+
+export function ChapterContextMenu({
+  target,
+  handlers,
+  onClose,
+}: {
+  target: ContextTarget;
+  handlers: ContextHandlers;
+  onClose: () => void;
+}) {
+  return (
+    <EditorContextMenu
+      x={target.x}
+      y={target.y}
+      groups={contextGroups(target, handlers)}
+      onClose={onClose}
+    />
+  );
 }

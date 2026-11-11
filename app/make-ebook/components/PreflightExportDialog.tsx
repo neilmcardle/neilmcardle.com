@@ -12,6 +12,7 @@ import { LANGUAGES } from "../utils/constants";
 import styles from "../styles/studio.module.css";
 import GenrePicker from "./GenrePicker";
 import GenerateCoverModal from "./sidebar/GenerateCoverModal";
+import TypographyPicker from "./TypographyPicker";
 
 export type ExportFormat = "epub" | "pdf" | "docx";
 
@@ -368,6 +369,9 @@ function ProBody({
         </ul>
       </div>
 
+      <div className={styles.presetRow}>
+        <TypographyPicker withHint />
+      </div>
       <div className={styles.paneFoot}>
         <span>
           {passed} of {checks.length} passed
@@ -427,6 +431,9 @@ function FreeBody({
         </p>
       </div>
 
+      <div className={styles.presetRow}>
+        <TypographyPicker withHint />
+      </div>
       <div className={styles.paneFoot}>
         <span />
         <span className={styles.pasteActions}>

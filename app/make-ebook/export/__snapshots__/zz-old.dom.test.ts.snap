@@ -1,0 +1,480 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`EPUB > produces the same chapters as the golden copy > chapter1 1`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Dedication</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<section epub:type="frontmatter">
+<h1 class="chapter-title">Dedication</h1>
+<div class="chapter-content"><p>For my father, who kept the light.</p></div>
+</section>
+</body>
+</html>
+"
+`;
+
+exports[`EPUB > produces the same chapters as the golden copy > chapter2 1`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The Light</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<section epub:type="bodymatter chapter">
+<h1 class="chapter-title">The Light</h1>
+<div class="chapter-content"><p>The keeper counted every ship that passed the rocks.</p><p style="text-align: center;">He wrote their names <em>in a ledger</em><a href="chapter4.xhtml#end1" id="ref1" class="endnote-ref" epub:type="noteref"><sup>[1]</sup></a> the colour of <strong>wet slate</strong>.</p><hr /><blockquote><p>The sea is patient.</p></blockquote><h2>The log</h2><ul><li><p>Wind</p></li><li><p>Tide</p></li></ul><ol start="3"><li><p>Third</p></li><li><p>Fourth</p></li></ol><figure><img src="images/image1.png" alt="The tower" /><figcaption>The tower at dusk</figcaption></figure><p>See <a href="https://example.com/tides">the tide tables</a> and <a href="chapter3.xhtml#harbour-mark">the harbour</a>.</p></div>
+</section>
+</body>
+</html>
+"
+`;
+
+exports[`EPUB > produces the same chapters as the golden copy > chapter3 1`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Chapter 2</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<section epub:type="bodymatter chapter">
+<h1 class="chapter-title">Chapter 2</h1>
+<div class="chapter-content"><p><a id="harbour-mark"></a>The harbour master knew before anyone told him.</p></div>
+</section>
+</body>
+</html>
+"
+`;
+
+exports[`EPUB > produces the same chapters as the golden copy > chapter4 1`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Endnotes</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<section epub:type="backmatter endnotes">
+<h1 class="chapter-title">Endnotes</h1>
+<div class="chapter-content"><p>1. Slate grey, from the quarry above the bay. <a href="chapter2.xhtml#ref1" id="end1" class="endnote-back">[1]</a></p></div>
+</section>
+</body>
+</html>
+"
+`;
+
+exports[`EPUB > produces the same package as the golden copy 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="BookId" xml:lang="en">
+<metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+<dc:identifier id="BookId">urn:uuid:00000000-0000-4000-8000-000000000001</dc:identifier>
+<dc:title>The Lighthouse</dc:title>
+<dc:language>en</dc:language>
+<dc:creator>Mara Quill</dc:creator>
+<dc:publisher>Quillmore Press</dc:publisher>
+<dc:description>A keeper, a storm &amp; the ship that never came home.</dc:description>
+<dc:date>2026-03-01</dc:date>
+<dc:subject>Literary fiction</dc:subject>
+<dc:subject>sea</dc:subject>
+<dc:subject>family</dc:subject>
+<meta name="cover" content="cover-image" />
+<meta property="dcterms:modified">2026-11-11T12:00:00Z</meta>
+</metadata>
+<manifest>
+<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
+<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+<item id="styles" href="styles.css" media-type="text/css" />
+<item id="title" href="title.xhtml" media-type="application/xhtml+xml" />
+<item id="cover-image" href="images/cover.png" media-type="image/png" properties="cover-image" />
+<item id="cover" href="cover.xhtml" media-type="application/xhtml+xml" />
+<item id="chapter1" href="chapter1.xhtml" media-type="application/xhtml+xml" />
+<item id="chapter2" href="chapter2.xhtml" media-type="application/xhtml+xml" />
+<item id="chapter3" href="chapter3.xhtml" media-type="application/xhtml+xml" />
+<item id="chapter4" href="chapter4.xhtml" media-type="application/xhtml+xml" />
+<item id="image1" href="images/image1.png" media-type="image/png" />
+</manifest>
+<spine toc="ncx">
+<itemref idref="cover" />
+<itemref idref="title" />
+<itemref idref="nav" />
+<itemref idref="chapter1" />
+<itemref idref="chapter2" />
+<itemref idref="chapter3" />
+<itemref idref="chapter4" />
+</spine>
+</package>
+"
+`;
+
+exports[`EPUB > produces the same package as the golden copy 2`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Contents</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+<nav epub:type="toc" id="toc">
+<h1 class="chapter-title">Contents</h1>
+<ol>
+<li><a href="chapter1.xhtml">Dedication</a></li>
+<li><a href="chapter2.xhtml">The Light</a></li>
+<li><a href="chapter3.xhtml">Chapter 2</a></li>
+<li><a href="chapter4.xhtml">Endnotes</a></li>
+</ol>
+</nav>
+<nav epub:type="landmarks" hidden="hidden">
+<ol>
+<li><a epub:type="titlepage" href="title.xhtml">Title page</a></li>
+<li><a epub:type="toc" href="nav.xhtml">Contents</a></li>
+<li><a epub:type="bodymatter" href="chapter2.xhtml">Start reading</a></li>
+</ol>
+</nav>
+</body>
+</html>
+"
+`;
+
+exports[`EPUB > produces the same package as the golden copy 3`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+<head>
+<meta name="dtb:uid" content="urn:uuid:00000000-0000-4000-8000-000000000001" />
+<meta name="dtb:depth" content="1" />
+<meta name="dtb:totalPageCount" content="0" />
+<meta name="dtb:maxPageNumber" content="0" />
+</head>
+<docTitle><text>The Lighthouse</text></docTitle>
+<navMap>
+<navPoint id="nav-1" playOrder="1">
+<navLabel><text>The Lighthouse</text></navLabel>
+<content src="title.xhtml" />
+</navPoint>
+<navPoint id="nav-2" playOrder="2">
+<navLabel><text>Contents</text></navLabel>
+<content src="nav.xhtml" />
+</navPoint>
+<navPoint id="nav-3" playOrder="3">
+<navLabel><text>Dedication</text></navLabel>
+<content src="chapter1.xhtml" />
+</navPoint>
+<navPoint id="nav-4" playOrder="4">
+<navLabel><text>The Light</text></navLabel>
+<content src="chapter2.xhtml" />
+</navPoint>
+<navPoint id="nav-5" playOrder="5">
+<navLabel><text>Chapter 2</text></navLabel>
+<content src="chapter3.xhtml" />
+</navPoint>
+<navPoint id="nav-6" playOrder="6">
+<navLabel><text>Endnotes</text></navLabel>
+<content src="chapter4.xhtml" />
+</navPoint>
+</navMap>
+</ncx>
+"
+`;
+
+exports[`EPUB > produces the same package as the golden copy 4`] = `
+"<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en" lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The Lighthouse</title>
+<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body epub:type="frontmatter">
+<section class="title-page" epub:type="titlepage">
+<h1 class="book-title">The Lighthouse</h1>
+<p class="book-author">Mara Quill</p>
+<p class="book-publisher">Quillmore Press</p>
+</section>
+<section class="details"><p>Published by Quillmore Press</p><p>First published 2026-03-01</p></section>
+</body>
+</html>
+"
+`;
+
+exports[`PDF > prints the same chapters with the book's stylesheet 1`] = `
+"<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The Lighthouse</title>
+<style>
+@charset "UTF-8";
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1em;
+  line-height: 1.8;
+  margin: 5%;
+  text-align: justify;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+p {
+  text-indent: 1.5em;
+  margin-top: 0;
+  margin-bottom: 0;
+  orphans: 2;
+  widows: 2;
+}
+
+.chapter-content > p:first-child,
+h1 + p,
+h2 + p,
+h3 + p,
+hr + p,
+blockquote + p,
+figure + p,
+ul + p,
+ol + p {
+  text-indent: 0;
+}
+
+h1, h2, h3 {
+  font-weight: bold;
+  line-height: 1.3;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+h1 {
+  font-size: 1.5em;
+  margin: 2em 0 1em;
+}
+
+h2 {
+  font-size: 1.3em;
+  margin: 1.5em 0 0.8em;
+}
+
+h3 {
+  font-size: 1.1em;
+  margin: 1.2em 0 0.6em;
+}
+
+.chapter-title {
+  text-align: center;
+  font-size: 1.5em;
+  margin: 2em 0 1em;
+}
+
+.title-page {
+  text-align: center;
+  margin-top: 30%;
+}
+
+.title-page .book-title {
+  font-size: 2em;
+  margin: 0 0 0.5em;
+}
+
+.title-page .book-author {
+  font-size: 1.2em;
+  font-style: italic;
+  text-indent: 0;
+  margin: 0 0 0.3em;
+}
+
+.title-page .book-publisher {
+  font-size: 0.9em;
+  text-indent: 0;
+  margin-top: 3em;
+}
+
+.details p {
+  text-indent: 0;
+  margin: 0 0 0.4em;
+}
+
+hr {
+  border: none;
+  text-align: center;
+  margin: 1.5em 0;
+}
+
+hr::before {
+  content: "* * *";
+  letter-spacing: 0.5em;
+  color: #666;
+}
+
+blockquote {
+  margin: 1em 2em;
+  font-style: italic;
+}
+
+blockquote p {
+  text-indent: 0;
+}
+
+ul, ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+ul {
+  list-style-type: disc;
+}
+
+ol {
+  list-style-type: decimal;
+}
+
+li {
+  margin-bottom: 0.3em;
+}
+
+li p {
+  text-indent: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+a.endnote-ref {
+  text-decoration: none;
+}
+
+a.endnote-ref sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+a.endnote-back {
+  font-size: 0.85em;
+  margin-left: 0.5em;
+  text-decoration: none;
+}
+
+nav ol {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+nav a {
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+figure {
+  margin: 1.5em 0;
+  text-align: center;
+}
+
+figure img {
+  display: block;
+  margin: 0 auto;
+}
+
+figcaption {
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 0.5em;
+}
+
+pre, code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+}
+
+pre {
+  padding: 1em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid #ddd;
+}
+
+@page {
+  size: A5;
+  margin: 2cm 1.8cm;
+}
+
+body {
+  margin: 0;
+  font-size: 11pt;
+  color: #000;
+}
+
+.title-page,
+.chapter {
+  break-before: page;
+  page-break-before: always;
+}
+
+.title-page {
+  break-before: auto;
+  page-break-before: auto;
+  margin-top: 35%;
+}
+
+img,
+figure,
+pre {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+</style>
+</head>
+<body>
+<section class="title-page">
+<h1 class="book-title">The Lighthouse</h1>
+<p class="book-author">Mara Quill</p>
+<p class="book-publisher">Quillmore Press</p>
+</section>
+<section class="chapter" id="chapter-1">
+<h1 class="chapter-title">Dedication</h1>
+<div class="chapter-content"><p>For my father, who kept the light.</p></div>
+</section>
+<section class="chapter" id="chapter-2">
+<h1 class="chapter-title">The Light</h1>
+<div class="chapter-content"><p>The keeper counted every ship that passed the rocks.</p><p style="text-align: center;">He wrote their names <em>in a ledger</em><a href="#end1" id="ref1" class="endnote-ref" epub:type="noteref"><sup>[1]</sup></a> the colour of <strong>wet slate</strong>.</p><hr /><blockquote><p>The sea is patient.</p></blockquote><h2>The log</h2><ul><li><p>Wind</p></li><li><p>Tide</p></li></ul><ol start="3"><li><p>Third</p></li><li><p>Fourth</p></li></ol><figure><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="The tower" /><figcaption>The tower at dusk</figcaption></figure><p>See <a href="https://example.com/tides">the tide tables</a> and <a href="#harbour-mark">the harbour</a>.</p></div>
+</section>
+<section class="chapter" id="chapter-3">
+<h1 class="chapter-title">Chapter 2</h1>
+<div class="chapter-content"><p><a id="harbour-mark"></a>The harbour master knew before anyone told him.</p></div>
+</section>
+<section class="chapter" id="chapter-4">
+<h1 class="chapter-title">Endnotes</h1>
+<div class="chapter-content"><p>1. Slate grey, from the quarry above the bay. <a href="#ref1" id="end1" class="endnote-back">[1]</a></p></div>
+</section>
+</body>
+</html>
+"
+`;
+
+exports[`Word > produces the same document as the golden copy 1`] = `"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document mc:Ignorable="w14 w15 wp14" xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:cx="http://schemas.microsoft.com/office/drawing/2014/chartex" xmlns:cx1="http://schemas.microsoft.com/office/drawing/2015/9/8/chartex" xmlns:cx2="http://schemas.microsoft.com/office/drawing/2015/10/21/chartex" xmlns:cx3="http://schemas.microsoft.com/office/drawing/2016/5/9/chartex" xmlns:cx4="http://schemas.microsoft.com/office/drawing/2016/5/10/chartex" xmlns:cx5="http://schemas.microsoft.com/office/drawing/2016/5/11/chartex" xmlns:cx6="http://schemas.microsoft.com/office/drawing/2016/5/12/chartex" xmlns:cx7="http://schemas.microsoft.com/office/drawing/2016/5/13/chartex" xmlns:cx8="http://schemas.microsoft.com/office/drawing/2016/5/14/chartex" xmlns:aink="http://schemas.microsoft.com/office/drawing/2016/ink" xmlns:am3d="http://schemas.microsoft.com/office/drawing/2017/model3d" xmlns:w16cex="http://schemas.microsoft.com/office/word/2018/wordml/cex" xmlns:w16cid="http://schemas.microsoft.com/office/word/2016/wordml/cid" xmlns:w16="http://schemas.microsoft.com/office/word/2018/wordml" xmlns:w16sdtdh="http://schemas.microsoft.com/office/word/2020/wordml/sdtdatahash" xmlns:w16se="http://schemas.microsoft.com/office/word/2015/wordml/symex"><w:body><w:p><w:pPr><w:pStyle w:val="Title"/><w:spacing w:after="240" w:before="2880"/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">The Lighthouse</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:i/><w:iCs/></w:rPr><w:t xml:space="preserve">Mara Quill</w:t></w:r></w:p><w:p><w:pPr><w:spacing w:before="720"/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">Quillmore Press</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading1"/><w:pageBreakBefore/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">Dedication</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="FirstParagraph"/></w:pPr><w:r><w:t xml:space="preserve">For my father, who kept the light.</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading1"/><w:pageBreakBefore/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">The Light</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="FirstParagraph"/></w:pPr><w:r><w:t xml:space="preserve">The keeper counted every ship that passed the rocks.</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">He wrote their names </w:t></w:r><w:r><w:rPr><w:i/><w:iCs/></w:rPr><w:t xml:space="preserve">in a ledger</w:t></w:r><w:r><w:rPr><w:rStyle w:val="EndnoteReference"/></w:rPr><w:endnoteReference w:id="1"/></w:r><w:r><w:t xml:space="preserve"> the colour of </w:t></w:r><w:r><w:rPr><w:b/><w:bCs/></w:rPr><w:t xml:space="preserve">wet slate</w:t></w:r><w:r><w:t xml:space="preserve">.</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">* * *</w:t></w:r></w:p><w:p><w:pPr><w:ind w:left="720" w:right="720"/></w:pPr><w:r><w:t xml:space="preserve">The sea is patient.</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading3"/></w:pPr><w:r><w:t xml:space="preserve">The log</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr><w:r><w:t xml:space="preserve">Wind</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr><w:r><w:t xml:space="preserve">Tide</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr></w:pPr><w:r><w:t xml:space="preserve">Third</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="ListParagraph"/><w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr></w:pPr><w:r><w:t xml:space="preserve">Fourth</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="9525" cy="9525"/><wp:effectExtent t="0" r="0" b="0" l="0"/><wp:docPr id="1" name="" descr="" title=""/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="0" name="" descr=""/><pic:cNvPicPr><a:picLocks noChangeAspect="1" noChangeArrowheads="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId7" cstate="none"/><a:srcRect/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr bwMode="auto"><a:xfrm><a:off x="0" y="0"/><a:ext cx="9525" cy="9525"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Caption"/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">The tower at dusk</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="FirstParagraph"/></w:pPr><w:r><w:t xml:space="preserve">See </w:t></w:r><w:hyperlink w:history="1" r:id="rIduorsgswjtsshj_b5bqcf4"><w:r><w:rPr><w:rStyle w:val="Hyperlink"/></w:rPr><w:t xml:space="preserve">the tide tables</w:t></w:r></w:hyperlink><w:r><w:t xml:space="preserve"> and </w:t></w:r><w:r><w:t xml:space="preserve">the harbour</w:t></w:r><w:r><w:t xml:space="preserve">.</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="Heading1"/><w:pageBreakBefore/><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">Chapter 2</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val="FirstParagraph"/></w:pPr><w:r><w:t xml:space="preserve">The harbour master knew before anyone told him.</w:t></w:r></w:p><w:sectPr><w:pgSz w:w="11906" w:h="16838" w:orient="portrait"/><w:pgMar w:top="1440" w:right="1800" w:bottom="1440" w:left="1800" w:header="708" w:footer="708" w:gutter="0"/><w:pgNumType/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>"`;
+
+exports[`Word > produces the same document as the golden copy 2`] = `"<?xml version="1.0" encoding="UTF-8"?><w:endnotes xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 w15 wp14"><w:endnote w:type="separator" w:id="-1"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rStyle w:val="EndnoteReference"/></w:rPr><w:endnoteRef/></w:r><w:r><w:separator/></w:r></w:p></w:endnote><w:endnote w:type="continuationSeparator" w:id="0"><w:p><w:pPr><w:spacing w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rStyle w:val="EndnoteReference"/></w:rPr><w:endnoteRef/></w:r><w:r><w:continuationSeparator/></w:r></w:p></w:endnote><w:endnote w:id="1"><w:p><w:r><w:rPr><w:rStyle w:val="EndnoteReference"/></w:rPr><w:endnoteRef/></w:r><w:r><w:t xml:space="preserve">Slate grey, from the quarry above the bay.</w:t></w:r></w:p></w:endnote></w:endnotes>"`;

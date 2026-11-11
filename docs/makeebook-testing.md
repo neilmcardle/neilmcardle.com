@@ -22,6 +22,8 @@ These are the safety net for the makeEbook refactor (`drafts/makeebook-refactor-
 - **Visual:** the chapter surface matches saved screenshots on desktop and phone (`visual.spec.ts-snapshots/`). Don't update them to make a change pass; a difference means the editor looks different.
 - **Paste:** Word HTML loses its scripts and styling but keeps its words. Plain text keeps every line and its characters as typed.
 - **Book Mind:** a streamed answer from a mocked server.
+- **Preview:** the preview draws the chapter in a frame with the EPUB stylesheet, a preset chosen there changes it, and the choice is still there after a reload.
+- **Landing rain:** the rain effect runs without errors in a frame with no size, which is what the landing's frame measures while it hands over to the editor.
 - **Selection:** on a phone, the Book Mind bar appears for a selection, clears when it collapses and comes back for select all.
 - **Focus and typewriter modes:** both switch on and off. Escape closes a menu without leaving focus mode.
 - **Landing:** a signed-out visitor sees the landing, not the editor.
@@ -43,4 +45,4 @@ The editor needs a signed-in user, and the tests never use a real account. `e2e/
 
 - Find elements by role, label or visible text. Use `data-testid` only where an element has no accessible name. Today that's the chapter editor, chapter list and rows, the add-chapter button and the library list.
 - Keep those test ids when components are rebuilt. The ProseMirror editor puts `data-testid="chapter-editor"` on its editable root, through the view's `attributes`.
-- The pinned EPUB output is in `app/make-ebook/utils/__snapshots__/`. If a change to the exporter is intended, update the snapshots with `npx vitest run -u` and review the diff.
+- The pinned export output (EPUB, PDF and Word) is in `app/make-ebook/export/__snapshots__/`. If a change to the exporter is intended, update the snapshots with `npx vitest run app/make-ebook/export -u` and review the diff. `docs/makeebook-export.md` says how to run EPUBCheck.

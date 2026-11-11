@@ -28,6 +28,7 @@ export function saveBookToLibrary(
       isbn: book.isbn || "",
       language: book.language || "",
       genre: book.genre || "",
+      typography: book.typography,
       chapters: book.chapters || [],
       tags: book.tags || [],
       coverFile: book.coverFile || null,

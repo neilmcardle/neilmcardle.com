@@ -1,10 +1,12 @@
 "use client";
 import { useReducer, useRef } from "react";
 import { track } from "@vercel/analytics";
-import type { Chapter, EndnoteReference } from "../../types";
-import { exportEpub } from "../../utils/exportEpub";
-import { exportPdf } from "../../utils/exportPdf";
-import { exportDocx } from "../../utils/exportDocx";
+import type { Chapter, Endnote, EndnoteReference } from "../../types";
+import { renderBook, type ExportInput } from "../../export/render";
+import { bookIdentifier, buildEpub } from "../../export/epub";
+import { printPdf } from "../../export/pdf";
+import { buildDocx } from "../../export/docx";
+import { newId } from "../../model/book";
 import { keys, readLocal, writeLocal } from "../../storage/keys";
 import { textStats } from "../../model/text";
 import {
@@ -28,10 +30,39 @@ export interface ExportBook {
   isbn: string;
   language: string;
   genre: string;
+  typography: string;
   tags: string[];
   coverUrl: string | null;
   chapters: Chapter[];
+  endnotes: Endnote[];
   endnoteReferences: EndnoteReference[];
+}
+
+export function fileName(title: string, ext: string) {
+  return `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.${ext}`;
+}
+
+export function exportInput(
+  book: ExportBook,
+  chapters: Chapter[],
+  endnoteReferences: EndnoteReference[],
+): ExportInput {
+  return {
+    title: book.title,
+    author: book.author,
+    blurb: book.blurb,
+    publisher: book.publisher,
+    pubDate: book.pubDate,
+    isbn: book.isbn,
+    language: book.language,
+    genre: book.genre,
+    tags: book.tags,
+    coverFile: book.coverUrl,
+    chapters,
+    endnotes: book.endnotes,
+    endnoteReferences,
+    typography: book.typography,
+  };
 }
 
 interface Params {
@@ -88,7 +119,7 @@ export function useExports({
 }: Params) {
   const [exportState, dispatchExport] = useReducer(exportFlow, initialExport);
   const exportingRef = useRef(false);
-  const { title, author, publisher, chapters, endnoteReferences } = book;
+  const { title, author, chapters, endnoteReferences } = book;
 
   function trackExport(format: "epub" | "pdf" | "docx") {
     track("book_exported", { format });
@@ -147,21 +178,13 @@ export function useExports({
 
       const totalWords = countWords(migratedChapters);
 
-      const blob = (await exportEpub({
-        title,
-        author,
-        blurb: book.blurb,
-        publisher,
-        pubDate: book.pubDate,
-        isbn: book.isbn,
-        language: book.language,
-        genre: book.genre,
-        tags: book.tags,
-        coverFile: book.coverUrl,
-        chapters: migratedChapters,
-        endnoteReferences: migratedEndnoteRefs,
-        returnBlob: true,
-      })) as Blob;
+      const blob = await buildEpub(
+        renderBook(exportInput(book, migratedChapters, migratedEndnoteRefs)),
+        {
+          identifier: bookIdentifier(book.isbn, newId()),
+          modified: new Date(),
+        },
+      );
 
       await saveExport({
         title,
@@ -174,26 +197,29 @@ export function useExports({
       setEpubBlob(blob);
       setShowEPUBReader(true);
 
-      download(blob, `${title.replace(/[^a-z0-9]+/gi, "_") || "ebook"}.epub`);
+      download(blob, fileName(title, "epub"));
     });
   }
 
   function handleExportPDF() {
     return runExport("pdf", async () => {
       const migratedChapters = ensureChapterIds(chapters);
-      exportPdf({ title, author, publisher, chapters: migratedChapters });
+      if (
+        !printPdf(
+          renderBook(exportInput(book, migratedChapters, endnoteReferences)),
+        )
+      )
+        throw new Error("Allow pop-ups for this site to print the PDF.");
     });
   }
 
   function handleExportDocx() {
     return runExport("docx", async () => {
       const migratedChapters = ensureChapterIds(chapters);
-      await exportDocx({
-        title,
-        author,
-        publisher,
-        chapters: migratedChapters,
-      });
+      const blob = await buildDocx(
+        renderBook(exportInput(book, migratedChapters, endnoteReferences)),
+      );
+      download(blob, fileName(title, "docx"));
     });
   }
 

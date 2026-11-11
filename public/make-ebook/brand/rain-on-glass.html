@@ -100,8 +100,8 @@
 
         function createCanvas(w, h) {
           var c = document.createElement("canvas");
-          c.width = w;
-          c.height = h;
+          c.width = Math.max(1, Math.round(w) || 0);
+          c.height = Math.max(1, Math.round(h) || 0);
           return c;
         }
 
@@ -1152,8 +1152,8 @@
         });
 
         function resize() {
-          var w = window.innerWidth;
-          var h = window.innerHeight;
+          var w = Math.max(1, window.innerWidth);
+          var h = Math.max(1, window.innerHeight);
           canvas.width = Math.round(w * dpr);
           canvas.height = Math.round(h * dpr);
           canvas.style.width = w + "px";

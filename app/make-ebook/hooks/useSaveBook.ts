@@ -1,5 +1,5 @@
 "use client";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Chapter, Endnote, EndnoteReference } from "../types";
 import {
   loadBookLibrary,
@@ -19,6 +19,7 @@ import type { DialogConfig } from "../state/overlays";
 import { upgradeChapterIds, remapChapterIdsDeep } from "../utils/pageUtils";
 import { useCloudPush } from "./save/useCloudPush";
 import { useExports } from "./save/useExports";
+import { normalisePreset } from "../export/styles";
 
 interface UseSaveBookParams {
   title: string;
@@ -29,6 +30,7 @@ interface UseSaveBookParams {
   isbn: string;
   language: string;
   genre: string;
+  typography: string;
   tags: string[];
   chapters: Chapter[];
   setChapters: React.Dispatch<React.SetStateAction<Chapter[]>>;
@@ -89,6 +91,7 @@ export function useSaveBook({
   isbn,
   language,
   genre,
+  typography,
   tags,
   chapters,
   setChapters,
@@ -121,13 +124,18 @@ export function useSaveBook({
   const runSaveRef = useRef<(request: SaveRequest) => Promise<SaveResult>>(
     async () => "failed",
   );
-  const [saveFlight] = useState(() =>
-    createSingleFlight<SaveRequest, SaveResult>({
+  const saveFlightRef = useRef<ReturnType<
+    typeof createSingleFlight<SaveRequest, SaveResult>
+  > | null>(null);
+
+  function saveFlight() {
+    saveFlightRef.current ??= createSingleFlight<SaveRequest, SaveResult>({
       run: (_key, request) => runSaveRef.current(request),
       merge: mergeSaveRequests,
       failed: "failed",
-    }),
-  );
+    });
+    return saveFlightRef.current;
+  }
 
   const { cloudPending, scheduleCloudPush, pushNow } = useCloudPush({
     user,
@@ -146,9 +154,11 @@ export function useSaveBook({
       isbn,
       language,
       genre,
+      typography,
       tags,
       coverUrl,
       chapters,
+      endnotes,
       endnoteReferences,
     },
     userId: user?.id,
@@ -177,7 +187,7 @@ export function useSaveBook({
     forceNewVersion: boolean,
     cloud: "now" | "later" = "now",
   ): Promise<SaveResult> {
-    return saveFlight.request("save", { forceNewVersion, cloud });
+    return saveFlight().request("save", { forceNewVersion, cloud });
   }
 
   async function runSave({
@@ -225,6 +235,7 @@ export function useSaveBook({
         isbn,
         language,
         genre,
+        typography: normalisePreset(typography),
         tags,
         chapters: syncedChapters,
         coverFile: coverUrl,

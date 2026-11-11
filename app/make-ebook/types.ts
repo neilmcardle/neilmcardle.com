@@ -92,6 +92,7 @@ export interface BookMetadata {
   isbn: string;
   language: string;
   genre: string;
+  typography: string;
 }
 
 export type { Book as BookRecord } from "./model/book";
