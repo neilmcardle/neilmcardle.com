@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { share } from "@/app/shared-metadata";
 import Piece from "./Piece";
 import styles from "./record-player.module.css";
+import BackLink from "@/components/BackLink";
 
 const DESCRIPTION =
   "A hand-inked suitcase record player you can open, play and see inside.";
@@ -26,6 +27,7 @@ export default function RecordPlayerPage() {
     <main className={styles.page}>
       <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
       <header className={styles.intro}>
+        <BackLink className={styles.back}>Back to neilmcardle.com</BackLink>
         <h1 className={styles.title}>Record player</h1>
         <p className={styles.lede}>
           <span className={styles.subject}>

@@ -484,7 +484,7 @@ export function PreflightDemo() {
           </div>
           <div className={styles.paneFoot}>
             <span>
-              {step >= 6 ? "5 passed · 1 to review" : "Checking the manuscript"}
+              {step >= 6 ? "5 passed · 1 to review" : "Running pre-flight"}
             </span>
             <button
               type="button"

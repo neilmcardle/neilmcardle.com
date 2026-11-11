@@ -657,31 +657,22 @@
   height: 372px;
 }
 
-.strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.stripCaption {
-  margin: 0 0 20px;
-  font-size: 14px;
+.stores {
+  max-width: 54ch;
+  margin: 0 auto;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.375rem, 1vw + 1rem, 1.75rem);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   text-align: center;
+  text-wrap: balance;
   color: var(--clay-muted);
 }
 
-.stripTile {
-  display: grid;
-  place-items: center;
-  height: 88px;
-  border-radius: 6px;
-  background: var(--ink-panel);
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--clay);
-  text-align: center;
-  padding: 0 12px;
+.store {
+  color: var(--paper);
+  white-space: nowrap;
 }
 
 .cards {
@@ -1157,10 +1148,6 @@
   .guides {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .strip {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 900px) {
@@ -1209,15 +1196,6 @@
   .plans,
   .footerCols {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .stripTile {
-    height: 64px;
-    font-size: 15px;
   }
 
   .final {

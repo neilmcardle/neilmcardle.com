@@ -86,7 +86,7 @@ export const BOOK_MIND_QUICK_ACTIONS: readonly BookMindQuickAction[] = [
   {
     action: "timeline-review",
     label: "Timeline",
-    description: "Chronology check",
+    description: "Chronology review",
   },
   {
     action: "word-frequency",

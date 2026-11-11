@@ -31,7 +31,7 @@ const place = (d: number, spread: number, lift: number) => {
   const x = d * mix(112, 118, spread) - rest * Math.sin(t);
   const y = a * mix(0, 6, spread) - 16 * lift - rest * (1 - Math.cos(t));
   const s = 1 - a * mix(0, 0.04, spread) + 0.05 * lift;
-  return `translate(calc(-50% + ${x}px), ${y}px) rotate(${r}deg) scale(${s})`;
+  return `translate(calc(-50% + ${x}px * (var(--fan, 1) + (1 - var(--fan, 1)) * ${spread})), ${y}px) rotate(${r}deg) scale(${s})`;
 };
 
 type Spring = { value: number; velocity: number; target: number };
@@ -172,6 +172,20 @@ export default function Stack({ base = "" }: { base?: string }) {
       setPlaying(null);
     };
   }, [active, films]);
+
+  useEffect(() => {
+    const stage = self.current;
+    if (!stage) return;
+    const fit = () => {
+      const width = document.documentElement.clientWidth;
+      const fan =
+        width > 560 ? 1 : Math.min(1, Math.max(0.35, (width - 182) / 326));
+      stage.style.setProperty("--fan", fan.toFixed(3));
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
 
   useEffect(() => {
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

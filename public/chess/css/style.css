@@ -1400,3 +1400,26 @@ details.io label {
     align-self: center;
   }
 }
+
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-target);
+  color: var(--color-text);
+  font-size: var(--text-interface-size);
+  letter-spacing: var(--text-interface-tracking);
+  text-decoration: none;
+  white-space: nowrap;
+}
+@media (hover: hover) and (pointer: fine) {
+  .home-link:hover {
+    color: var(--color-ink, currentColor);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+@media (max-width: 600px) {
+  .home-label {
+    display: none;
+  }
+}

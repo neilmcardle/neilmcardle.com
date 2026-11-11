@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { PRO_LIFETIME_TERMS, PRO_RENEWAL_TERMS } from "@/lib/billing/plan";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { track } from "@vercel/analytics";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -373,16 +373,20 @@ export default function BrandLanding({
           </section>
 
           <section className={landing.bandTight}>
-            <p className={landing.stripCaption}>
-              Export one file for every major store
+            <p className={landing.stores}>
+              One EPUB that{" "}
+              {STORES.map((store, i) => (
+                <Fragment key={store}>
+                  <span className={landing.store}>{store}</span>
+                  {i < STORES.length - 2
+                    ? ", "
+                    : i === STORES.length - 2
+                      ? " and "
+                      : ""}
+                </Fragment>
+              ))}{" "}
+              all accept.
             </p>
-            <div className={landing.strip}>
-              {STORES.map((store) => (
-                <div key={store} className={landing.stripTile}>
-                  {store}
-                </div>
-              ))}
-            </div>
           </section>
 
           <section className={landing.band}>

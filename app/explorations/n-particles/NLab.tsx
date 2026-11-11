@@ -8,6 +8,7 @@ import NParticles, {
   type Shape,
 } from "@/app/explorations/_lab/NParticles";
 import styles from "./lab.module.css";
+import BackLink from "@/components/BackLink";
 
 export default function NLab() {
   const [replay, setReplay] = useState(0);
@@ -103,6 +104,7 @@ export default function NLab() {
   return (
     <main className={styles.page}>
       <header className={styles.intro}>
+        <BackLink className={styles.back}>Back to neilmcardle.com</BackLink>
         <h1 className={styles.title}>N particles</h1>
         <p className={styles.lede}>
           <span className={styles.subject}>My N mark as 40,000 particles</span>{" "}

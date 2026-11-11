@@ -3,6 +3,7 @@ import { share } from "@/app/shared-metadata";
 import BookCard from "@/app/_home/BookCard";
 import styles from "../plink-pond/plink-pond.module.css";
 import book from "./cs6-book.module.css";
+import BackLink from "@/components/BackLink";
 
 const DESCRIPTION =
   "The Illustrator CS6 Classroom in a Book I taught myself with, in 3D. Turn it round and open it.";
@@ -27,6 +28,7 @@ export default function Cs6BookPage() {
     <main className={`${styles.page} ${book.page}`}>
       <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
       <header className={styles.intro}>
+        <BackLink className={styles.back}>Back to neilmcardle.com</BackLink>
         <h1 className={styles.title}>Illustrator CS6 book</h1>
         <p className={styles.lede}>
           <span className={styles.subject}>

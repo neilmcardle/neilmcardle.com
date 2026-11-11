@@ -36,12 +36,12 @@ export const COMMANDS: {
   { cmd: "/themes", label: "The big ideas", action: "analyze-themes" },
   {
     cmd: "/timeline",
-    label: "Check the chronology",
+    label: "Review the chronology",
     action: "timeline-review",
   },
   {
     cmd: "/grammar",
-    label: "Check grammar in this chapter",
+    label: "Review grammar in this chapter",
     action: "check-grammar",
   },
   {

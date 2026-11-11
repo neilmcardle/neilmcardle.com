@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { share } from "@/app/shared-metadata";
 import Piece from "./Piece";
 import styles from "./plink-pond.module.css";
+import BackLink from "@/components/BackLink";
 
 const DESCRIPTION =
   "A tiny isometric pixel pond for skimming stones. Bounce off lily pads, startle the ducks, reach the far bank.";
@@ -26,6 +27,7 @@ export default function PlinkPondPage() {
     <main className={styles.page}>
       <style>{"html,body{background:#0d0d0c;color-scheme:dark}"}</style>
       <header className={styles.intro}>
+        <BackLink className={styles.back}>Back to neilmcardle.com</BackLink>
         <h1 className={styles.title}>Plink Pond</h1>
         <p className={styles.lede}>
           <span className={styles.subject}>

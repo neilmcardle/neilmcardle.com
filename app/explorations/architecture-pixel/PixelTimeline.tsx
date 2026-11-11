@@ -37,6 +37,7 @@ import {
   TICKS,
 } from "./timeline";
 import styles from "./pixel-timeline.module.css";
+import BackLink from "@/components/BackLink";
 
 const DAY_HOUR = 15;
 const HOUR_MIN = 5;
@@ -525,6 +526,7 @@ export default function PixelTimeline() {
     <main className={styles.root} data-locked={locked || undefined}>
       <header className={styles.header}>
         <div>
+          <BackLink className={styles.back}>Back to neilmcardle.com</BackLink>
           <h1 className={styles.title}>Architecture in Pixels</h1>
           <p className={styles.lede}>{lede}</p>
         </div>

@@ -356,20 +356,26 @@
 .rowItem {
   display: flex;
   align-items: baseline;
-  gap: 16px;
+  gap: 12px;
+  transition: opacity 0.2s var(--ease);
 }
 
 .rowItem .row {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
+}
+
+.rowRest {
+  display: flex;
+  flex: 1 0 auto;
+  justify-content: flex-end;
+  padding: 9px 0;
 }
 
 .live {
   display: inline-flex;
   flex: none;
   align-items: center;
-  justify-content: flex-end;
-  width: 112px;
   gap: 4px;
   min-height: 44px;
   margin: -12px 0;
@@ -418,7 +424,7 @@ a.live:focus-visible {
 
 .row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
   gap: 12px;
   padding: 9px 0;
@@ -445,11 +451,11 @@ a.live:focus-visible {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .rows:hover .row {
+  .rows:hover .rowItem {
     opacity: 0.35;
   }
 
-  .rows .row:hover {
+  .rows .rowItem:hover {
     opacity: 1;
   }
 }
@@ -963,32 +969,13 @@ a.live:focus-visible {
   }
 
   .row {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .rowTitle {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .rowItem {
-    flex-wrap: wrap;
-    gap: 0;
-  }
-
-  .rowItem .row {
-    flex-basis: 100%;
-  }
-
-  span.live {
-    display: none;
-  }
-
-  a.live {
-    width: auto;
-    justify-content: flex-start;
-    margin: -12px 0 -2px;
   }
 
   .quoteCard {
@@ -1013,6 +1000,7 @@ a.live:focus-visible {
   .card,
   .peek,
   .row,
+  .rowItem,
   .chip,
   .mark,
   .chipCard,

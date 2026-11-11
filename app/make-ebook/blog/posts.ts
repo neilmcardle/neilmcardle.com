@@ -415,7 +415,7 @@ export const posts: BlogPost[] = [
             <th>Price</th>
             <th>Platform</th>
             <th>Free EPUB</th>
-            <th>Cloud Sync</th>
+            <th>Cloud sync</th>
             <th>Learning Curve</th>
           </tr>
         </thead>

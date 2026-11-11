@@ -123,7 +123,7 @@ export default function UpgradeModal({
     },
     {
       icon: Cloud,
-      title: "Cloud Sync",
+      title: "Cloud sync",
       desc: "Sync your books across all devices automatically",
     },
     {

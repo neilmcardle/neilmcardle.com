@@ -5,7 +5,7 @@ import styles from "./blog.module.css";
 export function BlogCta() {
   return (
     <div className={styles.ctaPanel}>
-      <h2 className={styles.ctaTitle}>Ready to write your ebook?</h2>
+      <h2 className={styles.ctaTitle}>Ready to write your book?</h2>
       <p className={styles.ctaText}>
         Start writing for free in your browser. No signup required.
       </p>

@@ -40,7 +40,7 @@ export const ACTION_LABELS: Record<BookMindAction, string> = {
   "list-characters": "List all characters",
   "find-inconsistencies": "Find inconsistencies",
   "analyze-themes": "Analyze themes",
-  "check-grammar": "Check grammar",
+  "check-grammar": "Review grammar",
   "timeline-review": "Review timeline",
   "word-frequency": "Analyze word frequency",
   "ask-question": "Ask a question",

@@ -76,6 +76,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${base}/explorations/puddle-high`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.5,
+    },
+    {
       url: `${base}/explorations/cs6-book`,
       lastModified: now,
       changeFrequency: "yearly",

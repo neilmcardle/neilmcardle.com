@@ -143,6 +143,7 @@ export default function JumpBar() {
       return;
     }
     if (event.key === "Enter") {
+      if (document.activeElement !== field.current) return;
       event.preventDefault();
       if (!active) return;
       row.current?.click();

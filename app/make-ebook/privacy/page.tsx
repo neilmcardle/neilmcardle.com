@@ -74,8 +74,8 @@ export default function MakeEbookPrivacyPage() {
                   (encrypted)
                 </li>
                 <li>
-                  <strong>eBook Content:</strong> Text, titles, chapters, and
-                  any content you create
+                  <strong>Your books:</strong> Text, titles, chapters, and any
+                  content you create
                 </li>
                 <li>
                   <strong>Optional Information:</strong> Username or display
@@ -144,7 +144,7 @@ export default function MakeEbookPrivacyPage() {
               <ul className="list-disc list-inside text-gray-700 mb-4 space-y-2">
                 <li>To provide and maintain the eBook creation service</li>
                 <li>To manage your user account and authentication</li>
-                <li>To store and process your eBook content</li>
+                <li>To store and process your books</li>
                 <li>To communicate with you about the service</li>
                 <li>To improve our service and fix technical issues</li>
                 <li>To comply with legal obligations</li>
@@ -267,8 +267,8 @@ export default function MakeEbookPrivacyPage() {
                   or request deletion
                 </li>
                 <li>
-                  <strong>eBook Content:</strong> Until you delete it or close
-                  your account
+                  <strong>Your books:</strong> Until you delete it or close your
+                  account
                 </li>
                 <li>
                   <strong>Usage Logs:</strong> Maximum of 12 months for security

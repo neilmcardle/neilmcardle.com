@@ -30,3 +30,7 @@
     min-width: 320px;
   }
 }
+
+.page .back {
+  justify-self: center;
+}

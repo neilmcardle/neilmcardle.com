@@ -185,3 +185,31 @@
     height: 100%;
   }
 }
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  width: fit-content;
+  min-height: 44px;
+  margin: -12px 0 -4px;
+  color: #8f8c86;
+  font-size: 13px;
+  text-decoration: underline;
+  text-decoration-color: #48463f;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .back:hover {
+    color: #ecebe7;
+    text-decoration-color: #ecebe7;
+  }
+}
+
+.back:focus-visible {
+  outline: 2px solid #ecebe7;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

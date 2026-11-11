@@ -71,6 +71,8 @@ button { cursor: default; }
 .file-mark:hover { background: var(--hover); }
 .file-name { font-weight: 600; font-size: 13px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .file-sub { color: var(--fg2); }
+.home-link { color: inherit; text-decoration: underline; text-decoration-color: var(--line, currentColor); text-underline-offset: 3px; }
+.home-link:hover { color: var(--fg); }
 .tabs { display: flex; gap: 2px; padding: 8px 8px 6px; }
 .tab { background: none; border: 0; border-radius: 5px; padding: 4px 8px; color: var(--fg2); font-weight: 500; }
 .tab:hover { color: var(--fg); }

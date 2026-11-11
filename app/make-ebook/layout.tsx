@@ -6,7 +6,7 @@ import MakeEbookProviders from "./components/MakeEbookProviders";
 
 const TITLE = "makeebook, the eBook editor made for your manuscript";
 const DESCRIPTION =
-  "Bring the manuscript you have. Edit and preview every chapter, check it with Book Mind, and export EPUB, PDF and Word ready for Amazon, Apple Books and Kobo. Free to start, in your browser.";
+  "Bring the manuscript you have. Edit and preview every chapter, review it with Book Mind, and export EPUB, PDF and Word ready for Amazon, Apple Books and Kobo. Free to start, in your browser.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://makeebook.ink"),

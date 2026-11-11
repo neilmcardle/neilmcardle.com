@@ -43,8 +43,6 @@ export default function Rows({
     setOn(true);
   };
 
-  const hasLive = pieces.some((piece) => piece.live);
-
   return (
     <>
       <ul
@@ -52,37 +50,48 @@ export default function Rows({
         className={styles.rows}
         onPointerLeave={() => setOn(false)}
       >
-        {pieces.map((piece) => (
-          <li key={piece.id} className={styles.rowItem}>
-            <Link
-              className={styles.row}
-              href={piece.local ? `${base}${piece.href}` : piece.href}
+        {pieces.map((piece) => {
+          const href = piece.local ? `${base}${piece.href}` : piece.href;
+          return (
+            <li
+              key={piece.id}
+              className={styles.rowItem}
               onPointerEnter={(e) => show(e.currentTarget, piece.image)}
-              onFocus={() => setOn(false)}
             >
-              <span className={styles.rowTitle}>{piece.title}</span>
-              <span className={styles.rowLine}>{piece.line}</span>
-              <span className={styles.rowKind}>{piece.kind}</span>
-            </Link>
-            {piece.live ? (
-              <a
-                className={styles.live}
-                href={piece.live.href}
-                aria-label={`${piece.live.label}, the live ${piece.title}`}
-                {...(piece.live.href.startsWith("http")
-                  ? { rel: "noopener" }
-                  : {})}
+              <Link
+                className={styles.row}
+                href={href}
+                onFocus={() => setOn(false)}
               >
-                {piece.live.label}
-                <svg viewBox="0 0 12 12" aria-hidden="true">
-                  <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
-                </svg>
-              </a>
-            ) : hasLive ? (
-              <span className={styles.live} aria-hidden="true" />
-            ) : null}
-          </li>
-        ))}
+                <span className={styles.rowTitle}>{piece.title}</span>
+                <span className={styles.rowLine}>{piece.line}</span>
+              </Link>
+              {piece.live && (
+                <a
+                  className={styles.live}
+                  href={piece.live.href}
+                  aria-label={`${piece.live.label}, the live ${piece.title}`}
+                  {...(piece.live.href.startsWith("http")
+                    ? { rel: "noopener" }
+                    : {})}
+                >
+                  {piece.live.label}
+                  <svg viewBox="0 0 12 12" aria-hidden="true">
+                    <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                  </svg>
+                </a>
+              )}
+              <Link
+                className={styles.rowRest}
+                href={href}
+                tabIndex={-1}
+                aria-hidden="true"
+              >
+                <span className={styles.rowKind}>{piece.kind}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
       <img
         ref={peek}

@@ -20,7 +20,6 @@ const CHAPTER_TEMPLATES = {
   content: [
     { title: "Chapter" },
     { title: "Part" },
-    { title: "Section" },
     { title: "Custom Chapter" },
   ],
   backmatter: [
