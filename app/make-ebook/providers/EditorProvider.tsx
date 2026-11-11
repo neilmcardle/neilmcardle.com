@@ -64,17 +64,27 @@ function useEditorModel() {
     stepCallbacks: {
       "book-details": () => setSidebarView("book"),
       chapters: () => setSidebarView("chapters"),
-      editor: () => setSidebarView(null),
+      editor: () => {
+        setSidebarView(null);
+        setSurfaceMode("edit");
+      },
       preview: () => {
         setSidebarView(null);
         setSurfaceMode("preview");
       },
-      export: () => setSidebarView("book"),
-      "auto-save": () => setSidebarView(null),
+      export: () => {
+        setSidebarView(null);
+        setSurfaceMode("edit");
+      },
+      "auto-save": () => {
+        setSidebarView(null);
+        setSurfaceMode("edit");
+      },
       "mobile-menu": () => {},
       "mobile-editor": () => setMobileSidebarOpen(false),
       "mobile-preview": () => setMobileSidebarOpen(false),
     },
+    onEnd: () => setSurfaceMode("edit"),
   });
 
   const { bookStats, sessionStats } = useWordStats(chapters, user?.id);

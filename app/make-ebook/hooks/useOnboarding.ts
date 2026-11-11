@@ -21,9 +21,9 @@ const DESKTOP_STEPS: OnboardingStep[] = [
   {
     id: "book-details",
     target: '[data-tour="book-details"]',
-    title: "Book Details",
+    title: "Book details",
     description:
-      "Start by adding your book title and author name. This information appears in your exported ebook.",
+      "Add your title and author here. They go on the title page and into every file you export.",
     placement: "right",
   },
   {
@@ -31,15 +31,15 @@ const DESKTOP_STEPS: OnboardingStep[] = [
     target: '[data-tour="chapters"]',
     title: "Chapters",
     description:
-      "Add and manage your chapters here. You can create front matter, main chapters, and back matter.",
+      "Add, rename and drag chapters into order. Mark each one as front matter, a chapter or back matter.",
     placement: "right",
   },
   {
     id: "editor",
     target: '[data-tour="editor"]',
-    title: "Rich Text Editor",
+    title: "Writing",
     description:
-      "Write your content with full formatting — bold, italic, headings, lists, and more.",
+      "Write here. The toolbar adds headings, lists, links, endnotes and images.",
     placement: "bottom",
   },
   {
@@ -47,23 +47,23 @@ const DESKTOP_STEPS: OnboardingStep[] = [
     target: '[data-tour="preview"]',
     title: "Preview",
     description:
-      "Read your chapter as it will look on a Kindle, an iPad or a phone.",
+      "Read your chapter as it will look on a Kindle, an iPad or a phone, and choose its book style.",
     placement: "bottom",
   },
   {
     id: "export",
     target: '[data-tour="export"]',
-    title: "Save & Export",
+    title: "Export",
     description:
-      "Save your book to the cloud, then export as EPUB or PDF when you're ready to publish.",
+      "Download your book as an EPUB for Kindle and Apple Books, a PDF or a Word file.",
     placement: "bottom",
   },
   {
     id: "auto-save",
     target: '[data-tour="auto-save"]',
-    title: "Auto-Save",
+    title: "Saving",
     description:
-      "Your work auto-saves every 30 seconds. Look for the green tick when saved.",
+      "Your book saves on this device a couple of seconds after you stop typing. The green dot means it's saved.",
     placement: "bottom",
   },
 ];
@@ -73,33 +73,34 @@ const MOBILE_STEPS: OnboardingStep[] = [
     id: "mobile-menu",
     target: '[data-tour="mobile-menu"]',
     title: "Menu",
-    description:
-      "Tap here to access your book details, chapters, library, and settings.",
+    description: "Your library, book details and chapters are all in here.",
     placement: "bottom",
   },
   {
     id: "mobile-editor",
     target: '[data-tour="mobile-editor"]',
-    title: "Write Your Book",
-    description: "Write your content here with formatting tools below.",
+    title: "Writing",
+    description: "Write here. The formatting tools sit above the keyboard.",
     placement: "top",
   },
   {
     id: "mobile-preview",
     target: '[data-tour="mobile-preview"]',
     title: "Preview",
-    description: "Tap to read your chapter as it will look on a device.",
+    description:
+      "Read your chapter as it will look on a Kindle, an iPad or a phone.",
     placement: "bottom",
   },
 ];
 
 interface UseOnboardingOptions {
   stepCallbacks?: Record<string, () => void>;
+  onEnd?: () => void;
   userId?: string;
 }
 
 export function useOnboarding(options: UseOnboardingOptions = {}) {
-  const { stepCallbacks, userId } = options;
+  const { stepCallbacks, onEnd, userId } = options;
   const STORAGE_KEY = keys.onboardingComplete(userId);
 
   const [isTourActive, setIsTourActive] = useState(false);
@@ -107,8 +108,10 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
   const [steps, setSteps] = useState<OnboardingStep[]>(DESKTOP_STEPS);
   const callbacksRef = useRef(stepCallbacks);
+  const onEndRef = useRef(onEnd);
   useLayoutEffect(() => {
     callbacksRef.current = stepCallbacks;
+    onEndRef.current = onEnd;
   });
 
   useEffect(() => {
@@ -146,6 +149,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
       const next = prev + 1;
       if (next >= steps.length) {
         setIsTourActive(false);
+        onEndRef.current?.();
         setIsOnboardingComplete(true);
         if (typeof window !== "undefined") {
           writeLocal(STORAGE_KEY, "true");
@@ -167,6 +171,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
 
   const skipTour = useCallback(() => {
     setIsTourActive(false);
+    onEndRef.current?.();
     setIsOnboardingComplete(true);
     if (typeof window !== "undefined") {
       writeLocal(STORAGE_KEY, "true");

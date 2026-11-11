@@ -6,7 +6,7 @@ import {
   subscribeSelection,
   type EditorSelection,
 } from "../../editor/registry";
-import { domRangeAt } from "../../editor/useEditorView";
+import { domRangeAt } from "../../editor/dom";
 
 interface SelectionActionBarProps {
   onRewrite: (selectedText: string, range: Range, rect: DOMRect) => void;

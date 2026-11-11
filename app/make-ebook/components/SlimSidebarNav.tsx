@@ -345,7 +345,6 @@ export default function SlimSidebarNav({
 
         <Tooltip text="Book">
           <button
-            data-tour="book-details"
             onClick={() => handleViewClick("book")}
             className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Book"
@@ -368,7 +367,6 @@ export default function SlimSidebarNav({
 
         <Tooltip text="Chapters">
           <button
-            data-tour="chapters"
             onClick={() => handleViewClick("chapters")}
             className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Chapters"

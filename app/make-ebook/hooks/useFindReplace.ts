@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Chapter } from "../types";
 import { editorForChapter, setFindQuery } from "../editor/registry";
-import { countInHtml, replaceInHtml } from "../editor/search";
 
 export interface ChapterMatch {
   chapterIndex: number;
@@ -18,6 +17,20 @@ export function useFindReplace(
   const [searchTerm, setSearchTerm] = useState("");
   const [replaceTerm, setReplaceTerm] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
+  const [search, setSearch] = useState<
+    typeof import("../editor/search") | null
+  >(null);
+
+  useEffect(() => {
+    if (!isOpen || search) return;
+    let live = true;
+    import("../editor/search").then((mod) => {
+      if (live) setSearch(mod);
+    });
+    return () => {
+      live = false;
+    };
+  }, [isOpen, search]);
 
   const query = useMemo(
     () => ({ term: searchTerm, caseSensitive }),
@@ -31,15 +44,15 @@ export function useFindReplace(
   useEffect(() => () => setFindQuery({ term: "", caseSensitive: false }), []);
 
   const matches = useMemo((): ChapterMatch[] => {
-    if (!isOpen || !query.term) return [];
+    if (!isOpen || !query.term || !search) return [];
     return chapters
       .map((ch, i) => ({
         chapterIndex: i,
         chapterTitle: ch.title || `Chapter ${i + 1}`,
-        count: countInHtml(ch.content, query),
+        count: search.countInHtml(ch.content, query),
       }))
       .filter((m) => m.count > 0);
-  }, [chapters, query, isOpen]);
+  }, [chapters, query, isOpen, search]);
 
   const totalMatches = useMemo(
     () => matches.reduce((sum, m) => sum + m.count, 0),
@@ -53,7 +66,8 @@ export function useFindReplace(
       if (!chapter) return 0;
       const editor = editorForChapter(chapter.id);
       if (editor) return editor.replaceAll(query, replaceTerm);
-      const { html, count } = replaceInHtml(
+      if (!search) return 0;
+      const { html, count } = search.replaceInHtml(
         chapter.content,
         query,
         replaceTerm,
@@ -61,7 +75,7 @@ export function useFindReplace(
       if (count > 0) onContentChange(chapterIndex, html);
       return count;
     },
-    [chapters, query, replaceTerm, onContentChange],
+    [chapters, query, replaceTerm, onContentChange, search],
   );
 
   const replaceAll = useCallback(() => {

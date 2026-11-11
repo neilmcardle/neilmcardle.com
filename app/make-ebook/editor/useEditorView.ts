@@ -61,22 +61,7 @@ function imageFiles(
 
 export { rectAt };
 
-export function domRangeAt(
-  view: EditorView,
-  from: number,
-  to = from,
-): Range | null {
-  try {
-    const start = view.domAtPos(from);
-    const end = view.domAtPos(to);
-    const range = document.createRange();
-    range.setStart(start.node, start.offset);
-    range.setEnd(end.node, end.offset);
-    return range;
-  } catch {
-    return null;
-  }
-}
+export { domRangeAt } from "./dom";
 
 export function useEditorView(options: EditorViewOptions) {
   const optionsRef = useRef(options);

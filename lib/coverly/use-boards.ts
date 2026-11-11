@@ -2,7 +2,14 @@
 
 import { useSyncExternalStore } from "react";
 
-export type Board = { id: string; name: string; covers: string[] };
+export type BoardShare = { token: string; revokeKey: string };
+
+export type Board = {
+  id: string;
+  name: string;
+  covers: string[];
+  share?: BoardShare;
+};
 
 const BOARDS_STORAGE_KEY = "coverly:boards";
 const EMPTY: Board[] = [];
@@ -97,4 +104,23 @@ export function removeCoverFromBoard(boardId: string, coverId: string) {
 
 export function deleteBoard(boardId: string) {
   commit(getSnapshot().filter((board) => board.id !== boardId));
+}
+
+export function setBoardShare(boardId: string, share: BoardShare) {
+  commit(
+    getSnapshot().map((board) =>
+      board.id === boardId ? { ...board, share } : board,
+    ),
+  );
+}
+
+export function clearBoardShare(boardId: string) {
+  commit(
+    getSnapshot().map((board) => {
+      if (board.id !== boardId) return board;
+      const { share: _share, ...rest } = board;
+      void _share;
+      return rest;
+    }),
+  );
 }

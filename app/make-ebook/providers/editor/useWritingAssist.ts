@@ -7,7 +7,7 @@ import {
   type EditorHandle,
   type EditorSelection,
 } from "../../editor/registry";
-import { domRangeAt } from "../../editor/useEditorView";
+import { domRangeAt } from "../../editor/dom";
 import type { InlineEditRequest } from "../../components/bookmind/InlineEditPopover";
 import type { ComposePaletteRequest } from "../../components/bookmind/ComposePalette";
 

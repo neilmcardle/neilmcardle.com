@@ -77,6 +77,7 @@ export default function MobileTabBar({
             onClick={onSelect}
             aria-label={LABELS[tab]}
             aria-current={isActive ? "page" : undefined}
+            data-tour={tab === "preview" ? "mobile-preview" : undefined}
             className={styles.dockItem}
           >
             <span className={styles.dockIcon}>

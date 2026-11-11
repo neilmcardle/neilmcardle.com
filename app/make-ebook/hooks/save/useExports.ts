@@ -2,10 +2,7 @@
 import { useReducer, useRef } from "react";
 import { track } from "@vercel/analytics";
 import type { Chapter, Endnote, EndnoteReference } from "../../types";
-import { renderBook, type ExportInput } from "../../export/render";
-import { bookIdentifier, buildEpub } from "../../export/epub";
-import { printPdf } from "../../export/pdf";
-import { buildDocx } from "../../export/docx";
+import type { ExportInput } from "../../export/render";
 import { newId } from "../../model/book";
 import { keys, readLocal, writeLocal } from "../../storage/keys";
 import { textStats } from "../../model/text";
@@ -178,6 +175,9 @@ export function useExports({
 
       const totalWords = countWords(migratedChapters);
 
+      const [{ renderBook }, { bookIdentifier, buildEpub }] = await Promise.all(
+        [import("../../export/render"), import("../../export/epub")],
+      );
       const blob = await buildEpub(
         renderBook(exportInput(book, migratedChapters, migratedEndnoteRefs)),
         {
@@ -204,6 +204,10 @@ export function useExports({
   function handleExportPDF() {
     return runExport("pdf", async () => {
       const migratedChapters = ensureChapterIds(chapters);
+      const [{ renderBook }, { printPdf }] = await Promise.all([
+        import("../../export/render"),
+        import("../../export/pdf"),
+      ]);
       if (
         !printPdf(
           renderBook(exportInput(book, migratedChapters, endnoteReferences)),
@@ -216,6 +220,10 @@ export function useExports({
   function handleExportDocx() {
     return runExport("docx", async () => {
       const migratedChapters = ensureChapterIds(chapters);
+      const [{ renderBook }, { buildDocx }] = await Promise.all([
+        import("../../export/render"),
+        import("../../export/docx"),
+      ]);
       const blob = await buildDocx(
         renderBook(exportInput(book, migratedChapters, endnoteReferences)),
       );

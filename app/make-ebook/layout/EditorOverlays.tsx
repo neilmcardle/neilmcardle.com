@@ -1,19 +1,45 @@
 "use client";
 import React from "react";
-import FloatingBookMindWindow from "../components/FloatingBookMindWindow";
-import InlineEditPopover from "../components/bookmind/InlineEditPopover";
-import ComposePalette from "../components/bookmind/ComposePalette";
-import GhostTextOverlay from "../components/bookmind/GhostTextOverlay";
-import EPUBReaderModal from "../components/EPUBReaderModal";
+import dynamic from "next/dynamic";
 import ConfirmDialog from "../components/ConfirmDialog";
-import OnboardingTour from "../components/OnboardingTour";
 import { FocusModePanel } from "../components/FocusModePanel";
 import { AmbientPlayer } from "../components/AmbientPlayer";
 import FindReplacePanel from "../components/FindReplacePanel";
-import UpgradeModal from "../components/UpgradeModal";
-import HistoryPanel from "../components/HistoryPanel";
 import CmdkHint from "../components/modals/CmdkHint";
-import PreflightHost from "../components/modals/PreflightHost";
+import { useOnce } from "../hooks/useOnce";
+
+const FloatingBookMindWindow = dynamic(
+  () => import("../components/FloatingBookMindWindow"),
+  { ssr: false },
+);
+const InlineEditPopover = dynamic(
+  () => import("../components/bookmind/InlineEditPopover"),
+  { ssr: false },
+);
+const ComposePalette = dynamic(
+  () => import("../components/bookmind/ComposePalette"),
+  { ssr: false },
+);
+const GhostTextOverlay = dynamic(
+  () => import("../components/bookmind/GhostTextOverlay"),
+  { ssr: false },
+);
+const EPUBReaderModal = dynamic(() => import("../components/EPUBReaderModal"), {
+  ssr: false,
+});
+const OnboardingTour = dynamic(() => import("../components/OnboardingTour"), {
+  ssr: false,
+});
+const UpgradeModal = dynamic(() => import("../components/UpgradeModal"), {
+  ssr: false,
+});
+const HistoryPanel = dynamic(() => import("../components/HistoryPanel"), {
+  ssr: false,
+});
+const PreflightHost = dynamic(
+  () => import("../components/modals/PreflightHost"),
+  { ssr: false },
+);
 import { useSession } from "../providers/SessionProvider";
 import { useBook, useBookActions } from "../providers/BookProvider";
 import { useEditor, useEditorActions } from "../providers/EditorProvider";
@@ -88,6 +114,8 @@ export function MobileBookMindSheet() {
   const open = useEditor((s) => s.mobileBookMindOpen);
   const actions = useEditorActions();
   const { setSelectedChapter } = useBookActions();
+  const opened = useOnce(open);
+  if (!opened) return null;
   return (
     <FloatingBookMindWindow
       variant="sheet"
@@ -120,6 +148,8 @@ function DesktopBookMindWindow() {
   const open = useEditor((s) => s.bookMindOpen);
   const actions = useEditorActions();
   const { setSelectedChapter } = useBookActions();
+  const opened = useOnce(open);
+  if (!opened) return null;
   return (
     <FloatingBookMindWindow
       isOpen={open}
@@ -157,29 +187,38 @@ function BookMindTools() {
     shallowEqual,
   );
   const actions = useEditorActions();
+  const editing = useOnce(inlineEditRequest.open);
+  const composing = useOnce(composeRequest.open);
+  const flowing = useOnce(flowMode && hasChapters);
   return (
     <>
-      <InlineEditPopover
-        request={inlineEditRequest}
-        onClose={actions.handleInlineEditClose}
-        onAccept={actions.handleInlineEditAccept}
-        bookId={bookId}
-        userId={userId}
-      />
-      <ComposePalette
-        request={composeRequest}
-        onClose={actions.handleComposeClose}
-        onInsert={actions.handleComposeInsert}
-        bookId={bookId}
-        userId={userId}
-      />
+      {editing && (
+        <InlineEditPopover
+          request={inlineEditRequest}
+          onClose={actions.handleInlineEditClose}
+          onAccept={actions.handleInlineEditAccept}
+          bookId={bookId}
+          userId={userId}
+        />
+      )}
+      {composing && (
+        <ComposePalette
+          request={composeRequest}
+          onClose={actions.handleComposeClose}
+          onInsert={actions.handleComposeInsert}
+          bookId={bookId}
+          userId={userId}
+        />
+      )}
 
-      <GhostTextOverlay
-        enabled={flowMode && hasChapters}
-        bookId={bookId}
-        userId={userId}
-        onAccept={actions.handleGhostAccept}
-      />
+      {flowing && (
+        <GhostTextOverlay
+          enabled={flowMode && hasChapters}
+          bookId={bookId}
+          userId={userId}
+          onAccept={actions.handleGhostAccept}
+        />
+      )}
 
       <CmdkHint />
     </>
@@ -233,18 +272,29 @@ export function EditorOverlays() {
   const hasUser = useSession((s) => !!s.user);
   const hasBookMind = useSession((s) => s.hasBookMind);
   const title = useBook((s) => s.title);
-  const { showEPUBReader, epubBlob, dialogState, onboarding, upgradeOpen } =
-    useEditor(
-      (s) => ({
-        showEPUBReader: s.showEPUBReader,
-        epubBlob: s.epubBlob,
-        dialogState: s.dialogState,
-        onboarding: s.onboarding,
-        upgradeOpen: s.exportUpgradeOpen,
-      }),
-      shallowEqual,
-    );
+  const {
+    showEPUBReader,
+    epubBlob,
+    dialogState,
+    onboarding,
+    upgradeOpen,
+    preflightOpen,
+  } = useEditor(
+    (s) => ({
+      showEPUBReader: s.showEPUBReader,
+      epubBlob: s.epubBlob,
+      dialogState: s.dialogState,
+      onboarding: s.onboarding,
+      upgradeOpen: s.exportUpgradeOpen,
+      preflightOpen: s.preflightFormat !== null,
+    }),
+    shallowEqual,
+  );
   const actions = useEditorActions();
+  const reading = useOnce(showEPUBReader);
+  const touring = useOnce(onboarding.isTourActive);
+  const preflighting = useOnce(preflightOpen);
+  const upgrading = useOnce(upgradeOpen);
 
   return (
     <>
@@ -252,12 +302,14 @@ export function EditorOverlays() {
 
       {hasBookMind && <BookMindTools />}
 
-      <EPUBReaderModal
-        isOpen={showEPUBReader}
-        onClose={() => actions.setShowEPUBReader(false)}
-        epubBlob={epubBlob}
-        bookTitle={title}
-      />
+      {reading && (
+        <EPUBReaderModal
+          isOpen={showEPUBReader}
+          onClose={() => actions.setShowEPUBReader(false)}
+          epubBlob={epubBlob}
+          bookTitle={title}
+        />
+      )}
 
       <ConfirmDialog
         open={dialogState.open}
@@ -271,27 +323,31 @@ export function EditorOverlays() {
         }
       />
 
-      <OnboardingTour
-        isTourActive={onboarding.isTourActive}
-        currentStep={onboarding.currentStep}
-        totalSteps={onboarding.totalSteps}
-        stepData={onboarding.currentStepData}
-        onNext={onboarding.nextStep}
-        onPrev={onboarding.prevStep}
-        onSkip={onboarding.skipTour}
-      />
+      {touring && (
+        <OnboardingTour
+          isTourActive={onboarding.isTourActive}
+          currentStep={onboarding.currentStep}
+          totalSteps={onboarding.totalSteps}
+          stepData={onboarding.currentStepData}
+          onNext={onboarding.nextStep}
+          onPrev={onboarding.prevStep}
+          onSkip={onboarding.skipTour}
+        />
+      )}
 
       <FocusOverlays />
 
       <FindReplaceHost />
 
-      <PreflightHost />
+      {preflighting && <PreflightHost />}
 
-      <UpgradeModal
-        isOpen={upgradeOpen}
-        onClose={() => actions.setExportUpgradeOpen(false)}
-        feature="Amazon KDP pre-flight"
-      />
+      {upgrading && (
+        <UpgradeModal
+          isOpen={upgradeOpen}
+          onClose={() => actions.setExportUpgradeOpen(false)}
+          feature="Amazon KDP pre-flight"
+        />
+      )}
     </>
   );
 }
