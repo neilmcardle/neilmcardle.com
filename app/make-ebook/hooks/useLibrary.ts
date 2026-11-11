@@ -4,8 +4,6 @@ import { toDisplayCover } from "../utils/assetStore";
 import { clearVersions, versionKey } from "../utils/versionStore";
 import { uuidv4 } from "../utils/uuid";
 import { Endnote, EndnoteReference } from "../types";
-import { renderBook } from "../export/render";
-import { bookIdentifier, buildEpub } from "../export/epub";
 import { fileName } from "./save/useExports";
 import { newId } from "../model/book";
 import {
@@ -273,6 +271,10 @@ export function useLibrary({
     );
 
     const coverFile = await toDisplayCover(book.coverFile);
+    const [{ renderBook }, { bookIdentifier, buildEpub }] = await Promise.all([
+      import("../export/render"),
+      import("../export/epub"),
+    ]);
     const blob = await buildEpub(
       renderBook({
         title: book.title || "",

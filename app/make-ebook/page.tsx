@@ -1,8 +1,7 @@
 "use client";
 import React, { Suspense } from "react";
-import MarketingLandingPage from "./components/MarketingLandingPage";
+import dynamic from "next/dynamic";
 import { BrandLoader } from "./components/marketing/brand/BrandLoader";
-import EditorShell from "./layout/EditorShell";
 import { SessionProvider } from "./providers/SessionProvider";
 import {
   BookProvider,
@@ -12,6 +11,16 @@ import {
 import { EditorProvider } from "./providers/EditorProvider";
 import { useSession } from "./providers/SessionProvider";
 import { showsLanding } from "./state/appPhase";
+
+const MarketingLandingPage = dynamic(
+  () => import("./components/MarketingLandingPage"),
+  { loading: () => <BrandLoader /> },
+);
+
+const EditorShell = dynamic(() => import("./layout/EditorShell"), {
+  ssr: false,
+  loading: () => <BrandLoader />,
+});
 
 function MakeEbookRoute() {
   const landing = useSession((s) => showsLanding(s.phase));

@@ -4423,3 +4423,151 @@ button:focus-visible > .avatar {
     min-height: 44px;
   }
 }
+
+.tourCatch {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.tourSpot {
+  position: fixed;
+  z-index: 201;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 1.5px var(--acid),
+    0 0 0 9999px rgba(8, 8, 7, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    top 320ms var(--ease),
+    left 320ms var(--ease),
+    width 320ms var(--ease),
+    height 320ms var(--ease),
+    opacity 200ms var(--ease);
+}
+
+.tourCard {
+  position: fixed;
+  z-index: 202;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px 14px;
+  border: 1px solid rgba(243, 239, 229, 0.14);
+  border-radius: 12px;
+  background: var(--ink-popover);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  color: var(--clay);
+  font-family: var(--font-ui);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 200ms var(--ease),
+    transform 240ms var(--ease);
+}
+
+.tourShown {
+  opacity: 1;
+  transform: none;
+}
+
+.tourArrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--ink-popover);
+  border: 1px solid rgba(243, 239, 229, 0.14);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.tourArrow[data-side="right"] {
+  left: 0;
+  border-top: 0;
+  border-right: 0;
+}
+
+.tourArrow[data-side="left"] {
+  left: 100%;
+  border-bottom: 0;
+  border-left: 0;
+}
+
+.tourArrow[data-side="bottom"] {
+  top: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.tourArrow[data-side="top"] {
+  top: 100%;
+  border-top: 0;
+  border-left: 0;
+}
+
+.tourTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tourCount {
+  color: var(--clay-muted);
+  font: 500 11px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.tourClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: -6px -8px -6px 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--clay-muted);
+  cursor: pointer;
+}
+
+.tourClose:hover {
+  background: rgba(243, 239, 229, 0.07);
+  color: var(--paper);
+}
+
+.tourTitle {
+  margin: 0 0 4px;
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.tourBody {
+  margin: 0;
+  color: var(--clay);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tourFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  font-size: 12px;
+}
+
+.tourActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tourSpot,
+  .tourCard {
+    transition: opacity 120ms linear;
+    transform: none;
+  }
+}

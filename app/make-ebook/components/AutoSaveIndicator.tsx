@@ -32,8 +32,8 @@ export function AutoSaveIndicator({
   hasCloudSync = false,
 }: AutoSaveIndicatorProps) {
   let dot = styles.savedDot;
-  let label: string | null = null;
-  let title = "";
+  let label: string;
+  let title: string;
 
   if (hasFailed && isDirty && !isSaving) {
     dot = `${styles.savedDot} ${styles.dirtyDot}`;
@@ -49,9 +49,11 @@ export function AutoSaveIndicator({
         ? "Saved and synced"
         : "Saved on this device";
     title = `Saved ${formatLastSaved(lastSaved)}`;
+  } else {
+    dot = `${styles.savedDot} ${styles.savingDot}`;
+    label = "Saves as you type";
+    title = "Your book saves on this device as you write";
   }
-
-  if (!label) return null;
 
   return (
     <span className={styles.saved} title={title} aria-live="polite">

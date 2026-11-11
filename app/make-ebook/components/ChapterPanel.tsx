@@ -81,6 +81,7 @@ export default function ChapterPanel({
       <div
         key={chapter?.id ?? selectedChapter}
         className={`me-chapter-in ${styles.editorPanel}`}
+        data-tour="editor"
       >
         <p className={styles.chapterEyebrow} data-chapter-eyebrow>
           {sectionLabelFor(chapter)}

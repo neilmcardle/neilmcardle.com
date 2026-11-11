@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import ChapterPanel from "../components/ChapterPanel";
-import PreviewSurface from "../components/PreviewSurface";
+import dynamic from "next/dynamic";
 import MobileTabBar from "../components/mobile/MobileTabBar";
 import ChaptersSheet from "../components/mobile/ChaptersSheet";
 import SelectionActionBar from "../components/mobile/SelectionActionBar";
@@ -11,6 +11,10 @@ import { useSession } from "../providers/SessionProvider";
 import { useBook, useBookActions } from "../providers/BookProvider";
 import { useEditor, useEditorActions } from "../providers/EditorProvider";
 import { shallowEqual } from "../providers/store";
+
+const PreviewSurface = dynamic(() => import("../components/PreviewSurface"), {
+  ssr: false,
+});
 
 export function MobileTopBar() {
   const { title, chapters } = useBook(

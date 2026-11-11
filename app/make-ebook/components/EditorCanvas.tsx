@@ -3,10 +3,14 @@
 import React from "react";
 import BookMindAgent from "./BookMindAgent";
 import { ChapterIndex } from "./ChapterIndex";
-import PreviewSurface from "./PreviewSurface";
+import dynamic from "next/dynamic";
 import ChapterPanel from "./ChapterPanel";
 import styles from "../styles/studio.module.css";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
+
+const PreviewSurface = dynamic(() => import("./PreviewSurface"), {
+  ssr: false,
+});
 
 interface Chapter {
   id: string;
@@ -133,7 +137,6 @@ export default function EditorCanvas({
           onSelectChapter={onChapterSelect}
         />
         <div
-          data-tour="editor"
           className={[
             "w-full flex-1 min-h-0 flex flex-col transition-all duration-300",
             focus.active && focus.settings.paragraphFocus
