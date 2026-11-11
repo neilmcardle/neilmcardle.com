@@ -372,6 +372,45 @@
   padding: 9px 0;
 }
 
+a.kindLink {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  margin: -12px 0;
+  color: var(--muted);
+  transition: color 0.2s var(--ease);
+}
+
+.kindLink svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: translate 0.2s var(--ease);
+}
+
+a.kindLink:focus-visible {
+  color: var(--ink);
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.kindLink:hover {
+    color: var(--ink);
+  }
+
+  a.kindLink:hover svg {
+    translate: 1px -1px;
+  }
+}
+
 .live {
   display: inline-flex;
   flex: none;

@@ -43,8 +43,8 @@ function material(
     roughness: 0.85,
     transparent: true,
     polygonOffset: true,
-    polygonOffsetFactor: 1,
-    polygonOffsetUnits: 1,
+    polygonOffsetFactor: 2,
+    polygonOffsetUnits: 4,
   });
   m.customProgramCacheKey = () => "wellie-photo";
   m.onBeforeCompile = (shader) => {
@@ -119,6 +119,12 @@ export async function createScene(canvas: HTMLCanvasElement) {
     transparent: true,
     depthWrite: false,
   });
+  const flatLineMaterial = new THREE.LineBasicMaterial({
+    color: "#f1efe8",
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+  });
   const materials: THREE.MeshStandardMaterial[] = [];
   const geometries: THREE.BufferGeometry[] = [];
 
@@ -151,7 +157,11 @@ export async function createScene(canvas: HTMLCanvasElement) {
       lineGeometry = new THREE.EdgesGeometry(geometry, 28);
     }
     geometries.push(lineGeometry);
-    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    const flat = name === "Sole" || name === "Heel";
+    const lines = new THREE.LineSegments(
+      lineGeometry,
+      flat ? flatLineMaterial : lineMaterial,
+    );
     lines.renderOrder = 1;
     const group = new THREE.Group();
     group.add(mesh, lines);
@@ -217,6 +227,8 @@ export async function createScene(canvas: HTMLCanvasElement) {
       part.group.position.copy(part.explode).multiplyScalar(pose.explode);
     lineMaterial.opacity = pose.lines * 0.85;
     lineMaterial.visible = pose.lines > 0.01;
+    flatLineMaterial.opacity = pose.lines * 0.85;
+    flatLineMaterial.visible = pose.lines > 0.01;
     for (const m of materials) {
       m.opacity = pose.solid;
       m.colorWrite = pose.solid > 0.01;
@@ -245,6 +257,7 @@ export async function createScene(canvas: HTMLCanvasElement) {
       m.dispose();
     });
     lineMaterial.dispose();
+    flatLineMaterial.dispose();
     dimMaterial.dispose();
   };
 

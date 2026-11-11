@@ -173,6 +173,36 @@ export default function Homepage() {
                     </span>
                   </span>
                 </a>
+                <a
+                  className={styles.quoteCard}
+                  href="https://x.com/evilrabbit_/status/2120660975368196127"
+                >
+                  <span className={styles.quoteArt}>
+                    <img
+                      src="/home/moments/puddle-high.jpg"
+                      alt="Puddle High II in its exploded view: a wellie drawn in white lines, split into collar, strap, shaft, foot, sole and heel, each with a label"
+                      width={1280}
+                      height={720}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                  <span className={styles.quoteBody}>
+                    <span
+                      className={styles.quoteText}
+                      style={{ whiteSpace: "normal", textWrap: "balance" }}
+                    >
+                      &ldquo;it looks fire! 🔥 love the exploded view&rdquo;
+                    </span>
+                    <span className={styles.quoteWho}>
+                      <span>Evil Rabbit</span> @evilrabbit_ on X
+                    </span>
+                    <span className={styles.quoteOn}>
+                      On <span>Puddle High II</span>, an old wellie launched
+                      like a sneaker.
+                    </span>
+                  </span>
+                </a>
               </div>
             </section>
 

@@ -8,6 +8,7 @@ export type Piece = {
   film?: string;
   local?: boolean;
   live?: { label: string; href: string };
+  kindHref?: string;
 };
 
 export const WORK: Piece[] = [
@@ -107,10 +108,8 @@ export const PLAY: Piece[] = [
     line: "A triangle game for two.",
     kind: "iOS app",
     href: "/tessera",
-    live: {
-      label: "App Store",
-      href: "https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982",
-    },
+    kindHref:
+      "https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982",
     image: "/home/peek/tessera.jpg",
   },
   {
@@ -141,7 +140,7 @@ export const PLAY: Piece[] = [
     id: "puddle-high",
     title: "Puddle High II",
     line: "An old wellie, launched like a sneaker.",
-    kind: "Exploration",
+    kind: "Affectionate Parody",
     href: "/explorations/puddle-high",
     image: "/home/peek/puddle-high.jpg",
   },

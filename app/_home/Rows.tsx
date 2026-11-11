@@ -87,8 +87,23 @@ export default function Rows({
                 tabIndex={-1}
                 aria-hidden="true"
               >
-                <span className={styles.rowKind}>{piece.kind}</span>
+                {!piece.kindHref && (
+                  <span className={styles.rowKind}>{piece.kind}</span>
+                )}
               </Link>
+              {piece.kindHref && (
+                <a
+                  className={styles.kindLink}
+                  href={piece.kindHref}
+                  rel="noopener"
+                  aria-label={`${piece.title} on the App Store`}
+                >
+                  <span className={styles.rowKind}>{piece.kind}</span>
+                  <svg viewBox="0 0 12 12" aria-hidden="true">
+                    <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                  </svg>
+                </a>
+              )}
             </li>
           );
         })}
