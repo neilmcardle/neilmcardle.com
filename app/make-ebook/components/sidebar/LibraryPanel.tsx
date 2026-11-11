@@ -4,6 +4,9 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 import EmptyStateHint from "../EmptyStateHint";
 import styles from "../../styles/studio.module.css";
 import { displayTitle } from "../../utils/bookLibrary";
+import { useBook, useBookActions } from "../../providers/BookProvider";
+import { useEditorActions } from "../../providers/EditorProvider";
+import { shallowEqual } from "../../providers/store";
 
 interface Book {
   id: string;
@@ -14,24 +17,15 @@ interface Book {
   chapters?: { title?: string }[];
 }
 
-interface LibraryPanelProps {
-  libraryBooks: Book[];
-  selectedBookId: string | null;
-  setSelectedBookId: (id: string | null) => void;
-  currentBookId?: string;
-  handleLoadBook: (id: string) => void;
-  handleDeleteBook: (id: string) => void;
-  showNewBookConfirmation: () => void;
-  showImportDialog: () => void;
+export interface LibraryBackup {
+  download: () => void | Promise<void>;
+  restore: (file: File) => void | Promise<void>;
+}
 
-  multiSelectMode: boolean;
-  setMultiSelectMode: (value: boolean) => void;
-  selectedBookIds: Set<string>;
-  toggleBookSelection: (id: string) => void;
-  toggleSelectAll: () => void;
-  handleDeleteSelectedBooks: () => void;
+interface LibraryPanelProps {
   compact?: boolean;
   active?: boolean;
+  onNavigate?: () => void;
 }
 
 let lastShownOrder: string[] = [];
@@ -90,26 +84,56 @@ const TRASH =
   "M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4h6v3";
 
 export default function LibraryPanel({
-  libraryBooks,
-  selectedBookId,
-  currentBookId,
-  handleLoadBook,
-  handleDeleteBook,
-  showNewBookConfirmation,
-  showImportDialog,
-  multiSelectMode,
-  setMultiSelectMode,
-  selectedBookIds,
-  toggleBookSelection,
-  toggleSelectAll,
-  handleDeleteSelectedBooks,
   compact = false,
   active = true,
+  onNavigate,
 }: LibraryPanelProps) {
+  const {
+    libraryBooks,
+    selectedBookId,
+    currentBookId,
+    multiSelectMode,
+    selectedBookIds,
+  } = useBook(
+    (s) => ({
+      libraryBooks: s.libraryBooks as Book[],
+      selectedBookId: s.selectedBookId,
+      currentBookId: s.currentBookId,
+      multiSelectMode: s.multiSelectMode,
+      selectedBookIds: s.selectedBookIds,
+    }),
+    shallowEqual,
+  );
+  const actions = useBookActions();
+  const editor = useEditorActions();
+  const {
+    handleDeleteBook,
+    setMultiSelectMode,
+    toggleBookSelection,
+    toggleSelectAll,
+    handleDeleteSelectedBooks,
+  } = actions;
+  const handleLoadBook = (id: string) => {
+    actions.handleLoadBook(id);
+    onNavigate?.();
+  };
+  const showNewBookConfirmation = () => {
+    editor.showNewBookConfirmation();
+    onNavigate?.();
+  };
+  const showImportDialog = () => {
+    actions.showImportDialog();
+    onNavigate?.();
+  };
+  const backup: LibraryBackup = {
+    download: actions.downloadBackup,
+    restore: actions.restoreBackup,
+  };
   const current = currentBookId ?? selectedBookId;
   const [order, setOrder] = useState<string[]>(() => byRecent(libraryBooks));
   const [now, setNow] = useState(() => Date.now());
   const listRef = useRef<HTMLDivElement>(null);
+  const restoreRef = useRef<HTMLInputElement>(null);
   const wasActive = useRef(false);
 
   useLayoutEffect(() => {
@@ -272,7 +296,11 @@ export default function LibraryPanel({
           />
         </div>
       ) : (
-        <div ref={listRef} className={styles.bookList}>
+        <div
+          ref={listRef}
+          className={styles.bookList}
+          data-testid="library-list"
+        >
           <p className={styles.bookListLabel}>Recently edited</p>
           {shown.map((book) => {
             const isCurrent = current === book.id;
@@ -355,6 +383,40 @@ export default function LibraryPanel({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {backup && !multiSelectMode && (
+        <div className="flex flex-wrap gap-1 px-1 pt-3">
+          {libraryBooks.length > 0 && (
+            <button
+              type="button"
+              className={styles.textButton}
+              onClick={() => void backup.download()}
+            >
+              Download a backup
+            </button>
+          )}
+          <button
+            type="button"
+            className={styles.textButton}
+            onClick={() => restoreRef.current?.click()}
+          >
+            Restore a backup
+          </button>
+          <input
+            ref={restoreRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            aria-label="Backup file"
+            tabIndex={-1}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) void backup.restore(file);
+            }}
+          />
         </div>
       )}
     </div>

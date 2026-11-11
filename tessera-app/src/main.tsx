@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import Tessera from "./Tessera.tsx";
+import TesseraGame from "../../app/tessera/Game";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <Tessera />
+    <TesseraGame inApp />
   </React.StrictMode>,
 );

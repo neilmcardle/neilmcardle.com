@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Pixel Bonsai</title>
+    <meta
+      name="description"
+      content="A pixel bonsai that answers to your cursor. Move to ruffle it, grab to pull, and the leaves blow across the screen."
+    />
+    <meta name="color-scheme" content="dark" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230b0b0d'/><rect x='4' y='3' width='8' height='5' fill='%236b9a3c'/><rect x='7' y='8' width='2' height='4' fill='%23b2906a'/><rect x='4' y='12' width='8' height='2' fill='%2328496f'/></svg>"
+    />
+    <link rel="stylesheet" href="/pixel-bonsai/css/styles.css" />
+    <script>
+      if (new URLSearchParams(location.search).has("card"))
+        document.documentElement.classList.add("card");
+    </script>
+    <style>
+      html.card {
+        --bg: #161615;
+      }
+      html.card,
+      html.card body {
+        background: #161615;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas
+      class="scene"
+      id="scene"
+      tabindex="0"
+      role="button"
+      aria-label="Pixel bonsai. Move the pointer across it to ruffle it, drag to pull its branches, or press Enter to shake it."
+    ></canvas>
+    <p class="sr-only" id="hint">
+      Move the pointer across the bonsai to ruffle it. Drag to pull its
+      branches. Leaves grow back on their own.
+    </p>
+    <script type="module" src="/pixel-bonsai/js/main.js"></script>
+  </body>
+</html>

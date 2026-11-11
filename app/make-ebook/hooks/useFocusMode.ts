@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { keys, readLocal, writeLocal } from "../storage/keys";
 
 export type AmbientSound =
   | "none"
@@ -31,23 +32,19 @@ const DEFAULTS: FocusSettings = {
   ambientVolume: 0.3,
 };
 
-const STORAGE_KEY = "makeebook-focus-settings";
-
 export function useFocusMode() {
   const [active, setActive] = useState(false);
   const [settings, setSettings] = useState<FocusSettings>(DEFAULTS);
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = readLocal(keys.focusSettings());
       if (stored) setSettings((prev) => ({ ...prev, ...JSON.parse(stored) }));
     } catch {}
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {}
+    writeLocal(keys.focusSettings(), JSON.stringify(settings));
   }, [settings]);
 
   function setSetting<K extends keyof FocusSettings>(
@@ -104,8 +101,12 @@ export function useFocusMode() {
         return;
       }
       if (e.key === "Escape" && active) {
+        const layers =
+          '[data-focus-trap], [data-radix-popper-content-wrapper], [role="menu"], [role="dialog"]';
+        const fromLayer =
+          e.target instanceof Element && e.target.closest(layers) !== null;
         const hasOpenModal = document.querySelector("[data-focus-trap]");
-        if (!hasOpenModal) exitFocusMode();
+        if (!fromLayer && !hasOpenModal) exitFocusMode();
       }
     }
     document.addEventListener("keydown", handleKeyDown);

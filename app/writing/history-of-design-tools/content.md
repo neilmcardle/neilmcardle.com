@@ -1,6 +1,6 @@
 # A History of Design Tools, 1963–2026
 
-By Neil McArdle · 6 November 2026
+By Neil McArdle · 6 November 2026 · Work in progress
 
 ## From a palette to a pen tool
 

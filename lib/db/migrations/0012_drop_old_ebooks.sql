@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS "chapters";
+DROP TABLE IF EXISTS "ebooks";

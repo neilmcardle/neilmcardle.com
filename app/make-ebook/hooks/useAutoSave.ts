@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useReducer, useRef, useCallback } from "react";
+import {
+  autosave,
+  autosaveDelay,
+  initialAutosave,
+  isSaveOk,
+} from "../state/autosave";
 
 interface AutoSaveOptions {
   interval?: number;
@@ -7,33 +13,16 @@ interface AutoSaveOptions {
   enabled?: boolean;
 }
 
-interface AutoSaveState {
-  lastSaved: Date | null;
-  isDirty: boolean;
-  isSaving: boolean;
-  hasFailed: boolean;
-}
-
 export function useAutoSave({
   interval = 2000,
   maxWait = 20000,
   onSave,
   enabled = true,
 }: AutoSaveOptions) {
-  const [state, setState] = useState<AutoSaveState>({
-    lastSaved: null,
-    isDirty: false,
-    isSaving: false,
-    hasFailed: false,
-  });
-  const [attempt, setAttempt] = useState(0);
-  const [edits, setEdits] = useState(0);
-  const firstDirtyAtRef = useRef(0);
-
+  const [state, dispatch] = useReducer(autosave, initialAutosave);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onSaveRef = useRef(onSave);
   const versionRef = useRef(0);
-  const failuresRef = useRef(0);
 
   useEffect(() => {
     onSaveRef.current = onSave;
@@ -41,59 +30,35 @@ export function useAutoSave({
 
   const markDirty = useCallback(() => {
     versionRef.current += 1;
-    setEdits((n) => n + 1);
-    setState((prev) => {
-      if (prev.isDirty) return prev;
-      firstDirtyAtRef.current = Date.now();
-      return { ...prev, isDirty: true };
-    });
+    dispatch({ type: "edited", at: Date.now() });
   }, []);
 
   const getVersion = useCallback(() => versionRef.current, []);
 
   const markClean = useCallback((version?: number) => {
-    failuresRef.current = 0;
-    if (version !== undefined && version !== versionRef.current) {
-      firstDirtyAtRef.current = Date.now();
-      setState((prev) => ({
-        ...prev,
-        lastSaved: new Date(),
-        isSaving: false,
-        hasFailed: false,
-      }));
-      setAttempt((a) => a + 1);
-      return;
-    }
-    setState((prev) => ({
-      ...prev,
-      isDirty: false,
-      lastSaved: new Date(),
-      isSaving: false,
-      hasFailed: false,
-    }));
+    dispatch({
+      type: "saved",
+      at: Date.now(),
+      current: version === undefined || version === versionRef.current,
+    });
   }, []);
 
   const triggerSave = useCallback(async () => {
     if (!state.isDirty || !enabled) return;
-    setState((prev) => ({ ...prev, isSaving: true }));
+    dispatch({ type: "saveStarted" });
     let ok = false;
     try {
-      const result = await onSaveRef.current();
-      ok = result !== false && result !== "failed";
+      ok = isSaveOk(await onSaveRef.current());
     } catch (error) {
       console.error("Auto-save failed:", error);
-    } finally {
-      setState((prev) => ({ ...prev, isSaving: false }));
     }
-    if (!ok) {
-      failuresRef.current += 1;
-      setState((prev) => ({ ...prev, hasFailed: true }));
-      setAttempt((a) => a + 1);
-    }
+    dispatch({ type: "saveFinished", ok });
   }, [state.isDirty, enabled]);
 
+  const { isDirty, attempt, edits, failures, firstDirtyAt } = state;
+
   useEffect(() => {
-    if (!enabled || !state.isDirty) {
+    if (!enabled || !isDirty) {
       return;
     }
 
@@ -101,12 +66,12 @@ export function useAutoSave({
       clearTimeout(timeoutRef.current);
     }
 
-    const failures = failuresRef.current;
-    const waited = Date.now() - firstDirtyAtRef.current;
-    const delay =
-      failures > 0
-        ? Math.min(120000, 15000 * 2 ** (failures - 1))
-        : Math.max(0, Math.min(interval, maxWait - waited));
+    const delay = autosaveDelay(
+      { failures, firstDirtyAt },
+      Date.now(),
+      interval,
+      maxWait,
+    );
     timeoutRef.current = setTimeout(() => {
       void triggerSave();
     }, delay);
@@ -116,7 +81,7 @@ export function useAutoSave({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [state.isDirty, enabled, interval, maxWait, triggerSave, attempt, edits]);
+  }, [isDirty, enabled, interval, maxWait, triggerSave, attempt, edits]);
 
   useEffect(() => {
     return () => {
@@ -127,7 +92,10 @@ export function useAutoSave({
   }, []);
 
   return {
-    ...state,
+    lastSaved: state.lastSaved,
+    isDirty: state.isDirty,
+    isSaving: state.isSaving,
+    hasFailed: state.hasFailed,
     markDirty,
     markClean,
     getVersion,

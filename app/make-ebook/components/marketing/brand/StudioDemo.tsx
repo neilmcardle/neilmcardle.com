@@ -250,13 +250,38 @@ export function StudioDemo() {
     saveTimer.current = window.setTimeout(() => setSaving(false), 700);
   };
 
+  const placeCaret = (range: Range) => {
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+  };
+
+  const ensureParagraph = () => {
+    const el = proseRef.current;
+    if (!el || el.querySelector("p")) return;
+    const p = document.createElement("p");
+    const text = el.textContent ?? "";
+    if (text) p.textContent = text;
+    else p.appendChild(document.createElement("br"));
+    el.replaceChildren(p);
+    const range = document.createRange();
+    range.selectNodeContents(p);
+    range.collapse(false);
+    placeCaret(range);
+  };
+
   const onPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    document.execCommand(
-      "insertText",
-      false,
-      e.clipboardData.getData("text/plain"),
-    );
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const node = document.createTextNode(e.clipboardData.getData("text/plain"));
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.collapse(true);
+    placeCaret(range);
+    onInput();
   };
 
   const openChapter = (n: number) => {
@@ -398,14 +423,11 @@ export function StudioDemo() {
                       role="textbox"
                       aria-multiline="true"
                       aria-label={`Chapter ${chapter.word} text`}
-                      onFocus={() =>
-                        document.execCommand(
-                          "defaultParagraphSeparator",
-                          false,
-                          "p",
-                        )
-                      }
-                      onInput={onInput}
+                      onFocus={ensureParagraph}
+                      onInput={() => {
+                        ensureParagraph();
+                        onInput();
+                      }}
                       onPaste={onPaste}
                     />
                   </div>

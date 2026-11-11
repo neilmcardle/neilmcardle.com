@@ -25,6 +25,9 @@ export type NSettings = {
   sway?: number;
   follow?: number;
   faceHold?: number;
+  faceTarget?: 0 | 1;
+  morphDelay?: number;
+  morphIn?: number;
   driftTime?: number;
   flightAlpha?: number;
   depth?: number;

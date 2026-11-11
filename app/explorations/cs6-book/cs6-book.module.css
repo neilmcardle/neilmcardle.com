@@ -1,0 +1,32 @@
+.page {
+  grid-template-columns: min(640px, 100%);
+  justify-content: center;
+  text-align: center;
+}
+
+.page > header,
+.page figcaption {
+  justify-self: center;
+}
+
+.figure {
+  width: 100%;
+  grid-template-rows: auto auto;
+  justify-items: center;
+}
+
+.figure > :first-child {
+  width: 100%;
+}
+
+@media (min-width: 960px) {
+  .page {
+    grid-template-rows: auto auto;
+    align-content: center;
+  }
+
+  .figure > :first-child {
+    width: min(100%, calc(100svh - 280px));
+    min-width: 320px;
+  }
+}

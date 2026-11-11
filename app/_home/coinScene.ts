@@ -1,10 +1,21 @@
 import * as THREE from "three";
+import { createSample } from "@/lib/coverly/sfx";
+import { media } from "@/lib/media";
 
 const SIDES = ["Ship it", "Roll back"];
 const SIZE = 512;
 const W = SIZE * 2;
 const THICK = 0.13;
 const SLOPE = 4;
+
+const spinSound = createSample(
+  media("/audio/coin-start-spin.mp3"),
+  () => true,
+  {
+    gap: 120,
+    live: true,
+  },
+);
 
 export type CoinLook = {
   key: number;
@@ -42,7 +53,7 @@ export const COIN: CoinLook = {
   clearcoat: 0.7,
   coatRoughness: 0.2,
   relief: 0.035,
-  distance: 6.5,
+  distance: 8.6,
   rest: 0,
 };
 
@@ -330,7 +341,13 @@ export async function mountCoin(
     kick();
   };
 
+  const sound = (e: PointerEvent, velocity: number) => {
+    if (still || e.pointerType !== "mouse" || Math.abs(velocity) < 0.6) return;
+    spinSound.play(0.1 + Math.min(Math.abs(velocity), 20) * 0.005);
+  };
+
   const down = (e: PointerEvent) => {
+    spinSound.stop();
     dragging = true;
     settle = null;
     downX = e.clientX;
@@ -361,6 +378,7 @@ export async function mountCoin(
         return;
       }
       release(dir * 14);
+      sound(e, dir * 14);
       return;
     }
     const first = samples[0];
@@ -369,7 +387,9 @@ export async function mountCoin(
       dt > 0.016 && e.timeStamp - samples[samples.length - 1].t < 80
         ? (((e.clientX - first.x) / width) * Math.PI) / dt
         : 0;
-    release(Math.max(-30, Math.min(30, velocity)));
+    const flick = Math.max(-30, Math.min(30, velocity));
+    release(flick);
+    if (e.type === "pointerup") sound(e, flick);
   };
   canvas.addEventListener("pointerdown", down);
   canvas.addEventListener("pointermove", move);
@@ -414,7 +434,10 @@ export async function mountCoin(
   live = true;
   paint();
 
+  spinSound.prime();
+
   const stop = () => {
+    spinSound.stop();
     cancelAnimationFrame(frame);
     sizer.disconnect();
     canvas.removeEventListener("pointerdown", down);

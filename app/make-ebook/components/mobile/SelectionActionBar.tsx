@@ -1,6 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import {
+  currentEditorSelection,
+  subscribeSelection,
+  type EditorSelection,
+} from "../../editor/registry";
+import { domRangeAt } from "../../editor/useEditorView";
 
 interface SelectionActionBarProps {
   onRewrite: (selectedText: string, range: Range, rect: DOMRect) => void;
@@ -22,37 +28,22 @@ export default function SelectionActionBar({
   const [selection, setSelection] = useState<ActiveSelection | null>(null);
 
   useEffect(() => {
-    const read = () => {
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
+    const read = (current: EditorSelection | null) => {
+      const view = current?.handle.view() ?? null;
+      const range =
+        current && view ? domRangeAt(view, current.from, current.to) : null;
+      if (!current || !range) {
         setSelection(null);
         return;
       }
-      const text = sel.toString().trim();
-      if (!text) {
-        setSelection(null);
-        return;
-      }
-      const node = sel.anchorNode;
-      const host = node
-        ? ((node as HTMLElement).closest?.('[contenteditable="true"]') ??
-          node.parentElement?.closest('[contenteditable="true"]') ??
-          null)
-        : null;
-      if (!host) {
-        setSelection(null);
-        return;
-      }
-      const range = sel.getRangeAt(0);
       setSelection({
-        text,
-        range: range.cloneRange(),
+        text: current.text,
+        range,
         rect: range.getBoundingClientRect(),
       });
     };
-
-    document.addEventListener("selectionchange", read);
-    return () => document.removeEventListener("selectionchange", read);
+    read(currentEditorSelection());
+    return subscribeSelection(read);
   }, []);
 
   if (!selection) return null;

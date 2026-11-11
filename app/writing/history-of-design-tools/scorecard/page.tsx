@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Article, { UNLISTED } from "../../_article/Article";
+import Article from "../../_article/Article";
 import { share } from "../../../shared-metadata";
 
 const title = "Scorecard: A History of Design Tools · Neil McArdle";
@@ -9,7 +9,6 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
-  robots: UNLISTED,
   ...share({
     title,
     description,

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useBookMind } from "../../hooks/useBookMind";
+import { activeEditor } from "../../editor/registry";
 
 interface GhostTextOverlayProps {
   enabled: boolean;
@@ -11,30 +12,18 @@ interface GhostTextOverlayProps {
 }
 
 const HINT_MS = 500;
-const SENTENCE_END = /[.!?]\s*$/;
 
-function getCaretContext(): {
-  rect: DOMRect;
-  textBefore: string;
-  atEnd: boolean;
-} | null {
-  const sel = window.getSelection();
-  if (!sel || !sel.isCollapsed || !sel.rangeCount) return null;
+type CaretKey = { from: number; to: number; doc: unknown };
 
-  const node = sel.anchorNode;
-  const editorEl = node?.parentElement?.closest?.('[contenteditable="true"]');
-  if (!editorEl) return null;
+function caretKey(): CaretKey | null {
+  const editor = activeEditor();
+  const sel = editor?.selection();
+  if (!editor || !sel) return null;
+  return { from: sel.from, to: sel.to, doc: editor.docVersion() };
+}
 
-  const range = sel.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
-  if (rect.height === 0) return null;
-
-  const text = node?.textContent ?? "";
-  const offset = sel.anchorOffset;
-  const textBefore = text.slice(0, offset);
-  const atEnd = SENTENCE_END.test(textBefore.trimEnd());
-
-  return { rect, textBefore, atEnd };
+function sameCaret(a: CaretKey | null, b: CaretKey | null) {
+  return !!a && !!b && a.from === b.from && a.to === b.to && a.doc === b.doc;
 }
 
 export default function GhostTextOverlay({
@@ -66,7 +55,10 @@ export default function GhostTextOverlay({
     suggestionRef.current = suggestion;
   }, [suggestion]);
 
+  const lastCaretRef = useRef<CaretKey | null>(null);
+
   const clear = useCallback(() => {
+    activeEditor()?.clearGhostAnchor();
     setSuggestion(null);
     setPosition(null);
     setGenerating(false);
@@ -150,7 +142,14 @@ export default function GhostTextOverlay({
       return;
     }
 
-    const handleActivity = () => {
+    const handleActivity = (event: Event) => {
+      const caret = caretKey();
+      if (
+        event.type === "selectionchange" &&
+        sameCaret(caret, lastCaretRef.current)
+      )
+        return;
+      lastCaretRef.current = caret;
       if (suggestion) clear();
 
       setHintVisible(false);
@@ -159,10 +158,12 @@ export default function GhostTextOverlay({
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
 
       hintTimerRef.current = setTimeout(() => {
-        const ctx = getCaretContext();
-        if (!ctx || !ctx.atEnd) return;
+        const editor = activeEditor();
+        const ctx = editor?.caretContext();
+        if (!editor || !ctx || !ctx.atEnd) return;
         pendingCtxRef.current = { textBefore: ctx.textBefore };
-        setPosition({ top: ctx.rect.top, left: ctx.rect.right + 2 });
+        const rect = editor.setGhostAnchor() ?? ctx.rect;
+        setPosition({ top: rect.top, left: rect.right + 2 });
         setHintVisible(true);
       }, HINT_MS);
     };

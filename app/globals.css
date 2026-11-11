@@ -745,28 +745,6 @@ html.dark .bg-cream {
   margin: 0.75rem 0;
 }
 
-.ProseMirror {
-  outline: none;
-  min-height: 100px;
-}
-
-html.dark .ProseMirror {
-  background: var(--ink);
-  color: var(--clay);
-}
-
-.ProseMirror p.is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
-}
-
-html.dark .ProseMirror p.is-editor-empty:first-child::before {
-  color: var(--clay-muted);
-}
-
 /* Optional: Add some basic styling for content */
 .prose {
   max-width: 65ch;
@@ -867,19 +845,19 @@ html.dark .ProseMirror p.is-editor-empty:first-child::before {
 
 /* Typewriter mode: large bottom padding so the cursor always has room to scroll
    to the 42% mark regardless of document length */
-.typewriter-mode [contenteditable] {
+.typewriter-mode .ProseMirror {
   padding-bottom: 50vh !important;
 }
 
 /* Paragraph dimming: dims all direct children of the contenteditable,
    then brightens whichever one has the cursor (data-para-focused).
    Using > (direct child) handles p, div, h1, blockquote, ul/ol equally. */
-.paragraph-focus [contenteditable] > * {
+.paragraph-focus .ProseMirror > * {
   opacity: 0.18;
   transition: opacity 0.35s ease;
 }
 
-.paragraph-focus [contenteditable] > [data-para-focused] {
+.paragraph-focus .ProseMirror > [data-para-focused] {
   opacity: 1 !important;
   transition: opacity 0.2s ease;
 }

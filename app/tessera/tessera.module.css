@@ -775,3 +775,97 @@
     display: none;
   }
 }
+
+.inApp {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.inApp::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 100;
+  height: env(safe-area-inset-top);
+  background: var(--color-bg);
+  pointer-events: none;
+}
+
+.inApp .column {
+  margin: 0 auto;
+  padding-top: var(--space-4);
+}
+
+.inApp input {
+  user-select: text;
+}
+
+.dialog .foot {
+  margin-top: 0;
+}
+
+.inApp {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inApp .column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+}
+
+.inApp .head {
+  margin-top: 0;
+}
+
+.inApp .title {
+  font-size: 24px;
+  gap: var(--space-2);
+}
+
+.inApp .logo {
+  width: 28px;
+  height: 24px;
+}
+
+.inApp .game {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+}
+
+.inApp .scoreValue {
+  font-size: 32px;
+}
+
+.inApp .board {
+  flex: 1 1 0;
+  width: 100%;
+  height: 0;
+  min-height: 96px;
+  margin: var(--space-2) 0 0;
+}
+
+.inApp .dice {
+  margin-top: var(--space-2);
+}
+
+.inApp .controls {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.inApp .sizes {
+  align-self: flex-start;
+  margin-top: var(--space-2);
+}

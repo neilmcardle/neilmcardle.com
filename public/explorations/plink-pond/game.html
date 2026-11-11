@@ -276,6 +276,52 @@
         }
       }
     </style>
+    <script>
+      if (new URLSearchParams(location.search).has("card"))
+        document.documentElement.classList.add("card");
+    </script>
+    <style>
+      html.card,
+      html.card body {
+        background: #161615;
+      }
+      html.card header,
+      html.card .hint,
+      html.card footer {
+        display: none;
+      }
+      html.card,
+      html.card body {
+        height: 100%;
+      }
+      html.card body {
+        display: flex;
+        flex-direction: column;
+      }
+      html.card .stage {
+        padding: 0;
+        flex: 1;
+        min-height: 0;
+      }
+      html.card canvas {
+        max-height: 100%;
+        width: auto;
+      }
+      html.card .controls {
+        gap: 10px;
+        padding: 0 8px 8px;
+      }
+      html.card .meter {
+        grid-template-columns: 52px;
+        gap: 0;
+      }
+      html.card .meter span {
+        display: none;
+      }
+      html.card .controls {
+        flex-wrap: nowrap;
+      }
+    </style>
   </head>
   <body>
     <header>

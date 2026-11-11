@@ -2,7 +2,7 @@
 
 import React from "react";
 import { LockIcon } from "./icons";
-import RichTextEditor from "./RichTextEditor";
+import ChapterEditor from "../editor/ChapterEditor";
 import styles from "../styles/studio.module.css";
 
 interface Chapter {
@@ -101,7 +101,7 @@ export default function ChapterPanel({
           </p>
         )}
 
-        <RichTextEditor
+        <ChapterEditor
           value={chapter?.content || ""}
           onChange={(html) => onContentChange(selectedChapter, html)}
           minHeight={240}

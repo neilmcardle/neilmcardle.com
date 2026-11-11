@@ -12,15 +12,8 @@ import {
 } from "../utils/bookLibrary";
 import { ensureChapterIds, migrateEndnoteReferences } from "../utils/pageUtils";
 import type { SwitchBook } from "./useBookSwitch";
-
-interface DialogState {
-  open: boolean;
-  title: string;
-  message: string;
-  variant: "confirm" | "alert" | "destructive";
-  confirmLabel?: string;
-  onConfirm: () => void;
-}
+import { remove as removeFromCloud } from "../storage/cloudStore";
+import type { DialogConfig as DialogState } from "../state/overlays";
 
 interface UseLibraryParams {
   libraryBooks: any[];
@@ -28,8 +21,7 @@ interface UseLibraryParams {
   user: { id: string } | null;
   hasCloudSync: boolean;
   currentBookId: string | undefined;
-  isLoadingBookRef: React.MutableRefObject<boolean>;
-  setShowMarketingPage: (v: boolean) => void;
+  onLoaded: () => void;
   loadMetadata: (data: any) => void;
   setTags: (tags: string[]) => void;
   setCoverUrl: (url: string | null) => void;
@@ -41,11 +33,9 @@ interface UseLibraryParams {
   setSelectedChapter: (i: number) => void;
   setMobileSidebarOpen: (v: boolean) => void;
   setSidebarView: (view: "library" | "book" | "chapters" | null) => void;
-  setBookJustLoaded: (v: boolean) => void;
   setDialogState: React.Dispatch<React.SetStateAction<DialogState>>;
   clearEditorState: () => void;
   switchBook: SwitchBook;
-  loadCommitRef: React.MutableRefObject<boolean>;
 }
 
 export function useLibrary({
@@ -54,8 +44,7 @@ export function useLibrary({
   user,
   hasCloudSync,
   currentBookId,
-  isLoadingBookRef,
-  setShowMarketingPage,
+  onLoaded,
   loadMetadata,
   setTags,
   setCoverUrl,
@@ -67,11 +56,9 @@ export function useLibrary({
   setSelectedChapter,
   setMobileSidebarOpen,
   setSidebarView,
-  setBookJustLoaded,
   setDialogState,
   clearEditorState,
   switchBook,
-  loadCommitRef,
 }: UseLibraryParams) {
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(
     new Set(),
@@ -95,9 +82,7 @@ export function useLibrary({
           }
         };
       };
-    } catch (e) {
-      /* non-critical */
-    }
+    } catch {}
   }
 
   async function handleLoadBook(id: string, keepChapter = false) {
@@ -110,9 +95,7 @@ export function useLibrary({
         return { loaded, cover };
       },
       apply: ({ loaded, cover }) => {
-        isLoadingBookRef.current = true;
-        loadCommitRef.current = true;
-        setShowMarketingPage(false);
+        onLoaded();
         loadMetadata({ ...loaded, id: loaded.id });
         setTags(loaded.tags || []);
         setCoverUrl(cover);
@@ -153,9 +136,6 @@ export function useLibrary({
 
         setMobileSidebarOpen(false);
         setSidebarView(null);
-
-        setBookJustLoaded(true);
-        setTimeout(() => setBookJustLoaded(false), 1000);
       },
     });
   }
@@ -170,13 +150,9 @@ export function useLibrary({
       confirmLabel: "Delete",
       onConfirm: async () => {
         setDialogState((prev) => ({ ...prev, open: false }));
-        const bookToDelete = libraryBooks.find((b: any) => b.id === id);
-
         if (user && user.id && hasCloudSync) {
           try {
-            const { deleteEbookFromSupabase } =
-              await import("@/lib/supabaseEbooks");
-            await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
+            await removeFromCloud(id);
           } catch (err) {
             console.error("Failed to delete from Supabase:", err);
             setDialogState({
@@ -193,6 +169,7 @@ export function useLibrary({
         }
 
         removeBookFromLibrary(user?.id ?? "", id);
+        if (user?.id && !hasCloudSync) void removeFromCloud(id).catch(() => {});
         setLibraryBooks(loadBookLibrary(user?.id ?? ""));
 
         void clearVersions(versionKey(user?.id, id));
@@ -220,13 +197,9 @@ export function useLibrary({
         let cloudFailed = false;
 
         for (const id of selectedBookIds) {
-          const bookToDelete = libraryBooks.find((b: any) => b.id === id);
-
           if (user && user.id && hasCloudSync) {
             try {
-              const { deleteEbookFromSupabase } =
-                await import("@/lib/supabaseEbooks");
-              await deleteEbookFromSupabase(id, user.id, bookToDelete?.title);
+              await removeFromCloud(id);
             } catch (err) {
               console.error("Failed to delete from Supabase:", err);
               cloudFailed = true;
@@ -235,6 +208,9 @@ export function useLibrary({
           }
 
           removeBookFromLibrary(user?.id ?? "", id);
+          if (user?.id && !hasCloudSync) {
+            void removeFromCloud(id).catch(() => {});
+          }
 
           void clearVersions(versionKey(user?.id, id));
           cleanupExportHistory(id);

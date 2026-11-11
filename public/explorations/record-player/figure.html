@@ -79,6 +79,42 @@
           : 0;
       };
     </script>
+    <script>
+      if (new URLSearchParams(location.search).has("card"))
+        document.documentElement.classList.add("card");
+    </script>
+    <style>
+      html.card {
+        --paper: #161615;
+      }
+      html.card,
+      html.card body {
+        background: #161615;
+      }
+      html.card #btns,
+      html.card #stats,
+      html.card .zchip,
+      html.card .vset,
+      html.card .lgd,
+      html.card .mcap,
+      html.card #readout,
+      html.card .controls,
+      html.card #toast {
+        display: none;
+      }
+      html.card .stage {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      html.card .zwrap {
+        height: 100%;
+      }
+      html.card #fig {
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <script>
@@ -3932,5 +3968,23 @@
         outline-offset: 2px;
       }
     </style>
+    <script>
+      if (document.documentElement.classList.contains("card")) {
+        let down = null;
+        const fig = () => document.getElementById("fig");
+        addEventListener("pointerdown", (e) => {
+          down = [e.clientX, e.clientY];
+        });
+        addEventListener("pointerup", (e) => {
+          if (!down) return;
+          const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]);
+          down = null;
+          if (moved < 6 && fig() && fig().contains(e.target)) {
+            const b = document.querySelector("#btns .act");
+            if (b) b.click();
+          }
+        });
+      }
+    </script>
   </body>
 </html>

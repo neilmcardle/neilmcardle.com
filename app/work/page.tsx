@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import Shell from "../_signature/Shell";
 import Header from "../_signature/Header";
-import Work from "../_signature/Work";
-import Index from "../_signature/Index";
 import Finale from "../_signature/Finale";
 import { share } from "../shared-metadata";
-import shell from "../_signature/signature.module.css";
-import styles from "../_signature/index.module.css";
+import { SECTIONS } from "./everything";
+import styles from "./everything.module.css";
 
-const description =
-  "Products I design and build, the work behind them, and the things I make for fun.";
+const description = "Everything else I have designed and built, with links.";
 
 export const metadata: Metadata = {
-  title: "Work · Neil McArdle",
+  title: "Everything else · Neil McArdle",
   description,
-  ...share({ title: "Work · Neil McArdle", description, path: "/work" }),
+  ...share({
+    title: "Everything else · Neil McArdle",
+    description,
+    path: "/work",
+  }),
 };
 
 export const viewport: Viewport = {
@@ -25,16 +27,31 @@ export default function WorkPage() {
   return (
     <Shell>
       <Header />
-      <main id="main">
-        <div className={`${shell.wrap} ${styles.opening}`}>
-          <h1 className={styles.title}>All work</h1>
-          <p className={styles.intro}>
-            Products I design and build, the work behind them, and the things I
-            make for fun.
-          </p>
-        </div>
-        <Work />
-        <Index />
+      <main id="main" className={styles.page}>
+        <h1 className={styles.title}>Everything else</h1>
+        <p className={styles.intro}>
+          My main work is on the <Link href="/">homepage</Link>. This is the
+          rest of what I have designed and built.
+        </p>
+        {SECTIONS.map((section) => (
+          <section key={section.title} className={styles.section}>
+            <h2 className={styles.label}>{section.title}</h2>
+            <ul className={styles.list}>
+              {section.entries.map((entry) => (
+                <li key={entry.name} className={styles.entry}>
+                  {entry.href ? (
+                    <Link className={styles.name} href={entry.href}>
+                      {entry.name}
+                    </Link>
+                  ) : (
+                    <span className={styles.name}>{entry.name}</span>
+                  )}
+                  <span className={styles.line}>{entry.line}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </main>
       <Finale copyEmail />
     </Shell>

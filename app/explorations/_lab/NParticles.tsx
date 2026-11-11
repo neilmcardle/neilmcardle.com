@@ -663,13 +663,53 @@ export default function NParticles({
       const phaseAt = (now: number) => {
         const v = valuesRef.current;
         const loop = v.loop && !reduced;
-        const elapsed = now - cycle.start;
+        let elapsed = now - cycle.start;
         const lengths = {
           hold: form && v.faceHold ? v.faceHold : v.hold,
           out: v.scatterTime,
           drift: v.driftTime ?? v.hold * 0.6,
           back: v.returnTime,
         };
+        const want = v.faceTarget;
+        if (
+          data.face &&
+          want !== undefined &&
+          cycle.stage !== "hold" &&
+          morphTo !== want
+        ) {
+          const done = Math.min(
+            1,
+            elapsed / Math.max(0.001, lengths[cycle.stage]),
+          );
+          const current = uniforms.uMorph.value;
+          if (cycle.stage === "out") {
+            cycle.stage = "back";
+            cycle.start = now - (1 - done) * lengths.back;
+          } else if (cycle.stage === "drift") {
+            cycle.stage = "back";
+            cycle.start = now;
+          }
+          morphFrom = current;
+          morphTo = want;
+          morphBegin = now;
+          morphEnd = Math.max(now + 0.6, cycle.start + lengths.back);
+          elapsed = now - cycle.start;
+        }
+        if (
+          data.face &&
+          v.morphIn &&
+          want === 1 &&
+          cycle.stage === "hold" &&
+          form === 0
+        ) {
+          morphFrom = uniforms.uMorph.value;
+          morphTo = 1;
+          morphBegin = now;
+          morphEnd = now + v.morphIn;
+          form = 1;
+          cycle.start = now;
+          elapsed = 0;
+        }
         if (elapsed >= lengths[cycle.stage]) {
           const next = {
             hold: "out",
@@ -681,9 +721,9 @@ export default function NParticles({
           cycle.stage = next[cycle.stage];
           cycle.start = now;
           if (data.face && cycle.stage === "out") {
-            morphFrom = form;
+            morphFrom = uniforms.uMorph.value;
             morphTo = 1 - form;
-            morphBegin = now + v.scatterTime * 0.35;
+            morphBegin = now + v.scatterTime * (v.morphDelay ?? 0.35);
             morphEnd =
               now +
               v.scatterTime +
@@ -697,7 +737,7 @@ export default function NParticles({
           (now - cycle.start) / Math.max(0.001, lengths[cycle.stage]),
         );
         uniforms.uMorph.value =
-          data.face && cycle.stage !== "hold"
+          data.face && (cycle.stage !== "hold" || now < morphEnd)
             ? morphFrom +
               (morphTo - morphFrom) *
                 ease(

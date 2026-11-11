@@ -1,0 +1,92 @@
+.page {
+  width: min(600px, 100% - 32px);
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 104px) 0 clamp(48px, 6vw, 80px);
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(32px, 4.2vw, 44px);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+
+.intro {
+  margin: 16px 0 0;
+  text-wrap: pretty;
+}
+
+.intro a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--underline);
+}
+
+.section {
+  margin-top: 56px;
+}
+
+.label {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: minmax(0, 13em) minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+}
+
+.name {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.entry a.name {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--underline);
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+a.name:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.name:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+.line {
+  text-wrap: pretty;
+}
+
+@media (max-width: 560px) {
+  .entry {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

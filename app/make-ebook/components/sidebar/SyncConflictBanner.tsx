@@ -1,18 +1,12 @@
 "use client";
 
 import React from "react";
-import { BookRecord } from "../../types";
 import { formatRelativeTime } from "../../utils/pageUtils";
+import { useSession } from "../../providers/SessionProvider";
 
-interface SyncConflictBannerProps {
-  conflicts: { local: BookRecord; cloud: BookRecord }[];
-  onResolve: (choice: "local" | "cloud" | "both") => void;
-}
-
-export default function SyncConflictBanner({
-  conflicts,
-  onResolve,
-}: SyncConflictBannerProps) {
+export default function SyncConflictBanner() {
+  const conflicts = useSession((s) => s.cloudSync.syncConflicts);
+  const onResolve = useSession((s) => s.cloudSync.handleResolveSyncConflict);
   if (conflicts.length === 0 || !conflicts[0]) return null;
   const current = conflicts[0];
 

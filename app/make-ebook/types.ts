@@ -94,18 +94,7 @@ export interface BookMetadata {
   genre: string;
 }
 
-export interface BookRecord extends BookMetadata {
-  id: string;
-  chapters: Chapter[];
-  tags: string[];
-  coverFile: string | null;
-  endnotes: Endnote[];
-  endnoteReferences: EndnoteReference[];
-  savedAt: number;
-  cloudSyncedAt?: number;
-
-  bookmindMemory?: BookMindMemory;
-}
+export type { Book as BookRecord } from "./model/book";
 
 export interface BookMindMemory {
   brief?: ManuscriptBrief;

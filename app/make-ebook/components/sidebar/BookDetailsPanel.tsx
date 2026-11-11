@@ -5,38 +5,10 @@ import { PlusIcon } from "../icons";
 import GenerateCoverModal from "./GenerateCoverModal";
 import styles from "../../styles/studio.module.css";
 import GenrePicker from "../GenrePicker";
+import { useBook, useBookActions } from "../../providers/BookProvider";
+import { shallowEqual } from "../../providers/store";
 
 interface BookDetailsPanelProps {
-  title: string;
-  setTitle: (value: string) => void;
-  author: string;
-  setAuthor: (value: string) => void;
-  blurb: string;
-  setBlurb: (value: string) => void;
-  publisher: string;
-  setPublisher: (value: string) => void;
-  pubDate: string;
-  setPubDate: (value: string) => void;
-  isbn: string;
-  setIsbn: (value: string) => void;
-  language: string;
-  setLanguage: (value: string) => void;
-  genre: string;
-  setGenre: (value: string) => void;
-  tags: string[];
-  handleAddTag: () => void;
-  handleRemoveTag: (tag: string) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
-  coverFile: string | null;
-  handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setCoverFile?: (dataUrl: string) => void;
-  lockedSections: {
-    bookInfo: boolean;
-    publishing: boolean;
-    tags: boolean;
-    cover: boolean;
-  };
   compact?: boolean;
   idPrefix?: string;
 }
@@ -55,34 +27,54 @@ const LANGUAGES = [
 ];
 
 export default function BookDetailsPanel({
-  title,
-  setTitle,
-  author,
-  setAuthor,
-  blurb,
-  setBlurb,
-  publisher,
-  setPublisher,
-  pubDate,
-  setPubDate,
-  isbn,
-  setIsbn,
-  language,
-  setLanguage,
-  genre,
-  setGenre,
-  tags,
-  handleAddTag,
-  handleRemoveTag,
-  tagInput,
-  setTagInput,
-  coverFile,
-  handleCoverChange,
-  setCoverFile,
-  lockedSections,
   compact = false,
   idPrefix = "bd",
 }: BookDetailsPanelProps) {
+  const {
+    title,
+    author,
+    blurb,
+    publisher,
+    pubDate,
+    isbn,
+    language,
+    genre,
+    tags,
+    tagInput,
+    coverFile,
+    lockedSections,
+  } = useBook(
+    (s) => ({
+      title: s.title,
+      author: s.author,
+      blurb: s.blurb,
+      publisher: s.publisher,
+      pubDate: s.pubDate,
+      isbn: s.isbn,
+      language: s.language,
+      genre: s.genre,
+      tags: s.tags,
+      tagInput: s.tagInput,
+      coverFile: s.coverUrl,
+      lockedSections: s.lockedSections,
+    }),
+    shallowEqual,
+  );
+  const {
+    setTitle,
+    setAuthor,
+    setBlurb,
+    setPublisher,
+    setPubDate,
+    setIsbn,
+    setLanguage,
+    setGenre,
+    handleAddTag,
+    handleRemoveTag,
+    setTagInput,
+    handleCoverChange,
+    setCoverUrl: setCoverFile,
+  } = useBookActions();
   const [generateOpen, setGenerateOpen] = useState(false);
   return (
     <div data-tour="book-details" className="pb-3">
@@ -141,30 +133,28 @@ export default function BookDetailsPanel({
             </svg>
             {coverFile ? "Replace the image" : "Upload an image"}
           </label>
-          {setCoverFile && (
-            <button
-              type="button"
-              onClick={() => setGenerateOpen(true)}
-              disabled={lockedSections.cover}
-              className="mt-2 w-full inline-flex items-center justify-center gap-2 py-2 text-11 font-medium rounded-card bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] transition-colors active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Generate a cover from your title, author, and genre"
+          <button
+            type="button"
+            onClick={() => setGenerateOpen(true)}
+            disabled={lockedSections.cover}
+            className="mt-2 w-full inline-flex items-center justify-center gap-2 py-2 text-11 font-medium rounded-card bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] hover:bg-gray-800 dark:hover:bg-[var(--ink-raised)] transition-colors active:scale-[0.96] disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Generate a cover from your title, author, and genre"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.7}
+              viewBox="0 0 24 24"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.7}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"
-                />
-              </svg>
-              Generate cover
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"
+              />
+            </svg>
+            Generate cover
+          </button>
         </div>
 
         <div>
@@ -373,16 +363,14 @@ export default function BookDetailsPanel({
         </div>
       </div>
 
-      {setCoverFile && (
-        <GenerateCoverModal
-          open={generateOpen}
-          onClose={() => setGenerateOpen(false)}
-          title={title}
-          author={author}
-          genre={genre}
-          onAccept={setCoverFile}
-        />
-      )}
+      <GenerateCoverModal
+        open={generateOpen}
+        onClose={() => setGenerateOpen(false)}
+        title={title}
+        author={author}
+        genre={genre}
+        onAccept={setCoverFile}
+      />
     </div>
   );
 }

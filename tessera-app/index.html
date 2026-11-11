@@ -2,26 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="theme-color" content="#f7f1e3" />
-    <title>Tessera — The Triangle Game</title>
+    <link rel="icon" type="image/svg+xml" href="/tessera/logo.svg" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0d0d0c" />
+    <title>Tessera</title>
+    <link
+      rel="preload"
+      href="/inter-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <style>
-      html, body, #root {
+      @font-face {
+        font-family: Inter;
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url("/inter-latin.woff2") format("woff2");
+      }
+      :root {
+        --font-inter: Inter;
+        color-scheme: dark;
+      }
+      html,
+      body,
+      #root {
         margin: 0;
         padding: 0;
-        height: 100%;
-        background: #f7f1e3;
-        font-family: 'Georgia', serif;
-        color: #2b2622;
-        -webkit-tap-highlight-color: transparent;
-        -webkit-touch-callout: none;
-        user-select: none;
+        min-height: 100%;
+        background: #0d0d0c;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
       }
-      input { user-select: text; }
-      #root { overflow: hidden; }
     </style>
   </head>
   <body>

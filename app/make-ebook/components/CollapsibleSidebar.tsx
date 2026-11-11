@@ -7,127 +7,37 @@ import BookDetailsPanel from "./sidebar/BookDetailsPanel";
 import ChaptersPanel from "./sidebar/ChaptersPanel";
 import BookSummaryHeader from "./sidebar/BookSummaryHeader";
 import SyncConflictBanner from "./sidebar/SyncConflictBanner";
-import { BookRecord } from "../types";
-
-interface Chapter {
-  id: string;
-  type: "frontmatter" | "content" | "backmatter";
-  title: string;
-  content: string;
-  locked?: boolean;
-  completed?: boolean;
-  synopsis?: string;
-}
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  savedAt: number;
-  coverUrl?: string;
-}
-
-interface CollapsibleSidebarProps {
-  isPanelOpen: boolean;
-
-  activeView: "library" | "book" | "chapters" | null;
-
-  onClose: () => void;
-
-  libraryBooks: Book[];
-  selectedBookId: string | null;
-  currentBookId?: string;
-  setSelectedBookId: (id: string | null) => void;
-  handleLoadBook: (id: string) => void;
-  handleDeleteBook: (id: string) => void;
-  showNewBookConfirmation: () => void;
-  showImportDialog: () => void;
-
-  multiSelectMode: boolean;
-  setMultiSelectMode: (value: boolean) => void;
-  selectedBookIds: Set<string>;
-  toggleBookSelection: (id: string) => void;
-  toggleSelectAll: () => void;
-  handleDeleteSelectedBooks: () => void;
-
-  syncConflicts: { local: BookRecord; cloud: BookRecord }[];
-  onResolveSyncConflict: (choice: "local" | "cloud" | "both") => void;
-
-  chapters: Chapter[];
-  selectedChapter: number;
-  handleSelectChapter: (index: number) => void;
-  handleAddChapter: (
-    type: "frontmatter" | "content" | "backmatter",
-    title?: string,
-  ) => void;
-  handleRemoveChapter: (index: number) => void;
-  confirmChapterDelete?: (index: number) => void;
-  handleToggleChapterLock?: (index: number) => void;
-  handleToggleChapterComplete?: (index: number) => void;
-  handleDragStart: (index: number) => void;
-  handleDragEnter: (index: number) => void;
-  handleDragEnd: () => void;
-  handleTouchStart: (index: number, e: React.TouchEvent) => void;
-  handleTouchMove: (index: number, e: React.TouchEvent) => void;
-  handleTouchEnd: () => void;
-  dragOverIndex: number | null;
-  dragItemIndex: number | null;
-  ghostPillPosition: { visible: boolean; x: number; y: number };
-  getContentChapterNumber: (chapters: Chapter[], index: number) => number;
-  chapterWordCounts?: number[];
-  onBulkComplete?: (ids: Set<string>, completed: boolean) => void;
-  onBulkDelete?: (ids: Set<string>, done: () => void) => void;
-  totalWords?: number;
-
-  title: string;
-  setTitle: (value: string) => void;
-  author: string;
-  setAuthor: (value: string) => void;
-  blurb: string;
-  setBlurb: (value: string) => void;
-  publisher: string;
-  setPublisher: (value: string) => void;
-  pubDate: string;
-  setPubDate: (value: string) => void;
-  isbn: string;
-  setIsbn: (value: string) => void;
-  language: string;
-  setLanguage: (value: string) => void;
-  genre: string;
-  setGenre: (value: string) => void;
-  tags: string[];
-  handleAddTag: () => void;
-  handleRemoveTag: (tag: string) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
-  coverFile: string | null;
-  handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setCoverFile?: (dataUrl: string) => void;
-  lockedSections: {
-    bookInfo: boolean;
-    publishing: boolean;
-    tags: boolean;
-    cover: boolean;
-  };
-
-  sidebarLibraryExpanded: boolean;
-  setSidebarLibraryExpanded: (value: boolean) => void;
-  sidebarChaptersExpanded: boolean;
-  setSidebarChaptersExpanded: (value: boolean) => void;
-  sidebarBookDetailsExpanded: boolean;
-  setSidebarBookDetailsExpanded: (value: boolean) => void;
-}
+import { keys, readLocal, writeLocal } from "../storage/keys";
+import { useBook } from "../providers/BookProvider";
+import { useEditor, useEditorActions } from "../providers/EditorProvider";
+import { shallowEqual } from "../providers/store";
 
 const MIN_WIDTH = 220;
 const MAX_WIDTH = 560;
 const DEFAULT_WIDTH = 350;
 
-export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
-  const { isPanelOpen, activeView, onClose } = props;
+export default function CollapsibleSidebar() {
+  const { isPanelOpen, activeView } = useEditor(
+    (s) => ({ isPanelOpen: s.isPanelOpen, activeView: s.sidebarView }),
+    shallowEqual,
+  );
+  const { setSidebarView } = useEditorActions();
+  const onClose = () => setSidebarView(null);
+  const summary = useBook(
+    (s) => ({
+      title: s.title,
+      author: s.author,
+      genre: s.genre,
+      completedChapters: s.chapters.filter((c) => c.completed).length,
+      totalChapters: s.chapters.length,
+    }),
+    shallowEqual,
+  );
+  const totalWords = useEditor((s) => s.bookStats.totalWords);
 
   const [width, setWidth] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("me-left-panel-width");
+      const saved = readLocal(keys.panelWidth());
       return saved
         ? Math.min(Math.max(parseInt(saved, 10), MIN_WIDTH), MAX_WIDTH)
         : DEFAULT_WIDTH;
@@ -158,9 +68,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
       innerRef.current.style.width = `${clamped}px`;
       innerRef.current.style.minWidth = `${clamped}px`;
     }
-    try {
-      localStorage.setItem("me-left-panel-width", String(clamped));
-    } catch {}
+    writeLocal(keys.panelWidth(), String(clamped));
   };
 
   const handleResizeKeyDown = (e: React.KeyboardEvent) => {
@@ -210,9 +118,7 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
           MAX_WIDTH,
         );
         setWidth(final);
-        try {
-          localStorage.setItem("me-left-panel-width", String(final));
-        } catch {}
+        writeLocal(keys.panelWidth(), String(final));
       }
     };
     document.addEventListener("pointermove", onMove);
@@ -261,94 +167,24 @@ export default function CollapsibleSidebar(props: CollapsibleSidebarProps) {
         <div className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[var(--clay-muted)] hover:scrollbar-thumb-[var(--clay-muted)] dark:scrollbar-thumb-[var(--clay-muted)] dark:hover:scrollbar-thumb-[var(--clay-muted)]">
           {activeView === "library" && (
             <>
-              <SyncConflictBanner
-                conflicts={props.syncConflicts}
-                onResolve={props.onResolveSyncConflict}
-              />
-              <LibraryPanel
-                libraryBooks={props.libraryBooks}
-                selectedBookId={props.selectedBookId}
-                currentBookId={props.currentBookId}
-                setSelectedBookId={props.setSelectedBookId}
-                handleLoadBook={props.handleLoadBook}
-                handleDeleteBook={props.handleDeleteBook}
-                showNewBookConfirmation={props.showNewBookConfirmation}
-                showImportDialog={props.showImportDialog}
-                multiSelectMode={props.multiSelectMode}
-                setMultiSelectMode={props.setMultiSelectMode}
-                selectedBookIds={props.selectedBookIds}
-                toggleBookSelection={props.toggleBookSelection}
-                toggleSelectAll={props.toggleSelectAll}
-                handleDeleteSelectedBooks={props.handleDeleteSelectedBooks}
-              />
+              <SyncConflictBanner />
+              <LibraryPanel />
             </>
           )}
 
-          {activeView === "book" && (
-            <BookDetailsPanel
-              title={props.title}
-              setTitle={props.setTitle}
-              author={props.author}
-              setAuthor={props.setAuthor}
-              blurb={props.blurb}
-              setBlurb={props.setBlurb}
-              publisher={props.publisher}
-              setPublisher={props.setPublisher}
-              pubDate={props.pubDate}
-              setPubDate={props.setPubDate}
-              isbn={props.isbn}
-              setIsbn={props.setIsbn}
-              language={props.language}
-              setLanguage={props.setLanguage}
-              genre={props.genre}
-              setGenre={props.setGenre}
-              tags={props.tags}
-              handleAddTag={props.handleAddTag}
-              handleRemoveTag={props.handleRemoveTag}
-              tagInput={props.tagInput}
-              setTagInput={props.setTagInput}
-              coverFile={props.coverFile}
-              handleCoverChange={props.handleCoverChange}
-              setCoverFile={props.setCoverFile}
-              lockedSections={props.lockedSections}
-            />
-          )}
+          {activeView === "book" && <BookDetailsPanel />}
 
           {activeView === "chapters" && (
             <>
               <BookSummaryHeader
-                title={props.title}
-                author={props.author}
-                genre={props.genre}
-                totalWords={props.totalWords ?? 0}
-                completedChapters={
-                  props.chapters.filter((c) => c.completed).length
-                }
-                totalChapters={props.chapters.length}
+                title={summary.title}
+                author={summary.author}
+                genre={summary.genre}
+                totalWords={totalWords ?? 0}
+                completedChapters={summary.completedChapters}
+                totalChapters={summary.totalChapters}
               />
-              <ChaptersPanel
-                chapters={props.chapters}
-                selectedChapter={props.selectedChapter}
-                handleSelectChapter={props.handleSelectChapter}
-                handleAddChapter={props.handleAddChapter}
-                handleRemoveChapter={props.handleRemoveChapter}
-                confirmChapterDelete={props.confirmChapterDelete}
-                handleToggleChapterLock={props.handleToggleChapterLock}
-                handleToggleChapterComplete={props.handleToggleChapterComplete}
-                handleDragStart={props.handleDragStart}
-                handleDragEnter={props.handleDragEnter}
-                handleDragEnd={props.handleDragEnd}
-                handleTouchStart={props.handleTouchStart}
-                handleTouchMove={props.handleTouchMove}
-                handleTouchEnd={props.handleTouchEnd}
-                dragOverIndex={props.dragOverIndex}
-                dragItemIndex={props.dragItemIndex}
-                ghostPillPosition={props.ghostPillPosition}
-                getContentChapterNumber={props.getContentChapterNumber}
-                chapterWordCounts={props.chapterWordCounts}
-                onBulkComplete={props.onBulkComplete}
-                onBulkDelete={props.onBulkDelete}
-              />
+              <ChaptersPanel />
             </>
           )}
         </div>

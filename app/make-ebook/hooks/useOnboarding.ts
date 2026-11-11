@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
-
-const STORAGE_KEY_BASE = "makeebook_onboarding_complete";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
+import { keys, readLocal, removeLocal, writeLocal } from "../storage/keys";
 
 export interface OnboardingStep {
   id: string;
@@ -95,18 +100,20 @@ interface UseOnboardingOptions {
 
 export function useOnboarding(options: UseOnboardingOptions = {}) {
   const { stepCallbacks, userId } = options;
-  const STORAGE_KEY = `${userId ? userId + "_" : ""}${STORAGE_KEY_BASE}`;
+  const STORAGE_KEY = keys.onboardingComplete(userId);
 
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
   const [steps, setSteps] = useState<OnboardingStep[]>(DESKTOP_STEPS);
   const callbacksRef = useRef(stepCallbacks);
-  callbacksRef.current = stepCallbacks;
+  useLayoutEffect(() => {
+    callbacksRef.current = stepCallbacks;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = readLocal(STORAGE_KEY);
     setIsOnboardingComplete(stored === "true");
   }, []);
 
@@ -141,7 +148,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
         setIsTourActive(false);
         setIsOnboardingComplete(true);
         if (typeof window !== "undefined") {
-          localStorage.setItem(STORAGE_KEY, "true");
+          writeLocal(STORAGE_KEY, "true");
         }
         return prev;
       }
@@ -162,7 +169,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
     setIsTourActive(false);
     setIsOnboardingComplete(true);
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, "true");
+      writeLocal(STORAGE_KEY, "true");
     }
   }, []);
 
@@ -172,7 +179,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
 
   const resetOnboarding = useCallback(() => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_KEY);
+      removeLocal(STORAGE_KEY);
     }
     setIsOnboardingComplete(false);
   }, []);

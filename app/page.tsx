@@ -9,10 +9,18 @@ import Rows from "./_home/Rows";
 import Rail from "./_home/Rail";
 import TopNav from "./_home/TopNav";
 import FaceCard from "./_home/FaceCard";
+import LiveToy from "./_home/LiveToy";
 import CoinCard from "./_home/CoinCard";
 import Contact from "./_home/Contact";
 import Chip from "./_home/Chip";
-import { PLAY, WORK, WRITING, WRITING_PUBLIC } from "./_home/data";
+import {
+  COLLECTION,
+  PLAY,
+  TOYS,
+  WORK,
+  WRITING,
+  WRITING_PUBLIC,
+} from "./_home/data";
 import { SITE_DESCRIPTION, SITE_TITLE, share } from "./shared-metadata";
 import styles from "./_home/home.module.css";
 
@@ -119,6 +127,7 @@ export default function Homepage() {
                   <span className={styles.quoteArt}>
                     <img
                       src="/home/moments/bedside-books.jpg"
+                      style={{ objectPosition: "50% 15%" }}
                       alt="A Bedside Books page: a short story beside an illustration of a boy searching under his bed"
                       loading="lazy"
                       decoding="async"
@@ -141,7 +150,7 @@ export default function Homepage() {
                   className={styles.quoteCard}
                   href="https://x.com/BetterNeil/status/2103252962009284632"
                 >
-                  <span className={`${styles.quoteArt} ${styles.quotePlain}`}>
+                  <span className={styles.quoteArt}>
                     <img
                       src="/home/dive-radio-jit.jpg"
                       alt="SpeakUI demoed live on Dive Radio, with Neil, Ridd and Tommy Geoco on camera"
@@ -153,14 +162,6 @@ export default function Homepage() {
                   </span>
                   <span className={styles.quoteBody}>
                     <span className={styles.quoteText}>
-                      &ldquo;Demo available?&rdquo;
-                    </span>
-                    <span className={styles.quoteWho}>
-                      <span>Tommy Geoco</span> @designertom on X
-                    </span>
-                    <span
-                      className={`${styles.quoteText} ${styles.quoteReply}`}
-                    >
                       &ldquo;Thank you for sharing!!&rdquo;
                     </span>
                     <span className={styles.quoteWho}>
@@ -175,8 +176,8 @@ export default function Homepage() {
               </div>
             </section>
 
-            <section id="interactions" className={styles.section}>
-              <h2 className={styles.label}>Interactions</h2>
+            <section id="play" className={styles.section}>
+              <h2 className={styles.label}>Playground</h2>
               <div className={styles.shelf}>
                 <figure>
                   <FaceCard />
@@ -198,12 +199,22 @@ export default function Homepage() {
                     <span>Coin</span> Drag and spin
                   </figcaption>
                 </figure>
+                {TOYS.map((toy) => (
+                  <figure key={toy.embed}>
+                    <LiveToy
+                      title={toy.title}
+                      embed={toy.embed}
+                      image={toy.image}
+                    />
+                    <figcaption>
+                      <span>{toy.title}</span> {toy.verb}
+                    </figcaption>
+                  </figure>
+                ))}
               </div>
-            </section>
-
-            <section id="play" className={styles.section}>
-              <h2 className={styles.label}>Playground</h2>
-              <Rows pieces={PLAY} />
+              <div className={styles.playRows}>
+                <Rows pieces={[...PLAY, ...COLLECTION]} />
+              </div>
             </section>
 
             <section id="contact" className={styles.section}>

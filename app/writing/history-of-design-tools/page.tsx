@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Article, { UNLISTED } from "../_article/Article";
+import Article from "../_article/Article";
 import { share } from "../../shared-metadata";
 
 const title = "A History of Design Tools, 1963–2026 · Neil McArdle";
@@ -9,7 +9,6 @@ const description =
 export const metadata: Metadata = {
   title,
   description,
-  robots: UNLISTED,
   ...share({ title, description, path: "/writing/history-of-design-tools" }),
 };
 

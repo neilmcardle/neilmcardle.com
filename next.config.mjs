@@ -75,6 +75,8 @@ const nextConfig = {
         source: "/chess/",
         destination: "/chess/index.html",
       },
+      { source: "/pixel-bonsai", destination: "/pixel-bonsai/index.html" },
+      { source: "/pixel-bonsai/", destination: "/pixel-bonsai/index.html" },
       ...(speakui
         ? [
             { source: "/speakui", destination: `${speakui}/speakui` },
@@ -169,7 +171,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/writing/:path*",
+        source: "/writing/tasty/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       },
       ...(isDev

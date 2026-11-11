@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import type { Chapter } from "../types";
 import styles from "../styles/studio.module.css";
+import { htmlToText } from "../model/text";
 
 type DeviceId = "kindle" | "ipad" | "phone";
 type ReadingMode = "page" | "scroll";
@@ -68,7 +69,7 @@ function Arrow({ direction = "right" }: { direction?: "right" | "left" }) {
 
 function readingPosition(chapters: Chapter[], selectedChapter: number) {
   const stripped = (ch: Chapter) =>
-    (ch.content || "").replace(/<[^>]+>/g, "").length + (ch.title || "").length;
+    htmlToText(ch.content).length + (ch.title || "").length;
   const total = chapters.reduce((sum, ch) => sum + stripped(ch), 0);
   const before = chapters
     .slice(0, selectedChapter)

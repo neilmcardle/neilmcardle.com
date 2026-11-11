@@ -1,183 +1,218 @@
 "use client";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useReducer, useRef } from "react";
 import { BookRecord } from "../types";
+import { newId, sameContent, type Book } from "../model/book";
+import { decide } from "../state/sync";
 import {
-  loadBookLibrary,
-  normalizeBookFromSupabase,
-  parseCloudTime,
-  saveLibraryToStorage,
-} from "../utils/bookLibrary";
-import { toDisplayCover } from "../utils/assetStore";
-import { mergeFetched, planSync, withLocalOnlyFields } from "../utils/syncPlan";
-
-async function pushBook(userId: string, book: BookRecord) {
-  const m = await import("@/lib/supabaseEbooks");
-  const cover = await toDisplayCover(book.coverFile).catch(() => null);
-  const saved = await m.saveEbookToSupabase(
-    { ...book, coverFile: cover },
-    book.chapters,
-    userId,
-  );
-  const at = saved?.updated_at ? parseCloudTime(saved.updated_at) : Date.now();
-  const library = loadBookLibrary(userId);
-  const index = library.findIndex((b) => b.id === book.id);
-  if (index >= 0) {
-    library[index] = {
-      ...library[index],
-      id: saved?.id ?? book.id,
-      savedAt: at,
-      cloudSyncedAt: at,
-    };
-    saveLibraryToStorage(userId, library);
-  }
-}
+  finishSync,
+  initialSyncGate,
+  initialSyncStatus,
+  requestSync,
+  syncStatus,
+  type SyncStatus,
+  type SyncStatusEvent,
+} from "../state/syncStatus";
+import { bookStore } from "../storage/bookStore";
+import {
+  onConflict,
+  pullBooks,
+  pullIndex,
+  pushStored,
+  remove as removeRemote,
+} from "../storage/cloudStore";
+import { isBlankBook, loadBookLibrary } from "../utils/bookLibrary";
 
 const SYNC_THROTTLE_MS = 10000;
+
+export interface SyncPort {
+  openBookId: () => string | undefined;
+  libraryChanged: (userId: string) => void;
+  openBookUpdated: (id: string) => void;
+}
 
 interface UseCloudSyncParams {
   user: { id: string } | null;
   hasCloudSync: boolean;
   cloudSyncKnown: boolean;
-  isLoadingBookRef: React.MutableRefObject<boolean>;
-  setLibraryBooks: (books: any[]) => void;
-  openBookIdRef: React.MutableRefObject<string | undefined>;
-  onOpenBookUpdated: (id: string) => void;
+  port: SyncPort;
 }
+
+export type Conflict = { local: BookRecord; cloud: BookRecord };
+
+type Status = SyncStatus<Conflict, BookRecord>;
+type StatusEvent = SyncStatusEvent<Conflict, BookRecord>;
 
 export function useCloudSync({
   user,
   hasCloudSync,
   cloudSyncKnown,
-  isLoadingBookRef,
-  setLibraryBooks,
-  openBookIdRef,
-  onOpenBookUpdated,
+  port,
 }: UseCloudSyncParams) {
-  const [initialSyncDone, setInitialSyncDone] = useState(false);
-  const [syncConflicts, setSyncConflicts] = useState<
-    { local: BookRecord; cloud: BookRecord }[]
-  >([]);
-  const [syncMergedMap, setSyncMergedMap] = useState<Map<
-    string,
-    BookRecord
-  > | null>(null);
+  const [status, dispatch] = useReducer(
+    (state: Status, event: StatusEvent) => syncStatus(state, event),
+    undefined,
+    () => initialSyncStatus<Conflict, BookRecord>(),
+  );
+  const {
+    initialDone: initialSyncDone,
+    conflicts: syncConflicts,
+    merged: syncMergedMap,
+  } = status;
+  const setSyncConflicts = useCallback(
+    (conflicts: Conflict[]) => dispatch({ type: "setConflicts", conflicts }),
+    [],
+  );
+  const setSyncMergedMap = useCallback(
+    (merged: Map<string, BookRecord> | null) =>
+      dispatch({ type: "setMerged", merged }),
+    [],
+  );
 
-  const syncingRef = useRef(false);
-  const rerunRef = useRef(false);
+  const gateRef = useRef(initialSyncGate);
   const syncNowRef = useRef<(force?: boolean) => Promise<void>>(async () => {});
-  const lastSyncRef = useRef(0);
-  const conflictsOpenRef = useRef(false);
-  const onOpenBookUpdatedRef = useRef(onOpenBookUpdated);
   const hasCloudSyncRef = useRef(hasCloudSync);
 
   useEffect(() => {
-    onOpenBookUpdatedRef.current = onOpenBookUpdated;
     hasCloudSyncRef.current = hasCloudSync;
   });
 
-  const applyLibrary = useCallback(
-    (userId: string, books: BookRecord[]) => {
-      isLoadingBookRef.current = true;
-      setLibraryBooks(books);
-      saveLibraryToStorage(userId, books);
-      setTimeout(() => {
-        isLoadingBookRef.current = false;
-      }, 0);
-    },
-    [isLoadingBookRef, setLibraryBooks],
+  const showLibrary = useCallback(
+    (userId: string) => port.libraryChanged(userId),
+    [port],
   );
 
-  const uploadLocalOnly = useCallback(
-    async (userId: string, books: BookRecord[]) => {
-      for (const book of books) {
-        try {
-          await pushBook(userId, book);
-        } catch (err) {
-          console.error("Failed to upload book to the cloud:", err);
-        }
-      }
-      setLibraryBooks(loadBookLibrary(userId));
+  const pushAll = useCallback(
+    async (userId: string, ids: string[]) => {
+      if (ids.length === 0) return;
+      await Promise.allSettled(
+        ids.map((id) => pushStored(userId, id, { notify: false })),
+      );
+      port.libraryChanged(userId);
     },
-    [setLibraryBooks],
+    [port],
   );
 
   const syncNow = useCallback(
     async (force = false) => {
-      if (syncingRef.current || conflictsOpenRef.current) {
-        if (force && syncingRef.current) rerunRef.current = true;
-        return;
-      }
-      if (!force && Date.now() - lastSyncRef.current < SYNC_THROTTLE_MS) return;
-      if (!user?.id) return;
+      const asked = requestSync(gateRef.current, {
+        force,
+        now: Date.now(),
+        throttleMs: SYNC_THROTTLE_MS,
+        hasUser: !!user?.id,
+      });
+      gateRef.current = asked.gate;
+      if (!asked.run || !user?.id) return;
       const userId = user.id;
-      syncingRef.current = true;
-      lastSyncRef.current = Date.now();
       try {
-        const m = await import("@/lib/supabaseEbooks");
-        const index = await m.fetchEbookIndex(userId);
+        await bookStore.hydrate(userId);
+        const index = await pullIndex(userId);
+        const remoteById = new Map(index.map((row) => [row.id, row]));
         const localBooks = loadBookLibrary(userId);
-        const openId = openBookIdRef.current;
-        const plan = planSync({
-          localBooks,
-          index: index.map((row) => ({
-            id: row.id,
-            updatedAt: parseCloudTime(row.updated_at),
-          })),
-          openId,
-          canUpload: hasCloudSyncRef.current,
-        });
-        const fetched = await m.fetchEbooksByIds(userId, plan.changedIds);
-        const { bookMap, conflicts, blankIds, openBookUpdated } = mergeFetched({
-          bookMap: plan.bookMap,
-          fetched: (fetched ?? [])
-            .filter((raw) => raw.id)
-            .map((raw) => normalizeBookFromSupabase(raw)),
-          openId,
-        });
-        const { toUpload, adopted } = plan;
+        const localById = new Map(localBooks.map((b) => [b.id, b]));
+        const openId = port.openBookId();
+        const canUpload = hasCloudSyncRef.current;
 
-        if (blankIds.length > 0) {
-          void Promise.allSettled(
-            blankIds.map((id) => m.deleteEbookFromSupabase(id)),
-          );
+        const toPush: string[] = [];
+        const toFetch: string[] = [];
+        const toDelete: string[] = [];
+        for (const id of new Set([...localById.keys(), ...remoteById.keys()])) {
+          const local = localById.get(id) ?? null;
+          const remote = remoteById.get(id) ?? null;
+          const decision = decide(local, remote);
+          if (decision === "push") {
+            if (!canUpload || !local) continue;
+            if (local.syncedRevision === 0 && isBlankBook(local)) continue;
+            if (remote?.deleted && remote.revision > local.syncedRevision) {
+              bookStore.put({ ...local, syncedRevision: remote.revision });
+            }
+            toPush.push(id);
+          } else if (decision === "pull" || decision === "conflict") {
+            toFetch.push(id);
+          } else if (decision === "deleteLocal" && id !== openId) {
+            toDelete.push(id);
+          }
         }
 
-        const merged = Array.from(bookMap.values());
-        const libraryChanged =
-          adopted || fetched.length > 0 || merged.length !== localBooks.length;
+        const fetched = await pullBooks(userId, toFetch);
+        const conflicts: Conflict[] = [];
+        const blankIds: string[] = [];
+        let changed = toDelete.length > 0;
+        let openBookUpdated = false;
+
+        for (const remote of fetched) {
+          const cloud = remote.book;
+          if (!cloud) continue;
+          const local = bookStore.get(userId, remote.id);
+          if (isBlankBook(cloud) && remote.id !== openId) {
+            if (!local) blankIds.push(remote.id);
+            continue;
+          }
+          if (local && decide(local, remote) === "conflict") {
+            if (sameContent(local, cloud)) {
+              bookStore.put({
+                ...local,
+                revision: Math.max(local.revision, cloud.revision),
+                syncedRevision: cloud.revision,
+              });
+              changed = true;
+            } else {
+              conflicts.push({ local, cloud });
+            }
+            continue;
+          }
+          bookStore.put({ ...cloud, userId });
+          changed = true;
+          if (remote.id === openId) openBookUpdated = true;
+        }
+
+        for (const id of toDelete) bookStore.remove(userId, id);
+
+        if (canUpload && blankIds.length > 0) {
+          void Promise.allSettled(blankIds.map((id) => removeRemote(id)));
+        }
+
+        if (changed) {
+          showLibrary(userId);
+          if (openBookUpdated && openId) port.openBookUpdated(openId);
+        }
 
         if (conflicts.length > 0) {
-          setSyncMergedMap(bookMap);
-          setSyncConflicts(conflicts);
-        } else if (libraryChanged) {
-          applyLibrary(userId, merged);
-          if (openBookUpdated && openId) onOpenBookUpdatedRef.current(openId);
+          dispatch({
+            type: "conflicts",
+            conflicts,
+            merged: new Map(loadBookLibrary(userId).map((b) => [b.id, b])),
+          });
         }
 
-        if (toUpload.length > 0) void uploadLocalOnly(userId, toUpload);
+        if (toPush.length > 0) void pushAll(userId, toPush);
       } catch (err) {
-        console.error("Failed to sync Supabase books:", err);
+        console.error("Failed to sync books with the cloud:", err);
       } finally {
-        syncingRef.current = false;
-        setInitialSyncDone(true);
-        if (rerunRef.current) {
-          rerunRef.current = false;
+        const finished = finishSync(gateRef.current);
+        gateRef.current = finished.gate;
+        dispatch({ type: "finished" });
+        if (finished.rerun) {
           setTimeout(() => void syncNowRef.current(true), 0);
         }
       }
     },
-    [user, openBookIdRef, applyLibrary, uploadLocalOnly],
+    [user, port, showLibrary, pushAll],
   );
 
-  syncNowRef.current = syncNow;
+  useEffect(() => {
+    syncNowRef.current = syncNow;
+  }, [syncNow]);
 
   useEffect(() => {
-    conflictsOpenRef.current = syncConflicts.length > 0;
+    gateRef.current = {
+      ...gateRef.current,
+      conflictsOpen: syncConflicts.length > 0,
+    };
   }, [syncConflicts]);
 
   useEffect(() => {
     if (!user?.id) return;
-    const fallback = setTimeout(() => setInitialSyncDone(true), 6000);
+    const fallback = setTimeout(() => dispatch({ type: "timedOut" }), 6000);
     return () => clearTimeout(fallback);
   }, [user?.id]);
 
@@ -204,80 +239,91 @@ export function useCloudSync({
 
   useEffect(() => {
     if (!user?.id) return;
-    const key = `makeebook_library_${user.id}`;
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== key) return;
-      const books = loadBookLibrary(user.id);
-      setLibraryBooks(books);
-      const openId = openBookIdRef.current;
-      if (!openId || !e.oldValue) return;
-      try {
-        const before = (JSON.parse(e.oldValue) as BookRecord[]).find(
-          (b) => b.id === openId,
-        );
-        const after = books.find((b) => b.id === openId);
-        if (before && after && after.savedAt > before.savedAt) {
-          onOpenBookUpdatedRef.current(openId);
-        }
-      } catch {}
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [user?.id, openBookIdRef, setLibraryBooks]);
+    const userId = user.id;
+    return onConflict((owner) => {
+      if (owner === userId) void syncNowRef.current(true);
+    });
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const userId = user.id;
+    return bookStore.subscribe((owner, changes) => {
+      if (owner !== userId) return;
+      port.libraryChanged(userId);
+      const openId = port.openBookId();
+      if (!openId) return;
+      const change = changes.find((c) => c.id === openId);
+      if (
+        change?.before &&
+        change.after &&
+        change.after.savedAt > change.before.savedAt
+      ) {
+        port.openBookUpdated(openId);
+      }
+    });
+  }, [user?.id, port]);
 
   function handleResolveSyncConflict(choice: "local" | "cloud" | "both") {
-    if (!syncMergedMap || syncConflicts.length === 0) return;
+    if (syncConflicts.length === 0) return;
+    const userId = user?.id ?? "";
+    if (!userId) return;
 
     const conflict = syncConflicts[0];
-    const map = new Map(syncMergedMap);
-    const pushLocal: BookRecord[] = [];
+    const cloud = conflict.cloud;
+    const local = bookStore.get(userId, conflict.local.id) ?? conflict.local;
+    const openId = port.openBookId();
+    const pushIds: string[] = [];
+
+    const keepCloud = () => {
+      bookStore.put({
+        ...cloud,
+        userId,
+        revision: cloud.revision,
+        syncedRevision: cloud.revision,
+      });
+    };
 
     if (choice === "local") {
-      map.set(conflict.local.id, conflict.local);
-      pushLocal.push(conflict.local);
+      bookStore.put({
+        ...local,
+        revision: Math.max(local.revision, cloud.revision) + 1,
+        syncedRevision: cloud.revision,
+      });
+      pushIds.push(local.id);
     } else if (choice === "cloud") {
-      map.set(
-        conflict.cloud.id,
-        withLocalOnlyFields(conflict.cloud, conflict.local),
-      );
+      keepCloud();
     } else {
-      map.set(
-        conflict.cloud.id,
-        withLocalOnlyFields(conflict.cloud, conflict.local),
-      );
-      const copyId = "book-" + Date.now();
-      const copy = {
-        ...conflict.local,
-        id: copyId,
-        title: `${conflict.local.title || "Untitled"} (this device)`,
-        cloudSyncedAt: undefined,
+      keepCloud();
+      const copy: Book = {
+        ...local,
+        id: newId(),
+        title: `${local.title || "Untitled"} (this device)`,
+        revision: 1,
+        syncedRevision: 0,
+        savedAt: Date.now(),
       };
-      map.set(copyId, copy);
+      bookStore.put(copy);
+      pushIds.push(copy.id);
     }
 
     const remaining = syncConflicts.slice(1);
-    if (remaining.length > 0) {
-      setSyncMergedMap(map);
-      setSyncConflicts(remaining);
-      return;
+    showLibrary(userId);
+    if (choice !== "local" && cloud.id === openId) {
+      port.openBookUpdated(cloud.id);
     }
 
-    const userId = user?.id ?? "";
-    applyLibrary(userId, Array.from(map.values()));
-    setSyncConflicts([]);
-    setSyncMergedMap(null);
+    dispatch({
+      type: "resolved",
+      remaining,
+      merged:
+        remaining.length > 0
+          ? new Map(loadBookLibrary(userId).map((b) => [b.id, b]))
+          : null,
+    });
 
-    if (userId && hasCloudSyncRef.current && pushLocal.length > 0) {
-      void (async () => {
-        for (const book of pushLocal) {
-          try {
-            await pushBook(userId, book);
-          } catch (err) {
-            console.error("Failed to push the kept version:", err);
-          }
-        }
-        setLibraryBooks(loadBookLibrary(userId));
-      })();
+    if (hasCloudSyncRef.current && pushIds.length > 0) {
+      void pushAll(userId, pushIds);
     }
   }
 

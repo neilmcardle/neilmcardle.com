@@ -2,10 +2,11 @@ import {
   pgTable,
   text,
   timestamp,
-  json,
   uuid,
   boolean,
   integer,
+  jsonb,
+  index,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -33,31 +34,22 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const ebooks = pgTable("ebooks", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  author: text("author").notNull(),
-  description: text("description"),
-  coverImage: text("cover_image"),
-  chapters: json("chapters")
-    .$type<
-      Array<{
-        id: string;
-        title: string;
-        content: string;
-        order: number;
-        type: "frontmatter" | "content" | "backmatter";
-      }>
-    >()
-    .notNull()
-    .default([]),
-  tags: json("tags").$type<string[]>().default([]),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const makeebookBooks = pgTable(
+  "makeebook_books",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    data: jsonb("data").notNull(),
+    revision: integer("revision").default(0).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (table) => [index("makeebook_books_user_id_idx").on(table.userId)],
+);
 
 export const sparkWaitlist = pgTable("spark_waitlist", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -122,8 +114,8 @@ export const suggestions = pgTable("suggestions", {
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type EBook = typeof ebooks.$inferSelect;
-export type NewEBook = typeof ebooks.$inferInsert;
+export type MakeebookBook = typeof makeebookBooks.$inferSelect;
+export type NewMakeebookBook = typeof makeebookBooks.$inferInsert;
 export type SparkWaitlistEntry = typeof sparkWaitlist.$inferSelect;
 export type NewSparkWaitlistEntry = typeof sparkWaitlist.$inferInsert;
 export type CoverlyWaitlistEntry = typeof coverlyWaitlist.$inferSelect;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   versionKey,
   loadVersions,
@@ -8,6 +8,7 @@ import {
   clearVersions,
 } from "../utils/versionStore";
 import { Chapter } from "../types";
+import { textStats } from "../model/text";
 
 export interface BookVersion {
   id: string;
@@ -32,15 +33,8 @@ interface UseVersionHistoryOptions {
   maxVersions?: number;
 }
 
-const STORAGE_KEY_PREFIX = "makeebook-versions-";
-
 function countWords(html: string): number {
-  if (!html) return 0;
-  const text = html.replace(/<[^>]+>/g, " ");
-  return text
-    .trim()
-    .split(/\s+/)
-    .filter((w) => w.length > 0).length;
+  return textStats(html).words;
 }
 
 export function useVersionHistory({
@@ -51,7 +45,10 @@ export function useVersionHistory({
   const [versions, setVersions] = useState<BookVersion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const storageKey = bookId ? versionKey(userId, bookId) : null;
+  const storageKey = useMemo(
+    () => (bookId ? versionKey(userId, bookId) : null),
+    [userId, bookId],
+  );
 
   useEffect(() => {
     if (!storageKey) {
@@ -125,7 +122,7 @@ export function useVersionHistory({
         author: author || "Unknown",
         wordCount: totalWords,
         chapterCount: chapters.length,
-        chapters: JSON.parse(JSON.stringify(chapters)), // Deep clone
+        chapters: JSON.parse(JSON.stringify(chapters)),
         metadata,
       };
 

@@ -67,14 +67,14 @@ export const WORK: Piece[] = [
   },
 ];
 
-export const WRITING_PUBLIC = false;
+export const WRITING_PUBLIC = true;
 
 export const WRITING: Piece[] = [
   {
     id: "history-of-design-tools",
     title: "A History of Design Tools",
     line: "Sixty years, from Sketchpad to the prompt.",
-    kind: "Essay",
+    kind: "In progress",
     href: "/writing/history-of-design-tools",
     image: "/writing/history-of-design-tools/sketchpad-1963.png",
     local: true,
@@ -83,7 +83,7 @@ export const WRITING: Piece[] = [
     id: "what-designers-are-saying",
     title: "What designers are saying",
     line: "A year of design talk, counted and read.",
-    kind: "Research",
+    kind: "In progress",
     href: "/writing/what-designers-are-saying",
     image: "/writing/what-designers-are-saying/chart-term-shifts.svg",
     local: true,
@@ -100,7 +100,15 @@ export const STACK = [
   .map((id) => WORK.find((piece) => piece.id === id))
   .filter((piece): piece is Piece => Boolean(piece));
 
-export const EXPLORATIONS: Piece[] = [
+export const PLAY: Piece[] = [
+  {
+    id: "tessera",
+    title: "Tessera",
+    line: "A triangle game for two.",
+    kind: "Game",
+    href: "/tessera",
+    image: "/home/peek/tessera.jpg",
+  },
   {
     id: "ui",
     title: "A Brief History of UI",
@@ -110,12 +118,12 @@ export const EXPLORATIONS: Piece[] = [
     image: "/home/peek/history-of-ui-rain.jpg",
   },
   {
-    id: "architecture-pixel",
-    title: "Architecture in Pixels",
-    line: "3D dioramas through time.",
+    id: "world",
+    title: "A History of the World",
+    line: "300,000 years on a globe.",
     kind: "Lab",
-    href: "/explorations/architecture-pixel",
-    image: "/home/peek/architecture-pixel.jpg",
+    href: "/explorations/history-of-the-world",
+    image: "/home/peek/history-of-the-world.jpg",
   },
   {
     id: "n-particles",
@@ -127,48 +135,38 @@ export const EXPLORATIONS: Piece[] = [
   },
 ];
 
-export const PLAY: Piece[] = [
-  ...EXPLORATIONS,
+export const TOYS = [
   {
-    id: "companies",
-    title: "How Big Companies Started",
-    line: "What the 100 biggest cost to start.",
-    kind: "Lab",
-    href: "/explorations/how-companies-started",
-    image: "/home/peek/how-companies-started.jpg",
+    title: "Bonsai",
+    verb: "Shake the leaves off",
+    embed: "/pixel-bonsai?card=1",
+    image: "/home/play/pixel-bonsai.jpg",
+  },
+];
+
+export const COLLECTION: Piece[] = [
+  {
+    id: "plink-pond",
+    title: "Plink Pond",
+    line: "Skim stones across a pixel pond.",
+    kind: "Game",
+    href: "/explorations/plink-pond",
+    image: "/home/peek/plink-pond.jpg",
   },
   {
-    id: "chess",
-    title: "Chess Path",
-    line: "Teach yourself chess.",
-    kind: "Tool",
-    href: "/chess",
-    image: "/home/leads/chess-path.jpg",
+    id: "record-player",
+    title: "Record player",
+    line: "A suitcase record player you can open and play.",
+    kind: "Toy",
+    href: "/explorations/record-player",
+    image: "/home/peek/record-player.jpg",
   },
   {
-    id: "ui-taste",
-    title: "UI Taste",
-    line: "Decide your interface taste.",
-    kind: "Tool",
-    href: "/ui-taste",
-    image: "/home/peek/ui-taste.jpg",
-  },
-  {
-    id: "logo",
-    title: "Logo Animator Studio",
-    line: "A concept where agents animate logos.",
-    kind: "Lab",
-    href: "/logo-animator-studio",
-    image: "/home/peek/logo-animator-studio.jpg",
-  },
-  {
-    id: "podium",
-    title: "Podium",
-    line: "Branding for an indie game.",
-    kind: "Brand",
-    href: "/work/podium",
-    image: "/home/leads/podium.jpg",
-    film: "/home/podium.mp4",
-    local: true,
+    id: "cs6-book",
+    title: "Illustrator CS6 book",
+    line: "The book I taught myself Illustrator with.",
+    kind: "Keepsake",
+    href: "/explorations/cs6-book",
+    image: "/home/peek/cs6-book.jpg",
   },
 ];

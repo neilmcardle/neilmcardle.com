@@ -1,17 +1,14 @@
-'use client';
+"use client";
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
+import { keys, readLocal } from "../storage/keys";
 
 export interface WritingGoals {
   todayWords: number;
 }
 
-function wordsKey(userId: string | undefined, date: string) {
-  return `${userId || ''}_makeebook-words-${date}`;
-}
-
 function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split("T")[0];
 }
 
 export function useWritingGoals({
@@ -22,10 +19,10 @@ export function useWritingGoals({
   wordsThisSession?: number;
 }): WritingGoals {
   const todayWords = useMemo(() => {
-    if (typeof window === 'undefined') return 0;
-    return parseInt(localStorage.getItem(wordsKey(userId, todayStr())) || '0', 10);
-    // wordsThisSession is in the deps so the value re-reads as the user writes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (typeof window === "undefined") return 0;
+    return wordsThisSession >= 0
+      ? parseInt(readLocal(keys.wordsToday(userId, todayStr())) || "0", 10)
+      : 0;
   }, [wordsThisSession, userId]);
 
   return { todayWords };

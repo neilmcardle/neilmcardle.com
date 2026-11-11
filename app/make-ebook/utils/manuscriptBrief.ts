@@ -1,5 +1,6 @@
 import { BookRecord, ManuscriptBrief, ChapterSummary, Chapter } from "../types";
 import { manuscriptHash, isBriefFresh, setBrief } from "./bookmindMemory";
+import { htmlToText, textStats } from "../model/text";
 
 export interface GenerateBriefResult {
   ok: boolean;
@@ -161,17 +162,13 @@ async function generateBrief(
   return { ok: true, brief };
 }
 
-function countWords(text: string): number {
-  if (!text) return 0;
-  return text.trim().split(/\s+/).filter(Boolean).length;
+function countWords(html: string): number {
+  return textStats(html).words;
 }
 
 function firstSentence(text: string): string {
   if (!text) return "";
-  const cleaned = text
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const cleaned = htmlToText(text);
   const match = cleaned.match(/^.*?[.!?](?:\s|$)/);
   const sentence = (match?.[0] ?? cleaned).trim();
   return sentence.length > 200 ? sentence.slice(0, 200) + "…" : sentence;
@@ -179,10 +176,7 @@ function firstSentence(text: string): string {
 
 function lastSentence(text: string): string {
   if (!text) return "";
-  const cleaned = text
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const cleaned = htmlToText(text);
   const parts = cleaned.split(/(?<=[.!?])\s+/);
   const last = (parts[parts.length - 1] ?? "").trim();
   return last.length > 200 ? last.slice(0, 200) + "…" : last;

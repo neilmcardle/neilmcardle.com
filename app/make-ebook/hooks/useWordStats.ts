@@ -1,20 +1,22 @@
-'use client';
+"use client";
 
-import { useMemo, useEffect, useState, useRef } from 'react';
-import { Chapter } from '../types';
+import { useMemo, useEffect, useState, useRef } from "react";
+import { Chapter } from "../types";
+import { keys, readLocal, writeLocal } from "../storage/keys";
+import { textStats } from "../model/text";
 
 interface ChapterStats {
   id: string;
   title: string;
   wordCount: number;
   charCount: number;
-  readingTime: number; // minutes
+  readingTime: number;
 }
 
 interface BookStats {
   totalWords: number;
   totalChars: number;
-  totalReadingTime: number; // minutes
+  totalReadingTime: number;
   chapterStats: ChapterStats[];
   averageWordsPerChapter: number;
 }
@@ -26,41 +28,29 @@ interface SessionStats {
   sessionStartTime: Date;
 }
 
-// Average reading speed: 200-250 words per minute
 const WORDS_PER_MINUTE = 225;
 
-// Strip HTML and count words
-function countWords(html: string): number {
-  if (!html) return 0;
-  
-  // Remove HTML tags
-  const text = html.replace(/<[^>]+>/g, ' ');
-  
-  // Remove extra whitespace and split by whitespace
-  const words = text
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter(word => word.length > 0);
-  
-  return words.length;
-}
+const COUNT_CACHE_SIZE = 200;
+const countCache = new Map<string, { words: number; chars: number }>();
 
-function countChars(html: string): number {
-  if (!html) return 0;
-  
-  // Remove HTML tags and count remaining characters (excluding spaces)
-  const text = html.replace(/<[^>]+>/g, '');
-  return text.replace(/\s/g, '').length;
+function countContent(html: string) {
+  const hit = countCache.get(html);
+  if (hit) return hit;
+  const { words, chars } = textStats(html);
+  const counts = { words, chars };
+  countCache.set(html, counts);
+  if (countCache.size > COUNT_CACHE_SIZE) {
+    countCache.delete(countCache.keys().next().value as string);
+  }
+  return counts;
 }
 
 function calculateReadingTime(wordCount: number): number {
   return Math.ceil(wordCount / WORDS_PER_MINUTE);
 }
 
-// Get today's date key for localStorage
 function getTodayKey(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toISOString().split("T")[0];
 }
 
 export function useWordStats(chapters: Chapter[], userId?: string) {
@@ -70,17 +60,17 @@ export function useWordStats(chapters: Chapter[], userId?: string) {
     wordsThisSession: 0,
     sessionStartTime: new Date(),
   });
-  
+
   const initializedRef = useRef(false);
 
-  // Calculate book stats
   const bookStats: BookStats = useMemo(() => {
-    const chapterStats: ChapterStats[] = chapters.map(chapter => {
-      const wordCount = countWords(chapter.content);
-      const charCount = countChars(chapter.content);
+    const chapterStats: ChapterStats[] = chapters.map((chapter) => {
+      const { words: wordCount, chars: charCount } = countContent(
+        chapter.content,
+      );
       return {
         id: chapter.id,
-        title: chapter.title || 'Untitled Chapter',
+        title: chapter.title || "Untitled Chapter",
         wordCount,
         charCount,
         readingTime: calculateReadingTime(wordCount),
@@ -95,24 +85,19 @@ export function useWordStats(chapters: Chapter[], userId?: string) {
       totalChars,
       totalReadingTime: calculateReadingTime(totalWords),
       chapterStats,
-      averageWordsPerChapter: chapters.length > 0 
-        ? Math.round(totalWords / chapters.length) 
-        : 0,
+      averageWordsPerChapter:
+        chapters.length > 0 ? Math.round(totalWords / chapters.length) : 0,
     };
   }, [chapters]);
 
-  // Initialize session tracking
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
 
     const todayKey = getTodayKey();
-    const storageKey = `${userId ? userId + '_' : ''}makeebook-words-${todayKey}`;
-    
-    // Load today's word count from localStorage
-    const storedData = localStorage.getItem(storageKey);
+    const storedData = readLocal(keys.wordsToday(userId, todayKey));
     const wordsWrittenToday = storedData ? parseInt(storedData, 10) : 0;
-    
+
     setSessionStats({
       wordsWrittenToday,
       sessionStartWords: bookStats.totalWords,
@@ -121,34 +106,31 @@ export function useWordStats(chapters: Chapter[], userId?: string) {
     });
   }, []);
 
-  // Track words written this session
   useEffect(() => {
     if (!initializedRef.current) return;
 
-    const wordsThisSession = Math.max(0, bookStats.totalWords - sessionStats.sessionStartWords);
+    const wordsThisSession = Math.max(
+      0,
+      bookStats.totalWords - sessionStats.sessionStartWords,
+    );
     const todayKey = getTodayKey();
-    const storageKey = `${userId ? userId + '_' : ''}makeebook-words-${todayKey}`;
-    
-    // Update localStorage with today's total
     const newTodayTotal = sessionStats.wordsWrittenToday + wordsThisSession;
-    localStorage.setItem(storageKey, newTodayTotal.toString());
-    
-    setSessionStats(prev => ({
+    writeLocal(keys.wordsToday(userId, todayKey), newTodayTotal.toString());
+
+    setSessionStats((prev) => ({
       ...prev,
       wordsThisSession,
     }));
   }, [bookStats.totalWords]);
 
-  // Format reading time for display
   const formatReadingTime = (minutes: number): string => {
-    if (minutes < 1) return '< 1 min';
+    if (minutes < 1) return "< 1 min";
     if (minutes < 60) return `${minutes} min`;
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
 
-  // Format word count with commas
   const formatWordCount = (count: number): string => {
     return count.toLocaleString();
   };

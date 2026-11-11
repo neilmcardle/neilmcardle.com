@@ -1,22 +1,11 @@
-import { BookRecord, Chapter, Endnote, EndnoteReference } from "../types";
-import { uuidv4 } from "./uuid";
-
-function libraryKey(userId: string) {
-  return `makeebook_library_${userId}`;
-}
+import { BookRecord } from "../types";
+import { hasText as htmlHasText } from "../model/text";
+import { newBook, newId, normaliseBook } from "../model/book";
+import { bookStore } from "../storage/bookStore";
 
 export function loadBookLibrary(userId: string): BookRecord[] {
   if (typeof window === "undefined") return [];
-  const str = localStorage.getItem(libraryKey(userId));
-  if (str) {
-    try {
-      return JSON.parse(str);
-    } catch (e) {
-      console.error("Failed to parse book library from localStorage:", e);
-      return [];
-    }
-  }
-  return [];
+  return bookStore.list(userId);
 }
 
 export function saveBookToLibrary(
@@ -25,37 +14,36 @@ export function saveBookToLibrary(
   options: { keepSavedAt?: boolean } = {},
 ): string {
   if (typeof window === "undefined") return "";
-  const library = loadBookLibrary(userId);
-  const id = book.id || uuidv4();
-
-  const existing = library.find((b) => b.id === id);
-  const bookToSave: BookRecord = {
-    id,
-    title: book.title || "",
-    author: book.author || "",
-    blurb: book.blurb || "",
-    publisher: book.publisher || "",
-    pubDate: book.pubDate || "",
-    isbn: book.isbn || "",
-    language: book.language || "",
-    genre: book.genre || "",
-    chapters: book.chapters || [],
-    tags: book.tags || [],
-    coverFile: book.coverFile || null,
-    endnotes: book.endnotes || [],
-    endnoteReferences: book.endnoteReferences || [],
-    savedAt:
-      options.keepSavedAt && existing
-        ? existing.savedAt
-        : (book.savedAt ?? Date.now()),
-    cloudSyncedAt: book.cloudSyncedAt ?? existing?.cloudSyncedAt,
-    bookmindMemory: book.bookmindMemory ?? existing?.bookmindMemory,
-  };
-  const idx = library.findIndex((b) => b.id === id);
-  if (idx >= 0) library[idx] = bookToSave;
-  else library.push(bookToSave);
-
-  localStorage.setItem(libraryKey(userId), JSON.stringify(library));
+  const id = book.id || newId();
+  const existing = bookStore.get(userId, id);
+  const base = existing ?? { ...newBook(userId), id };
+  const next = normaliseBook(
+    {
+      id,
+      title: book.title || "",
+      author: book.author || "",
+      blurb: book.blurb || "",
+      publisher: book.publisher || "",
+      pubDate: book.pubDate || "",
+      isbn: book.isbn || "",
+      language: book.language || "",
+      genre: book.genre || "",
+      chapters: book.chapters || [],
+      tags: book.tags || [],
+      coverFile: book.coverFile || null,
+      endnotes: book.endnotes || [],
+      endnoteReferences: book.endnoteReferences || [],
+      bookmindMemory: book.bookmindMemory ?? existing?.bookmindMemory,
+      savedAt:
+        options.keepSavedAt && existing
+          ? existing.savedAt
+          : (book.savedAt ?? Date.now()),
+      revision: Math.max(base.revision, book.revision ?? 0) + 1,
+      syncedRevision: existing?.syncedRevision ?? book.syncedRevision ?? 0,
+    },
+    userId,
+  );
+  bookStore.put(next);
   return id;
 }
 
@@ -63,102 +51,26 @@ export function loadBookById(
   userId: string,
   id: string,
 ): BookRecord | undefined {
-  const library = loadBookLibrary(userId);
-  return library.find((b) => b.id === id);
+  return bookStore.get(userId, id);
 }
 
 export function removeBookFromLibrary(userId: string, id: string) {
-  let library = loadBookLibrary(userId);
-  library = library.filter((b) => b.id !== id);
-  try {
-    localStorage.setItem(libraryKey(userId), JSON.stringify(library));
-  } catch (e) {
-    console.error("Failed to save library after removing book:", e);
-  }
-}
-
-export function normalizeBookFromSupabase(
-  book: Record<string, unknown>,
-): BookRecord {
-  return {
-    id: (book.id as string) || "",
-    title: (book.title as string) || "",
-    author: (book.author as string) || "",
-    blurb: (book.blurb as string) || "",
-    publisher: (book.publisher as string) || "",
-    pubDate: (book.pubDate as string) || (book.pub_date as string) || "",
-    isbn: (book.isbn as string) || "",
-    language: (book.language as string) || "",
-    genre: (book.genre as string) || "",
-    chapters: normalizeChapters(book.chapters),
-    tags: Array.isArray(book.tags) ? book.tags : [],
-    coverFile:
-      (book.coverFile as string) || (book.cover_image_url as string) || null,
-    endnotes: Array.isArray(book.endnotes) ? book.endnotes : [],
-    endnoteReferences: normalizeEndnoteReferences(
-      book.endnoteReferences || book.endnote_references,
-    ),
-    savedAt:
-      (book.savedAt as number) ||
-      (book.updated_at
-        ? parseCloudTime(book.updated_at as string)
-        : Date.now()),
-    bookmindMemory:
-      (book.bookmindMemory as BookRecord["bookmindMemory"]) ?? undefined,
-  };
-}
-
-export function parseCloudTime(value: string) {
-  const zoned = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`;
-  const ms = new Date(zoned).getTime();
-  return Number.isNaN(ms) ? Date.now() : ms;
-}
-
-export function markBookSynced(userId: string, id: string, at: number) {
-  const library = loadBookLibrary(userId);
-  const book = library.find((b) => b.id === id);
-  if (!book) return;
-  book.savedAt = at;
-  book.cloudSyncedAt = at;
-  saveLibraryToStorage(userId, library);
-}
-
-function normalizeChapters(raw: unknown): Chapter[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.map((ch: Record<string, unknown>) => ({
-    id: (ch.id as string) || "",
-    title: (ch.title as string) || "",
-    content: (ch.content as string) || "",
-    type: (ch.type as Chapter["type"]) || "content",
-  }));
-}
-
-function normalizeEndnoteReferences(raw: unknown): EndnoteReference[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.map((ref: Record<string, unknown>) => ({
-    id: (ref.id as string) || "",
-    number: (ref.number as number) || 0,
-    chapterId: (ref.chapterId as string) || (ref.chapter_id as string) || "",
-    endnoteId: (ref.endnoteId as string) || (ref.endnote_id as string) || "",
-  }));
+  bookStore.remove(userId, id);
 }
 
 export function saveLibraryToStorage(userId: string, books: BookRecord[]) {
   try {
-    localStorage.setItem(libraryKey(userId), JSON.stringify(books));
+    bookStore.replaceAll(
+      userId,
+      books.map((book) => normaliseBook(book, userId)),
+    );
   } catch (e) {
-    console.error("Failed to save library to localStorage:", e);
+    console.error("Failed to save the library:", e);
   }
 }
 
 function hasText(html?: string) {
-  if (!html) return false;
-  return (
-    html
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;| /g, " ")
-      .trim().length > 0
-  );
+  return htmlHasText(html);
 }
 
 export function isBlankBook(book: Partial<BookRecord>) {
@@ -174,7 +86,11 @@ export function isBlankBook(book: Partial<BookRecord>) {
 export function pruneBlankBooks(userId: string): BookRecord[] {
   const library = loadBookLibrary(userId);
   const kept = library.filter((b) => !isBlankBook(b));
-  if (kept.length !== library.length) saveLibraryToStorage(userId, kept);
+  if (kept.length !== library.length) {
+    for (const book of library) {
+      if (isBlankBook(book)) bookStore.remove(userId, book.id);
+    }
+  }
   return kept;
 }
 

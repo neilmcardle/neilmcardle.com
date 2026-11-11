@@ -1,5 +1,6 @@
 import { Chapter, EndnoteReference } from "../types";
 import { uuidv4 } from "./uuid";
+import { htmlToText } from "../model/text";
 
 export function ensureChapterIds(chapters: Chapter[]): Chapter[] {
   return chapters.map((chapter) => ({
@@ -38,10 +39,7 @@ export function formatRelativeTime(ms: number): string {
 }
 
 export function plainText(html: string) {
-  return html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return htmlToText(html);
 }
 
 export function getContentChapterNumber(chapters: any[], currentIndex: number) {

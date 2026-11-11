@@ -15,7 +15,6 @@ const ITEMS = [
   { id: "work", label: "Work" },
   ...(WRITING_PUBLIC ? [{ id: "writing", label: "Writing" }] : []),
   { id: "moments", label: "Moments" },
-  { id: "interactions", label: "Interactions" },
   { id: "play", label: "Playground" },
   { id: "contact", label: "Contact" },
 ];

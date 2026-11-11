@@ -62,8 +62,8 @@ export default function PreflightExportDialog({
   onDownload,
   onUpgrade,
 }: PreflightExportDialogProps) {
-  const result = runPreflightChecks(input);
-  const { blocks } = result;
+  const result = open ? runPreflightChecks(input) : null;
+  const blocks = result?.blocks ?? [];
 
   useEffect(() => {
     if (!open) return;
@@ -77,7 +77,7 @@ export default function PreflightExportDialog({
     }
   }, [open, isPro, format, blocks.length]);
 
-  if (!open || typeof document === "undefined") return null;
+  if (!open || !result || typeof document === "undefined") return null;
 
   const formatLabel = FORMAT_LABEL[format];
 

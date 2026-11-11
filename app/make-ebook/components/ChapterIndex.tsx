@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "../styles/studio.module.css";
 
 interface IndexChapter {
@@ -27,49 +27,11 @@ function labelFor(chapters: IndexChapter[], index: number) {
   return `Chapter ${n}`;
 }
 
-function useEditorProgress(selectedChapter: number, count: number) {
-  const [progress, setProgress] = useState(0);
-  const [scrollable, setScrollable] = useState(false);
-
-  useEffect(() => {
-    setProgress(0);
-    const el = [
-      ...document.querySelectorAll<HTMLElement>(
-        ".editor-root[contenteditable]",
-      ),
-    ].find((node) => node.offsetParent !== null);
-    if (!el) return;
-    const read = () => {
-      const range = el.scrollHeight - el.clientHeight;
-      setScrollable(range > 8);
-      setProgress(
-        range > 8 ? Math.min(1, Math.max(0, el.scrollTop / range)) : 0,
-      );
-    };
-    read();
-    el.addEventListener("scroll", read, { passive: true });
-    el.addEventListener("input", read);
-    const observer = new ResizeObserver(read);
-    observer.observe(el);
-    return () => {
-      el.removeEventListener("scroll", read);
-      el.removeEventListener("input", read);
-      observer.disconnect();
-    };
-  }, [selectedChapter, count]);
-
-  return { progress, scrollable };
-}
-
 export function ChapterIndex({
   chapters,
   selectedChapter,
   onSelectChapter,
 }: ChapterIndexProps) {
-  const { progress, scrollable } = useEditorProgress(
-    selectedChapter,
-    chapters.length,
-  );
   const listRef = useRef<HTMLOListElement>(null);
   const mountedRef = useRef(false);
 
@@ -126,11 +88,6 @@ export function ChapterIndex({
                 onClick={() => onSelectChapter?.(i)}
               >
                 <span className={styles.indexLabel}>{label}</span>
-                {current && scrollable ? (
-                  <span className={styles.indexProgress} aria-hidden="true">
-                    <span style={{ transform: `scaleX(${progress})` }} />
-                  </span>
-                ) : null}
               </button>
             </li>
           );

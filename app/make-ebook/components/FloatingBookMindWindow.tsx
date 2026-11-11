@@ -8,6 +8,7 @@ import type { Chapter as BookChapter } from "../types";
 import { loadBookById } from "../utils/bookLibrary";
 import { addRule, getMemory, removeRule } from "../utils/bookmindMemory";
 import styles from "../styles/studio.module.css";
+import { keys, readLocal, writeLocal } from "../storage/keys";
 
 interface FloatingBookMindWindowProps {
   mind: ReturnType<typeof useBookMind>;
@@ -30,8 +31,6 @@ interface FloatingBookMindWindowProps {
   onExpandedChange?: (expanded: boolean) => void;
   onBusyChange?: (busy: boolean) => void;
 }
-
-const EXPANDED_KEY = "bookmind_expanded";
 
 const PATHS = {
   chats: "M4 6h16M4 12h10M4 18h7",
@@ -278,9 +277,7 @@ export default function FloatingBookMindWindow({
   const docked = expanded && !sheet;
 
   useEffect(() => {
-    try {
-      setExpanded(localStorage.getItem(EXPANDED_KEY) === "1");
-    } catch {}
+    setExpanded(readLocal(keys.bookMindExpanded()) === "1");
   }, []);
 
   useEffect(() => {
@@ -307,9 +304,7 @@ export default function FloatingBookMindWindow({
   const toggleExpanded = () => {
     setExpanded((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem(EXPANDED_KEY, next ? "1" : "0");
-      } catch {}
+      writeLocal(keys.bookMindExpanded(), next ? "1" : "0");
       return next;
     });
   };

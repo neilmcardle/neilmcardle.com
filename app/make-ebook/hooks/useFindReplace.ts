@@ -1,9 +1,7 @@
-import { useState, useCallback, useMemo } from 'react';
-import { Chapter } from '../types';
-
-function stripHtml(html: string): string {
-  return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-}
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { Chapter } from "../types";
+import { editorForChapter, setFindQuery } from "../editor/registry";
+import { countInHtml, replaceInHtml } from "../editor/search";
 
 export interface ChapterMatch {
   chapterIndex: number;
@@ -17,57 +15,54 @@ export function useFindReplace(
   onSelectChapter: (index: number) => void,
 ) {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [replaceTerm, setReplaceTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [replaceTerm, setReplaceTerm] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
 
-  const matches = useMemo((): ChapterMatch[] => {
-    if (!searchTerm) return [];
-    const flags = caseSensitive ? 'g' : 'gi';
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, flags);
+  const query = useMemo(
+    () => ({ term: searchTerm, caseSensitive }),
+    [searchTerm, caseSensitive],
+  );
 
-    return chapters.map((ch, i) => {
-      const plain = stripHtml(ch.content);
-      const found = plain.match(regex);
-      return {
+  useEffect(() => {
+    setFindQuery(isOpen ? query : { term: "", caseSensitive: false });
+  }, [isOpen, query]);
+
+  useEffect(() => () => setFindQuery({ term: "", caseSensitive: false }), []);
+
+  const matches = useMemo((): ChapterMatch[] => {
+    if (!isOpen || !query.term) return [];
+    return chapters
+      .map((ch, i) => ({
         chapterIndex: i,
         chapterTitle: ch.title || `Chapter ${i + 1}`,
-        count: found ? found.length : 0,
-      };
-    }).filter(m => m.count > 0);
-  }, [chapters, searchTerm, caseSensitive]);
+        count: countInHtml(ch.content, query),
+      }))
+      .filter((m) => m.count > 0);
+  }, [chapters, query, isOpen]);
 
-  const totalMatches = useMemo(() => matches.reduce((sum, m) => sum + m.count, 0), [matches]);
+  const totalMatches = useMemo(
+    () => matches.reduce((sum, m) => sum + m.count, 0),
+    [matches],
+  );
 
-  const replaceInChapter = useCallback((chapterIndex: number) => {
-    if (!searchTerm) return 0;
-    const chapter = chapters[chapterIndex];
-    if (!chapter) return 0;
-
-    const flags = caseSensitive ? 'g' : 'gi';
-    const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escaped, flags);
-
-    // Replace in the HTML content, but only within text nodes (not inside tags)
-    let count = 0;
-    const newContent = chapter.content.replace(
-      /(<[^>]*>)|([^<]+)/g,
-      (_, tag, text) => {
-        if (tag) return tag; // Preserve HTML tags
-        const replaced = text.replace(regex, () => {
-          count++;
-          return replaceTerm;
-        });
-        return replaced;
-      }
-    );
-
-    if (count > 0) {
-      onContentChange(chapterIndex, newContent);
-    }
-    return count;
-  }, [chapters, searchTerm, replaceTerm, caseSensitive, onContentChange]);
+  const replaceInChapter = useCallback(
+    (chapterIndex: number) => {
+      if (!query.term) return 0;
+      const chapter = chapters[chapterIndex];
+      if (!chapter) return 0;
+      const editor = editorForChapter(chapter.id);
+      if (editor) return editor.replaceAll(query, replaceTerm);
+      const { html, count } = replaceInHtml(
+        chapter.content,
+        query,
+        replaceTerm,
+      );
+      if (count > 0) onContentChange(chapterIndex, html);
+      return count;
+    },
+    [chapters, query, replaceTerm, onContentChange],
+  );
 
   const replaceAll = useCallback(() => {
     let total = 0;
@@ -77,9 +72,12 @@ export function useFindReplace(
     return total;
   }, [matches, replaceInChapter]);
 
-  const goToMatch = useCallback((chapterIndex: number) => {
-    onSelectChapter(chapterIndex);
-  }, [onSelectChapter]);
+  const goToMatch = useCallback(
+    (chapterIndex: number) => {
+      onSelectChapter(chapterIndex);
+    },
+    [onSelectChapter],
+  );
 
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useReducer, useRef } from "react";
+import { useState, useCallback, useMemo, useReducer, useRef } from "react";
 import { track } from "@vercel/analytics";
 import { Chapter as BookChapter } from "../types";
 import { loadBookById } from "../utils/bookLibrary";
@@ -16,125 +16,49 @@ import {
   describeBookMindRequest,
   initialBookMindRequest,
 } from "../state/bookMindRequest";
+import { renderContextForPrompt } from "../utils/contextRetrieval";
+import { keys, readLocal, writeLocal } from "../storage/keys";
 import {
-  addSession,
-  recordExchange,
-  removeSession,
-} from "../state/chatSessions";
+  ACTION_LABELS,
+  ACTION_PROMPTS,
+  ANALYTICAL_ACTIONS,
+  generateId,
+  generateSessionId,
+} from "./bookMind/actions";
+import { useChatSessions } from "./bookMind/useChatSessions";
+import { resolveContext } from "./bookMind/resolveContext";
+import { readSseData } from "./bookMind/readSse";
 import {
-  buildSceneContext,
-  buildSpotlightContext,
-  buildWideContext,
-  pickContextTier,
-  renderContextForPrompt,
-  RetrievedContext,
-  ContextTier,
-} from "../utils/contextRetrieval";
+  buildInlineEditBody,
+  requestInlineEdit,
+  type InlineEditArgs,
+} from "./bookMind/inlineEdit";
+import type {
+  BookMindAction,
+  BookMindContext,
+  BookMindMessage,
+  SendMessageOpts,
+} from "./bookMind/types";
 
-export type BookMindAction =
-  | "summarize-book"
-  | "summarize-chapter"
-  | "list-characters"
-  | "find-inconsistencies"
-  | "analyze-themes"
-  | "check-grammar"
-  | "timeline-review"
-  | "word-frequency"
-  | "ask-question";
-
-export interface BookMindMessage {
-  id: string;
-  role: "user" | "assistant" | "system";
-  content: string;
-  timestamp: number;
-  action?: BookMindAction;
-
-  meta?: {
-    tier?: ContextTier;
-    deep?: boolean;
-    model?: string;
-    read?: string[];
-  };
-}
-
-export interface BookMindContext {
-  title: string;
-  author: string;
-  genre: string;
-  chapterTitle: string;
-  chapterContent: string;
-  allChapters: { title: string; content: string; type: string }[];
-  selectedText?: string;
-}
-
-export interface ChatSession {
-  id: string;
-  name: string;
-  bookId: string;
-  messages: BookMindMessage[];
-  createdAt: number;
-  updatedAt: number;
-}
+export type {
+  BookMindAction,
+  BookMindMessage,
+  BookMindContext,
+  ChatSession,
+  SendMessageOpts,
+  BookMindActivity,
+} from "./bookMind/types";
 
 interface UseBookMindOptions {
   bookId?: string;
   userId?: string;
 }
 
-export interface SendMessageOpts {
-  selectedChapterIndex?: number;
-  selectedText?: string;
-  action?: BookMindAction;
-
-  deep?: boolean;
-  chapterIds?: string[];
-  replaceFrom?: string;
-}
-
-export interface BookMindActivity {
-  read: string[];
-  deep: boolean;
-  startedAt: number;
-}
-
-const ACTION_PROMPTS: Record<BookMindAction, string> = {
-  "summarize-book":
-    "Give me a natural summary of what this book is about: the main story, the themes running through it, and how the characters develop. Keep it conversational and grounded in specific moments.",
-  "summarize-chapter":
-    "Walk me through what happens in the currently open chapter ONLY. What are the key moments, how do the characters change or react, and how does it fit into the bigger picture? Do not discuss other chapters.",
-  "list-characters":
-    "Who are all the people in this book? For each one, tell me where they appear and what role they play in the story. Be specific.",
-  "find-inconsistencies":
-    "Look through the book and flag anything that doesn't quite add up: plot holes, timeline issues, characters acting out of character, facts that contradict each other. Be specific about what you find and where.",
-  "analyze-themes":
-    "What are the big ideas running through this book? Point to specific moments that show these themes in action.",
-  "check-grammar":
-    "Go through the currently open chapter ONLY. Catch any grammar, spelling, or punctuation issues. Tell me where they are and how to fix them. Do not check other chapters.",
-  "timeline-review":
-    "Map out when everything happens in this book. Note any dates or time references, and flag anything that seems off with the chronology.",
-  "word-frequency":
-    "Look at the language patterns in this book. Are there words or phrases that keep coming up? Any habits the author might want to mix up?",
-  "ask-question": "",
-};
-
-const ANALYTICAL_ACTIONS: BookMindAction[] = [
-  "summarize-book",
-  "list-characters",
-  "find-inconsistencies",
-  "analyze-themes",
-  "timeline-review",
-  "word-frequency",
-];
-
-const CHAT_STORAGE_KEY = "bookmind_chats";
-
 export function useBookMind(options: UseBookMindOptions = {}) {
   const { bookId, userId } = options;
-  const chatStorageKey = `${userId ? userId + "_" : ""}${CHAT_STORAGE_KEY}`;
+  const chatStorage = useMemo(() => keys.bookMindChats(userId), [userId]);
 
   const [messages, setMessages] = useState<BookMindMessage[]>([]);
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [request, dispatch] = useReducer(
     bookMindRequest,
     initialBookMindRequest,
@@ -145,215 +69,17 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
   const abortRef = useRef<AbortController | null>(null);
 
-  const generateId = () =>
-    `msg-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-  const generateSessionId = () =>
-    `chat-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const stored = localStorage.getItem(chatStorageKey);
-      if (stored) {
-        const allSessions: ChatSession[] = JSON.parse(stored);
-        const bookSessions = bookId
-          ? allSessions.filter((s) => s.bookId === bookId)
-          : allSessions;
-        setChatSessions(bookSessions);
-      }
-    } catch (e) {
-      console.error("Failed to load chat sessions:", e);
-    }
-  }, [bookId, chatStorageKey]);
-
-  const sessionIdRef = useRef<string | null>(null);
-  const selectSession = useCallback((id: string | null) => {
-    sessionIdRef.current = id;
-    setCurrentSessionId(id);
-  }, []);
-
-  const readAllSessions = useCallback((): ChatSession[] => {
-    try {
-      const stored = localStorage.getItem(chatStorageKey);
-      return stored ? JSON.parse(stored) : [];
-    } catch (e) {
-      console.error("Failed to read chat sessions:", e);
-      return [];
-    }
-  }, [chatStorageKey]);
-
-  const writeAllSessions = useCallback(
-    (all: ChatSession[]) => {
-      try {
-        localStorage.setItem(chatStorageKey, JSON.stringify(all));
-      } catch (e) {
-        console.error("Failed to save chat sessions:", e);
-      }
-      setChatSessions(bookId ? all.filter((s) => s.bookId === bookId) : all);
-    },
-    [bookId, chatStorageKey],
-  );
-
-  const createSession = useCallback(
-    (name?: string): string => {
-      const id = generateSessionId();
-      const all = readAllSessions();
-      const owner = bookId || "unknown";
-      const session: ChatSession = {
-        id,
-        name:
-          name || `Chat ${all.filter((s) => s.bookId === owner).length + 1}`,
-        bookId: owner,
-        messages: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      writeAllSessions(addSession(all, session));
-      selectSession(id);
-      setMessages([]);
-      return id;
-    },
-    [bookId, readAllSessions, writeAllSessions, selectSession],
-  );
-
-  const loadSession = useCallback(
-    (sessionId: string) => {
-      const session = readAllSessions().find((s) => s.id === sessionId);
-      if (session) {
-        selectSession(sessionId);
-        setMessages(session.messages);
-      }
-    },
-    [readAllSessions, selectSession],
-  );
-
-  const renameSession = useCallback(
-    (sessionId: string, newName: string) => {
-      writeAllSessions(
-        readAllSessions().map((s) =>
-          s.id === sessionId
-            ? { ...s, name: newName, updatedAt: Date.now() }
-            : s,
-        ),
-      );
-    },
-    [readAllSessions, writeAllSessions],
-  );
-
-  const deleteSession = useCallback(
-    (sessionId: string) => {
-      writeAllSessions(removeSession(readAllSessions(), sessionId));
-      if (sessionIdRef.current === sessionId) {
-        selectSession(null);
-        setMessages([]);
-      }
-    },
-    [readAllSessions, writeAllSessions, selectSession],
-  );
-
-  const saveExchange = useCallback(
-    (sessionId: string | null, newMessages: BookMindMessage[]) => {
-      if (!sessionId) return;
-      writeAllSessions(
-        recordExchange(readAllSessions(), {
-          sessionId,
-          bookId: bookId || "unknown",
-          messages: newMessages,
-          now: Date.now(),
-        }),
-      );
-    },
-    [bookId, readAllSessions, writeAllSessions],
-  );
-
-  function resolveContext(
-    query: string,
-    opts: SendMessageOpts,
-    legacy?: BookMindContext,
-  ): {
-    ctx: RetrievedContext;
-    tier: "spotlight" | "scene" | "wide";
-    chapters: BookChapter[];
-  } {
-    if (bookId && userId) {
-      const book = loadBookById(userId, bookId);
-      if (book) {
-        const chapters = book.chapters;
-        const currentChapter =
-          opts.selectedChapterIndex !== undefined &&
-          chapters[opts.selectedChapterIndex]
-            ? chapters[opts.selectedChapterIndex]
-            : chapters[0];
-        const brief = book.bookmindMemory?.brief ?? null;
-
-        const CHAPTER_SCOPED: BookMindAction[] = [
-          "check-grammar",
-          "summarize-chapter",
-        ];
-        const tier =
-          opts.action && ANALYTICAL_ACTIONS.includes(opts.action)
-            ? "wide"
-            : opts.action && CHAPTER_SCOPED.includes(opts.action)
-              ? "scene"
-              : pickContextTier({ query, currentChapter });
-
-        const ctx =
-          tier === "wide"
-            ? buildWideContext({
-                brief,
-                chapters,
-                query,
-                selectedText: opts.selectedText,
-              })
-            : buildSceneContext({
-                brief,
-                chapters,
-                currentChapterId: currentChapter?.id,
-                query,
-                selectedText: opts.selectedText,
-              });
-
-        const attached = (opts.chapterIds ?? [])
-          .map((id) => chapters.find((c) => c.id === id))
-          .filter(
-            (c): c is BookChapter =>
-              !!c &&
-              c.id !== ctx.currentChapter?.id &&
-              !ctx.retrievedChapters.some((r) => r.chapter.id === c.id),
-          )
-          .map((chapter) => ({
-            chapter,
-            reason: "attached by the author",
-            score: 1,
-          }));
-        if (attached.length > 0) {
-          ctx.retrievedChapters = [...ctx.retrievedChapters, ...attached];
-        }
-
-        return { ctx, tier, chapters };
-      }
-    }
-
-    const legacyChapters: BookChapter[] = (legacy?.allChapters ?? []).map(
-      (c, i) => ({
-        id: `legacy-${i}`,
-        title: c.title,
-        content: c.content,
-        type: c.type as BookChapter["type"],
-      }),
-    );
-    const currentChapter =
-      legacyChapters.find((c) => c.title === legacy?.chapterTitle) ??
-      legacyChapters[0];
-    const ctx = buildSceneContext({
-      brief: null,
-      chapters: legacyChapters,
-      currentChapterId: currentChapter?.id,
-      query,
-      selectedText: opts.selectedText ?? legacy?.selectedText,
-    });
-    return { ctx, tier: "scene", chapters: legacyChapters };
-  }
+  const {
+    chatSessions,
+    currentSessionId,
+    sessionIdRef,
+    selectSession,
+    createSession,
+    loadSession,
+    renameSession,
+    deleteSession,
+    saveExchange,
+  } = useChatSessions({ bookId, chatStorage, setMessages });
 
   const sendMessage = useCallback(
     async (
@@ -362,9 +88,9 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       legacyAction?: BookMindAction,
     ): Promise<string | null> => {
       if (userId && typeof window !== "undefined") {
-        const flagKey = `mf_bm_first_sent_${userId}`;
-        if (!localStorage.getItem(flagKey)) {
-          localStorage.setItem(flagKey, "1");
+        const flag = keys.bookMindFirstSent(userId);
+        if (!readLocal(flag)) {
+          writeLocal(flag, "1");
           track("book_mind_first_message_sent");
         }
       }
@@ -427,7 +153,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           ctx,
           tier,
           chapters: bookChapters,
-        } = resolveContext(prompt, opts, legacy);
+        } = resolveContext({ bookId, userId }, prompt, opts, legacy);
         const labelOf = (c: BookChapter) => {
           const i = bookChapters.findIndex((b) => b.id === c.id);
           return c.title?.trim() || `Chapter ${i + 1}`;
@@ -499,54 +225,39 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         setMessages([...updatedMessages, assistantMsg]);
         dispatch({ type: "stream" });
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
         let fullContent = "";
         let messageMeta: BookMindMessage["meta"] | undefined;
 
-        outer: while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") break outer;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.error) throw new Error(parsed.error);
-              if (parsed.meta) {
-                messageMeta = { ...parsed.meta, read, deep };
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantMsgId ? { ...m, meta: messageMeta } : m,
-                  ),
-                );
-                continue;
-              }
-              if (parsed.content) {
-                fullContent += parsed.content;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantMsgId
-                      ? { ...m, content: fullContent }
-                      : m,
-                  ),
-                );
-              }
-            } catch (e) {
-              if (
-                e instanceof Error &&
-                e.message !== "Unexpected token" &&
-                !e.message.includes("JSON")
-              )
-                throw e;
+        await readSseData(response.body, (data) => {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.meta) {
+              messageMeta = { ...parsed.meta, read, deep };
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsgId ? { ...m, meta: messageMeta } : m,
+                ),
+              );
+              return;
             }
+            if (parsed.content) {
+              fullContent += parsed.content;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsgId ? { ...m, content: fullContent } : m,
+                ),
+              );
+            }
+          } catch (e) {
+            if (
+              e instanceof Error &&
+              e.message !== "Unexpected token" &&
+              !e.message.includes("JSON")
+            )
+              throw e;
           }
-        }
+        });
 
         const finalMessages = [
           ...updatedMessages,
@@ -592,7 +303,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         return null;
       }
     },
-    [messages, saveExchange, selectSession, bookId, userId],
+    [messages, saveExchange, selectSession, sessionIdRef, bookId, userId],
   );
 
   const quickAction = useCallback(
@@ -600,18 +311,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
       action: BookMindAction,
       contextOrOpts?: BookMindContext | SendMessageOpts,
     ): Promise<string | null> => {
-      const actionLabels: Record<BookMindAction, string> = {
-        "summarize-book": "Summarize the entire book",
-        "summarize-chapter": "Summarize this chapter",
-        "list-characters": "List all characters",
-        "find-inconsistencies": "Find inconsistencies",
-        "analyze-themes": "Analyze themes",
-        "check-grammar": "Check grammar",
-        "timeline-review": "Review timeline",
-        "word-frequency": "Analyze word frequency",
-        "ask-question": "Ask a question",
-      };
-      return sendMessage(actionLabels[action], contextOrOpts, action);
+      return sendMessage(ACTION_LABELS[action], contextOrOpts, action);
     },
     [sendMessage],
   );
@@ -620,7 +320,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     setMessages([]);
     dispatch({ type: "clearError" });
     saveExchange(sessionIdRef.current, []);
-  }, [saveExchange]);
+  }, [saveExchange, sessionIdRef]);
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -635,71 +335,17 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   }, []);
 
   const inlineEdit = useCallback(
-    async (args: {
-      selectedText: string;
-      surroundingParagraph?: string;
-      instruction: string;
-    }): Promise<string> => {
+    async (args: InlineEditArgs): Promise<string> => {
       if (!bookId || !userId) {
         const msg =
           "Save the book first — Book Mind needs a saved book to generate from.";
         dispatch({ type: "sideFailed", error: msg });
         throw new Error(msg);
       }
-      const book = loadBookById(userId, bookId);
-      const brief =
-        book && isBriefFresh(book) ? book.bookmindMemory!.brief! : null;
-      const ctx = buildSpotlightContext({
-        brief,
-        selectedText: args.selectedText,
-        surroundingParagraph: args.surroundingParagraph,
-      });
-      const memoryBlock = book ? formatMemoryForPrompt(getMemory(book)) : "";
-      const contextBlock = renderContextForPrompt(ctx);
+      const body = buildInlineEditBody(userId, bookId, args);
 
       try {
-        const response = await fetch("/api/ai/book-mind", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            voice: "inline",
-            memory: memoryBlock || undefined,
-            context: contextBlock,
-            messages: [{ role: "user" as const, content: args.instruction }],
-            tier: "spotlight",
-          }),
-        });
-        if (!response.ok || !response.body) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || "Inline edit failed");
-        }
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-        let fullContent = "";
-        outer: while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") break outer;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.content) fullContent += parsed.content;
-              if (parsed.error) throw new Error(parsed.error);
-            } catch {
-              /* skip */
-            }
-          }
-        }
-        if (!fullContent) {
-          throw new Error("Book Mind returned no content. Try again.");
-        }
-        return fullContent;
+        return await requestInlineEdit(body);
       } catch (err) {
         dispatch({
           type: "sideFailed",
