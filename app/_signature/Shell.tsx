@@ -1,5 +1,6 @@
 import type React from "react";
 import { heavy } from "./fonts";
+import JumpBar from "./JumpBar";
 import styles from "./signature.module.css";
 import Visited from "./Visited";
 
@@ -12,6 +13,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       </a>
       <Visited />
       {children}
+      <JumpBar />
     </div>
   );
 }
