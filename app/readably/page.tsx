@@ -178,26 +178,33 @@ export default function ReadablyPage() {
               Prices are per title. Every file comes back with a passing
               validation report.
             </p>
-            <div
-              className={`${styles.table} ${styles.prices}`}
-              tabIndex={0}
-              role="region"
-              aria-labelledby="prices"
-            >
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">Fix level</th>
-                    <th scope="col">What’s included</th>
-                    <th scope="col">Price per title</th>
+            <div className={`${styles.table} ${styles.prices}`}>
+              <table role="table" aria-labelledby="prices">
+                <thead role="rowgroup">
+                  <tr role="row">
+                    <th scope="col" role="columnheader">
+                      Fix level
+                    </th>
+                    <th scope="col" role="columnheader">
+                      What’s included
+                    </th>
+                    <th scope="col" role="columnheader">
+                      Price per title
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {PRICES.map((row) => (
-                    <tr key={row.level}>
-                      <th scope="row">{row.level}</th>
-                      <td>{row.included}</td>
-                      <td className={styles.price}>{row.price}</td>
+                    <tr key={row.level} role="row">
+                      <th scope="row" role="rowheader" className={styles.level}>
+                        {row.level}
+                      </th>
+                      <td role="cell" className={styles.included}>
+                        {row.included}
+                      </td>
+                      <td role="cell" className={styles.price}>
+                        {row.price}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

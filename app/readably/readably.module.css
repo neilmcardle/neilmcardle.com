@@ -58,7 +58,7 @@
 }
 
 .list li::marker {
-  color: var(--underline);
+  color: var(--accent);
 }
 
 .numbered {
@@ -70,7 +70,8 @@
 }
 
 .numbered li::marker {
-  color: var(--text);
+  color: var(--accent);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -82,9 +83,9 @@ a.button {
   height: 36px;
   padding: 0 var(--space-4);
   border-radius: var(--radius-pill);
-  background: var(--ink);
+  background: var(--accent);
   box-shadow: var(--edge);
-  color: var(--bg);
+  color: var(--on-accent);
   font-size: 13px;
   font-weight: 500;
   line-height: 1;
@@ -166,13 +167,64 @@ a.button:active {
 
 .price {
   white-space: nowrap;
-  color: var(--ink);
+  color: var(--accent);
+}
+
+@media (max-width: 559px) {
+  .prices table {
+    min-width: 0;
+  }
+
+  .prices thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .prices tbody,
+  .prices tr,
+  .prices th,
+  .prices td {
+    display: block;
+  }
+
+  .prices tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    box-shadow: inset 0 -1px 0 var(--line);
+  }
+
+  .prices tr:last-child {
+    box-shadow: none;
+  }
+
+  .prices tbody th,
+  .prices tbody td {
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .prices .included {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .prices .price {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
 }
 
 .quote {
   margin: var(--space-2) 0 var(--space-6);
   padding-left: var(--space-4);
-  box-shadow: inset 2px 0 0 var(--underline);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .quote blockquote {

@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useId, useReducer, useRef, useState } from "react";
 import { media } from "@/lib/media";
 import ToTop from "./ToTop";
 import shell from "./signature.module.css";
@@ -328,10 +328,12 @@ export default function Finale({
     ? `mailto:${address()}${subject ? `?subject=${encodeURIComponent("Let’s start something")}` : ""}`
     : undefined;
 
+  const titleId = useId();
   return (
     <section
       ref={finale}
       id={card ? undefined : "contact"}
+      aria-labelledby={card ? undefined : titleId}
       className={`${styles.finale} ${card ? styles.asCard : ""} ${shown ? styles.shown : ""}`}
     >
       <canvas ref={exhaust} className={styles.exhaust} aria-hidden="true" />
@@ -340,7 +342,7 @@ export default function Finale({
         className={card ? styles.inner : `${shell.wrap} ${styles.inner}`}
       >
         {card ? null : (
-          <h2 ref={title} className={styles.title}>
+          <h2 ref={title} id={titleId} className={styles.title}>
             Tell me more.
           </h2>
         )}

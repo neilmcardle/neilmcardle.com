@@ -8,6 +8,8 @@
   --text: #8f8c86;
   --muted: #8f8c86;
   --underline: #48463f;
+  --accent: #e2b65a;
+  --on-accent: #0d0d0c;
   --line: rgb(255 255 255 / 0.06);
   --image-ring: rgb(255 255 255 / 0.06);
   --edge:
@@ -98,7 +100,8 @@
 
 .root a:focus-visible,
 .root button:focus-visible,
-.root summary:focus-visible {
+.root summary:focus-visible,
+.root [tabindex]:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
