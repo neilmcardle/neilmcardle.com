@@ -259,22 +259,26 @@ function Die({
         value === null
           ? "Roll the die"
           : prompt
-            ? `Roll the die. It shows ${value}.`
+            ? "Roll the die"
             : `The die shows ${value}.`
       }
     >
-      {Array.from({ length: 9 }).map((_, idx) => {
-        const row = Math.floor(idx / 3);
-        const col = idx % 3;
-        const on = (value === null ? [] : PIPS[value] || []).some(
-          ([r, c]) => r === row && c === col,
-        );
-        return (
-          <span key={idx} className={s.pipCell}>
-            <span className={`${s.pip} ${on ? s.pipOn : ""}`} />
-          </span>
-        );
-      })}
+      {prompt && !rolling ? (
+        <span className={s.dieLabel}>Roll</span>
+      ) : (
+        Array.from({ length: 9 }).map((_, idx) => {
+          const row = Math.floor(idx / 3);
+          const col = idx % 3;
+          const on = (value === null ? [] : PIPS[value] || []).some(
+            ([r, c]) => r === row && c === col,
+          );
+          return (
+            <span key={idx} className={s.pipCell}>
+              <span className={`${s.pip} ${on ? s.pipOn : ""}`} />
+            </span>
+          );
+        })
+      )}
     </button>
   );
 }
@@ -311,6 +315,18 @@ export default function TesseraGame({
   const [wins, setWins] = useState({ p1: 0, p2: 0 });
   const [muted, setMuted] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [splash, setSplash] = useState<"on" | "leaving" | "off">(
+    inApp ? "on" : "off",
+  );
+
+  useEffect(() => {
+    if (splash === "off") return;
+    const t = window.setTimeout(
+      () => setSplash(splash === "on" ? "leaving" : "off"),
+      splash === "on" ? 2100 : 320,
+    );
+    return () => window.clearTimeout(t);
+  }, [splash]);
 
   useEffect(() => {
     if (!settingsOpen && !confirmDialog) return;
@@ -549,12 +565,25 @@ export default function TesseraGame({
 
   return (
     <div className={`${s.root} ${inApp ? s.inApp : ""}`}>
+      {splash !== "off" && (
+        <div
+          className={`${s.splash} ${splash === "leaving" ? s.splashOut : ""}`}
+          onClick={() => setSplash("leaving")}
+          aria-hidden="true"
+        >
+          <HexMark className={s.splashMark} draw />
+        </div>
+      )}
       <div className={s.column}>
         {back}
 
         <header className={s.head}>
           <h1 className={s.title}>
-            <span className={s.logo} aria-hidden="true" />
+            {inApp ? (
+              <HexMark className={s.mark} />
+            ) : (
+              <span className={s.logo} aria-hidden="true" />
+            )}
             Tessera
           </h1>
           {lede}
@@ -956,6 +985,81 @@ export default function TesseraGame({
         </div>
       )}
     </div>
+  );
+}
+
+const HEX_R = 328;
+const HEX_PTS = [120, 60, 0, 300, 240, 180].map((a) => {
+  const r = (a * Math.PI) / 180;
+  return [HEX_R * Math.cos(r), -HEX_R * Math.sin(r)];
+});
+const HEX_C = [0, 0];
+const [TL, TR, RR, BR, BL, LL] = HEX_PTS;
+const HEX_EDGES: [number[], number[], string][] = [
+  [TL, TR, COLORS.p2],
+  [TR, RR, COLORS.p2],
+  [RR, BR, COLORS.p2],
+  [BR, BL, COLORS.p1],
+  [BL, LL, COLORS.p1],
+  [LL, TL, COLORS.p1],
+  [HEX_C, TR, COLORS.p2],
+  [HEX_C, RR, COLORS.p2],
+  [HEX_C, BR, COLORS.p2],
+  [HEX_C, TL, COLORS.p1],
+  [HEX_C, LL, COLORS.p1],
+  [HEX_C, BL, COLORS.p1],
+];
+const HEX_TRIS: [number[][], string][] = [
+  [[TL, LL, HEX_C], COLORS.p1soft],
+  [[LL, BL, HEX_C], COLORS.p1soft],
+  [[BL, BR, HEX_C], COLORS.p1soft],
+  [[TL, TR, HEX_C], COLORS.p2soft],
+  [[TR, RR, HEX_C], COLORS.p2soft],
+  [[RR, BR, HEX_C], COLORS.p2soft],
+];
+
+function HexMark({ className, draw }: { className?: string; draw?: boolean }) {
+  return (
+    <svg
+      className={`${className ?? ""} ${draw ? s.hexDraw : ""}`}
+      viewBox="-370 -340 740 680"
+      aria-hidden="true"
+    >
+      {HEX_TRIS.map(([pts, fill], i) => (
+        <polygon
+          key={`t${i}`}
+          className={s.hexFill}
+          points={pts.map((p) => p.join(",")).join(" ")}
+          fill={fill}
+        />
+      ))}
+      {HEX_EDGES.map(([a, b, color], i) => (
+        <line
+          key={`e${i}`}
+          className={s.hexLine}
+          style={{ "--i": i } as React.CSSProperties}
+          x1={a[0]}
+          y1={a[1]}
+          x2={b[0]}
+          y2={b[1]}
+          stroke={color}
+          strokeWidth={26}
+          strokeLinecap="round"
+          pathLength={1}
+        />
+      ))}
+      {[...HEX_PTS, HEX_C].map((p, i) => (
+        <circle
+          key={`d${i}`}
+          className={s.hexDot}
+          style={{ "--i": i } as React.CSSProperties}
+          cx={p[0]}
+          cy={p[1]}
+          r={23}
+          fill="#ecebe7"
+        />
+      ))}
+    </svg>
   );
 }
 

@@ -197,6 +197,10 @@
     scale 0.2s var(--ease);
 }
 
+.about a.chip {
+  color: var(--ink);
+}
+
 .mark {
   display: grid;
   place-items: center;

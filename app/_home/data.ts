@@ -107,6 +107,10 @@ export const PLAY: Piece[] = [
     line: "A triangle game for two.",
     kind: "Game",
     href: "/tessera",
+    live: {
+      label: "App Store",
+      href: "https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982",
+    },
     image: "/home/peek/tessera.jpg",
   },
   {
@@ -138,7 +142,7 @@ export const PLAY: Piece[] = [
 export const TOYS = [
   {
     title: "Bonsai",
-    verb: "Shake the leaves off",
+    verb: "Shake it",
     embed: "/pixel-bonsai?card=1",
     image: "/home/play/pixel-bonsai.jpg",
   },

@@ -14,6 +14,14 @@ export default function TesseraPage() {
           </span>{" "}
           Roll the die, draw that many lines and close triangles to claim them.
           Whoever holds the most triangles when the board is full wins.
+          It&rsquo;s also on the{" "}
+          <a
+            className={s.link}
+            href="https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982"
+          >
+            App Store
+          </a>
+          .
         </p>
       }
       foot={

@@ -180,17 +180,17 @@ export default function Homepage() {
               <h2 className={styles.label}>Playground</h2>
               <div className={styles.shelf}>
                 <figure>
-                  <FaceCard />
-                  <figcaption>
-                    <span>Particles</span> Hover or tap
-                  </figcaption>
-                </figure>
-                <figure>
                   <div className={styles.ignitionCard}>
                     <Finale card />
                   </div>
                   <figcaption>
                     <span>Ignition</span> Lift and press
+                  </figcaption>
+                </figure>
+                <figure>
+                  <FaceCard />
+                  <figcaption>
+                    <span>Particles</span> Hover or tap
                   </figcaption>
                 </figure>
                 <figure className={styles.coinFigure}>

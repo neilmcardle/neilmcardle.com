@@ -497,8 +497,8 @@
 }
 
 .face img {
-  filter: grayscale(1) sepia(0.75) saturate(0.93) hue-rotate(-32deg)
-    brightness(0.67) contrast(1.4);
+  filter: grayscale(1) sepia(1) saturate(2.2) hue-rotate(26deg) brightness(1.8)
+    contrast(1.2);
 }
 
 .instant .face,
