@@ -20,4 +20,8 @@ if grep -q '"typecheck"' package.json; then
   npm run typecheck || { echo "    ❌ TypeScript errors found"; exit 1; }
 fi
 
+# 5. Run eslint
+echo "  Linting..."
+npm run lint || { echo "    ❌ Lint failed"; exit 1; }
+
 echo "✓ All pre-commit checks passed"

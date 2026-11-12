@@ -88,12 +88,17 @@ jobs:
           rm -rf node_modules
           git -c core.hooksPath=/dev/null -c core.fsmonitor=false diff --stat
 
+      - name: Install for checks
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
       - name: Type check
-        id: types
-        continue-on-error: true
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          npx tsc --noEmit
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
 
       - name: Open a pull request
         id: pr
@@ -117,9 +122,7 @@ jobs:
           {
             printf 'A visitor suggested:\n\n> %s\n\n' "${SUGGESTION:0:500}"
             printf 'What the agent did:\n\n%s\n' "$summary"
-            if [ "${{ steps.types.outcome }}" != "success" ]; then
-              printf '\nThe type check failed. Look at the run log before merging.\n'
-            fi
+            printf '\nType check, lint and tests passed before this pull request was opened.\n'
           } > "$RUNNER_TEMP/body.md"
           url=$(gh pr create --base main --head "$branch" \
             --title "Suggestion: ${SUGGESTION:0:60}" \

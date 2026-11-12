@@ -42,7 +42,7 @@ const config = [
       "react-hooks/exhaustive-deps": "warn",
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/refs": "warn",
-      "react-hooks/error-boundaries": "warn",
+      "react-hooks/error-boundaries": "error",
       "react-hooks/immutability": "warn",
       "react-hooks/purity": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
