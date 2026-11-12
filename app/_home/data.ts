@@ -40,10 +40,7 @@ export const WORK: Piece[] = [
     line: "Wireframe from your phone.",
     kind: "iOS app",
     href: "/work/doodlewire",
-    live: {
-      label: "App Store",
-      href: "https://apps.apple.com/us/app/doodlewire/id6771274835",
-    },
+    kindHref: "https://apps.apple.com/us/app/doodlewire/id6771274835",
     image: "/home/leads/doodlewire.jpg",
     local: true,
   },
