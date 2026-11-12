@@ -1,19 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { availableSince, grantState } from "./grantRules";
+import { availableSince, allowanceState } from "./allowanceRules";
 
 const now = new Date("2026-11-10T12:00:00Z");
 
-describe("grantState", () => {
+describe("allowanceState", () => {
   it("is available before it is used", () => {
-    expect(grantState("brief", null, now)).toEqual({ state: "available" });
-    expect(grantState("question", null, now)).toEqual({ state: "available" });
+    expect(allowanceState("brief", null, now)).toEqual({ state: "available" });
+    expect(allowanceState("question", null, now)).toEqual({
+      state: "available",
+    });
   });
 
   it("gives the brief back after 30 days", () => {
     const used = new Date("2026-10-01T12:00:00Z");
-    expect(grantState("brief", used, now)).toEqual({ state: "available" });
+    expect(allowanceState("brief", used, now)).toEqual({ state: "available" });
     const recent = new Date("2026-11-01T12:00:00Z");
-    expect(grantState("brief", recent, now)).toEqual({
+    expect(allowanceState("brief", recent, now)).toEqual({
       state: "spent",
       resetsAt: new Date("2026-12-01T12:00:00Z"),
     });
@@ -21,7 +23,7 @@ describe("grantState", () => {
 
   it("never gives the free question back", () => {
     const used = new Date("2020-01-01T00:00:00Z");
-    expect(grantState("question", used, now)).toEqual({
+    expect(allowanceState("question", used, now)).toEqual({
       state: "spent",
       resetsAt: null,
     });

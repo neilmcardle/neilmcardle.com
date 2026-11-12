@@ -23,9 +23,9 @@ import {
   ACTION_PROMPTS,
   ANALYTICAL_ACTIONS,
   generateId,
-  generateSessionId,
+  generateChatId,
 } from "./bookMind/actions";
-import { useChatSessions } from "./bookMind/useChatSessions";
+import { useChats } from "./bookMind/useChats";
 import { resolveContext } from "./bookMind/resolveContext";
 import { readSseData } from "./bookMind/readSse";
 import {
@@ -44,7 +44,7 @@ export type {
   BookMindAction,
   BookMindMessage,
   BookMindContext,
-  ChatSession,
+  Chat,
   SendMessageOpts,
   BookMindActivity,
 } from "./bookMind/types";
@@ -70,16 +70,16 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const abortRef = useRef<AbortController | null>(null);
 
   const {
-    chatSessions,
-    currentSessionId,
-    sessionIdRef,
-    selectSession,
-    createSession,
-    loadSession,
-    renameSession,
-    deleteSession,
+    chats,
+    currentChatId,
+    chatIdRef,
+    selectChat,
+    createChat,
+    loadChat,
+    renameChat,
+    deleteChat,
     saveExchange,
-  } = useChatSessions({ bookId, chatStorage, setMessages });
+  } = useChats({ bookId, chatStorage, setMessages });
 
   const sendMessage = useCallback(
     async (
@@ -97,10 +97,10 @@ export function useBookMind(options: UseBookMindOptions = {}) {
 
       dispatch({ type: "send" });
 
-      let sessionId = sessionIdRef.current;
-      if (!sessionId) {
-        sessionId = generateSessionId();
-        selectSession(sessionId);
+      let chatId = chatIdRef.current;
+      if (!chatId) {
+        chatId = generateChatId();
+        selectChat(chatId);
       }
 
       const isLegacy = !!contextOrOpts && "allChapters" in contextOrOpts;
@@ -268,7 +268,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
           },
         ];
         dispatch({ type: "done" });
-        saveExchange(sessionId, finalMessages);
+        saveExchange(chatId, finalMessages);
         return fullContent;
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -277,7 +277,7 @@ export function useBookMind(options: UseBookMindOptions = {}) {
             const kept = prev.filter(
               (m) => m.role !== "assistant" || m.content.trim(),
             );
-            saveExchange(sessionId, kept);
+            saveExchange(chatId, kept);
             return kept;
           });
           return null;
@@ -299,11 +299,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
         };
         const finalMessages = [...updatedMessages, errorMsg];
         setMessages(finalMessages);
-        saveExchange(sessionId, finalMessages);
+        saveExchange(chatId, finalMessages);
         return null;
       }
     },
-    [messages, saveExchange, selectSession, sessionIdRef, bookId, userId],
+    [messages, saveExchange, selectChat, chatIdRef, bookId, userId],
   );
 
   const quickAction = useCallback(
@@ -319,8 +319,8 @@ export function useBookMind(options: UseBookMindOptions = {}) {
   const clearMessages = useCallback(() => {
     setMessages([]);
     dispatch({ type: "clearError" });
-    saveExchange(sessionIdRef.current, []);
-  }, [saveExchange, sessionIdRef]);
+    saveExchange(chatIdRef.current, []);
+  }, [saveExchange, chatIdRef]);
 
   const toggleOpen = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -373,11 +373,11 @@ export function useBookMind(options: UseBookMindOptions = {}) {
     inlineEdit,
     stop,
 
-    chatSessions,
-    currentSessionId,
-    createSession,
-    loadSession,
-    renameSession,
-    deleteSession,
+    chats,
+    currentChatId,
+    createChat,
+    loadChat,
+    renameChat,
+    deleteChat,
   };
 }

@@ -8,9 +8,9 @@ import BookMindMark from "../../bookmind/BookMindMark";
 import styles from "./landing.module.css";
 
 type Part = string | { cite: number };
-type Conversation = { q: string; steps: string[]; answer: Part[] };
+type Chat = { q: string; steps: string[]; answer: Part[] };
 
-const OPENING: Conversation = {
+const OPENING: Chat = {
   q: "Does Chapter Forty earn its ending?",
   steps: [
     "Read Chapter Forty",
@@ -26,7 +26,7 @@ const OPENING: Conversation = {
   ],
 };
 
-const FOLLOW_UPS: Conversation[] = [
+const FOLLOW_UPS: Chat[] = [
   {
     q: "Is the pacing even?",
     steps: [
@@ -94,7 +94,7 @@ function escapeHtml(text: string) {
   return text.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
-function freeTextReply(q: string): Conversation {
+function freeTextReply(q: string): Chat {
   return {
     q,
     steps: ["Read your question"],
@@ -120,7 +120,7 @@ export function StudioDemo() {
   const [page, setPage] = useState(0);
   const [pages, setPages] = useState(1);
   const [pageWidth, setPageWidth] = useState(0);
-  const [convo, setConvo] = useState<Conversation | null>(null);
+  const [chat, setChat] = useState<Chat | null>(null);
   const [startedAt, setStartedAt] = useState(0);
   const [now, setNow] = useState(0);
   const [draft, setDraft] = useState("");
@@ -170,43 +170,41 @@ export function StudioDemo() {
   useEffect(() => {
     if (!inView) return;
     const t = window.setTimeout(() => {
-      setConvo(OPENING);
+      setChat(OPENING);
       setStartedAt(performance.now());
     }, 900);
     return () => window.clearTimeout(t);
   }, [inView]);
 
-  const convoTokens = convo ? tokens(convo.answer) : [];
+  const chatTokens = chat ? tokens(chat.answer) : [];
   const elapsed = reduced ? Number.POSITIVE_INFINITY : now - startedAt;
-  const typedChars = convo
-    ? Math.max(0, Math.min(convo.q.length, Math.floor(elapsed / TYPE_MS)))
+  const typedChars = chat
+    ? Math.max(0, Math.min(chat.q.length, Math.floor(elapsed / TYPE_MS)))
     : 0;
-  const stepsStart = convo ? convo.q.length * TYPE_MS + 280 : 0;
-  const stepsShown = convo
+  const stepsStart = chat ? chat.q.length * TYPE_MS + 280 : 0;
+  const stepsShown = chat
     ? Math.max(
         0,
         Math.min(
-          convo.steps.length,
+          chat.steps.length,
           Math.floor((elapsed - stepsStart) / STEP_MS) + 1,
         ),
       )
     : 0;
-  const answerStart = convo
-    ? stepsStart + convo.steps.length * STEP_MS + 160
-    : 0;
-  const tokensShown = convo
+  const answerStart = chat ? stepsStart + chat.steps.length * STEP_MS + 160 : 0;
+  const tokensShown = chat
     ? Math.max(
         0,
         Math.min(
-          convoTokens.length,
+          chatTokens.length,
           Math.floor((elapsed - answerStart) / WORD_MS),
         ),
       )
     : 0;
-  const done = !!convo && tokensShown >= convoTokens.length;
+  const done = !!chat && tokensShown >= chatTokens.length;
 
   useEffect(() => {
-    if (!convo || reduced || done) return;
+    if (!chat || reduced || done) return;
     let frame = 0;
     const tick = () => {
       setNow(performance.now());
@@ -214,7 +212,7 @@ export function StudioDemo() {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [convo, reduced, done]);
+  }, [chat, reduced, done]);
 
   useEffect(() => {
     const thread = threadRef.current;
@@ -229,8 +227,8 @@ export function StudioDemo() {
     [],
   );
 
-  const ask = (next: Conversation) => {
-    setConvo(next);
+  const ask = (next: Chat) => {
+    setChat(next);
     setStartedAt(performance.now());
     setNow(performance.now());
   };
@@ -302,7 +300,7 @@ export function StudioDemo() {
     setDraft("");
     const match = FOLLOW_UPS.find((f) => f.q.toLowerCase() === q.toLowerCase());
     const next = match ?? freeTextReply(q);
-    setConvo({ ...next, q });
+    setChat({ ...next, q });
     setStartedAt(performance.now() - q.length * TYPE_MS);
     setNow(performance.now());
   };
@@ -310,7 +308,7 @@ export function StudioDemo() {
   const chapter = CHAPTERS[active];
   const words = countWords(texts[active].join(" "));
   const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
-  const visibleTokens = convoTokens.slice(0, tokensShown);
+  const visibleTokens = chatTokens.slice(0, tokensShown);
 
   return (
     <Stage
@@ -543,7 +541,7 @@ export function StudioDemo() {
           icon={
             <BookMindMark
               className={styles.titleMark}
-              thinking={!!convo && !done}
+              thinking={!!chat && !done}
             />
           }
           right={<span className={styles.tag}>Pro</span>}
@@ -551,15 +549,15 @@ export function StudioDemo() {
         >
           <div className={styles.mindBody}>
             <div ref={threadRef} className={styles.thread} aria-live="polite">
-              {convo && (
+              {chat && (
                 <>
                   <p className={styles.prompt}>
-                    {convo.q.slice(0, typedChars)}
-                    {typedChars < convo.q.length && (
+                    {chat.q.slice(0, typedChars)}
+                    {typedChars < chat.q.length && (
                       <span className={styles.caret} />
                     )}
                   </p>
-                  {convo.steps.slice(0, stepsShown).map((s, i) => {
+                  {chat.steps.slice(0, stepsShown).map((s, i) => {
                     const pending =
                       i === stepsShown - 1 && tokensShown === 0 && !reduced;
                     const [verb, ...rest] = s.split(" ");

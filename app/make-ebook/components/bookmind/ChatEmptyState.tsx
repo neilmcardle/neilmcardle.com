@@ -11,7 +11,7 @@ interface ChatEmptyStateProps {
   chapters: Chapter[];
   selectedChapterIndex: number;
   isPro: boolean;
-  trialMode: boolean;
+  freeQuestionMode: boolean;
   locked: boolean;
   onPreflight?: () => void;
   onRunAction: (action: BookMindAction, label: string) => void;
@@ -22,7 +22,7 @@ export default function ChatEmptyState({
   chapters,
   selectedChapterIndex,
   isPro,
-  trialMode,
+  freeQuestionMode,
   locked,
   onPreflight,
   onRunAction,
@@ -90,7 +90,7 @@ export default function ChatEmptyState({
           ) : (
             "Book Mind has read your book. Ask anything, or start here."
           )}
-          {trialMode && !locked && " You have one free question."}
+          {freeQuestionMode && !locked && " You have one free question."}
         </p>
       )}
       {chapters.length > 0 && !locked && (

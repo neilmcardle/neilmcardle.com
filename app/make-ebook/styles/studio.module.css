@@ -4140,7 +4140,7 @@ button:focus-visible > .avatar {
   color: var(--clay-muted);
 }
 
-.bmTrial {
+.bmFreeQuestion {
   display: flex;
   flex: none;
   align-items: center;
@@ -4154,11 +4154,11 @@ button:focus-visible > .avatar {
   color: var(--clay);
 }
 
-.bmTrial p {
+.bmFreeQuestion p {
   margin: 0;
 }
 
-.bmTrial button {
+.bmFreeQuestion button {
   flex: none;
   font-weight: 500;
   color: var(--paper);

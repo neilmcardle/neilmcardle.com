@@ -47,7 +47,7 @@ export const keys = {
     key: `${PREFIX}bookmind-chats:${scoped(userId)}`,
     legacy: [`${userPrefix(userId)}bookmind_chats`],
   }),
-  bookMindTrialUsed: (userId: string): StorageKey => ({
+  freeQuestionUsed: (userId: string): StorageKey => ({
     key: `${PREFIX}bookmind-trial-used:${userId}`,
     legacy: [`mf_bm_trial_used_${userId}`],
   }),

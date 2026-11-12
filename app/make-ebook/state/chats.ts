@@ -5,7 +5,7 @@ export interface StoredMessage {
   timestamp: number;
 }
 
-export interface StoredSession<M extends StoredMessage = StoredMessage> {
+export interface StoredChat<M extends StoredMessage = StoredMessage> {
   id: string;
   name: string;
   bookId: string;
@@ -24,30 +24,30 @@ function nameFrom<M extends StoredMessage>(messages: M[]) {
   return text.slice(0, 40) + (text.length > 40 ? "…" : "");
 }
 
-export function addSession<M extends StoredMessage>(
-  stored: StoredSession<M>[],
-  session: StoredSession<M>,
-): StoredSession<M>[] {
-  return [...stored.filter((s) => s.id !== session.id), session];
+export function addChat<M extends StoredMessage>(
+  stored: StoredChat<M>[],
+  chat: StoredChat<M>,
+): StoredChat<M>[] {
+  return [...stored.filter((s) => s.id !== chat.id), chat];
 }
 
-export function removeSession<M extends StoredMessage>(
-  stored: StoredSession<M>[],
-  sessionId: string,
-): StoredSession<M>[] {
-  return stored.filter((s) => s.id !== sessionId);
+export function removeChat<M extends StoredMessage>(
+  stored: StoredChat<M>[],
+  chatId: string,
+): StoredChat<M>[] {
+  return stored.filter((s) => s.id !== chatId);
 }
 
 export function recordExchange<M extends StoredMessage>(
-  stored: StoredSession<M>[],
+  stored: StoredChat<M>[],
   {
-    sessionId,
+    chatId,
     bookId,
     messages,
     now,
-  }: { sessionId: string; bookId: string; messages: M[]; now: number },
-): StoredSession<M>[] {
-  const existing = stored.find((s) => s.id === sessionId);
+  }: { chatId: string; bookId: string; messages: M[]; now: number },
+): StoredChat<M>[] {
+  const existing = stored.find((s) => s.id === chatId);
   const autoName =
     !existing || PLACEHOLDER_NAME.test(existing.name)
       ? nameFrom(messages)
@@ -57,7 +57,7 @@ export function recordExchange<M extends StoredMessage>(
     return [
       ...stored,
       {
-        id: sessionId,
+        id: chatId,
         name: autoName ?? `Chat ${sameBook + 1}`,
         bookId,
         messages,
@@ -67,7 +67,7 @@ export function recordExchange<M extends StoredMessage>(
     ];
   }
   return stored.map((s) =>
-    s.id === sessionId
+    s.id === chatId
       ? {
           ...s,
           messages,
