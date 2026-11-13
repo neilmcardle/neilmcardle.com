@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  addSession,
-  recordExchange,
-  removeSession,
-  type StoredSession,
-} from "./chatSessions";
+import { addChat, recordExchange, removeChat, type StoredChat } from "./chats";
 
 const msg = (id: string, role: "user" | "assistant", content: string) => ({
   id,
@@ -13,11 +8,7 @@ const msg = (id: string, role: "user" | "assistant", content: string) => ({
   timestamp: 1,
 });
 
-const session = (
-  id: string,
-  bookId: string,
-  name = "Chat 1",
-): StoredSession => ({
+const chat = (id: string, bookId: string, name = "Chat 1"): StoredChat => ({
   id,
   name,
   bookId,
@@ -26,10 +17,10 @@ const session = (
   updatedAt: 1,
 });
 
-describe("chatSessions", () => {
-  it("creates the session and saves the first exchange in one step", () => {
+describe("chats", () => {
+  it("creates the chat and saves the first exchange in one step", () => {
     const result = recordExchange([], {
-      sessionId: "chat-1",
+      chatId: "chat-1",
       bookId: "book-1",
       messages: [
         msg("m1", "user", "Who is Ada?"),
@@ -47,10 +38,10 @@ describe("chatSessions", () => {
     expect(result[0].messages).toHaveLength(2);
   });
 
-  it("updates an existing session and names it from the first question", () => {
-    const stored = [session("chat-1", "book-1")];
+  it("updates an existing chat and names it from the first question", () => {
+    const stored = [chat("chat-1", "book-1")];
     const result = recordExchange(stored, {
-      sessionId: "chat-1",
+      chatId: "chat-1",
       bookId: "book-1",
       messages: [msg("m1", "user", "x".repeat(50))],
       now: 9,
@@ -59,16 +50,14 @@ describe("chatSessions", () => {
     expect(result[0].updatedAt).toBe(9);
   });
 
-  it("keeps a session another window wrote when adding one", () => {
-    const stored = [session("chat-a", "book-1"), session("chat-b", "book-2")];
-    const result = addSession(stored, session("chat-c", "book-1", "Chat 2"));
+  it("keeps a chat another window wrote when adding one", () => {
+    const stored = [chat("chat-a", "book-1"), chat("chat-b", "book-2")];
+    const result = addChat(stored, chat("chat-c", "book-1", "Chat 2"));
     expect(result.map((s) => s.id)).toEqual(["chat-a", "chat-b", "chat-c"]);
   });
 
-  it("removes only the session asked for", () => {
-    const stored = [session("chat-a", "book-1"), session("chat-b", "book-1")];
-    expect(removeSession(stored, "chat-a").map((s) => s.id)).toEqual([
-      "chat-b",
-    ]);
+  it("removes only the chat asked for", () => {
+    const stored = [chat("chat-a", "book-1"), chat("chat-b", "book-1")];
+    expect(removeChat(stored, "chat-a").map((s) => s.id)).toEqual(["chat-b"]);
   });
 });

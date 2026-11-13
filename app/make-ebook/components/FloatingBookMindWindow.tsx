@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import type { useBookMind, ChatSession } from "../hooks/useBookMind";
+import type { useBookMind, Chat } from "../hooks/useBookMind";
 import BookMindMark from "./bookmind/BookMindMark";
 import BookMindChat from "./bookmind/BookMindChat";
 import type { Chapter as BookChapter } from "../types";
 import { loadBookById } from "../utils/bookLibrary";
 import { addRule, getMemory, removeRule } from "../utils/bookmindMemory";
 import styles from "../styles/studio.module.css";
-import { keys, readLocal, writeLocal } from "../storage/keys";
+import { keys, writeLocal } from "../storage/keys";
+import { useLocalValue } from "../storage/useLocalValue";
 
 interface FloatingBookMindWindowProps {
   mind: ReturnType<typeof useBookMind>;
@@ -156,7 +157,7 @@ function MemoryList({ userId, bookId }: { userId: string; bookId: string }) {
 }
 
 function ChatList({
-  sessions,
+  chats,
   currentId,
   onPick,
   onNew,
@@ -164,7 +165,7 @@ function ChatList({
   userId,
   bookId,
 }: {
-  sessions: ChatSession[];
+  chats: Chat[];
   currentId: string | null;
   onPick: (id: string) => void;
   onNew: () => void;
@@ -172,10 +173,10 @@ function ChatList({
   userId?: string;
   bookId?: string;
 }) {
-  const sorted = [...sessions]
+  const sorted = [...chats]
     .filter((s) => s.messages.length > 0 || s.id === currentId)
     .sort((a, b) => b.updatedAt - a.updatedAt);
-  const groups: { name: string; items: ChatSession[] }[] = [];
+  const groups: { name: string; items: Chat[] }[] = [];
   for (const s of sorted) {
     const name = groupOf(s.updatedAt);
     const group = groups.find((g) => g.name === name);
@@ -203,7 +204,7 @@ function ChatList({
       </button>
       {groups.length === 0 ? (
         <p className={styles.bmListEmpty}>
-          Conversations about this book will appear here.
+          Chats about this book will appear here.
         </p>
       ) : (
         groups.map((g) => (
@@ -271,14 +272,10 @@ export default function FloatingBookMindWindow({
   onBusyChange,
 }: FloatingBookMindWindowProps) {
   const [listOpen, setListOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const expanded = useLocalValue(keys.bookMindExpanded()) === "1";
   const busy = mind.isLoading || mind.isStreaming;
   const sheet = variant === "sheet";
   const docked = expanded && !sheet;
-
-  useEffect(() => {
-    setExpanded(readLocal(keys.bookMindExpanded()) === "1");
-  }, []);
 
   useEffect(() => {
     if (sheet) return;
@@ -302,20 +299,16 @@ export default function FloatingBookMindWindow({
   if (!isOpen) return null;
 
   const toggleExpanded = () => {
-    setExpanded((prev) => {
-      const next = !prev;
-      writeLocal(keys.bookMindExpanded(), next ? "1" : "0");
-      return next;
-    });
+    writeLocal(keys.bookMindExpanded(), expanded ? "0" : "1");
   };
 
   const newChat = () => {
     if (busy) mind.stop();
-    mind.createSession();
+    mind.createChat();
     setListOpen(false);
   };
 
-  const current = mind.chatSessions.find((s) => s.id === mind.currentSessionId);
+  const current = mind.chats.find((s) => s.id === mind.currentChatId);
   const heading =
     current && current.messages.length > 0 && !/^Chat \d+$/.test(current.name)
       ? current.name
@@ -377,14 +370,14 @@ export default function FloatingBookMindWindow({
               onClick={() => setListOpen(false)}
             />
             <ChatList
-              sessions={mind.chatSessions}
-              currentId={mind.currentSessionId}
+              chats={mind.chats}
+              currentId={mind.currentChatId}
               onPick={(id) => {
-                mind.loadSession(id);
+                mind.loadChat(id);
                 setListOpen(false);
               }}
               onNew={newChat}
-              onDelete={mind.deleteSession}
+              onDelete={mind.deleteChat}
               userId={isPro ? userId : undefined}
               bookId={bookId}
             />

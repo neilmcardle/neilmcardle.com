@@ -11,10 +11,10 @@ import ChatComposer from "./ChatComposer";
 import { matchCommands } from "./chatShared";
 import { addRule } from "../../utils/bookmindMemory";
 import {
-  clearTrialUsed,
-  hasUsedTrial,
-  markTrialUsed,
-} from "../../utils/bookMindTrial";
+  clearFreeQuestionUsed,
+  markFreeQuestionUsed,
+  useFreeQuestionUsed,
+} from "../../utils/freeQuestion";
 import styles from "../../styles/studio.module.css";
 import { bookMindGate } from "../../state/bookMindGate";
 
@@ -61,7 +61,7 @@ export default function BookMindChat({
   const [menuOpen, setMenuOpen] = useState(false);
   const [slashIndex, setSlashIndex] = useState(0);
   const [reading, setReading] = useState<string | null>(null);
-  const [trialUsed, setTrialUsed] = useState(() => hasUsedTrial(userId));
+  const freeQuestionUsed = useFreeQuestionUsed(userId);
 
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -69,27 +69,21 @@ export default function BookMindChat({
   const pinned = useRef(true);
 
   const busy = isLoading || isStreaming;
-  const trialMode = tierKnown && !isPro;
-  const locked = trialMode && trialUsed;
+  const freeQuestionMode = tierKnown && !isPro;
+  const locked = freeQuestionMode && freeQuestionUsed;
   const selection =
     selectedText && selectedText !== dismissedSelection
       ? selectedText.trim()
       : "";
 
   useEffect(() => {
-    setTrialUsed(hasUsedTrial(userId));
-  }, [userId]);
-
-  useEffect(() => {
-    if (!trialMode || !mind.error) return;
+    if (!freeQuestionMode || !mind.error) return;
     if (mind.errorCode === "free_question_spent") {
-      markTrialUsed(userId);
-      setTrialUsed(true);
+      markFreeQuestionUsed(userId);
     } else {
-      clearTrialUsed(userId);
-      setTrialUsed(false);
+      clearFreeQuestionUsed(userId);
     }
-  }, [mind.error, mind.errorCode, trialMode, userId]);
+  }, [mind.error, mind.errorCode, freeQuestionMode, userId]);
 
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus(), 200);
@@ -128,17 +122,14 @@ export default function BookMindChat({
     pinned.current = true;
     setAttached([]);
     if (selection) setDismissedSelection(selectedText ?? null);
-    if (trialMode) {
-      markTrialUsed(userId);
-      setTrialUsed(true);
-    }
+    if (freeQuestionMode) markFreeQuestionUsed(userId);
   };
 
   const guard = () => {
     const gate = bookMindGate({
       tierKnown,
       isPro,
-      trialUsed,
+      freeQuestionUsed,
       busy,
       hasChapters: chapters.length > 0,
     });
@@ -246,7 +237,7 @@ export default function BookMindChat({
             chapters={chapters}
             selectedChapterIndex={selectedChapterIndex}
             isPro={isPro}
-            trialMode={trialMode}
+            freeQuestionMode={freeQuestionMode}
             locked={locked}
             onPreflight={onPreflight}
             onRunAction={runAction}
@@ -281,7 +272,7 @@ export default function BookMindChat({
       </div>
 
       {locked ? (
-        <div className={styles.bmTrial}>
+        <div className={styles.bmFreeQuestion}>
           <p>You have used your free question.</p>
           <button type="button" onClick={onUpgrade}>
             See Pro

@@ -47,7 +47,7 @@ export const keys = {
     key: `${PREFIX}bookmind-chats:${scoped(userId)}`,
     legacy: [`${userPrefix(userId)}bookmind_chats`],
   }),
-  bookMindTrialUsed: (userId: string): StorageKey => ({
+  freeQuestionUsed: (userId: string): StorageKey => ({
     key: `${PREFIX}bookmind-trial-used:${userId}`,
     legacy: [`mf_bm_trial_used_${userId}`],
   }),
@@ -77,6 +77,25 @@ function storage(): Storage | null {
   }
 }
 
+const listeners = new Map<string, Set<() => void>>();
+
+export function subscribeLocal(key: string, listener: () => void) {
+  let set = listeners.get(key);
+  if (!set) {
+    set = new Set();
+    listeners.set(key, set);
+  }
+  set.add(listener);
+  return () => {
+    set.delete(listener);
+    if (set.size === 0) listeners.delete(key);
+  };
+}
+
+function notifyLocal(key: string) {
+  listeners.get(key)?.forEach((listener) => listener());
+}
+
 export function readLocal(name: StorageKey): string | null {
   const store = storage();
   if (!store) return null;
@@ -100,10 +119,11 @@ export function writeLocal(name: StorageKey, value: string): boolean {
   try {
     store.setItem(name.key, value);
     for (const old of name.legacy) store.removeItem(old);
-    return true;
   } catch {
     return false;
   }
+  notifyLocal(name.key);
+  return true;
 }
 
 export function removeLocal(name: StorageKey) {
@@ -112,5 +132,8 @@ export function removeLocal(name: StorageKey) {
   try {
     store.removeItem(name.key);
     for (const old of name.legacy) store.removeItem(old);
-  } catch {}
+  } catch {
+    return;
+  }
+  notifyLocal(name.key);
 }

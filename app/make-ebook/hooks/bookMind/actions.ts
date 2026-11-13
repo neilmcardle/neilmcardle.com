@@ -49,5 +49,5 @@ export const ACTION_LABELS: Record<BookMindAction, string> = {
 export const generateId = () =>
   `msg-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
-export const generateSessionId = () =>
+export const generateChatId = () =>
   `chat-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;

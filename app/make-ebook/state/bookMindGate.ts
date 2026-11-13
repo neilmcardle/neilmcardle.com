@@ -1,17 +1,17 @@
 export function bookMindGate({
   tierKnown,
   isPro,
-  trialUsed,
+  freeQuestionUsed,
   busy,
   hasChapters,
 }: {
   tierKnown: boolean;
   isPro: boolean;
-  trialUsed: boolean;
+  freeQuestionUsed: boolean;
   busy: boolean;
   hasChapters: boolean;
 }): "send" | "upgrade" | "wait" {
-  if (tierKnown && !isPro && trialUsed) return "upgrade";
+  if (tierKnown && !isPro && freeQuestionUsed) return "upgrade";
   if (busy || !hasChapters) return "wait";
   return "send";
 }

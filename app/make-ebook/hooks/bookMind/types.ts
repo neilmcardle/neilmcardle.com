@@ -36,7 +36,7 @@ export interface BookMindContext {
   selectedText?: string;
 }
 
-export interface ChatSession {
+export interface Chat {
   id: string;
   name: string;
   bookId: string;
