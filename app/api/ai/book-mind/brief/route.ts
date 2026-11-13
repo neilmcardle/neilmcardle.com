@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireBriefAccess } from "@/lib/auth/requireBriefAccess";
-import { refundGrant } from "@/lib/ai/grants";
+import { refundAllowance } from "@/lib/ai/allowances";
 import { streamWithFallback, SystemBlock } from "../_lib/anthropic";
 
 export const runtime = "nodejs";
@@ -24,16 +24,16 @@ export async function POST(req: NextRequest) {
   const auth = await requireBriefAccess(req);
   if (!auth.ok) return auth.response!;
 
-  const refundIfGranted = async () => {
-    if (auth.usedFreeGrant && auth.user && auth.claimedAt)
-      await refundGrant("brief", auth.user.id, auth.claimedAt);
+  const refundIfAllowanceUsed = async () => {
+    if (auth.usedFreeAllowance && auth.user && auth.claimedAt)
+      await refundAllowance("brief", auth.user.id, auth.claimedAt);
   };
 
   let body: BriefRequest;
   try {
     body = await req.json();
   } catch {
-    await refundIfGranted();
+    await refundIfAllowanceUsed();
     return NextResponse.json(
       { error: "Invalid request body" },
       { status: 400 },
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (!Array.isArray(body?.chapters) || body.chapters.length === 0) {
-    await refundIfGranted();
+    await refundIfAllowanceUsed();
     return NextResponse.json(
       { error: "No chapters provided" },
       { status: 400 },
@@ -122,7 +122,7 @@ ${manuscriptBlock}
       } catch (err) {
         const message =
           err instanceof Error ? err.message : "Brief generation failed";
-        await refundIfGranted();
+        await refundIfAllowanceUsed();
         controller.enqueue(ndjsonLine({ type: "error", error: message }));
       } finally {
         controller.close();

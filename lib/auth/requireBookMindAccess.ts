@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { claimGrant } from "@/lib/ai/grants";
+import { claimAllowance } from "@/lib/ai/allowances";
 import { dailyCapResponse, resolveAuthedUser } from "./requirePro";
 
 export interface BookMindAccessResult {
@@ -39,7 +39,7 @@ export async function requireBookMindAccess(
     };
   }
 
-  const claim = await claimGrant("question", resolved.user.id);
+  const claim = await claimAllowance("question", resolved.user.id);
   if (claim.status === "claimed") {
     return {
       ok: true,

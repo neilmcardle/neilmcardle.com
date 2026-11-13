@@ -1,7 +1,11 @@
 import { and, eq, isNull, lt, or } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { availableSince, grantState, type GrantKind } from "./grantRules";
+import {
+  availableSince,
+  allowanceState,
+  type AllowanceKind,
+} from "./allowanceRules";
 
 const COLUMN = {
   brief: users.aiBriefUsedAt,
@@ -15,8 +19,8 @@ export type Claim =
   | { status: "spent" }
   | { status: "error" };
 
-export async function claimGrant(
-  kind: GrantKind,
+export async function claimAllowance(
+  kind: AllowanceKind,
   userId: string,
 ): Promise<Claim> {
   const now = new Date();
@@ -37,13 +41,13 @@ export async function claimGrant(
       ? { status: "claimed", claimedAt: now }
       : { status: "spent" };
   } catch (err) {
-    console.error(`[grants] ${kind} claim failed`, err);
+    console.error(`[allowances] ${kind} claim failed`, err);
     return { status: "error" };
   }
 }
 
-export async function refundGrant(
-  kind: GrantKind,
+export async function refundAllowance(
+  kind: AllowanceKind,
   userId: string,
   claimedAt: Date,
 ): Promise<void> {
@@ -53,15 +57,15 @@ export async function refundGrant(
       .set({ [FIELD[kind]]: null, updatedAt: new Date() })
       .where(and(eq(users.id, userId), eq(COLUMN[kind], claimedAt)));
   } catch (err) {
-    console.error(`[grants] ${kind} refund failed`, err);
+    console.error(`[allowances] ${kind} refund failed`, err);
   }
 }
 
-export async function readGrant(kind: GrantKind, userId: string) {
+export async function readAllowance(kind: AllowanceKind, userId: string) {
   const [row] = await db
     .select({ usedAt: COLUMN[kind] })
     .from(users)
     .where(eq(users.id, userId))
     .limit(1);
-  return grantState(kind, row?.usedAt ?? null);
+  return allowanceState(kind, row?.usedAt ?? null);
 }

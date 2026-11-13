@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { claimGrant, readGrant } from "@/lib/ai/grants";
+import { claimAllowance, readAllowance } from "@/lib/ai/allowances";
 import { dailyCapResponse, resolveAuthedUser } from "./requirePro";
 
 export interface BriefAccessResult {
@@ -8,7 +8,7 @@ export interface BriefAccessResult {
   response?: NextResponse;
   user?: { id: string; email?: string };
 
-  usedFreeGrant?: boolean;
+  usedFreeAllowance?: boolean;
   claimedAt?: Date;
 }
 
@@ -23,15 +23,15 @@ export async function requireBriefAccess(
   if (resolved.isPro) {
     const capped = await dailyCapResponse(resolved.user.id);
     if (capped) return { ok: false, response: capped };
-    return { ok: true, user: resolved.user, usedFreeGrant: false };
+    return { ok: true, user: resolved.user, usedFreeAllowance: false };
   }
 
-  const claim = await claimGrant("brief", resolved.user.id);
+  const claim = await claimAllowance("brief", resolved.user.id);
   if (claim.status === "claimed") {
     return {
       ok: true,
       user: resolved.user,
-      usedFreeGrant: true,
+      usedFreeAllowance: true,
       claimedAt: claim.claimedAt,
     };
   }
@@ -45,7 +45,7 @@ export async function requireBriefAccess(
     };
   }
 
-  const status = await readGrant("brief", resolved.user.id);
+  const status = await readAllowance("brief", resolved.user.id);
   return {
     ok: false,
     response: NextResponse.json(
