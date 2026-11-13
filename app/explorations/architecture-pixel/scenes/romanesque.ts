@@ -38,6 +38,7 @@ const WOOD: RGB[] = [
 
 const CROSSING = 1,
   WEST = 2,
+  CRENELLATIONS = 3,
   NAVE = 4,
   TRANSEPT = 5,
   ROOF = 6,
@@ -92,7 +93,7 @@ export const romanesque: Scene = {
     "",
     "crossing tower",
     "west towers",
-    "",
+    "crenellations",
     "thick nave walls",
     "transept",
     "lead roof",
@@ -196,7 +197,7 @@ export const romanesque: Scene = {
       ),
     );
     shadowBox(-1.5, -1.5, 1.5, 1.5, 6.0, 11.0);
-    box(-1.6, -1.6, 10.9, 1.6, 1.6, 11.2, SANDSTONE, CROSSING, {
+    box(-1.6, -1.6, 10.9, 1.6, 1.6, 11.2, SANDSTONE, CRENELLATIONS, {
       sideX: (u) => (u % 0.3 < 0.15 ? 0.8 : -0.6),
       sideY: (u) => (u % 0.3 < 0.15 ? 0.8 : -0.6),
     });
@@ -225,7 +226,7 @@ export const romanesque: Scene = {
         ),
       );
       shadowBox(4, y0, 5.8, y1, 0, 9.6);
-      box(3.9, y0 - 0.1, 9.5, 5.9, y1 + 0.1, 9.8, SANDSTONE, WEST, {
+      box(3.9, y0 - 0.1, 9.5, 5.9, y1 + 0.1, 9.8, SANDSTONE, CRENELLATIONS, {
         sideX: (u) => (u % 0.3 < 0.15 ? 0.8 : -0.6),
         sideY: (u) => (u % 0.3 < 0.15 ? 0.8 : -0.6),
       });

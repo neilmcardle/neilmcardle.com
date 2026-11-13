@@ -38,7 +38,8 @@ const GABLE = 1,
   BRICKP = 4,
   WINDOWS = 5,
   HEDGE = 6,
-  ROOF = 7;
+  ROOF = 7,
+  OGEE = 8;
 
 const brick = rampId(BRICK),
   stone = rampId(STONE),
@@ -125,8 +126,8 @@ function turret(x: number, y: number) {
       Math.abs(u - 0.6) < 0.18 && v > 3.4 && v < 4.4 ? windowId(x, y, 7) : 0,
   });
   shadowBox(x - 0.6, y - 0.6, x + 0.6, y + 0.6, 0, 6.4);
-  dome(x, y, 6.4, 0.62, LEAD, TURRET, { zScale: 0.9 });
-  cone(x, y, 0.28, 6.9, 0.9, LEAD, TURRET);
+  dome(x, y, 6.4, 0.62, LEAD, OGEE, { zScale: 0.9 });
+  cone(x, y, 0.28, 6.9, 0.9, LEAD, OGEE);
 }
 
 export const jacobean: Scene = {
@@ -143,6 +144,7 @@ export const jacobean: Scene = {
     "mullioned windows",
     "yew hedge",
     "lead roof",
+    "ogee cap",
   ],
   ground(x, y, ix, iy, i) {
     const edge = island(x - 2.6, y, ix, iy, 9.6, 8.4);

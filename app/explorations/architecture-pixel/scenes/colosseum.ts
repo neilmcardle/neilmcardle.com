@@ -41,7 +41,8 @@ const TUSCAN = 1,
   PINE_PART = 8,
   ARENA = 9,
   CORRIDOR = 10,
-  VAULTS = 11;
+  VAULTS = 11,
+  VOUSSOIRS = 12;
 
 const A = 6.4,
   B = 5.2,
@@ -106,6 +107,12 @@ function facade(t: number, z: number): [number, number, number] {
       lz > 0.12 &&
       (lz < 0.72 || du * du + ((lz - 0.72) / 0.3) ** 2 < 1);
   if (open) return [trav, -2.4 + (lz < 0.2 ? 0.5 : 0), part];
+  const ring = Math.hypot(du, (lz - 0.72) / 0.3);
+  if (lz > 0.72 && ring < 1.38) {
+    const wedge =
+      Math.floor((Math.atan2(lz - 0.72, du * 0.3) / Math.PI) * 9) % 2;
+    return [trav, wedge ? 0.9 : 0.3, VOUSSOIRS];
+  }
   if (u < 0.09 || u > 0.91) return [trav, 0.6, part];
   return [trav, (noise(t * 40, z * 4) - 0.5) * 0.7, part];
 }
@@ -202,6 +209,7 @@ export const colosseum: Scene = {
     "arena floor",
     "ambulatory corridor",
     "vaulted substructure",
+    "voussoirs",
   ],
   cutaway: { inside: [CORRIDOR, VAULTS], removes: [INNER] },
   ground(x, y, ix, iy, i) {
