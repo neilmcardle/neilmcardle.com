@@ -2,6 +2,8 @@
 
 import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../utils/motion";
 
 const WIDTHS = {
   sm: "max-w-md",
@@ -40,11 +42,14 @@ export function Modal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open || typeof document === "undefined") return null;
+  const { mounted, state } = usePresence(open, EXIT_MODAL_MS);
+
+  if (!mounted || typeof document === "undefined") return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm me-fade-in"
+      className="fixed inset-0 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm me-scrim"
+      data-state={state}
       style={{ zIndex }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -54,7 +59,8 @@ export function Modal({
       aria-label={label}
     >
       <div
-        className={`me-rise-in flex flex-col w-full ${WIDTHS[width]} max-h-[90vh] overflow-hidden bg-white dark:bg-[var(--ink-panel)] rounded-modal border border-gray-200 dark:border-white/10 shadow-modal ${className}`}
+        data-state={state}
+        className={`me-modal flex flex-col w-full ${WIDTHS[width]} max-h-[90vh] overflow-hidden bg-white dark:bg-[var(--ink-panel)] rounded-modal border border-gray-200 dark:border-white/10 shadow-modal ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

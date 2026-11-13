@@ -19,6 +19,9 @@ const config = {
       },
     },
     extend: {
+      transitionTimingFunction: {
+        DEFAULT: "var(--ease-out)",
+      },
       fontSize: {
         "2xs": ["0.625rem", { lineHeight: "1rem" }], // 10px — labels, metadata
         "3xs": ["0.6875rem", { lineHeight: "1rem" }], // 11px — footers, captions

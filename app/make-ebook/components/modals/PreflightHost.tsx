@@ -5,6 +5,7 @@ import { useSession } from "../../providers/SessionProvider";
 import { useBook, useBookActions } from "../../providers/BookProvider";
 import { useEditor, useEditorActions } from "../../providers/EditorProvider";
 import { shallowEqual } from "../../providers/store";
+import { EASE_OUT, scrollMotion } from "../../utils/motion";
 
 function highlightField(field: string, mobile: boolean) {
   window.setTimeout(() => {
@@ -14,14 +15,14 @@ function highlightField(field: string, mobile: boolean) {
       field === "cover-image"
         ? ((el.previousElementSibling as HTMLElement | null) ?? el)
         : el;
-    target.scrollIntoView({ block: "center", behavior: "smooth" });
+    target.scrollIntoView({ block: "center", behavior: scrollMotion() });
     if (field !== "cover-image") el.focus({ preventScroll: true });
     target.animate(
       [
         { boxShadow: "0 0 0 2px var(--acid)" },
         { boxShadow: "0 0 0 2px transparent" },
       ],
-      { duration: 1800, easing: "ease-out" },
+      { duration: 1800, easing: EASE_OUT },
     );
   }, 450);
 }

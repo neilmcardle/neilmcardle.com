@@ -35,7 +35,7 @@ export default function CollapsibleSection({
     <div
       ref={outerRef}
       aria-hidden={!expanded}
-      className="overflow-hidden transition-[height,opacity] duration-[260ms] ease-out motion-reduce:transition-none"
+      className="overflow-hidden transition-[height,opacity] duration-[260ms] motion-reduce:transition-none"
       style={{
         opacity: expanded ? 1 : 0,
         pointerEvents: expanded ? undefined : "none",

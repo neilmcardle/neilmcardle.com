@@ -3,6 +3,7 @@
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,8 +14,11 @@ import { htmlToText } from "../model/text";
 import { useBook } from "../providers/BookProvider";
 import { shallowEqual } from "../providers/store";
 import { renderBook } from "../export/render";
-import { previewDocument } from "../export/preview";
+import { applyPreviewView, previewDocument } from "../export/preview";
 import TypographyPicker from "./TypographyPicker";
+import Segmented from "./Segmented";
+import { tween } from "../utils/motion";
+import { morph } from "../utils/surfaceMorph";
 
 type DeviceId = "kindle" | "ipad" | "phone";
 type ReadingMode = "page" | "scroll";
@@ -30,6 +34,11 @@ const DEVICES: Array<{
   { id: "ipad", label: "iPad", width: 480, height: 660, size: 15 },
   { id: "phone", label: "Phone", width: 330, height: 660, size: 13.5 },
 ];
+
+const READING_MODES = [
+  { value: "page", label: "Pages" },
+  { value: "scroll", label: "Scroll" },
+] as const;
 
 const PAGE_COLOURS = [
   {
@@ -98,6 +107,7 @@ export default function PreviewSurface({
   const [mode, setMode] = useState<ReadingMode>("page");
   const [page, setPage] = useState(0);
   const [pages, setPages] = useState(1);
+  const [ready, setReady] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
 
   const meta = useBook(
@@ -136,16 +146,29 @@ export default function PreviewSurface({
     [chapters, meta],
   );
 
+  const view = useMemo(
+    () => ({
+      fontPx: device.size,
+      page: colour.page,
+      ink: colour.ink,
+      muted: colour.muted,
+      paged: mode === "page",
+    }),
+    [device.size, colour, mode],
+  );
+  const viewRef = useRef(view);
+  useLayoutEffect(() => {
+    viewRef.current = view;
+  });
+
+  const [docFor, setDocFor] = useState({ book, selectedChapter, view });
+  if (docFor.book !== book || docFor.selectedChapter !== selectedChapter) {
+    setDocFor({ book, selectedChapter, view });
+  }
+
   const srcDoc = useMemo(
-    () =>
-      previewDocument(book, selectedChapter, {
-        fontPx: device.size,
-        page: colour.page,
-        ink: colour.ink,
-        muted: colour.muted,
-        paged: mode === "page",
-      }),
-    [book, selectedChapter, device.size, colour, mode],
+    () => previewDocument(docFor.book, docFor.selectedChapter, docFor.view),
+    [docFor],
   );
 
   const scroller = () => frameRef.current?.contentDocument?.body ?? null;
@@ -160,14 +183,33 @@ export default function PreviewSurface({
   }, [mode]);
 
   useEffect(() => {
+    const root = frameRef.current?.contentDocument?.documentElement;
+    if (!root) return;
+    applyPreviewView(root, view);
+    measure();
+  }, [view, measure]);
+
+  useEffect(() => {
     setPage(0);
   }, [selectedChapter, deviceId, mode, srcDoc]);
 
   useEffect(() => {
     const body = scroller();
     if (!body || mode !== "page") return;
-    body.scrollTo({ left: page * body.clientWidth, behavior: "smooth" });
+    const from = body.scrollLeft;
+    const to = page * body.clientWidth;
+    if (from === to) return;
+    return tween(400, (t) => {
+      body.scrollLeft = from + (to - from) * t;
+    });
   }, [page, mode]);
+
+  const loaded = () => {
+    const root = frameRef.current?.contentDocument?.documentElement;
+    if (root) applyPreviewView(root, viewRef.current);
+    measure();
+    setReady(true);
+  };
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -180,9 +222,14 @@ export default function PreviewSurface({
   const { loc, percent } = readingPosition(chapters, selectedChapter);
 
   return (
-    <div className={styles.previewStage} data-tour="preview">
+    <div
+      className={styles.previewStage}
+      data-tour="preview"
+      data-preview-ready={ready ? "" : undefined}
+    >
       <div
         className={styles.device}
+        data-vt="page"
         style={
           {
             "--device-w": `${device.width}px`,
@@ -202,7 +249,7 @@ export default function PreviewSurface({
             title={`Preview of ${book.chapters[selectedChapter]?.title ?? "this chapter"}`}
             sandbox="allow-same-origin"
             srcDoc={srcDoc}
-            onLoad={measure}
+            onLoad={loaded}
           />
           {mode === "page" && (
             <>
@@ -233,20 +280,13 @@ export default function PreviewSurface({
         </div>
       </div>
 
-      <div className={styles.previewControls}>
-        <div className={styles.seg} role="group" aria-label="Preview device">
-          {DEVICES.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              aria-pressed={deviceId === d.id}
-              className={`${styles.segItem} ${deviceId === d.id ? styles.segActive : ""}`}
-              onClick={() => setDeviceId(d.id)}
-            >
-              {d.label}
-            </button>
-          ))}
-        </div>
+      <div className={styles.previewControls} data-vt="controls">
+        <Segmented
+          label="Preview device"
+          options={DEVICES.map((d) => ({ value: d.id, label: d.label }))}
+          value={deviceId}
+          onChange={(id) => morph("device", () => setDeviceId(id))}
+        />
 
         <div className={styles.swatches} role="group" aria-label="Page colour">
           {PAGE_COLOURS.map((c) => (
@@ -262,19 +302,12 @@ export default function PreviewSurface({
           ))}
         </div>
 
-        <div className={styles.seg} role="group" aria-label="Reading mode">
-          {(["page", "scroll"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              aria-pressed={mode === m}
-              className={`${styles.segItem} ${mode === m ? styles.segActive : ""}`}
-              onClick={() => setMode(m)}
-            >
-              {m === "page" ? "Pages" : "Scroll"}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="Reading mode"
+          options={READING_MODES}
+          value={mode}
+          onChange={setMode}
+        />
 
         {mode === "page" && (
           <div className={styles.pageNav}>

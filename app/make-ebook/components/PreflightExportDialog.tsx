@@ -13,6 +13,8 @@ import styles from "../styles/studio.module.css";
 import GenrePicker from "./GenrePicker";
 import GenerateCoverModal from "./sidebar/GenerateCoverModal";
 import TypographyPicker from "./TypographyPicker";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../utils/motion";
 
 export type ExportFormat = "epub" | "pdf" | "docx";
 
@@ -63,7 +65,8 @@ export default function PreflightExportDialog({
   onDownload,
   onUpgrade,
 }: PreflightExportDialogProps) {
-  const result = open ? runPreflightChecks(input) : null;
+  const shown = usePresence(open, EXIT_MODAL_MS).mounted;
+  const result = shown ? runPreflightChecks(input) : null;
   const blocks = result?.blocks ?? [];
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export default function PreflightExportDialog({
     }
   }, [open, isPro, format, blocks.length]);
 
-  if (!open || !result || typeof document === "undefined") return null;
+  if (!shown || !result || typeof document === "undefined") return null;
 
   const formatLabel = FORMAT_LABEL[format];
 

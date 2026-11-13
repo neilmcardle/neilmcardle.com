@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
+import { useSlidingPill } from "../../hooks/useSlidingPill";
 import BookMindMark from "../bookmind/BookMindMark";
 import styles from "../../styles/studio.module.css";
 
@@ -59,15 +60,24 @@ export default function MobileTabBar({
       ? [{ tab: "bookmind" as MobileTab, onSelect: onBookMind }]
       : []),
   ];
+  const navRef = useRef<HTMLElement>(null);
+  useSlidingPill(
+    navRef,
+    tabs.findIndex((t) => t.tab === active),
+  );
 
   return (
     <nav
+      ref={navRef}
+      data-pill
+      data-vt="dock"
       aria-label="Editor sections"
       className={styles.dock}
       style={{
         bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
       }}
     >
+      <span className={styles.segPill} aria-hidden="true" />
       {tabs.map(({ tab, onSelect }) => {
         const isActive = active === tab;
         return (
@@ -77,6 +87,7 @@ export default function MobileTabBar({
             onClick={onSelect}
             aria-label={LABELS[tab]}
             aria-current={isActive ? "page" : undefined}
+            data-pill-item
             data-tour={tab === "preview" ? "mobile-preview" : undefined}
             className={styles.dockItem}
           >

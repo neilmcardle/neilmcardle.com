@@ -1,5 +1,6 @@
 import { Plugin, PluginKey, type EditorState } from "prosemirror-state";
 import { Decoration, DecorationSet, type EditorView } from "prosemirror-view";
+import { scrollMotion } from "../../utils/motion";
 
 export type FocusEffects = { typewriter: boolean; paragraphFocus: boolean };
 
@@ -51,7 +52,7 @@ export function keepCaretCentred(view: EditorView) {
   const targetY = box.top + box.height * 0.42 - 40;
   const delta = rect.top - targetY;
   if (Math.abs(delta) > 12)
-    container.scrollBy({ top: delta, behavior: "smooth" });
+    container.scrollBy({ top: delta, behavior: scrollMotion() });
 }
 
 export function focusEffectsPlugin(initial: () => FocusEffects) {

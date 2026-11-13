@@ -25,7 +25,86 @@
   --font-manuscript:
     var(--font-baskerville), "Libre Baskerville", Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0, 1);
+  --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --ease: var(--ease-out);
+  --spring: linear(
+    0,
+    0.0271,
+    0.0693,
+    0.1241,
+    0.1872,
+    0.2551,
+    0.3249,
+    0.3945,
+    0.4622,
+    0.5269,
+    0.5876,
+    0.6439,
+    0.6953,
+    0.7419,
+    0.7837,
+    0.8207,
+    0.8533,
+    0.8816,
+    0.906,
+    0.9269,
+    0.9446,
+    0.9594,
+    0.9716,
+    0.9816,
+    0.9897,
+    0.996,
+    1.001,
+    1.0047,
+    1.0074,
+    1.0093,
+    1.0105,
+    1.0112,
+    1.0114,
+    1.0113,
+    1.011,
+    1.0104,
+    1.0098,
+    1.009,
+    1.0082,
+    1.0074,
+    1.0066,
+    1.0059,
+    1.0052,
+    1.0045,
+    1.0039,
+    1.0033,
+    1.0028,
+    1.0023,
+    1.0019,
+    1.0016,
+    1.0012,
+    1.001,
+    1.0008,
+    1.0006,
+    1.0004,
+    1.0003,
+    1.0002,
+    1.0001,
+    1,
+    1,
+    0.9999,
+    0.9999,
+    0.9999,
+    0.9999,
+    1
+  );
+  --dur-press: 120ms;
+  --dur-quick: 200ms;
+  --dur-menu: 240ms;
+  --dur-modal: 320ms;
+  --dur-travel: 400ms;
+  --dur-spring: 792ms;
+  --dur-exit-quick: 80ms;
+  --dur-exit-menu: 96ms;
+  --dur-exit-modal: 128ms;
+  --dur-exit-travel: 160ms;
   --r-sm: 12px;
   --r-md: 16px;
   --r-lg: 20px;

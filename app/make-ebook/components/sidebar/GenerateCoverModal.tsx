@@ -8,6 +8,8 @@ import {
   type CoverPalette,
 } from "../../utils/generateCover";
 import studio from "../../styles/studio.module.css";
+import { usePresence } from "../../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../../utils/motion";
 
 interface GenerateCoverModalProps {
   open: boolean;
@@ -27,9 +29,10 @@ export default function GenerateCoverModal({
   onAccept,
 }: GenerateCoverModalProps) {
   const [selected, setSelected] = useState<CoverPalette>(COVER_PALETTES[0]);
+  const shown = usePresence(open, EXIT_MODAL_MS).mounted;
 
   const preview = useMemo(() => {
-    if (!open) return "";
+    if (!shown) return "";
     try {
       return generateCoverDataUrl({
         title: title || "Untitled",
@@ -43,7 +46,7 @@ export default function GenerateCoverModal({
       console.error("Cover preview failed:", err);
       return "";
     }
-  }, [open, title, author, genre, selected]);
+  }, [shown, title, author, genre, selected]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,7 +57,7 @@ export default function GenerateCoverModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!shown) return null;
 
   const handleAccept = () => {
     const dataUrl = generateCoverDataUrl({
@@ -69,7 +72,7 @@ export default function GenerateCoverModal({
 
   return (
     <Modal
-      open
+      open={open}
       onClose={onClose}
       width="lg"
       zIndex={10020}

@@ -1,16 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { PreviewSlot, preloadPreview } from "./previewLoader";
 import BookMindAgent from "./BookMindAgent";
 import { ChapterIndex } from "./ChapterIndex";
-import dynamic from "next/dynamic";
 import ChapterPanel from "./ChapterPanel";
 import styles from "../styles/studio.module.css";
 import type { FocusSettings as FocusModeSettings } from "../hooks/useFocusMode";
-
-const PreviewSurface = dynamic(() => import("./PreviewSurface"), {
-  ssr: false,
-});
 
 interface Chapter {
   id: string;
@@ -88,6 +84,17 @@ export default function EditorCanvas({
   isBookMindLoading = false,
   onOpenBookMind,
 }: EditorCanvasProps) {
+  useEffect(() => {
+    if (!("requestIdleCallback" in window)) {
+      const timer = globalThis.setTimeout(preloadPreview, 2000);
+      return () => globalThis.clearTimeout(timer);
+    }
+    const handle = window.requestIdleCallback(() => void preloadPreview(), {
+      timeout: 4000,
+    });
+    return () => window.cancelIdleCallback(handle);
+  }, []);
+
   const chapter = chapters[selectedChapter];
 
   const chapterWordCount =
@@ -119,18 +126,17 @@ export default function EditorCanvas({
     </div>
   );
 
-  if (mode === "preview") {
-    return (
-      <>
-        <PreviewSurface chapters={chapters} selectedChapter={selectedChapter} />
-        {footer}
-      </>
-    );
-  }
+  const previewing = mode === "preview";
 
   return (
     <>
-      <div className="w-full flex-1 min-h-0 flex">
+      {previewing && (
+        <PreviewSlot chapters={chapters} selectedChapter={selectedChapter} />
+      )}
+      {previewing && footer}
+      <div
+        className={`w-full flex-1 min-h-0 flex ${previewing ? "hidden" : ""}`}
+      >
         <ChapterIndex
           chapters={chapters}
           selectedChapter={selectedChapter}
@@ -138,7 +144,7 @@ export default function EditorCanvas({
         />
         <div
           className={[
-            "w-full flex-1 min-h-0 flex flex-col transition-all duration-300",
+            "w-full flex-1 min-h-0 flex flex-col",
             focus.active && focus.settings.paragraphFocus
               ? "paragraph-focus"
               : "",

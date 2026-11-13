@@ -147,7 +147,7 @@ export default function FindReplacePanel({
           </div>
 
           {feedback && (
-            <div className="text-center text-sm text-green-600 dark:text-green-400 font-medium animate-in fade-in duration-150">
+            <div className="me-fade-in text-center text-sm text-green-600 dark:text-green-400 font-medium">
               {feedback}
             </div>
           )}

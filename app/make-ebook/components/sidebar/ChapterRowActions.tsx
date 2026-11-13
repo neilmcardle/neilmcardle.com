@@ -30,7 +30,7 @@ export default function ChapterRowActions({
     <>
       {handleToggleChapterLock && (
         <button
-          className={`transition-all p-2 rounded-chip flex-shrink-0 ${
+          className={`transition p-2 rounded-chip flex-shrink-0 ${
             isSelected
               ? "text-white/70 dark:text-[var(--clay-muted)] hover:bg-white/15 dark:hover:bg-black/10"
               : ch.locked
@@ -80,7 +80,7 @@ export default function ChapterRowActions({
             data-chapter-delete-confirm
             role="group"
             aria-label="Confirm chapter deletion"
-            className="flex items-center gap-1 animate-in fade-in zoom-in-95 slide-in-from-right-1 duration-150"
+            className="me-fade-in flex items-center gap-1"
             onClick={(e) => e.stopPropagation()}
           >
             <span className="px-2 text-10 font-medium text-gray-500 dark:text-[var(--clay-muted)]">

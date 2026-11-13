@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import TrialBanner from "../components/TrialBanner";
 import NewBookConfirmDialog from "../components/modals/NewBookConfirmDialog";
 import ImportDialog from "../components/modals/ImportDialog";
@@ -16,6 +16,14 @@ import {
 
 export default function EditorShell() {
   const docked = useEditor((s) => s.bookMindDocked);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.motion = "fade";
+    return () => {
+      delete root.dataset.motion;
+    };
+  }, []);
 
   return (
     <>

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import ChapterPanel from "../components/ChapterPanel";
-import dynamic from "next/dynamic";
+import { PreviewSlot } from "../components/previewLoader";
 import MobileTabBar from "../components/mobile/MobileTabBar";
 import ChaptersSheet from "../components/mobile/ChaptersSheet";
 import SelectionActionBar from "../components/mobile/SelectionActionBar";
@@ -11,10 +11,6 @@ import { useSession } from "../providers/SessionProvider";
 import { useBook, useBookActions } from "../providers/BookProvider";
 import { useEditor, useEditorActions } from "../providers/EditorProvider";
 import { shallowEqual } from "../providers/store";
-
-const PreviewSurface = dynamic(() => import("../components/PreviewSurface"), {
-  ssr: false,
-});
 
 export function MobileTopBar() {
   const { title, chapters } = useBook(
@@ -133,28 +129,40 @@ export function MobileSurface() {
     >
       {chapters.length === 0 ? (
         <div className="flex-1" />
-      ) : surfaceMode === "preview" ? (
-        <PreviewSurface chapters={chapters} selectedChapter={selectedChapter} />
       ) : (
         <>
-          <ChapterPanel
-            chapter={chapters[selectedChapter]}
-            selectedChapter={selectedChapter}
-            onTitleChange={book.handleChapterTitleChange}
-            onContentChange={book.handleChapterContentChange}
-            onCreateEndnote={book.handleCreateEndnote}
-            hasEndnotes={hasEndnotes}
-            hideToolbar={hideToolbar}
-            onFocusStateChange={actions.setMobileEditorFocused}
-            starters={
-              isBlankBook
-                ? {
-                    onUpload: book.showImportDialog,
-                    onLibrary: () => actions.setMobileSidebarOpen(true),
-                  }
-                : undefined
+          {surfaceMode === "preview" && (
+            <PreviewSlot
+              chapters={chapters}
+              selectedChapter={selectedChapter}
+            />
+          )}
+          <div
+            className={
+              surfaceMode === "preview"
+                ? "hidden"
+                : "flex flex-1 min-h-0 flex-col"
             }
-          />
+          >
+            <ChapterPanel
+              chapter={chapters[selectedChapter]}
+              selectedChapter={selectedChapter}
+              onTitleChange={book.handleChapterTitleChange}
+              onContentChange={book.handleChapterContentChange}
+              onCreateEndnote={book.handleCreateEndnote}
+              hasEndnotes={hasEndnotes}
+              hideToolbar={hideToolbar}
+              onFocusStateChange={actions.setMobileEditorFocused}
+              starters={
+                isBlankBook
+                  ? {
+                      onUpload: book.showImportDialog,
+                      onLibrary: () => actions.setMobileSidebarOpen(true),
+                    }
+                  : undefined
+              }
+            />
+          </div>
         </>
       )}
     </div>

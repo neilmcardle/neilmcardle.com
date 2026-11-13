@@ -15,6 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Segmented from "./Segmented";
+import { preloadPreview } from "./previewLoader";
+
+const VIEW_OPTIONS = [
+  { value: "edit", label: "Edit" },
+  { value: "preview", label: "Preview" },
+] as const;
 
 interface Chapter {
   id: string;
@@ -90,24 +97,19 @@ export default function EditorHeader({
   const isMac = useIsMac();
   return (
     <div
+      data-vt="header"
       className={`${styles.editorToolbar} transition-opacity duration-300 ${
         hideChrome ? "focus-hide-chrome" : ""
       }`}
     >
       <div className={styles.toolbarLeft}>
-        <div className={styles.seg} role="group" aria-label="View">
-          {(["edit", "preview"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              aria-pressed={surfaceMode === m}
-              className={`${styles.segItem} ${surfaceMode === m ? styles.segActive : ""}`}
-              onClick={() => onSurfaceModeChange(m)}
-            >
-              {m === "edit" ? "Edit" : "Preview"}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label="View"
+          options={VIEW_OPTIONS}
+          value={surfaceMode}
+          onChange={onSurfaceModeChange}
+          onIntent={preloadPreview}
+        />
         <ChapterNavDropdown
           chapters={chapters}
           selectedChapter={selectedChapter}

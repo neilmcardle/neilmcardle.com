@@ -13,6 +13,8 @@ import { useSubscription } from "@/lib/hooks/useSubscription";
 import { Sparkles, Cloud, BookOpen, Clock, Check } from "lucide-react";
 import { Modal, ModalHeader, ModalBody } from "./Modal";
 import { checkout, initialCheckout } from "../state/checkout";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../utils/motion";
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -33,6 +35,7 @@ export default function UpgradeModal({
   const setSelectedPlan = (plan: "monthly" | "lifetime") =>
     dispatch({ type: "choose", plan });
   const [mounted, setMounted] = useState(false);
+  const shown = usePresence(isOpen, EXIT_MODAL_MS).mounted;
 
   const [wasOpen, setWasOpen] = useState(isOpen);
   if (wasOpen !== isOpen) {
@@ -113,7 +116,7 @@ export default function UpgradeModal({
     return null;
   }
 
-  if (!isOpen || !mounted) return null;
+  if (!shown || !mounted) return null;
 
   const features = [
     {
@@ -153,7 +156,7 @@ export default function UpgradeModal({
         <fieldset className="grid md:grid-cols-2 gap-6">
           <legend className="sr-only">Choose your plan</legend>
           <label
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
+            className={`cursor-pointer rounded-lg border-2 p-6 transition focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
               selectedPlan === "monthly"
                 ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[var(--ink-deep)]"
                 : "border-gray-200 dark:border-[var(--rule)] hover:border-gray-400 dark:hover:border-[var(--ink-hover)]"
@@ -199,7 +202,7 @@ export default function UpgradeModal({
           </label>
 
           <label
-            className={`cursor-pointer rounded-lg border-2 p-6 transition-all relative focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
+            className={`cursor-pointer rounded-lg border-2 p-6 transition relative focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-gray-900 dark:focus-within:ring-white dark:focus-within:ring-offset-[var(--ink)] ${
               selectedPlan === "lifetime"
                 ? "border-gray-900 dark:border-white bg-gray-50 dark:bg-[var(--ink-deep)]"
                 : "border-gray-200 dark:border-[var(--rule)] hover:border-gray-400 dark:hover:border-[var(--ink-hover)]"
@@ -296,7 +299,7 @@ export default function UpgradeModal({
             )
           }
           disabled={checkoutLoading || isLoading}
-          className="w-full py-3.5 bg-action-primary-500 dark:bg-action-primary-dark text-white font-semibold rounded-full transition-all hover:bg-action-primary-600 dark:hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
+          className="w-full py-3.5 bg-action-primary-500 dark:bg-action-primary-dark text-white font-semibold rounded-full transition hover:bg-action-primary-600 dark:hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg uppercase tracking-wide text-sm"
         >
           {checkoutLoading
             ? "Redirecting..."

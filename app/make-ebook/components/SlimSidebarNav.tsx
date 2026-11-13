@@ -120,7 +120,7 @@ function UserDropdownSlim({ onStartTour }: { onStartTour?: () => void }) {
     return (
       <Tooltip text="Sign In">
         <button
-          className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition-all outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
+          className="relative w-12 h-12 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] transition outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
           aria-label="User menu"
         >
           <img
@@ -315,7 +315,7 @@ export default function SlimSidebarNav({
         >
           <button
             onClick={() => handleViewClick("library")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "library" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition ${activeView === "library" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label={
               hasSyncConflicts ? "Library — action needed" : "Library"
             }
@@ -346,7 +346,7 @@ export default function SlimSidebarNav({
         <Tooltip text="Book">
           <button
             onClick={() => handleViewClick("book")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition ${activeView === "book" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Book"
           >
             <svg
@@ -368,7 +368,7 @@ export default function SlimSidebarNav({
         <Tooltip text="Chapters">
           <button
             onClick={() => handleViewClick("chapters")}
-            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition-all ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
+            className={`relative w-12 h-12 rounded-lg flex items-center justify-center outline-none focus:outline-none focus:ring-0 focus-visible:outline-none transition ${activeView === "chapters" && isPanelOpen ? "bg-gray-900 dark:bg-white" : "hover:bg-gray-200 dark:hover:bg-[var(--rule)]"}`}
             aria-label="Chapters"
           >
             <svg

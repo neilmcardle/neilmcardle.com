@@ -147,7 +147,7 @@ export default function EPUBReaderModal({
         <button
           onClick={handlePrevPage}
           disabled={!isReady || !canGoPrev}
-          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           ← Previous
         </button>
@@ -161,7 +161,7 @@ export default function EPUBReaderModal({
         <button
           onClick={handleNextPage}
           disabled={!isReady || !canGoNext}
-          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="px-6 py-3 bg-[var(--ink)] dark:bg-white text-[var(--paper)] dark:text-[var(--ink-deep)] rounded-lg font-medium hover:bg-[color:color-mix(in_srgb,var(--ink)_80%,transparent)] dark:hover:bg-[var(--paper)] disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           Next →
         </button>

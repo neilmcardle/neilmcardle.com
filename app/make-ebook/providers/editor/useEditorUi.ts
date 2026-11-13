@@ -1,12 +1,30 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type SetStateAction,
+} from "react";
+import { morphSurface } from "../../utils/surfaceMorph";
 import { keys, readLocal, writeLocal } from "../../storage/keys";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 import type { SidebarView } from "../types";
 
 export function useEditorUi() {
   const [sidebarView, setSidebarView] = useState<SidebarView>(null);
-  const [surfaceMode, setSurfaceMode] = useState<"edit" | "preview">("edit");
+  const [surfaceMode, setSurfaceModeNow] = useState<"edit" | "preview">("edit");
+  const surfaceRef = useRef<"edit" | "preview">("edit");
+  const setSurfaceMode = useCallback(
+    (next: SetStateAction<"edit" | "preview">) => {
+      const target =
+        typeof next === "function" ? next(surfaceRef.current) : next;
+      if (target === surfaceRef.current) return;
+      surfaceRef.current = target;
+      morphSurface(target, () => setSurfaceModeNow(target));
+    },
+    [],
+  );
   const [bookMindOpen, setBookMindOpen] = useState(false);
   const [bookMindDocked, setBookMindDocked] = useState(false);
   const [bookMindBusy, setBookMindBusy] = useState(false);

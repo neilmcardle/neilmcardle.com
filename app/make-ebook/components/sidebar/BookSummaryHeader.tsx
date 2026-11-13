@@ -46,8 +46,8 @@ export default function BookSummaryHeader({
       <div className="flex items-center gap-2 mt-3">
         <div className="flex-1 h-1 rounded-full bg-gray-100 dark:bg-[var(--rule)] overflow-hidden">
           <div
-            className="h-full rounded-full bg-gray-900 dark:bg-white transition-[width] duration-300"
-            style={{ width: `${pct}%` }}
+            className="h-full w-full origin-left rounded-full bg-gray-900 dark:bg-white transition-transform duration-[var(--dur-travel)]"
+            style={{ transform: `scaleX(${pct / 100})` }}
           />
         </div>
         <span className="text-11 tabular-nums text-gray-600 dark:text-[var(--clay-muted)]">

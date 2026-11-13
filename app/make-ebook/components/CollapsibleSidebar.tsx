@@ -134,7 +134,7 @@ export default function CollapsibleSidebar() {
   return (
     <aside
       ref={sidebarRef}
-      className={`hidden lg:block h-full z-40 transition-all duration-300 ease-in-out overflow-hidden relative ${
+      className={`hidden lg:block h-full z-40 transition-all duration-300 overflow-hidden relative ${
         isPanelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       style={{ width: isPanelOpen ? width : 0 }}

@@ -25,7 +25,7 @@ const keepFocus = (e: React.MouseEvent) => e.preventDefault();
 const flat = { borderRadius: 0, boxShadow: "none" } as const;
 const ACTIVE = "bg-[var(--paper)] text-[var(--ink-deep)]";
 const ICON_BUTTON =
-  "w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] active:scale-[0.96] transition-all touch-manipulation";
+  "w-9 h-9 rounded-lg flex items-center justify-center hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] active:scale-[0.96] transition touch-manipulation";
 
 export function Separator() {
   return (
@@ -212,7 +212,7 @@ export function Toolbar({
           aria-label={endnote.title}
           type="button"
           disabled={disabled || !canEndnote}
-          className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] flex items-center justify-center active:scale-[0.96] transition-all touch-manipulation disabled:opacity-50"
+          className="w-9 h-9 rounded-lg hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] flex items-center justify-center active:scale-[0.96] transition touch-manipulation disabled:opacity-50"
         >
           <Icon src={endnote.icon} />
         </button>

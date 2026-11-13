@@ -86,7 +86,7 @@ export default function ChaptersSheet({
       />
 
       <div
-        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-[var(--ink-panel)] border-t border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-[var(--ink-panel)] border-t border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.4)] transition-transform duration-300 motion-reduce:transition-none ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

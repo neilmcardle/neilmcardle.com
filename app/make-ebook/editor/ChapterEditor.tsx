@@ -355,14 +355,14 @@ const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
         {...rest}
       >
         {toast && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-sm rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="me-fade-in absolute top-2 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-[var(--ink-deep)] text-sm rounded-lg shadow-lg">
             {toast}
           </div>
         )}
 
         {!hideToolbar && (
           <div
-            className={`transition-all duration-200 overflow-visible ${
+            className={`overflow-visible ${
               isMobileKeyboardOpen ? "lg:block hidden" : ""
             }`}
           >

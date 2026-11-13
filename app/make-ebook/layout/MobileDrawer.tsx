@@ -55,19 +55,19 @@ export default function MobileDrawer() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ease-out ${
+      className={`fixed top-0 left-0 right-0 bottom-0 z-[100] lg:hidden transition-[visibility] duration-200 ${
         ui.open ? "visible" : "invisible"
       }`}
     >
       <div
-        className={`absolute inset-0 bg-black/55 transition-opacity duration-200 ease-out ${
+        className={`absolute inset-0 bg-black/55 transition-opacity duration-200 ${
           ui.open ? "opacity-100" : "opacity-0"
         }`}
         onClick={close}
       />
 
       <div
-        className={`${studio.drawer} transform transition-transform duration-200 ease-out ${
+        className={`${studio.drawer} transform transition-transform duration-200 ${
           ui.open ? "translate-x-0" : "-translate-x-full"
         }`}
       >

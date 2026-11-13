@@ -348,7 +348,7 @@ export default function InlineEditPopover({
                     key={i}
                     onClick={() => r !== null && setActiveIndex(i)}
                     disabled={r === null}
-                    className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center transition-all ${
+                    className={`w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center transition ${
                       i === activeIndex && r !== null
                         ? "bg-[var(--paper)] text-[var(--ink-deep)]"
                         : r !== null

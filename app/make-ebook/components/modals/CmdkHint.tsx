@@ -24,7 +24,7 @@ export default function CmdkHint() {
         zIndex: 900,
         pointerEvents: "none",
       }}
-      className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[color:color-mix(in_srgb,var(--rule)_95%,transparent)] text-white text-[11px] font-medium shadow-lg backdrop-blur-sm animate-in fade-in slide-in-from-bottom-1 duration-200"
+      className="me-rise-in hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-900/90 dark:bg-[color:color-mix(in_srgb,var(--rule)_95%,transparent)] text-white text-[11px] font-medium shadow-lg backdrop-blur-sm"
     >
       <svg
         className="w-3 h-3 opacity-70"

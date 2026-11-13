@@ -45,7 +45,7 @@ export default function AddChapterMenu({
     <div className="relative">
       <button
         onClick={() => setChapterTypeDropdownOpen(!chapterTypeDropdownOpen)}
-        className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition-all duration-150"
+        className="flex items-center justify-center h-8 w-8 rounded-chip text-gray-500 dark:text-[var(--clay-muted)] hover:bg-gray-100 dark:hover:bg-[var(--ink-raised)] hover:text-gray-700 dark:hover:text-[var(--clay)] transition duration-150"
         title="Add chapter"
         data-testid="add-chapter"
       >

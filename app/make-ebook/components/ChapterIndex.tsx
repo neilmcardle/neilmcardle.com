@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import styles from "../styles/studio.module.css";
+import { scrollMotion } from "../utils/motion";
 
 interface IndexChapter {
   id: string;
@@ -39,13 +40,10 @@ export function ChapterIndex({
     const list = listRef.current;
     const item = list?.querySelector<HTMLElement>('[aria-current="true"]');
     if (!list || !item) return;
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     const top = item.offsetTop - list.clientHeight / 2 + item.offsetHeight / 2;
     list.scrollTo({
       top: Math.max(0, top),
-      behavior: mountedRef.current && !reduce ? "smooth" : "auto",
+      behavior: mountedRef.current ? scrollMotion() : "auto",
     });
     mountedRef.current = true;
   }, [selectedChapter, chapters.length]);

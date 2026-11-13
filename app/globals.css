@@ -72,20 +72,43 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
-/* ── Reduced motion ──────────────────────────────────────────────────────────
-   Honour the user's OS-level preference for reduced motion. We collapse all
-   transitions and animations to near-zero so the same JSX renders without
-   parallax, fades, or hover translations. The JS-side smooth-scroll calls in
-   MarketingNav/MarketingLandingPage check window.matchMedia separately.
-─────────────────────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  html:not([data-motion="fade"]) *,
+  html:not([data-motion="fade"]) *::before,
+  html:not([data-motion="fade"]) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  html[data-motion="fade"] *,
+  html[data-motion="fade"] *::before,
+  html[data-motion="fade"] *::after {
+    scroll-behavior: auto !important;
+    transition-property:
+      opacity, color, background-color, border-color, box-shadow, visibility !important;
+  }
+
+  html[data-motion="fade"] .me-rise-in,
+  html[data-motion="fade"] .me-chapter-in,
+  html[data-motion="fade"] .me-modal,
+  html[data-motion="fade"] .me-pop[data-state="open"],
+  html[data-motion="fade"] .me-sheet[data-state="open"] {
+    animation-name: me-fade-in !important;
+    animation-duration: var(--dur-quick) !important;
+  }
+
+  html[data-motion="fade"] .me-modal[data-state="closed"],
+  html[data-motion="fade"] .me-pop[data-state="closed"],
+  html[data-motion="fade"] .me-sheet[data-state="closed"] {
+    animation-name: me-fade-out !important;
+  }
+
+  html[data-motion="fade"] .me-tick-pop,
+  html[data-motion="fade"] .me-ring-out,
+  html[data-motion="fade"] .me-breathe {
+    animation: none !important;
   }
 }
 
@@ -2245,11 +2268,11 @@ button.spark-card:hover,
 }
 
 :root {
-  --me-dur-fast: 120ms;
-  --me-dur: 200ms;
-  --me-dur-slow: 300ms;
-  --me-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --me-ease-out: cubic-bezier(0.2, 0.8, 0, 1);
+  --me-dur-fast: var(--dur-press);
+  --me-dur: var(--dur-quick);
+  --me-dur-slow: var(--dur-modal);
+  --me-ease: var(--ease-out);
+  --me-ease-out: var(--ease-out);
 }
 
 @keyframes me-rise-in {
@@ -2345,6 +2368,108 @@ button.spark-card:hover,
   }
 }
 
+@keyframes me-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes me-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes me-modal-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes me-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes me-pop-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.me-scrim {
+  animation: me-fade-in var(--dur-quick) var(--ease-out) both;
+}
+
+.me-scrim[data-state="closed"] {
+  animation: me-fade-out var(--dur-exit-modal) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.me-modal {
+  animation: me-modal-in var(--dur-modal) var(--ease-out) both;
+}
+
+.me-modal[data-state="closed"] {
+  animation: me-modal-out var(--dur-exit-modal) var(--ease-out) both;
+}
+
+.me-pop {
+  transform-origin: var(
+    --radix-dropdown-menu-content-transform-origin,
+    var(--radix-popper-transform-origin, top)
+  );
+}
+
+.me-pop[data-state="open"] {
+  animation: me-pop-in var(--dur-quick) var(--ease-out) both;
+}
+
+.me-pop[data-state="closed"] {
+  animation: me-pop-out var(--dur-exit-menu) var(--ease-out) both;
+}
+
+.me-sheet[data-state="open"] {
+  animation: me-sheet-in var(--dur-travel) var(--ease-out) both;
+}
+
+.me-sheet[data-state="closed"] {
+  animation: me-sheet-out var(--dur-exit-travel) var(--ease-out) both;
+}
+
+.me-sheet[data-side="right"] {
+  --me-sheet-from: translateX(100%);
+}
+
+.me-sheet[data-side="left"] {
+  --me-sheet-from: translateX(-100%);
+}
+
+.me-sheet[data-side="top"] {
+  --me-sheet-from: translateY(-100%);
+}
+
+.me-sheet[data-side="bottom"] {
+  --me-sheet-from: translateY(100%);
+}
+
+@keyframes me-sheet-in {
+  from {
+    transform: var(--me-sheet-from);
+  }
+}
+
+@keyframes me-sheet-out {
+  to {
+    transform: var(--me-sheet-from);
+  }
+}
+
 .me-fade-in {
   animation: me-fade-in var(--me-dur-fast) var(--me-ease-out) both;
 }
@@ -2413,4 +2538,76 @@ html[data-keyboard="open"] [data-chapter-eyebrow] {
 
 html[data-keyboard="open"] body {
   overscroll-behavior: none;
+}
+
+html[data-surface-to] [data-vt="page"] {
+  view-transition-name: me-page;
+}
+
+html[data-surface-to] [data-vt="header"] {
+  view-transition-name: me-header;
+}
+
+html[data-surface-to] [data-vt="dock"] {
+  view-transition-name: me-dock;
+}
+
+html[data-surface-to] [data-vt="controls"] {
+  view-transition-name: me-controls;
+}
+
+html[data-surface-to]::view-transition-old(root),
+html[data-surface-to]::view-transition-new(root) {
+  animation-duration: var(--dur-quick);
+  animation-timing-function: var(--ease-out);
+}
+
+html[data-surface-to]::view-transition-group(me-page) {
+  animation-duration: var(--dur-travel);
+  animation-timing-function: var(--ease-out);
+}
+
+html[data-surface-to]::view-transition-old(me-page),
+html[data-surface-to]::view-transition-new(me-page) {
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+html[data-surface-to]::view-transition-old(me-page) {
+  animation: me-fade-out var(--dur-menu) var(--ease-out) both;
+}
+
+html[data-surface-to]::view-transition-new(me-page) {
+  animation: me-fade-in var(--dur-menu) var(--ease-out) both;
+}
+
+html[data-surface-to]::view-transition-old(me-header),
+html[data-surface-to]::view-transition-old(me-dock) {
+  display: none;
+}
+
+html[data-surface-to]::view-transition-new(me-header),
+html[data-surface-to]::view-transition-new(me-dock) {
+  animation: none;
+}
+
+html[data-surface-to]::view-transition-group(me-header),
+html[data-surface-to]::view-transition-group(me-dock) {
+  animation: none;
+}
+
+html[data-surface-to]::view-transition-new(me-controls) {
+  animation: me-controls-in var(--dur-menu) var(--ease-out) 200ms both;
+}
+
+html[data-surface-to]::view-transition-old(me-controls) {
+  animation: me-fade-out var(--dur-exit-menu) var(--ease-out) both;
+}
+
+@keyframes me-controls-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }

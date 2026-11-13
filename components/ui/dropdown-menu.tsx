@@ -27,7 +27,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-pointer select-none items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-125 outline-none transition-colors duration-[var(--me-dur-fast)] focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10",
+      "flex cursor-pointer select-none items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-125 outline-none transition-colors focus:bg-gray-100 dark:focus:bg-white/10 data-[state=open]:bg-gray-100 dark:data-[state=open]:bg-white/10",
       inset && "pl-8",
       className,
     )}
@@ -47,7 +47,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+      "me-pop z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
       className,
     )}
     {...props}
@@ -65,7 +65,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-[10px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] p-1.5 text-gray-900 dark:text-[#e5e5e5] shadow-[0_12px_32px_rgba(17,24,39,0.14)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1 duration-[var(--me-dur-fast)]",
+        "me-pop z-50 min-w-[8rem] overflow-hidden rounded-[10px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1c1c1c] p-1.5 text-gray-900 dark:text-[#e5e5e5] shadow-[0_12px_32px_rgba(17,24,39,0.14)] dark:shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
         className,
       )}
       {...props}
@@ -83,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-125 outline-none transition-colors duration-[var(--me-dur-fast)] focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center gap-2.5 rounded-[7px] px-2.5 py-2 text-125 outline-none transition-colors focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className,
     )}
@@ -99,7 +99,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-[7px] py-2 pl-8 pr-2.5 text-125 outline-none transition-colors duration-[var(--me-dur-fast)] focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center rounded-[7px] py-2 pl-8 pr-2.5 text-125 outline-none transition-colors focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     checked={checked}
@@ -123,7 +123,7 @@ const DropdownMenuRadioItem = React.forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center rounded-[7px] py-2 pl-8 pr-2.5 text-125 outline-none transition-colors duration-[var(--me-dur-fast)] focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-pointer select-none items-center rounded-[7px] py-2 pl-8 pr-2.5 text-125 outline-none transition-colors focus:bg-gray-100 dark:focus:bg-white/10 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}

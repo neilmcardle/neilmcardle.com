@@ -1,9 +1,9 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from "react";
 
 interface KeyboardShortcut {
   key: string;
   ctrl?: boolean;
-  meta?: boolean; // Cmd on Mac
+  meta?: boolean;
   shift?: boolean;
   alt?: boolean;
   action: () => void;
@@ -15,45 +15,50 @@ interface UseKeyboardShortcutsOptions {
   enabled?: boolean;
 }
 
-export function useKeyboardShortcuts({ 
-  shortcuts, 
-  enabled = true 
+export function useKeyboardShortcuts({
+  shortcuts,
+  enabled = true,
 }: UseKeyboardShortcutsOptions) {
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (!enabled) return;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (!enabled) return;
 
-    // Don't trigger shortcuts when typing in inputs (except for save/export)
-    const target = e.target as HTMLElement;
-    const isInputField = target.tagName === 'INPUT' || 
-                        target.tagName === 'TEXTAREA' || 
-                        target.isContentEditable;
+      const target = e.target as HTMLElement;
+      const isInputField =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
 
-    for (const shortcut of shortcuts) {
-      const ctrlOrMeta = shortcut.ctrl || shortcut.meta;
-      const isCtrlOrMetaPressed = e.ctrlKey || e.metaKey;
-      
-      const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
-      const modifierMatch = ctrlOrMeta ? isCtrlOrMetaPressed : true;
-      const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
-      const altMatch = shortcut.alt ? e.altKey : !e.altKey;
+      for (const shortcut of shortcuts) {
+        const ctrlOrMeta = shortcut.ctrl || shortcut.meta;
+        const isCtrlOrMetaPressed = e.ctrlKey || e.metaKey;
 
-      if (keyMatch && modifierMatch && shiftMatch && altMatch) {
-        // Allow save, export, and find-replace shortcuts even in input fields
-        if (isInputField && !['s', 'e', 'h'].includes(shortcut.key.toLowerCase())) {
-          continue;
+        const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
+        const modifierMatch = ctrlOrMeta ? isCtrlOrMetaPressed : true;
+        const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
+        const altMatch = shortcut.alt ? e.altKey : !e.altKey;
+
+        if (keyMatch && modifierMatch && shiftMatch && altMatch) {
+          if (
+            isInputField &&
+            !["s", "e", "h", "p"].includes(shortcut.key.toLowerCase())
+          ) {
+            continue;
+          }
+
+          e.preventDefault();
+          e.stopPropagation();
+          shortcut.action();
+          return;
         }
-        
-        e.preventDefault();
-        e.stopPropagation();
-        shortcut.action();
-        return;
       }
-    }
-  }, [shortcuts, enabled]);
+    },
+    [shortcuts, enabled],
+  );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 }
 
@@ -74,42 +79,42 @@ export function useEditorShortcuts({
 }) {
   const shortcuts: KeyboardShortcut[] = [
     {
-      key: 's',
+      key: "s",
       meta: true,
       action: onSave,
-      description: 'Save book',
+      description: "Save book",
     },
     {
-      key: 'e',
+      key: "e",
       meta: true,
       shift: true,
       action: onExport,
-      description: 'Export as EPUB',
+      description: "Export as EPUB",
     },
     {
-      key: 'p',
+      key: "p",
       meta: true,
       action: onPreview,
-      description: 'Toggle preview',
+      description: "Toggle preview",
     },
   ];
 
   if (onNewChapter) {
     shortcuts.push({
-      key: 'n',
+      key: "n",
       meta: true,
       shift: true,
       action: onNewChapter,
-      description: 'New chapter',
+      description: "New chapter",
     });
   }
 
   if (onFindReplace) {
     shortcuts.push({
-      key: 'h',
+      key: "h",
       meta: true,
       action: onFindReplace,
-      description: 'Find & Replace',
+      description: "Find & Replace",
     });
   }
 

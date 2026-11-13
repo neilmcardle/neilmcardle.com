@@ -99,7 +99,7 @@ export default function ManageBillingButton({
       <button
         onClick={handleOpenPortal}
         disabled={portalLoading || isLoading}
-        className={`inline-flex items-center gap-2 font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
+        className={`inline-flex items-center gap-2 font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
       >
         <CreditCard className="w-4 h-4" />
         {portalLoading ? "Opening..." : "Manage Billing"}

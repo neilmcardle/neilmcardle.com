@@ -7,6 +7,7 @@ import { displayTitle } from "../../utils/bookLibrary";
 import { useBook, useBookActions } from "../../providers/BookProvider";
 import { useEditorActions } from "../../providers/EditorProvider";
 import { shallowEqual } from "../../providers/store";
+import { EASE_OUT, reducedMotion } from "../../utils/motion";
 
 interface Book {
   id: string;
@@ -153,9 +154,7 @@ export default function LibraryPanel({
       const list = listRef.current;
       if (!list) return;
       const rows = [...list.querySelectorAll<HTMLElement>("[data-book-id]")];
-      const reduce = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+      const reduce = reducedMotion();
       const height =
         rows.length > 1
           ? rows[1].offsetTop - rows[0].offsetTop
@@ -169,7 +168,7 @@ export default function LibraryPanel({
               { transform: `translateY(${(before - index) * height}px)` },
               { transform: "translateY(0)" },
             ],
-            { duration: 220, easing: "cubic-bezier(0.2, 0.7, 0.2, 1)" },
+            { duration: 240, easing: EASE_OUT },
           );
         });
       }
