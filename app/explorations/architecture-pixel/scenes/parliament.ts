@@ -131,7 +131,7 @@ export const parliament: Scene = {
     "Elizabeth Tower",
     "clock face",
     "Victoria Tower",
-    "Perpendicular panels",
+    "Perpendicular tracery",
     "pinnacles",
     "River Thames",
     "central spire",

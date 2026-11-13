@@ -34,7 +34,8 @@ const BATH = 1,
   DRAIN_PART = 3,
   STREET_PART = 4,
   GRANARY = 5,
-  POOL = 6;
+  POOL = 6,
+  WELL = 7;
 
 const bricks: Level = (u, v) =>
   ((v * 8) % 1 < 0.18 ? -0.6 : 0.2) +
@@ -86,6 +87,7 @@ export const indus: Scene = {
     "grid street",
     "granary",
     "bathing pool",
+    "brick well",
   ],
   ground(x, y, ix, iy, i) {
     const edge = island(x, y + 0.9, ix, iy, 8.6, 7.6);
@@ -155,7 +157,7 @@ export const indus: Scene = {
           { sideX: bricks, sideY: bricks },
         );
     shadowBox(-6.6, -6.4, -4.8, -4.2, 0, 1.6);
-    cylinder(5.4, -1.0, 0.4, 0.4, 1.0, 1.4, DARK_BRICK, HOUSE, {
+    cylinder(5.4, -1.0, 0.4, 0.4, 1.0, 1.4, DARK_BRICK, WELL, {
       level: () => 0.3,
     });
   },

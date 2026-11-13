@@ -173,7 +173,7 @@ export const rococo: Scene = {
     "",
     "bowed salon",
     "pastel wings",
-    "mansard roof",
+    "slate roof",
     "hall of mirrors",
     "chandelier",
     "parquet floor",
