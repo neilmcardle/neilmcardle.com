@@ -76,19 +76,20 @@ export default function ChapterPanel({
   starters,
   footer,
 }: ChapterPanelProps) {
+  const chapterKey = chapter?.id ?? selectedChapter;
   return (
     <div className={styles.editorCanvas}>
-      <div
-        key={chapter?.id ?? selectedChapter}
-        className={`me-chapter-in ${styles.editorPanel}`}
-        data-tour="editor"
-        data-vt="page"
-      >
-        <p className={styles.chapterEyebrow} data-chapter-eyebrow>
+      <div className={styles.editorPanel} data-tour="editor" data-vt="page">
+        <p
+          key={`eyebrow-${chapterKey}`}
+          className={`${styles.chapterEyebrow} ${styles.chapterIn}`}
+          data-chapter-eyebrow
+        >
           {sectionLabelFor(chapter)}
         </p>
         <input
-          className={styles.chapterTitle}
+          key={`title-${chapterKey}`}
+          className={`${styles.chapterTitle} ${styles.chapterIn}`}
           placeholder="Chapter title..."
           aria-label="Chapter title"
           value={chapter?.title ?? ""}
@@ -104,6 +105,7 @@ export default function ChapterPanel({
         )}
 
         <ChapterEditor
+          key={`editor-${chapterKey}`}
           value={chapter?.content || ""}
           onChange={(html) => onContentChange(selectedChapter, html)}
           minHeight={240}
@@ -113,7 +115,7 @@ export default function ChapterPanel({
               : "Continue writing..."
           }
           className="flex-1 min-h-0"
-          contentClassName={styles.editorProse}
+          contentClassName={`${styles.editorProse} ${styles.chapterIn}`}
           onCreateEndnote={onCreateEndnote}
           chapterId={chapter?.id}
           hasEndnotes={hasEndnotes}

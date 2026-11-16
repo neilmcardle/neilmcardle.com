@@ -4619,3 +4619,27 @@ button:focus-visible > .avatar {
     transform: none;
   }
 }
+
+.chapterIn {
+  animation: chapterIn var(--dur-menu) var(--ease-out) both;
+}
+
+@keyframes chapterIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes chapterFade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapterIn {
+    animation-name: chapterFade;
+    animation-duration: var(--dur-quick);
+  }
+}

@@ -91,7 +91,6 @@ select:focus-visible {
   }
 
   html[data-motion="fade"] .me-rise-in,
-  html[data-motion="fade"] .me-chapter-in,
   html[data-motion="fade"] .me-modal,
   html[data-motion="fade"] .me-pop[data-state="open"],
   html[data-motion="fade"] .me-sheet[data-state="open"] {
@@ -2286,17 +2285,6 @@ button.spark-card:hover,
   }
 }
 
-@keyframes me-chapter-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes me-tick-pop {
   0% {
     transform: scale(1);
@@ -2476,10 +2464,6 @@ button.spark-card:hover,
 
 .me-rise-in {
   animation: me-rise-in var(--me-dur) var(--me-ease-out) backwards;
-}
-
-.me-chapter-in {
-  animation: me-chapter-in var(--me-dur-slow) var(--me-ease-out) backwards;
 }
 
 .me-tick-pop {
