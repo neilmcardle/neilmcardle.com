@@ -16,6 +16,7 @@
   );
   --serif: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
   --mono: var(--font-jetbrains-mono), ui-monospace, Menlo, monospace;
+  --ease-out: cubic-bezier(0.2, 0.8, 0, 1);
 
   position: relative;
   min-height: 100svh;
@@ -246,7 +247,7 @@
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: scale 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: scale 0.16s var(--ease-out);
 }
 
 .button:active {
