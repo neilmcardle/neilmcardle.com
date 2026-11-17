@@ -25,6 +25,17 @@ import {
   WallIcon,
 } from "./icons";
 import styles from "../vector-paint.module.css";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+const CHECKOUT_CANCELED_NOTICE =
+  "Checkout closed. Nothing was charged, and your drawing is still here.";
+
+const checkoutCanceledStore = eventStore<boolean | null>({
+  events: [],
+  read: () =>
+    new URLSearchParams(window.location.search).get("checkout") === "canceled",
+  server: null,
+});
 
 const HISTORY_LIMIT = 200;
 const UNDO_TOAST_MS = 8000;
@@ -117,7 +128,10 @@ export default function Studio() {
     drawing: Drawing;
     index: number;
   } | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const checkoutCanceled = useBrowserStore(checkoutCanceledStore);
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
+  const notice =
+    checkoutCanceled && !noticeDismissed ? CHECKOUT_CANCELED_NOTICE : null;
   const removedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const current = lib.current;
@@ -133,16 +147,11 @@ export default function Studio() {
   }, [state.id, state.strokes, state.dirty, saveStrokes]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "canceled") {
-      setNotice(
-        "Checkout closed. Nothing was charged, and your drawing is still here.",
-      );
-      window.history.replaceState(null, "", window.location.pathname);
-      const t = setTimeout(() => setNotice(null), 6000);
-      return () => clearTimeout(t);
-    }
-  }, []);
+    if (!checkoutCanceled) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    const t = setTimeout(() => setNoticeDismissed(true), 6000);
+    return () => clearTimeout(t);
+  }, [checkoutCanceled]);
 
   const overlayOpen = showWall || ordering !== null;
 

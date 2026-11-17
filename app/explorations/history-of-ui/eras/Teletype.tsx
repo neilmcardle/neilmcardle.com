@@ -120,11 +120,12 @@ function Ink({ text, cursor }: { text: string; cursor?: ReactNode }) {
     const start = Math.max(0, all.length - 160);
     let offset = 0;
     for (let i = 0; i < start; i++) offset += all[i].length + 1;
-    return all.slice(start).map((l) => {
-      const o = offset;
-      offset += l.length + 1;
-      return { l, o };
-    });
+    const out: { l: string; o: number }[] = [];
+    for (let i = start; i < all.length; i++) {
+      out.push({ l: all[i], o: offset });
+      offset += all[i].length + 1;
+    }
+    return out;
   }, [text]);
 
   return (

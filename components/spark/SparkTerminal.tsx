@@ -5,6 +5,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import type { TerminalModule } from "@/lib/spark/content";
 import { SparkMark } from "./SparkMark";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+type Spot = { x: number; y: number };
+
+const storedSpotStore = eventStore<Spot | null>({
+  events: [],
+  read: () => {
+    try {
+      const saved = window.localStorage.getItem("spark_terminal_spot");
+      return saved ? (JSON.parse(saved) as Spot) : null;
+    } catch {
+      return null;
+    }
+  },
+  server: null,
+});
 import styles from "./terminal.module.css";
 
 type Tone = "dim" | "amber";
@@ -74,9 +90,26 @@ export function SparkTerminal({
   const [open, setOpen] = useState(variant === "cabinet");
   const [stowed, setStowed] = useState(false);
   const [zoomed, setZoomed] = useState(false);
-  const [dockReady, setDockReady] = useState(variant === "dock");
+  const inCabinet = variant === "dock" && CABINET_ROUTES.has(pathname ?? "");
+  const [cabinetCleared, setCabinetCleared] = useState(false);
+  const dockReady = variant === "dock" && (!inCabinet || cabinetCleared);
+
+  const [lastDockPath, setLastDockPath] = useState(pathname);
+  if (pathname !== lastDockPath) {
+    setLastDockPath(pathname);
+    setCabinetCleared(false);
+  }
   const [bootDone, setBootDone] = useState(false);
-  const [spot, setSpot] = useState<{ x: number; y: number } | null>(null);
+  const storedSpot = useBrowserStore(storedSpotStore);
+  const [spotOverride, setSpotOverride] = useState<Spot | null | undefined>(
+    undefined,
+  );
+  const spot =
+    spotOverride !== undefined
+      ? spotOverride
+      : variant === "dock"
+        ? storedSpot
+        : null;
   const [dragging, setDragging] = useState(false);
   const shell = useRef<HTMLDivElement>(null);
   const grab = useRef<{ dx: number; dy: number } | null>(null);
@@ -134,21 +167,19 @@ export function SparkTerminal({
       const detail = (
         event as CustomEvent<{ x?: number; y?: number; open?: boolean }>
       ).detail;
-      setDockReady(true);
+      setCabinetCleared(true);
       if (detail?.open) {
         if (typeof detail.x === "number" && typeof detail.y === "number")
-          setSpot({ x: detail.x, y: detail.y });
+          setSpotOverride({ x: detail.x, y: detail.y });
         setOpen(true);
       }
     };
     window.addEventListener("spark-terminal-stow", onStow);
 
     if (!CABINET_ROUTES.has(pathname ?? "")) {
-      setDockReady(true);
       return () => window.removeEventListener("spark-terminal-stow", onStow);
     }
 
-    setDockReady(false);
     let watcher: IntersectionObserver | null = null;
     let hunt = 0;
     let tries = 0;
@@ -157,14 +188,14 @@ export function SparkTerminal({
       const cabinet = document.querySelector("[data-spark-cabinet]");
       if (cabinet) {
         watcher = new IntersectionObserver(
-          ([entry]) => setDockReady(!entry.isIntersecting),
+          ([entry]) => setCabinetCleared(!entry.isIntersecting),
           { threshold: 0.25 },
         );
         watcher.observe(cabinet);
         return;
       }
       if (tries++ > 12) {
-        setDockReady(true);
+        setCabinetCleared(true);
         return;
       }
       hunt = window.setTimeout(find, 120);
@@ -204,16 +235,6 @@ export function SparkTerminal({
     if (open) field.current?.focus();
   }, [open]);
 
-  useEffect(() => {
-    if (variant !== "dock") return;
-    try {
-      const saved = window.localStorage.getItem("spark_terminal_spot");
-      if (saved) setSpot(JSON.parse(saved) as { x: number; y: number });
-    } catch {
-      setSpot(null);
-    }
-  }, [variant]);
-
   const settle = useCallback((x: number, y: number) => {
     const box = shell.current?.getBoundingClientRect();
     const width = box?.width ?? 400;
@@ -222,9 +243,14 @@ export function SparkTerminal({
       x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
       y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
     };
-    setSpot(next);
+    setSpotOverride(next);
     return next;
   }, []);
+
+  const spotRef = useRef(spot);
+  useEffect(() => {
+    spotRef.current = spot;
+  });
 
   useEffect(() => {
     if (!dragging) return;
@@ -236,18 +262,14 @@ export function SparkTerminal({
     const onUp = () => {
       setDragging(false);
       grab.current = null;
-      setSpot((current) => {
-        try {
-          if (current)
-            window.localStorage.setItem(
-              "spark_terminal_spot",
-              JSON.stringify(current),
-            );
-        } catch {
-          return current;
-        }
-        return current;
-      });
+      const current = spotRef.current;
+      try {
+        if (current)
+          window.localStorage.setItem(
+            "spark_terminal_spot",
+            JSON.stringify(current),
+          );
+      } catch {}
     };
 
     window.addEventListener("pointermove", onMove);
@@ -266,7 +288,7 @@ export function SparkTerminal({
   }, [spot, settle]);
 
   function toCorner() {
-    setSpot(null);
+    setSpotOverride(null);
     try {
       window.localStorage.removeItem("spark_terminal_spot");
     } catch {

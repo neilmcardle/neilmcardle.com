@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { useState, useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import { keys, readLocal, removeLocal, writeLocal } from "../storage/keys";
+import { keyedEventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+const ONBOARDING_EVENT = "mb-onboarding-change";
 
 export interface OnboardingStep {
   id: string;
@@ -101,11 +98,18 @@ interface UseOnboardingOptions {
 
 export function useOnboarding(options: UseOnboardingOptions = {}) {
   const { stepCallbacks, onEnd, userId } = options;
-  const STORAGE_KEY = keys.onboardingComplete(userId);
+  const STORAGE_KEY = useMemo(() => keys.onboardingComplete(userId), [userId]);
 
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [isOnboardingComplete, setIsOnboardingComplete] = useState(true);
+  const storedComplete = useBrowserStore(
+    keyedEventStore<boolean | null>(`mb-onboarding-${STORAGE_KEY}`, {
+      events: [ONBOARDING_EVENT],
+      read: () => readLocal(STORAGE_KEY) === "true",
+      server: null,
+    }),
+  );
+  const isOnboardingComplete = storedComplete ?? true;
   const [steps, setSteps] = useState<OnboardingStep[]>(DESKTOP_STEPS);
   const callbacksRef = useRef(stepCallbacks);
   const onEndRef = useRef(onEnd);
@@ -113,12 +117,6 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
     callbacksRef.current = stepCallbacks;
     onEndRef.current = onEnd;
   });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = readLocal(STORAGE_KEY);
-    setIsOnboardingComplete(stored === "true");
-  }, []);
 
   const getSteps = useCallback(() => {
     if (typeof window === "undefined") return DESKTOP_STEPS;
@@ -150,16 +148,17 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
       if (next >= steps.length) {
         setIsTourActive(false);
         onEndRef.current?.();
-        setIsOnboardingComplete(true);
+
         if (typeof window !== "undefined") {
           writeLocal(STORAGE_KEY, "true");
+          window.dispatchEvent(new Event(ONBOARDING_EVENT));
         }
         return prev;
       }
       runStepCallback(next, steps);
       return next;
     });
-  }, [steps, runStepCallback]);
+  }, [steps, runStepCallback, STORAGE_KEY]);
 
   const prevStep = useCallback(() => {
     setCurrentStep((prev) => {
@@ -172,11 +171,12 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
   const skipTour = useCallback(() => {
     setIsTourActive(false);
     onEndRef.current?.();
-    setIsOnboardingComplete(true);
+
     if (typeof window !== "undefined") {
       writeLocal(STORAGE_KEY, "true");
+      window.dispatchEvent(new Event(ONBOARDING_EVENT));
     }
-  }, []);
+  }, [STORAGE_KEY]);
 
   const completeTour = useCallback(() => {
     skipTour();
@@ -185,9 +185,9 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
   const resetOnboarding = useCallback(() => {
     if (typeof window !== "undefined") {
       removeLocal(STORAGE_KEY);
+      window.dispatchEvent(new Event(ONBOARDING_EVENT));
     }
-    setIsOnboardingComplete(false);
-  }, []);
+  }, [STORAGE_KEY]);
 
   return {
     isTourActive,

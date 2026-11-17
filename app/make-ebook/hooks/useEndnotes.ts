@@ -43,23 +43,49 @@ export function useEndnotes({
 }: UseEndnotesParams) {
   const prevEndnotesCountRef = useRef(0);
 
+  const latest = useRef({
+    chapters,
+    endnotes,
+    endnoteReferences,
+    setChapters,
+    setEndnotes,
+    setEndnoteReferences,
+    setNextEndnoteNumber,
+    setDialogState,
+    updateEndnotesChapterContent,
+  });
   useEffect(() => {
+    latest.current = {
+      chapters,
+      endnotes,
+      endnoteReferences,
+      setChapters,
+      setEndnotes,
+      setEndnoteReferences,
+      setNextEndnoteNumber,
+      setDialogState,
+      updateEndnotesChapterContent,
+    };
+  });
+
+  useEffect(() => {
+    const l = latest.current;
     if (
       endnotes.length > 0 ||
-      chapters.some((ch) => ch.title.toLowerCase() === "endnotes")
+      l.chapters.some((ch) => ch.title.toLowerCase() === "endnotes")
     ) {
-      updateEndnotesChapterContent(endnotes);
+      l.updateEndnotesChapterContent(endnotes);
     }
 
     if (endnotes.length === 0 && prevEndnotesCountRef.current > 0) {
-      setNextEndnoteNumber(1);
-      setDialogState({
+      l.setNextEndnoteNumber(1);
+      l.setDialogState({
         open: true,
         title: "Endnotes Removed",
         message:
           "All endnotes have been deleted. The Endnotes chapter has been removed from your book.",
         variant: "alert",
-        onConfirm: () => setDialogState((prev) => ({ ...prev, open: false })),
+        onConfirm: () => l.setDialogState((prev) => ({ ...prev, open: false })),
       });
     }
     prevEndnotesCountRef.current = endnotes.length;
@@ -144,6 +170,9 @@ export function useEndnotes({
   }, [chapters, endnoteReferences, setSelectedChapter]);
 
   useEffect(() => {
+    const l = latest.current;
+    const endnotes = l.endnotes;
+    const endnoteReferences = l.endnoteReferences;
     if (endnotes.length === 0 && endnoteReferences.length === 0) return;
 
     const allChapterHtml = chapters
@@ -188,7 +217,7 @@ export function useEndnotes({
     if (allOrphanedIds.size === 0) return;
 
     if (orphanedFromEndnotesChapter.length > 0) {
-      setChapters((prev) =>
+      l.setChapters((prev) =>
         prev.map((ch) => {
           if (ch.title.toLowerCase() === "endnotes") return ch;
           let content = ch.content;
@@ -203,8 +232,8 @@ export function useEndnotes({
       );
     }
 
-    setEndnotes((prev) => prev.filter((e) => !allOrphanedIds.has(e.id)));
-    setEndnoteReferences((prev) =>
+    l.setEndnotes((prev) => prev.filter((e) => !allOrphanedIds.has(e.id)));
+    l.setEndnoteReferences((prev) =>
       prev.filter((r) => !allOrphanedIds.has(r.endnoteId)),
     );
   }, [chapters]);

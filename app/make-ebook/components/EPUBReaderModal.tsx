@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition } from "epubjs";
 import { usePresence } from "../hooks/usePresence";
 import { EXIT_MODAL_MS } from "../utils/motion";
@@ -86,15 +86,15 @@ export default function EPUBReaderModal({
     };
   }, [isOpen, epubBlob]);
 
-  const handlePrevPage = () => {
+  const handlePrevPage = useCallback(() => {
     if (!isReady || !renditionRef.current) return;
     renditionRef.current.prev();
-  };
+  }, [isReady]);
 
-  const handleNextPage = () => {
+  const handleNextPage = useCallback(() => {
     if (!isReady || !renditionRef.current) return;
     renditionRef.current.next();
-  };
+  }, [isReady]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -106,7 +106,7 @@ export default function EPUBReaderModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isReady]);
+  }, [isOpen, isReady, handlePrevPage, handleNextPage, onClose]);
 
   const presence = usePresence(isOpen, EXIT_MODAL_MS);
   if (!presence.mounted) return null;

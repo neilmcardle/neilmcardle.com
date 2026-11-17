@@ -82,17 +82,24 @@ export default function InlineEditPopover({
     return () => query.removeEventListener("change", update);
   }, []);
 
-  useEffect(() => {
+  const [popoverWasOpen, setPopoverWasOpen] = useState(request.open);
+  if (request.open !== popoverWasOpen) {
+    setPopoverWasOpen(request.open);
     if (request.open) {
       setInstruction(request.initialInstruction ?? "");
-      autoRunRef.current = request.initialInstruction ?? null;
       setNumAlternatives(INITIAL_ALTERNATIVES);
-      runRef.current += 1;
       dispatchTakes({ type: "reset", count: INITIAL_ALTERNATIVES });
       setActiveIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [request.open]);
+  }
+
+  useEffect(() => {
+    if (!request.open) return;
+    autoRunRef.current = request.initialInstruction ?? null;
+    runRef.current += 1;
+    const focus = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(focus);
+  }, [request.open, request.initialInstruction]);
 
   const exit = useExit(
     request.open && !!request.anchorRect,
@@ -158,32 +165,7 @@ export default function InlineEditPopover({
     return () => document.removeEventListener("keydown", handle);
   }, [request.open, onClose]);
 
-  useEffect(() => {
-    if (!request.open || !hasAnyResult) return;
-    const handle = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setActiveIndex((i) => (i - 1 + numAlternatives) % numAlternatives);
-      } else if (e.key === "ArrowDown" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setActiveIndex((i) => (i + 1) % numAlternatives);
-      } else if (e.key === "Tab" && activeResult) {
-        e.preventDefault();
-        handleAccept();
-      } else if (
-        e.key === "Enter" &&
-        (e.metaKey || e.ctrlKey) &&
-        activeResult
-      ) {
-        e.preventDefault();
-        handleAccept();
-      }
-    };
-    document.addEventListener("keydown", handle);
-    return () => document.removeEventListener("keydown", handle);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [request.open, hasAnyResult, activeResult, activeIndex]);
-
+  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler bail-out notice, not a defect: babel-plugin-react-compiler is not installed and next.config.mjs enables no compiler, so no optimisation is being lost. Revisit if the compiler is turned on. */
   const handleSubmit = useCallback(
     async (count?: number) => {
       if (!instruction.trim() || isLoading) return;
@@ -213,6 +195,7 @@ export default function InlineEditPopover({
     },
     [instruction, isLoading, inlineEdit, request.selectedText, numAlternatives],
   );
+  /* eslint-enable react-hooks/preserve-manual-memoization */
   useEffect(() => {
     if (!request.open || !autoRunRef.current) return;
     if (autoRunRef.current !== instruction) return;
@@ -223,13 +206,14 @@ export default function InlineEditPopover({
   const handleRegenerate = useCallback(() => {
     setActiveIndex(0);
     void handleSubmit();
-  }, [handleSubmit, numAlternatives]);
+  }, [handleSubmit]);
 
   const handleMoreTakes = useCallback(() => {
     setNumAlternatives(MAX_ALTERNATIVES);
     void handleSubmit(MAX_ALTERNATIVES);
   }, [handleSubmit]);
 
+  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler bail-out notice, not a defect: babel-plugin-react-compiler is not installed and next.config.mjs enables no compiler, so no optimisation is being lost. Revisit if the compiler is turned on. */
   const handleAccept = useCallback(() => {
     if (!activeResult) return;
 
@@ -242,6 +226,32 @@ export default function InlineEditPopover({
     });
     onClose();
   }, [activeResult, onAccept, onClose, request.selectedText, undoCombo]);
+  /* eslint-enable react-hooks/preserve-manual-memoization */
+
+  useEffect(() => {
+    if (!request.open || !hasAnyResult) return;
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setActiveIndex((i) => (i - 1 + numAlternatives) % numAlternatives);
+      } else if (e.key === "ArrowDown" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setActiveIndex((i) => (i + 1) % numAlternatives);
+      } else if (e.key === "Tab" && activeResult) {
+        e.preventDefault();
+        handleAccept();
+      } else if (
+        e.key === "Enter" &&
+        (e.metaKey || e.ctrlKey) &&
+        activeResult
+      ) {
+        e.preventDefault();
+        handleAccept();
+      }
+    };
+    document.addEventListener("keydown", handle);
+    return () => document.removeEventListener("keydown", handle);
+  }, [request.open, hasAnyResult, activeResult, numAlternatives, handleAccept]);
 
   const handleInputKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

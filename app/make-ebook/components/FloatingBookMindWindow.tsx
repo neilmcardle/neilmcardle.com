@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import type { useBookMind, Chat } from "../hooks/useBookMind";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import BookMindMark from "./bookmind/BookMindMark";
 import BookMindChat from "./bookmind/BookMindChat";
 import type { Chapter as BookChapter } from "../types";
@@ -11,6 +12,14 @@ import styles from "../styles/studio.module.css";
 import { keys, readLocal, writeLocal } from "../storage/keys";
 import { usePresence } from "../hooks/usePresence";
 import { EXIT_MODAL_MS } from "../utils/motion";
+
+const EXPANDED_EVENT = "mb-bookmind-expanded-change";
+
+const expandedStore = eventStore<boolean | null>({
+  events: [EXPANDED_EVENT],
+  read: () => readLocal(keys.bookMindExpanded()) === "1",
+  server: null,
+});
 
 interface FloatingBookMindWindowProps {
   mind: ReturnType<typeof useBookMind>;
@@ -273,14 +282,10 @@ export default function FloatingBookMindWindow({
   onBusyChange,
 }: FloatingBookMindWindowProps) {
   const [listOpen, setListOpen] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const expanded = useBrowserStore(expandedStore) ?? false;
   const busy = mind.isLoading || mind.isStreaming;
   const sheet = variant === "sheet";
   const docked = expanded && !sheet;
-
-  useEffect(() => {
-    setExpanded(readLocal(keys.bookMindExpanded()) === "1");
-  }, []);
 
   useEffect(() => {
     if (sheet) return;
@@ -306,11 +311,8 @@ export default function FloatingBookMindWindow({
   if (!presence.mounted) return null;
 
   const toggleExpanded = () => {
-    setExpanded((prev) => {
-      const next = !prev;
-      writeLocal(keys.bookMindExpanded(), next ? "1" : "0");
-      return next;
-    });
+    writeLocal(keys.bookMindExpanded(), expanded ? "0" : "1");
+    window.dispatchEvent(new Event(EXPANDED_EVENT));
   };
 
   const newChat = () => {

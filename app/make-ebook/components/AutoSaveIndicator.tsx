@@ -69,7 +69,20 @@ export function AutoSaveIndicator({
   }
 
   return (
-    <span className={styles.saved} title={title} aria-live="polite">
+    <span
+      className={styles.saved}
+      title={title}
+      aria-live="polite"
+      data-save-state={
+        hasFailed && isDirty && !isSaving
+          ? "failed"
+          : busy
+            ? "saving"
+            : lastSaved
+              ? "saved"
+              : "idle"
+      }
+    >
       <span className={dot} />
       {!compact && <span className={styles.savedLabel}>{label}</span>}
     </span>

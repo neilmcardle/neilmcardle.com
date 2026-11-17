@@ -414,6 +414,12 @@ export async function typeInEditor(page: Page, text: string) {
 }
 
 export async function waitForSave(page: Page) {
+  const saving = page.locator('[data-save-state="saving"]:visible');
+  await saving
+    .first()
+    .waitFor({ state: "visible", timeout: 600 })
+    .catch(() => {});
+  await expect(saving).toHaveCount(0, { timeout: 15_000 });
   await expect(page.getByText("Saving…", { exact: true })).toHaveCount(0, {
     timeout: 15_000,
   });

@@ -81,7 +81,17 @@ export function useAutoSave({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [isDirty, enabled, interval, maxWait, triggerSave, attempt, edits]);
+  }, [
+    isDirty,
+    enabled,
+    interval,
+    maxWait,
+    triggerSave,
+    attempt,
+    edits,
+    failures,
+    firstDirtyAt,
+  ]);
 
   useEffect(() => {
     return () => {

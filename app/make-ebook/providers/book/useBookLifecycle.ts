@@ -43,7 +43,7 @@ interface Params {
 
 export function useBookLifecycle(p: Params) {
   const autoBlankRef = useRef(false);
-  const { user, chapters, setChapters, setCurrentBookId } = p;
+  const { user, chapters, setChapters, setCurrentBookId, editorSessionRef } = p;
   const hydrated = isHydrated(p.phase);
   const landing = showsLanding(p.phase);
 
@@ -58,7 +58,7 @@ export function useBookLifecycle(p: Params) {
 
   function startBlankBook() {
     p.cancelPendingSwitch();
-    p.editorSessionRef.current += 1;
+    editorSessionRef.current += 1;
     autoBlankRef.current = false;
     p.resetMetadata();
     p.setTags([]);
@@ -90,7 +90,7 @@ export function useBookLifecycle(p: Params) {
 
   function goHome() {
     p.cancelPendingSwitch();
-    p.editorSessionRef.current += 1;
+    editorSessionRef.current += 1;
     p.setChapters([]);
     p.setTitle("");
     p.setAuthor("");
@@ -100,32 +100,38 @@ export function useBookLifecycle(p: Params) {
     p.ui.setSidebarView(null);
   }
 
+  const live = useRef({ p, chapters, startBlankBook, hydrated });
   useEffect(() => {
+    live.current = { p, chapters, startBlankBook, hydrated };
+  });
+
+  useEffect(() => {
+    const { p: lp, chapters: lch, startBlankBook: lstart } = live.current;
     if (!hydrated || !user) return;
     if (landing) return;
-    const latest =
-      p.libraryBooks.length > 0
-        ? p.libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b))
+    const newest =
+      lp.libraryBooks.length > 0
+        ? lp.libraryBooks.reduce((a, b) => (a.savedAt > b.savedAt ? a : b))
         : null;
-    if (chapters.length > 0) {
+    if (lch.length > 0) {
       const untouchedBlank =
         autoBlankRef.current &&
-        !p.currentBookId &&
-        !p.ui.isDirty() &&
+        !lp.currentBookId &&
+        !lp.ui.isDirty() &&
         isBlankBook({
-          title: p.meta.title,
-          author: p.meta.author,
-          blurb: p.meta.blurb,
-          coverFile: p.coverUrl,
-          chapters,
+          title: lp.meta.title,
+          author: lp.meta.author,
+          blurb: lp.meta.blurb,
+          coverFile: lp.coverUrl,
+          chapters: lch,
         });
-      if (latest && untouchedBlank) void p.loadBook(latest.id);
+      if (newest && untouchedBlank) void lp.loadBook(newest.id);
       return;
     }
-    if (latest) {
-      void p.loadBook(latest.id);
-    } else if (p.initialSyncDone) {
-      startBlankBook();
+    if (newest) {
+      void lp.loadBook(newest.id);
+    } else if (lp.initialSyncDone) {
+      lstart();
       autoBlankRef.current = true;
     }
   }, [
@@ -138,33 +144,37 @@ export function useBookLifecycle(p: Params) {
   ]);
 
   useEffect(() => {
-    if (p.authLoading) return;
+    const lp = live.current.p;
+    if (lp.authLoading) return;
     if (!user?.id) return;
 
     const userId = user.id;
     let cancelled = false;
     void bookStore.hydrate(userId).then(() => {
       if (cancelled) return;
+      const now = live.current;
       const books = pruneBlankBooks(userId);
-      p.setLibraryBooks(books);
+      now.p.setLibraryBooks(books);
 
-      const loadBookId = p.searchParams ? p.searchParams.get("load") : null;
+      const loadBookId = now.p.searchParams
+        ? now.p.searchParams.get("load")
+        : null;
       if (loadBookId) {
         const bookToLoad = books.find((book) => book.id === loadBookId);
         if (bookToLoad) {
-          p.dispatchPhase({ type: "startWriting" });
-          p.loadBook(loadBookId);
-          p.router.replace("/make-ebook", { scroll: false });
-          p.dispatchPhase({ type: "hydrated" });
+          now.p.dispatchPhase({ type: "startWriting" });
+          now.p.loadBook(loadBookId);
+          now.p.router.replace("/make-ebook", { scroll: false });
+          now.p.dispatchPhase({ type: "hydrated" });
           return;
         } else {
-          p.router.replace("/make-ebook", { scroll: false });
-          if (!hydrated) p.dispatchPhase({ type: "hydrated" });
+          now.p.router.replace("/make-ebook", { scroll: false });
+          if (!now.hydrated) now.p.dispatchPhase({ type: "hydrated" });
           return;
         }
       }
 
-      if (!hydrated) p.dispatchPhase({ type: "hydrated" });
+      if (!now.hydrated) now.p.dispatchPhase({ type: "hydrated" });
     });
     return () => {
       cancelled = true;

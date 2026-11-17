@@ -3,6 +3,10 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { addChat, recordExchange, removeChat } from "../../state/chats";
 import { readLocal, writeLocal, type StorageKey } from "../../storage/keys";
+import { keyedEventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+const CHATS_EVENT = "mb-chats-change";
+const EMPTY_CHATS: Chat[] = [];
 import { generateChatId } from "./actions";
 import type { BookMindMessage, Chat } from "./types";
 
@@ -17,24 +21,27 @@ export function useChats({
   chatStorage,
   setMessages,
 }: UseChatsOptions) {
-  const [chats, setChats] = useState<Chat[]>([]);
+  const chats =
+    useBrowserStore(
+      keyedEventStore<Chat[] | null>(`${chatStorage}|${bookId ?? ""}`, {
+        events: [CHATS_EVENT],
+        read: () => {
+          try {
+            const stored = readLocal(chatStorage);
+            if (!stored) return EMPTY_CHATS;
+            const allChats: Chat[] = JSON.parse(stored);
+            return bookId
+              ? allChats.filter((s) => s.bookId === bookId)
+              : allChats;
+          } catch (e) {
+            console.error("Failed to load chats:", e);
+            return EMPTY_CHATS;
+          }
+        },
+        server: null,
+      }),
+    ) ?? EMPTY_CHATS;
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const stored = readLocal(chatStorage);
-      if (stored) {
-        const allChats: Chat[] = JSON.parse(stored);
-        const bookChats = bookId
-          ? allChats.filter((s) => s.bookId === bookId)
-          : allChats;
-        setChats(bookChats);
-      }
-    } catch (e) {
-      console.error("Failed to load chats:", e);
-    }
-  }, [bookId, chatStorage]);
 
   const chatIdRef = useRef<string | null>(null);
   const selectChat = useCallback((id: string | null) => {
@@ -57,9 +64,9 @@ export function useChats({
       if (!writeLocal(chatStorage, JSON.stringify(all))) {
         console.error("Failed to save chats");
       }
-      setChats(bookId ? all.filter((s) => s.bookId === bookId) : all);
+      window.dispatchEvent(new Event(CHATS_EVENT));
     },
-    [bookId, chatStorage],
+    [chatStorage],
   );
 
   const createChat = useCallback(

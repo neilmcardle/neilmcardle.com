@@ -92,6 +92,7 @@ export function ToolRunner({ topic, childProfile }: Props) {
   return (
     <>
       <div className="flex-1 min-h-0 flex flex-col">
+        {/* eslint-disable-next-line react-hooks/static-components -- getTool is a lookup into the module-level TOOL_REGISTRY, so the component reference is stable per topic */}
         <Tool
           childProfile={childProfile}
           onProgress={handleProgress}

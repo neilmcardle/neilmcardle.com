@@ -140,13 +140,21 @@ export function useSaveStatus({
   useUnsavedChangesWarning(showDirty);
 
   const hydrated = isHydrated(phase);
+  const markDirtyRef = useRef(markDirty);
+  useEffect(() => {
+    markDirtyRef.current = markDirty;
+  });
+  const hydratedRef = useRef(hydrated);
+  useEffect(() => {
+    hydratedRef.current = hydrated;
+  });
   const seenLoadRef = useRef(loadToken);
   useEffect(() => {
     if (seenLoadRef.current !== loadToken) {
       seenLoadRef.current = loadToken;
       return;
     }
-    if (hydrated && chapters.length > 0) markDirty();
+    if (hydratedRef.current && chapters.length > 0) markDirtyRef.current();
   }, [
     loadToken,
     chapters,
@@ -165,6 +173,10 @@ export function useSaveStatus({
     endnoteReferences,
   ]);
 
+  const saveBookRef = useRef(saveBook);
+  useEffect(() => {
+    saveBookRef.current = saveBook;
+  });
   const openUploadRef = useRef<string | null>(null);
   useEffect(() => {
     if (!hasCloudSync || !cloudSync.initialSyncDone) return;
@@ -173,7 +185,7 @@ export function useSaveStatus({
     const found = libraryBooks.find((b) => b.id === currentBookId);
     if (!found || found.syncedRevision > 0 || isBlankBook(found)) return;
     openUploadRef.current = currentBookId;
-    void saveBook.pushNow(currentBookId);
+    void saveBookRef.current.pushNow(currentBookId);
   }, [
     hasCloudSync,
     cloudSync.initialSyncDone,

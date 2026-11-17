@@ -124,14 +124,22 @@ export default function ComposePalette({
     );
   }, [filter]);
 
-  useEffect(() => {
+  const [paletteWasOpen, setPaletteWasOpen] = useState(request.open);
+  if (request.open !== paletteWasOpen) {
+    setPaletteWasOpen(request.open);
     if (request.open) {
       setFilter("");
       setSelectedCommand(null);
       setInstruction("");
-      clearResult();
-      setTimeout(() => filterRef.current?.focus(), 50);
+      dispatchTakes({ type: "reset", count: 1 });
     }
+  }
+
+  useEffect(() => {
+    if (!request.open) return;
+    runRef.current += 1;
+    const focus = setTimeout(() => filterRef.current?.focus(), 50);
+    return () => clearTimeout(focus);
   }, [request.open]);
 
   useEffect(() => {
@@ -207,6 +215,7 @@ export default function ComposePalette({
     }
   };
 
+  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler bail-out notice, not a defect: babel-plugin-react-compiler is not installed and next.config.mjs enables no compiler, so no optimisation is being lost. Revisit if the compiler is turned on. */
   const handleGenerate = useCallback(
     async (cmd: ComposeCommand, userInstruction: string) => {
       const run = ++runRef.current;
@@ -238,6 +247,7 @@ export default function ComposePalette({
     },
     [inlineEdit],
   );
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleAccept = () => {
     if (!result) return;

@@ -90,6 +90,11 @@ export function useWordStats(chapters: Chapter[], userId?: string) {
     };
   }, [chapters]);
 
+  const totalWordsRef = useRef(bookStats.totalWords);
+  useEffect(() => {
+    totalWordsRef.current = bookStats.totalWords;
+  });
+
   useEffect(() => {
     if (initializedRef.current) return;
     initializedRef.current = true;
@@ -100,28 +105,34 @@ export function useWordStats(chapters: Chapter[], userId?: string) {
 
     setSessionStats({
       wordsWrittenToday,
-      sessionStartWords: bookStats.totalWords,
+      sessionStartWords: totalWordsRef.current,
       wordsThisSession: 0,
       sessionStartTime: new Date(),
     });
-  }, []);
+  }, [userId]);
+
+  const sessionStatsRef = useRef(sessionStats);
+  useEffect(() => {
+    sessionStatsRef.current = sessionStats;
+  });
 
   useEffect(() => {
     if (!initializedRef.current) return;
 
+    const current = sessionStatsRef.current;
     const wordsThisSession = Math.max(
       0,
-      bookStats.totalWords - sessionStats.sessionStartWords,
+      bookStats.totalWords - current.sessionStartWords,
     );
     const todayKey = getTodayKey();
-    const newTodayTotal = sessionStats.wordsWrittenToday + wordsThisSession;
+    const newTodayTotal = current.wordsWrittenToday + wordsThisSession;
     writeLocal(keys.wordsToday(userId, todayKey), newTodayTotal.toString());
 
     setSessionStats((prev) => ({
       ...prev,
       wordsThisSession,
     }));
-  }, [bookStats.totalWords]);
+  }, [bookStats.totalWords, userId]);
 
   const formatReadingTime = (minutes: number): string => {
     if (minutes < 1) return "< 1 min";

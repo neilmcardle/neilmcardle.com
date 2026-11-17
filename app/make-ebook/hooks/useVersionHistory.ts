@@ -33,6 +33,8 @@ interface UseVersionHistoryOptions {
   maxVersions?: number;
 }
 
+const EMPTY_VERSIONS: BookVersion[] = [];
+
 function countWords(html: string): number {
   return textStats(html).words;
 }
@@ -42,33 +44,35 @@ export function useVersionHistory({
   userId,
   maxVersions = 20,
 }: UseVersionHistoryOptions) {
-  const [versions, setVersions] = useState<BookVersion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loadedVersions, setLoadedVersions] = useState<BookVersion[]>([]);
+  const [loadedKey, setLoadedKey] = useState<ReturnType<
+    typeof versionKey
+  > | null>(null);
 
   const storageKey = useMemo(
     () => (bookId ? versionKey(userId, bookId) : null),
     [userId, bookId],
   );
 
+  const ready = !!storageKey && loadedKey === storageKey;
+  const versions = ready ? loadedVersions : EMPTY_VERSIONS;
+  const isLoading = !!storageKey && !ready;
+
   useEffect(() => {
-    if (!storageKey) {
-      setVersions([]);
-      setIsLoading(false);
-      return;
-    }
+    if (!storageKey) return;
 
     let cancelled = false;
-    setIsLoading(true);
     loadVersions<BookVersion>(storageKey)
       .then((parsed) => {
-        if (!cancelled) setVersions(parsed);
+        if (cancelled) return;
+        setLoadedVersions(parsed);
+        setLoadedKey(storageKey);
       })
       .catch((e) => {
         console.error("Failed to load version history:", e);
-        if (!cancelled) setVersions([]);
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
+        if (cancelled) return;
+        setLoadedVersions([]);
+        setLoadedKey(storageKey);
       });
     return () => {
       cancelled = true;
@@ -126,7 +130,7 @@ export function useVersionHistory({
         metadata,
       };
 
-      setVersions((prev) => {
+      setLoadedVersions((prev) => {
         const updated = [newVersion, ...prev].slice(0, maxVersions);
         void saveVersions(storageKey, updated);
         return updated;
@@ -141,7 +145,7 @@ export function useVersionHistory({
     (versionId: string) => {
       if (!storageKey) return;
 
-      setVersions((prev) => {
+      setLoadedVersions((prev) => {
         const updated = prev.filter((v) => v.id !== versionId);
         void saveVersions(storageKey, updated);
         return updated;
@@ -153,7 +157,7 @@ export function useVersionHistory({
   const clearHistory = useCallback(() => {
     if (!storageKey) return;
 
-    setVersions([]);
+    setLoadedVersions([]);
     void clearVersions(storageKey);
   }, [storageKey]);
 

@@ -45,6 +45,14 @@ export default function PromptrPage() {
     refineAbort.current = null;
   }, []);
 
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 1600);
+  }, []);
+
   useEffect(
     () => () => {
       cancelRequests();
@@ -65,14 +73,6 @@ export default function PromptrPage() {
       dispatchRefine({ type: "clear" });
     }
     setPromptValue(value);
-  }, []);
-
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 1600);
   }, []);
 
   const handleScore = useCallback(async () => {

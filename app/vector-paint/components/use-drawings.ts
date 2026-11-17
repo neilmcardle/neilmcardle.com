@@ -175,6 +175,7 @@ export function useDrawings() {
     else saveTimer.current = setTimeout(write, SAVE_DELAY_MS);
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- first-run initialisation: reads the stored library and creates plus persists a blank drawing when none exists, so it cannot be derived */
   useEffect(() => {
     const library = readLibrary();
     let current: Drawing | undefined;
@@ -192,6 +193,7 @@ export function useDrawings() {
     setCurrentId(current.id);
     if (library.length > 0) persist(list, true);
   }, [persist]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!currentId) return;

@@ -57,12 +57,8 @@ export default function GhostTextOverlay({
 
   const lastCaretRef = useRef<CaretKey | null>(null);
 
-  const clear = useCallback(() => {
+  const teardown = useCallback(() => {
     activeEditor()?.clearGhostAnchor();
-    setSuggestion(null);
-    setPosition(null);
-    setGenerating(false);
-    setHintVisible(false);
     pendingCtxRef.current = null;
     if (hintTimerRef.current) {
       clearTimeout(hintTimerRef.current);
@@ -73,6 +69,25 @@ export default function GhostTextOverlay({
       abortRef.current = null;
     }
   }, []);
+
+  const clear = useCallback(() => {
+    teardown();
+    setSuggestion(null);
+    setPosition(null);
+    setGenerating(false);
+    setHintVisible(false);
+  }, [teardown]);
+
+  const [ghostWasEnabled, setGhostWasEnabled] = useState(enabled);
+  if (enabled !== ghostWasEnabled) {
+    setGhostWasEnabled(enabled);
+    if (!enabled) {
+      setSuggestion(null);
+      setPosition(null);
+      setGenerating(false);
+      setHintVisible(false);
+    }
+  }
 
   const generate = useCallback(async () => {
     const ctx = pendingCtxRef.current;
@@ -138,7 +153,7 @@ export default function GhostTextOverlay({
 
   useEffect(() => {
     if (!enabled) {
-      clear();
+      teardown();
       return;
     }
 
@@ -175,7 +190,7 @@ export default function GhostTextOverlay({
       document.removeEventListener("input", handleActivity, true);
       if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     };
-  }, [enabled, clear, suggestion]);
+  }, [enabled, clear, teardown, suggestion]);
 
   const accept = useCallback(() => {
     const s = suggestionRef.current;

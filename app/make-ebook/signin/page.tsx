@@ -39,12 +39,19 @@ function SignInContent() {
   const [showResetMessage, setShowResetMessage] = useState(false);
   const { signIn, signUp, resetPassword, authError, clearError } = useAuth();
 
-  useEffect(() => {
+  const [lastRawMode, setLastRawMode] = useState(rawMode);
+  if (rawMode !== lastRawMode) {
+    setLastRawMode(rawMode);
     if (rawMode === "signin" || rawMode === "signup" || rawMode === "reset") {
       setMode(rawMode);
-      clearError();
       setShowVerificationMessage(false);
       setShowResetMessage(false);
+    }
+  }
+
+  useEffect(() => {
+    if (rawMode === "signin" || rawMode === "signup" || rawMode === "reset") {
+      clearError();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rawMode]);

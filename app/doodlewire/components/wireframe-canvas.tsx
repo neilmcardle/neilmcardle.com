@@ -3,7 +3,19 @@
 import BackLink from "@/components/BackLink";
 import styles from "../doodlewire.module.css";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import {
+  eventStore,
+  useBrowserStore,
+  useMediaQuery,
+} from "@/lib/hooks/browserStore";
 import { ElementCell } from "./element-cell";
 import {
   clusterStrokes,
@@ -138,6 +150,34 @@ const LOCAL_MATCH_THRESHOLD = 18;
 const LOCAL_MATCH_MARGIN = 1.15;
 const LOCAL_MATCH_FALLBACK = 28;
 
+const TEMPLATES_EVENT = "doodlewire-templates-change";
+
+function nowMs(): number {
+  return Date.now();
+}
+
+interface StrokeView {
+  rev: number;
+  count: number;
+  bottom: number;
+  dots: { index: number; x: number; y: number }[];
+  clusters: ReturnType<typeof clusterStrokes>;
+}
+
+const EMPTY_STROKE_VIEW: StrokeView = {
+  rev: 0,
+  count: 0,
+  bottom: 0,
+  dots: [],
+  clusters: [],
+};
+
+const templateCountStore = eventStore<number | null>({
+  events: [TEMPLATES_EVENT],
+  read: () => loadTemplates().length,
+  server: null,
+});
+
 export default function WireframeCanvas() {
   const [restored] = useState(() => loadDocument());
   const restoredPage = restored
@@ -195,13 +235,35 @@ export default function WireframeCanvas() {
   const [showExport, setShowExport] = useState(false);
   const [size, setSize] = useState({ w: 0, h: 0 });
 
-  const [isTouch, setIsTouch] = useState(false);
-  const [chromeVisible, setChromeVisible] = useState(false);
+  const isTouch = useMediaQuery("(hover: none) and (pointer: coarse)", false);
+  const [pointerActive, setPointerActive] = useState(false);
+  const chromeVisible = isTouch || pointerActive;
 
-  const [chromeInteractive, setChromeInteractive] = useState(false);
+  const [chromeWasVisible, setChromeWasVisible] = useState(chromeVisible);
+  const [chromeLingering, setChromeLingering] = useState(false);
+  if (chromeVisible !== chromeWasVisible) {
+    setChromeWasVisible(chromeVisible);
+    setChromeLingering(!chromeVisible);
+  }
+  const chromeInteractive = chromeVisible || chromeLingering;
 
-  const [strokeRev, setStrokeRev] = useState(0);
-  const bumpStrokes = useCallback(() => setStrokeRev((n) => n + 1), []);
+  const [strokeView, setStrokeView] = useState<StrokeView>(EMPTY_STROKE_VIEW);
+  const bumpStrokes = useCallback(() => {
+    setStrokeView((prev) => {
+      const strokes = strokesRef.current;
+      let bottom = 0;
+      for (const s of strokes) {
+        for (const pt of s.points) bottom = Math.max(bottom, pt.y);
+      }
+      return {
+        rev: prev.rev + 1,
+        count: strokes.length,
+        bottom,
+        dots: findDotStrokes(strokes),
+        clusters: clusterStrokes(strokes.filter((s) => !s.freehand)),
+      };
+    });
+  }, []);
 
   const historyRef = useRef<{ elements: WfElement[]; strokes: Stroke[] }[]>([]);
   const historyIdxRef = useRef(-1);
@@ -236,7 +298,7 @@ export default function WireframeCanvas() {
   );
 
   const templatesRef = useRef<Template[]>([]);
-  const [templateCount, setTemplateCount] = useState(0);
+  const templateCount = useBrowserStore(templateCountStore) ?? 0;
   const [learnOpen, setLearnOpen] = useState(false);
 
   const [flash, setFlash] = useState<FlashMessage | null>(null);
@@ -244,6 +306,35 @@ export default function WireframeCanvas() {
   const [keyboardShift, setKeyboardShift] = useState(0);
   const keyboardShiftRef = useRef(0);
   const editingNodeRef = useRef<HTMLElement | null>(null);
+
+  const redraw = useCallback(() => {
+    const canvas = inkCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = dprRef.current;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+
+    ctx.translate(0, -scrollYRef.current);
+    ctx.lineWidth = STROKE_WIDTH;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    const drawStroke = (s: Stroke) => {
+      if (s.points.length === 0) return;
+      ctx.strokeStyle = s.freehand ? "#9ca3af" : "#0a0a0a";
+      ctx.beginPath();
+      ctx.moveTo(s.points[0].x, s.points[0].y);
+      for (let i = 1; i < s.points.length; i++) {
+        ctx.lineTo(s.points[i].x, s.points[i].y);
+      }
+      ctx.stroke();
+    };
+
+    for (const s of strokesRef.current) drawStroke(s);
+    if (currentStrokeRef.current) drawStroke(currentStrokeRef.current);
+  }, []);
 
   useEffect(() => {
     function resize() {
@@ -266,12 +357,10 @@ export default function WireframeCanvas() {
     resize();
     window.addEventListener("resize", resize);
     return () => window.removeEventListener("resize", resize);
-  }, []);
+  }, [redraw]);
 
   useEffect(() => {
-    const all = loadTemplates();
-    templatesRef.current = all;
-    setTemplateCount(all.length);
+    templatesRef.current = loadTemplates();
   }, []);
 
   useEffect(() => {
@@ -289,7 +378,7 @@ export default function WireframeCanvas() {
       saveDocument(full, currentPage);
     }, 800);
     return () => clearTimeout(t);
-  }, [elements, pages, currentPage, strokeRev, scrollY]);
+  }, [elements, pages, currentPage, strokeView.rev, scrollY]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -339,24 +428,12 @@ export default function WireframeCanvas() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(hover: none) and (pointer: coarse)");
-    setIsTouch(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsTouch(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (isTouch) {
-      setChromeVisible(true);
-      return;
-    }
+    if (isTouch) return;
     let idle: ReturnType<typeof setTimeout> | null = null;
     function show() {
-      setChromeVisible(true);
+      setPointerActive(true);
       if (idle) clearTimeout(idle);
-      idle = setTimeout(() => setChromeVisible(false), 2400);
+      idle = setTimeout(() => setPointerActive(false), 2400);
     }
     window.addEventListener("pointermove", show);
     window.addEventListener("pointerdown", show);
@@ -370,18 +447,14 @@ export default function WireframeCanvas() {
   }, [isTouch]);
 
   useEffect(() => {
-    if (chromeVisible) {
-      setChromeInteractive(true);
-      return;
-    }
-    const t = setTimeout(() => setChromeInteractive(false), 720);
+    if (!chromeLingering) return;
+    const t = setTimeout(() => setChromeLingering(false), 720);
     return () => clearTimeout(t);
-  }, [chromeVisible]);
+  }, [chromeLingering]);
 
   const refreshTemplates = useCallback(() => {
-    const all = loadTemplates();
-    templatesRef.current = all;
-    setTemplateCount(all.length);
+    templatesRef.current = loadTemplates();
+    window.dispatchEvent(new Event(TEMPLATES_EVENT));
   }, []);
 
   useEffect(() => {
@@ -389,35 +462,6 @@ export default function WireframeCanvas() {
     const t = setTimeout(() => setFlash(null), flash.action ? 7000 : 2400);
     return () => clearTimeout(t);
   }, [flash]);
-
-  const redraw = useCallback(() => {
-    const canvas = inkCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const dpr = dprRef.current;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-
-    ctx.translate(0, -scrollYRef.current);
-    ctx.lineWidth = STROKE_WIDTH;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    const drawStroke = (s: Stroke) => {
-      if (s.points.length === 0) return;
-      ctx.strokeStyle = s.freehand ? "#9ca3af" : "#0a0a0a";
-      ctx.beginPath();
-      ctx.moveTo(s.points[0].x, s.points[0].y);
-      for (let i = 1; i < s.points.length; i++) {
-        ctx.lineTo(s.points[i].x, s.points[i].y);
-      }
-      ctx.stroke();
-    };
-
-    for (const s of strokesRef.current) drawStroke(s);
-    if (currentStrokeRef.current) drawStroke(currentStrokeRef.current);
-  }, []);
 
   const recordSnapshot = useCallback(() => {
     const snap = {
@@ -449,7 +493,7 @@ export default function WireframeCanvas() {
     return () => {
       if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current);
     };
-  }, [elements, strokeRev, recordSnapshot]);
+  }, [elements, strokeView.rev, recordSnapshot]);
 
   function restoreSnapshot(snap: { elements: WfElement[]; strokes: Stroke[] }) {
     restoringRef.current = true;
@@ -1019,12 +1063,17 @@ export default function WireframeCanvas() {
 
   useEffect(() => cancelScheduledRecognise, []);
 
-  const dotIndices = findDotStrokes(strokesRef.current);
+  const dotIndices = strokeView.dots;
 
-  const showLearnHint =
-    strokesRef.current.length === 0 && elements.length === 0;
+  const showLearnHint = strokeView.count === 0 && elements.length === 0;
 
-  void strokeRev;
+  const maxScroll = useMemo(() => {
+    let bottom = strokeView.bottom;
+    for (const el of elements) {
+      bottom = Math.max(bottom, el.bbox.y + el.bbox.h);
+    }
+    return Math.max(0, bottom) + size.h;
+  }, [strokeView.bottom, elements, size.h]);
 
   function moveLayer(id: string, direction: "forward" | "backward") {
     setElements((prev) => {
@@ -1047,7 +1096,7 @@ export default function WireframeCanvas() {
         localStorage.getItem(key) ?? "[]",
       ) as unknown[];
       existing.push({
-        ts: Date.now(),
+        ts: nowMs(),
         type: el.type,
         label: el.label,
         bbox: el.bbox,
@@ -1185,12 +1234,10 @@ export default function WireframeCanvas() {
         }}
       />
 
-      {(elements.length > 0 ||
-        strokesRef.current.length > 0 ||
-        scrollY > 0) && (
+      {(elements.length > 0 || strokeView.count > 0 || scrollY > 0) && (
         <ScrollHandle
           scrollY={scrollY}
-          maxScroll={maxScrollY()}
+          maxScroll={maxScroll}
           viewportH={size.h}
           onScroll={applyScroll}
         />
@@ -1233,7 +1280,7 @@ export default function WireframeCanvas() {
           onClearAllPages={clearAllPages}
           canDeletePage={pages.length > 1}
           templateCount={templateCount}
-          hasContent={elements.length > 0 || strokesRef.current.length > 0}
+          hasContent={elements.length > 0 || strokeView.count > 0}
           autoRecognise={autoRecognise}
           onToggleAutoRecognise={() => setAutoRecognise((v) => !v)}
         />
@@ -1247,20 +1294,18 @@ export default function WireframeCanvas() {
         ))}
 
         {!autoRecognise &&
-          clusterStrokes(strokesRef.current.filter((s) => !s.freehand)).map(
-            (cluster, i) => {
-              const b = aggregateStrokeBbox(cluster.strokes);
-              if (b.w <= DOT_THRESHOLD && b.h <= DOT_THRESHOLD) return null;
-              return (
-                <ClusterRecogniseButton
-                  key={`rec-${i}-${Math.round(b.x)}-${Math.round(b.y)}`}
-                  x={b.x + b.w}
-                  y={b.y - scrollY}
-                  onClick={() => recogniseClusters([cluster])}
-                />
-              );
-            },
-          )}
+          strokeView.clusters.map((cluster, i) => {
+            const b = aggregateStrokeBbox(cluster.strokes);
+            if (b.w <= DOT_THRESHOLD && b.h <= DOT_THRESHOLD) return null;
+            return (
+              <ClusterRecogniseButton
+                key={`rec-${i}-${Math.round(b.x)}-${Math.round(b.y)}`}
+                x={b.x + b.w}
+                y={b.y - scrollY}
+                onClick={() => recogniseClusters([cluster])}
+              />
+            );
+          })}
         {snipRect && !snipDragging && snipRect.w >= 6 && snipRect.h >= 6 && (
           <SnipActionBar
             rect={snipRect}
@@ -2125,9 +2170,11 @@ function Toolbar({
     return () => document.removeEventListener("pointerdown", onDocDown);
   }, [settingsOpen]);
 
-  useEffect(() => {
+  const [settingsWasOpen, setSettingsWasOpen] = useState(settingsOpen);
+  if (settingsOpen !== settingsWasOpen) {
+    setSettingsWasOpen(settingsOpen);
     if (!settingsOpen) setPendingConfirm(null);
-  }, [settingsOpen]);
+  }
   useEffect(() => {
     if (!pendingConfirm) return;
     const t = setTimeout(() => setPendingConfirm(null), 4000);
