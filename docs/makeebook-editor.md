@@ -84,3 +84,32 @@ When a chapter opens, its HTML is parsed once. Edits are serialised 150 ms after
 - **One reading of the text.** `model/text.ts` has `htmlToText`, `countWords`, `textStats` and `hasText`. Every word count, reading position, Book Mind brief and empty-chapter check uses them, so the footer, the version history and the pre-flight agree. Inline marks don't split a word, blocks and line breaks do, entities are decoded, and endnote markers and back links don't count. A word is any run with a letter or a digit in it.
 - **Same answer from the document.** `editor/text.ts` reads the same text from the ProseMirror document. `editor/text.dom.test.ts` checks that the two agree on every kind of node.
 - **Selection.** Features that act on selected text read it from the editor, not `window.getSelection()`. The editor publishes its selection on every change through `noteSelection` in `registry.ts`, and clears it on blur. Subscribe with `subscribeSelection`, and turn positions into a DOM `Range` with `domRangeAt` when a popover needs a rectangle. The phone's selection bar works this way. The ⌘K hint in `providers/editor/useWritingAssist.ts` still reads the browser selection and should move over. `useKeyboardInset` and `GhostTextOverlay` only listen for `selectionchange` as a layout or activity signal, which is fine.
+
+## The editor bundle for the iPhone app
+
+`editor/bridge/` packages the same editor (schema, HTML conversion, setup, commands and format state) as a standalone page with no React and no app code, for the iPhone and iPad app to host in a `WKWebView`.
+
+- **Build:** `npm run build:editor-bundle [outDir]` writes `index.html`, `bridge.js` and `bridge.css` to `dist/editor-bundle/`, which git ignores, or to the folder given. It's about 85 KB compressed and ships inside the app, so it works offline.
+- **Native to page:** `window.makeEbook`:
+  - `load({ html, placeholder?, editable? })`
+  - `command(name, arg?)`, where `name` is one of `bold`, `italic`, `underline`, `strikeThrough`, `paragraph`, `heading1` to `heading3`, `bulletList`, `orderedList`, `quote`, `undo`, `redo` or `link`
+  - `setView({ page, ink, muted, accent, fontPx })`
+  - `focus()`, `blur()`, `flush()`, `html()` and `words()`
+- **Page to native:** messages through `window.webkit.messageHandlers.makeEbook`:
+  - `ready`
+  - `loaded` (with words)
+  - `change` (with HTML and words), sent 150ms after typing stops, at most 1s after the first change, and at once on blur or page hide
+  - `format` (the format state)
+  - `focus`
+
+  In a normal browser the same messages arrive as `makeebook:message` events.
+
+- **Tests:** `e2e/make-ebook/editor-bundle.spec.ts` builds the bundle, stands in for the native handler and checks:
+  - the HTML round trip, including endnote markers and styles
+  - typing and the word count
+  - commands and the format state
+  - the placeholder
+  - colours
+  - the save on blur
+
+  It runs in Chrome with the main suite. `npm run test:editor-bundle` runs it in WebKit, the engine iOS uses, on iPhone 15 and iPad Pro 11 profiles (`playwright.bundle.config.ts`).

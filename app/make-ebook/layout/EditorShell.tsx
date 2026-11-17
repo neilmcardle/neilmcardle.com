@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import TrialBanner from "../components/TrialBanner";
 import NewBookConfirmDialog from "../components/modals/NewBookConfirmDialog";
 import ImportDialog from "../components/modals/ImportDialog";
@@ -16,6 +16,31 @@ import {
 
 export default function EditorShell() {
   const docked = useEditor((s) => s.bookMindDocked);
+  const monoAccent = useEditor((s) => s.monoAccent);
+  const accentSet = useRef(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    let timer = 0;
+    if (accentSet.current) {
+      root.dataset.accentFade = "";
+      timer = window.setTimeout(() => {
+        delete root.dataset.accentFade;
+      }, 320);
+    }
+    accentSet.current = true;
+    if (monoAccent) root.dataset.accent = "mono";
+    else delete root.dataset.accent;
+    return () => window.clearTimeout(timer);
+  }, [monoAccent]);
+
+  useEffect(
+    () => () => {
+      delete document.documentElement.dataset.accent;
+      delete document.documentElement.dataset.accentFade;
+    },
+    [],
+  );
 
   useEffect(() => {
     const root = document.documentElement;

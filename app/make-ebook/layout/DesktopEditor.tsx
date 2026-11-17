@@ -39,6 +39,7 @@ export function DesktopSurface() {
       exportCount: s.exportHistory.length,
       focus: s.focus,
       flowMode: s.flowMode,
+      monoAccent: s.monoAccent,
       surfaceMode: s.surfaceMode,
       bookStats: s.bookStats,
       sessionStats: s.sessionStats,
@@ -77,6 +78,8 @@ export function DesktopSurface() {
             onToggleFocusMode={actions.toggleFocusMode}
             flowMode={editor.flowMode}
             onToggleFlowMode={actions.handleToggleFlowMode}
+            monoAccent={editor.monoAccent}
+            onToggleMonoAccent={actions.handleToggleMonoAccent}
             surfaceMode={editor.surfaceMode}
             onSurfaceModeChange={actions.setSurfaceMode}
             onExportEPUB={() => actions.setPreflightFormat("epub")}

@@ -6,6 +6,7 @@ import type {
 } from "../types";
 import { uuidv4 } from "../utils/uuid";
 import { normalisePreset, type TypographyPreset } from "../export/styles";
+import { isSyncBase, type SyncBase } from "../state/merge";
 
 export const SCHEMA_VERSION = 1;
 
@@ -31,6 +32,7 @@ export type Book = {
   savedAt: number;
   revision: number;
   syncedRevision: number;
+  syncBase?: SyncBase;
 };
 
 const UUID =
@@ -211,6 +213,7 @@ export function normaliseBook(value: unknown, userId: string): Book {
   };
   const memory = normaliseMemory(raw.bookmindMemory);
   if (memory) book.bookmindMemory = memory;
+  if (isSyncBase(raw.syncBase)) book.syncBase = raw.syncBase;
   return book;
 }
 

@@ -1,11 +1,5 @@
 "use client";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type SetStateAction,
-} from "react";
+import { useCallback, useRef, useState, type SetStateAction } from "react";
 import { morph, morphSurface } from "../../utils/surfaceMorph";
 import { keys, readLocal, writeLocal } from "../../storage/keys";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
@@ -54,6 +48,18 @@ export function useEditorUi() {
     });
   }, []);
 
+  const [monoAccent, setMonoAccent] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return readLocal(keys.accent()) === "mono";
+  });
+  const handleToggleMonoAccent = useCallback(() => {
+    setMonoAccent((prev) => {
+      const next = !prev;
+      writeLocal(keys.accent(), next ? "mono" : "acid");
+      return next;
+    });
+  }, []);
+
   const [mobileEditorFocused, setMobileEditorFocused] = useState(false);
   useKeyboardInset(mobileEditorFocused);
 
@@ -93,6 +99,7 @@ export function useEditorUi() {
       bookMindBusy,
       epubBlob,
       flowMode,
+      monoAccent,
       mobileEditorFocused,
       sidebarLibraryExpanded,
       sidebarChaptersExpanded,
@@ -106,6 +113,7 @@ export function useEditorUi() {
       setBookMindBusy,
       setEpubBlob,
       handleToggleFlowMode,
+      handleToggleMonoAccent,
       setMobileEditorFocused,
       setSidebarLibraryExpanded,
       setSidebarChaptersExpanded,

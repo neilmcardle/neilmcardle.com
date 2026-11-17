@@ -1,6 +1,7 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import { needsPush, normaliseBook, type Book } from "../model/book";
 import { createSingleFlight } from "../state/singleFlight";
+import { syncBaseOf } from "../state/merge";
 import { toDisplayCover } from "../utils/assetStore";
 import { isBlankBook } from "../utils/bookLibrary";
 import { bookStore } from "./bookStore";
@@ -38,15 +39,17 @@ function client() {
 function toRemote(row: Row, userId: string): RemoteBook {
   const revision = typeof row.revision === "number" ? row.revision : 0;
   const deleted = !!row.deleted_at;
-  const book =
-    deleted || row.data === undefined
-      ? null
-      : {
-          ...normaliseBook(row.data, userId),
-          id: row.id,
-          revision,
-          syncedRevision: revision,
-        };
+  const cloud =
+    deleted || row.data === undefined ? null : normaliseBook(row.data, userId);
+  const book = cloud
+    ? {
+        ...cloud,
+        id: row.id,
+        revision,
+        syncedRevision: revision,
+        syncBase: syncBaseOf(cloud),
+      }
+    : null;
   return { id: row.id, revision, deleted, book };
 }
 
@@ -88,8 +91,9 @@ export async function pull(userId: string): Promise<RemoteBook[]> {
 export async function push(book: Book): Promise<PushResult> {
   const supabase = client();
   const now = new Date().toISOString();
+  const { syncBase: _base, ...data } = book;
   const fields = {
-    data: book,
+    data,
     revision: book.revision,
     updated_at: now,
     deleted_at: null,
@@ -151,6 +155,7 @@ async function runPush(
     bookStore.put({
       ...latest,
       syncedRevision: Math.min(result.revision, latest.revision),
+      syncBase: syncBaseOf(book),
     });
   }
   return "pushed";

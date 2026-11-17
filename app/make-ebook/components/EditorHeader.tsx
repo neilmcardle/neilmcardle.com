@@ -56,6 +56,8 @@ export interface EditorHeaderProps {
   onToggleFocusMode: () => void;
   flowMode: boolean;
   onToggleFlowMode: () => void;
+  monoAccent?: boolean;
+  onToggleMonoAccent?: () => void;
 
   surfaceMode: "edit" | "preview";
   onSurfaceModeChange: (mode: "edit" | "preview") => void;
@@ -87,6 +89,8 @@ export default function EditorHeader({
   onToggleFocusMode,
   flowMode,
   onToggleFlowMode,
+  monoAccent,
+  onToggleMonoAccent,
   surfaceMode,
   onSurfaceModeChange,
   onExportEPUB,
@@ -121,6 +125,8 @@ export default function EditorHeader({
           onToggleFocus={onToggleFocusMode}
           flowMode={flowMode}
           onToggleFlow={onToggleFlowMode}
+          monoAccent={monoAccent}
+          onToggleMonoAccent={onToggleMonoAccent}
         />
       </div>
 

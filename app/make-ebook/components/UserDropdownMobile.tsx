@@ -18,8 +18,12 @@ import AccountAvatar from "./AccountAvatar";
 
 export function UserDropdownMobile({
   onStartTour,
+  monoAccent = false,
+  onToggleMonoAccent,
 }: {
   onStartTour?: () => void;
+  monoAccent?: boolean;
+  onToggleMonoAccent?: () => void;
 }) {
   const { user, signOut, loading } = useAuth();
   const { tier, isGrandfathered, stripeCustomerId } = useSubscription();
@@ -105,6 +109,28 @@ export function UserDropdownMobile({
               </div>
               <DropdownMenuSeparator />
             </>
+          )}
+          {onToggleMonoAccent && (
+            <DropdownMenuItem
+              onSelect={(e) => {
+                e.preventDefault();
+                onToggleMonoAccent();
+              }}
+              className="cursor-pointer justify-between gap-3"
+              role="menuitemcheckbox"
+              aria-checked={monoAccent}
+            >
+              <span className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full bg-[var(--acid)]"
+                  aria-hidden
+                />
+                Grey accent
+              </span>
+              <span className="text-11 text-[var(--clay-muted)]">
+                {monoAccent ? "On" : "Off"}
+              </span>
+            </DropdownMenuItem>
           )}
           {onStartTour && (
             <DropdownMenuItem onClick={onStartTour} className="cursor-pointer">

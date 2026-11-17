@@ -45,7 +45,8 @@ interface FloatingBookMindWindowProps {
 
 const PATHS = {
   chats: "M4 6h16M4 12h10M4 18h7",
-  compose: "M12 20h8M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z",
+  newChat:
+    "M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.6A8.5 8.5 0 1 1 20.5 11.5zM12 8.5v6M9 11.5h6",
   expand: "M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7",
   collapse: "M4 14h6v6M20 10h-6V4M10 14l-7 7M14 10l7-7",
   close: "M6 6l12 12M18 6L6 18",
@@ -208,7 +209,7 @@ function ChatList({
           strokeLinejoin="round"
           aria-hidden="true"
         >
-          <path d={PATHS.compose} />
+          <path d={PATHS.newChat} />
         </svg>
         New chat
       </button>
@@ -353,7 +354,7 @@ export default function FloatingBookMindWindow({
           <span>{heading}</span>
         </div>
         <div className={styles.bmBarRight}>
-          <BarButton label="New chat" d={PATHS.compose} onClick={newChat} />
+          <BarButton label="New chat" d={PATHS.newChat} onClick={newChat} />
           {!sheet && (
             <BarButton
               label={docked ? "Float" : "Expand"}

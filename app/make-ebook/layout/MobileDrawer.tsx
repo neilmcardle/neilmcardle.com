@@ -46,6 +46,7 @@ export default function MobileDrawer() {
       library: s.sidebarLibraryExpanded,
       book: s.sidebarBookDetailsExpanded,
       chapters: s.sidebarChaptersExpanded,
+      monoAccent: s.monoAccent,
     }),
     shallowEqual,
   );
@@ -165,6 +166,8 @@ export default function MobileDrawer() {
                 close();
                 actions.startTour(400);
               }}
+              monoAccent={ui.monoAccent}
+              onToggleMonoAccent={actions.handleToggleMonoAccent}
             />
           </footer>
         </div>

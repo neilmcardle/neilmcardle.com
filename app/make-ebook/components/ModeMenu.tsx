@@ -15,6 +15,8 @@ interface ModeMenuProps {
   onToggleFocus: () => void;
   flowMode: boolean;
   onToggleFlow: () => void;
+  monoAccent?: boolean;
+  onToggleMonoAccent?: () => void;
 }
 
 function Switch({ on }: { on: boolean }) {
@@ -39,6 +41,8 @@ export default function ModeMenu({
   onToggleFocus,
   flowMode,
   onToggleFlow,
+  monoAccent = false,
+  onToggleMonoAccent,
 }: ModeMenuProps) {
   const hasFlow = useFeatureAccess("book_mind_ai");
   const flowOn = flowMode && hasFlow;
@@ -127,6 +131,32 @@ export default function ModeMenu({
             </div>
             <div className="pt-1">
               <Switch on={flowMode} />
+            </div>
+          </DropdownMenuItem>
+        )}
+
+        {onToggleMonoAccent && (
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              onToggleMonoAccent();
+            }}
+            className="flex items-start gap-3 px-3 py-2.5 cursor-pointer"
+          >
+            <span
+              className="w-4 h-4 mt-1 rounded-full flex-shrink-0 bg-[var(--acid)]"
+              aria-hidden
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-125 font-medium text-gray-900 dark:text-[var(--paper)]">
+                Grey accent
+              </p>
+              <p className="text-11 text-gray-500 dark:text-[var(--clay-muted)] leading-snug mt-1">
+                Swap the yellow highlights for a quiet grey.
+              </p>
+            </div>
+            <div className="pt-1">
+              <Switch on={monoAccent} />
             </div>
           </DropdownMenuItem>
         )}

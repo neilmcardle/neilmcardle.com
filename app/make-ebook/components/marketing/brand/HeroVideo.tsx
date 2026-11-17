@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./brand.module.css";
 
 const SRC = media("/make-ebook/brand/writer-video-bg.mp4");
+const SOUND = media("/make-ebook/brand/writer-sound.m4a");
 const POSTER = "/make-ebook/brand/hero-writer.jpg";
 const THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);
 const MAX_VOLUME = 0.9;
@@ -63,7 +64,7 @@ export function HeroVideo() {
       if (loading) return loading;
       loading = (async () => {
         const ctx = new AudioContext();
-        const bytes = await fetch(SRC).then((r) => r.arrayBuffer());
+        const bytes = await fetch(SOUND).then((r) => r.arrayBuffer());
         const buffer = await ctx.decodeAudioData(bytes);
         if (disposed) {
           ctx.close();
@@ -169,7 +170,7 @@ export function HeroVideo() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="none"
         aria-hidden="true"
       />
       <button

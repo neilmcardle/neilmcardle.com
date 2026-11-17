@@ -41,6 +41,7 @@ export function saveBookToLibrary(
           : (book.savedAt ?? Date.now()),
       revision: Math.max(base.revision, book.revision ?? 0) + 1,
       syncedRevision: existing?.syncedRevision ?? book.syncedRevision ?? 0,
+      syncBase: existing?.syncBase ?? book.syncBase,
     },
     userId,
   );

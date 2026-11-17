@@ -1,3 +1,27 @@
+@property --acid {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #deea53;
+}
+
+@property --acid-hover {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #ebf58b;
+}
+
+@property --mind-mid {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #a7b03e;
+}
+
+@property --mind-deep {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #51533e;
+}
+
 :root {
   --ink: #141413;
   --ink-deep: #0b0b0b;
@@ -16,6 +40,8 @@
   --clay-muted: #8e8b82;
   --acid: #deea53;
   --acid-hover: #ebf58b;
+  --mind-mid: #a7b03e;
+  --mind-deep: #51533e;
   --success: #34d399;
   --warning: #fbbf24;
   --warning-fill: rgba(251, 191, 36, 0.16);
@@ -109,4 +135,19 @@
   --r-md: 16px;
   --r-lg: 20px;
   --r-xl: 24px;
+}
+
+html[data-accent="mono"] {
+  --acid: #dcdcdc;
+  --acid-hover: #eeeeee;
+  --mind-mid: #a3a3a3;
+  --mind-deep: #4d4d4d;
+}
+
+html[data-accent-fade] {
+  transition:
+    --acid var(--dur-quick) var(--ease-out),
+    --acid-hover var(--dur-quick) var(--ease-out),
+    --mind-mid var(--dur-quick) var(--ease-out),
+    --mind-deep var(--dur-quick) var(--ease-out);
 }

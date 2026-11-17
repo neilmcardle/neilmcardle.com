@@ -29,6 +29,10 @@ export const keys = {
     key: `${PREFIX}flow-mode`,
     legacy: ["me_flow_mode"],
   }),
+  accent: (): StorageKey => ({
+    key: `${PREFIX}accent`,
+    legacy: [],
+  }),
   bookMindExpanded: (): StorageKey => ({
     key: `${PREFIX}bookmind-expanded`,
     legacy: ["bookmind_expanded"],

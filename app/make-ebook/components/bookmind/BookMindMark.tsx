@@ -10,9 +10,9 @@ interface BookMindMarkProps {
 
 const BALL_STOPS = [
   { offset: 0, color: "#ffffff" },
-  { offset: 0.504808, color: "#deea53" },
-  { offset: 0.774038, color: "#a7b03e" },
-  { offset: 1, color: "#51533e" },
+  { offset: 0.504808, color: "var(--acid)" },
+  { offset: 0.774038, color: "var(--mind-mid)" },
+  { offset: 1, color: "var(--mind-deep)" },
 ];
 
 const EYE_STOPS = [
@@ -61,7 +61,11 @@ export default function BookMindMark({
           gradientTransform="translate(90 72.875) rotate(90) scale(97.625)"
         >
           {BALL_STOPS.map((s) => (
-            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+            <stop
+              key={s.offset}
+              offset={s.offset}
+              style={{ stopColor: s.color }}
+            />
           ))}
         </radialGradient>
         {[

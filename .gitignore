@@ -87,3 +87,5 @@ tessera-app/dist/
 /test-results/
 /playwright-report/
 docs/makeebook-motion.md
+
+/dist/editor-bundle/

@@ -68,6 +68,12 @@ Row-level security lets a signed-in user see and change only their own rows.
 - **Conflicts:** if the guarded update changes nothing, another device saved first, and the book is a conflict, never overwritten silently.
 - **The decision** for each book (push, pull, conflict or nothing to do) is a pure function in `state/sync.ts`, with tests.
 - **Pull** reads every row for the user and applies remote books whose revision is newer than the local copy's synced revision.
+- **Merging clashes chapter by chapter** (`state/merge.ts`):
+  - Each local book keeps a `syncBase`: a fingerprint of every chapter, the chapter order and each book detail as they were at the last sync. It's set on every pull and push, carried across saves, and never sent to the cloud.
+  - When both sides have changed, `mergeBooks(local, cloud, syncBase)` compares each side against the fingerprint. Chapters changed on only one side are taken from that side, including additions, deletions and a reorder made on one side only.
+  - Only the same chapter or detail changed differently on both sides, a chapter deleted on one side and edited on the other, or two different reorders, count as a real clash. Those still go to the "keep cloud, keep this device or keep both" prompt.
+  - A clean merge is saved with a new revision and pushed. `state/merge.test.ts` covers the rules, and `e2e/make-ebook/storage.spec.ts` covers two devices editing different chapters.
+  - Fingerprints are FNV-1a hashes, chosen instead of timestamps because a phone's clock and a laptop's clock never agree exactly. The iPhone app computes the same fingerprints the same way.
 
 ## Backups
 

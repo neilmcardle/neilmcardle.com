@@ -1,0 +1,129 @@
+:root {
+  --page: #141413;
+  --ink: #e9e5da;
+  --muted: #8e8b82;
+  --accent: #deea53;
+  --font-px: 18px;
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--page);
+  color: var(--ink);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding: 24px max(20px, env(safe-area-inset-right)) 40vh
+    max(20px, env(safe-area-inset-left));
+}
+
+#editor {
+  position: relative;
+  max-width: 34em;
+  margin: 0 auto;
+  font-family: ui-serif, "New York", Georgia, serif;
+  font-size: var(--font-px);
+  line-height: 1.6;
+}
+
+#editor[data-empty]::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.bridge-prose {
+  min-height: 60vh;
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  caret-color: var(--accent);
+}
+
+.bridge-prose p {
+  margin: 0 0 0.9em;
+}
+
+.bridge-prose h1,
+.bridge-prose h2,
+.bridge-prose h3 {
+  margin: 1.2em 0 0.5em;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.bridge-prose h1 {
+  font-size: 1.5em;
+}
+
+.bridge-prose h2 {
+  font-size: 1.3em;
+}
+
+.bridge-prose h3 {
+  font-size: 1.12em;
+}
+
+.bridge-prose blockquote {
+  margin: 0 0 0.9em;
+  padding-left: 1em;
+  border-left: 2px solid var(--muted);
+  color: var(--muted);
+}
+
+.bridge-prose ul,
+.bridge-prose ol {
+  margin: 0 0 0.9em;
+  padding-left: 1.4em;
+}
+
+.bridge-prose li p {
+  margin: 0;
+}
+
+.bridge-prose a {
+  color: inherit;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+.bridge-prose hr {
+  border: 0;
+  text-align: center;
+  margin: 1.5em 0;
+}
+
+.bridge-prose hr::before {
+  content: "* * *";
+  color: var(--muted);
+}
+
+.bridge-prose img {
+  max-width: 100%;
+  height: auto;
+}
+
+.bridge-prose figure {
+  margin: 1em 0;
+}
+
+.bridge-prose figcaption {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.bridge-prose sup {
+  line-height: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}

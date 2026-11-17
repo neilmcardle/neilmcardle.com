@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build:editor-bundle": "node scripts/build-editor-bundle.mjs",
+    "test:editor-bundle": "playwright test -c playwright.bundle.config.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

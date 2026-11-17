@@ -21,6 +21,7 @@ import {
   remove as removeRemote,
 } from "../storage/cloudStore";
 import { isBlankBook, loadBookLibrary } from "../utils/bookLibrary";
+import { mergeBooks } from "../state/merge";
 
 const SYNC_THROTTLE_MS = 10000;
 
@@ -153,11 +154,28 @@ export function useCloudSync({
                 ...local,
                 revision: Math.max(local.revision, cloud.revision),
                 syncedRevision: cloud.revision,
+                syncBase: cloud.syncBase,
               });
               changed = true;
-            } else {
-              conflicts.push({ local, cloud });
+              continue;
             }
+            const merge = local.syncBase
+              ? mergeBooks(local, cloud, local.syncBase)
+              : null;
+            if (merge?.status === "merged") {
+              bookStore.put({
+                ...merge.book,
+                userId,
+                revision: Math.max(local.revision, cloud.revision) + 1,
+                syncedRevision: cloud.revision,
+                syncBase: cloud.syncBase,
+              });
+              changed = true;
+              if (remote.id === openId) openBookUpdated = true;
+              if (canUpload) toPush.push(remote.id);
+              continue;
+            }
+            conflicts.push({ local, cloud });
             continue;
           }
           bookStore.put({ ...cloud, userId });
@@ -289,6 +307,7 @@ export function useCloudSync({
         ...local,
         revision: Math.max(local.revision, cloud.revision) + 1,
         syncedRevision: cloud.revision,
+        syncBase: cloud.syncBase,
       });
       pushIds.push(local.id);
     } else if (choice === "cloud") {
@@ -301,6 +320,7 @@ export function useCloudSync({
         title: `${local.title || "Untitled"} (this device)`,
         revision: 1,
         syncedRevision: 0,
+        syncBase: undefined,
         savedAt: Date.now(),
       };
       bookStore.put(copy);
