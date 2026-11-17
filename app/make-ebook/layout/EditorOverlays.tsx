@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { FocusModePanel } from "../components/FocusModePanel";
@@ -8,10 +8,27 @@ import FindReplacePanel from "../components/FindReplacePanel";
 import CmdkHint from "../components/modals/CmdkHint";
 import { useOnce } from "../hooks/useOnce";
 
-const FloatingBookMindWindow = dynamic(
+function usePreloadBookMind(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled) return;
+    if (!("requestIdleCallback" in window)) {
+      const timer = globalThis.setTimeout(BookMindWindow.preload, 2500);
+      return () => globalThis.clearTimeout(timer);
+    }
+    const handle = window.requestIdleCallback(
+      () => void BookMindWindow.preload(),
+      {
+        timeout: 5000,
+      },
+    );
+    return () => window.cancelIdleCallback(handle);
+  }, [enabled]);
+}
+
+const BookMindWindow = lazySlot(
   () => import("../components/FloatingBookMindWindow"),
-  { ssr: false },
 );
+const FloatingBookMindWindow = BookMindWindow.Slot;
 const InlineEditPopover = dynamic(
   () => import("../components/bookmind/InlineEditPopover"),
   { ssr: false },
@@ -44,6 +61,7 @@ import { useSession } from "../providers/SessionProvider";
 import { useBook, useBookActions } from "../providers/BookProvider";
 import { useEditor, useEditorActions } from "../providers/EditorProvider";
 import { shallowEqual } from "../providers/store";
+import { lazySlot } from "../utils/lazySlot";
 
 export function HistoryModal() {
   const historyModal = useEditor((s) => s.historyModal);
@@ -110,6 +128,7 @@ function useBookMindWindowProps() {
 }
 
 export function MobileBookMindSheet() {
+  usePreloadBookMind(useSession((s) => s.hasBookMind));
   const props = useBookMindWindowProps();
   const open = useEditor((s) => s.mobileBookMindOpen);
   const actions = useEditorActions();
@@ -144,6 +163,7 @@ export function MobileBookMindSheet() {
 }
 
 function DesktopBookMindWindow() {
+  usePreloadBookMind(useSession((s) => s.hasBookMind));
   const props = useBookMindWindowProps();
   const open = useEditor((s) => s.bookMindOpen);
   const actions = useEditorActions();

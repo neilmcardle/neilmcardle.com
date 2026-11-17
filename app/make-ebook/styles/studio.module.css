@@ -3383,7 +3383,8 @@ button:focus-visible > .avatar {
   box-shadow:
     0 30px 80px -24px rgba(0, 0, 0, 0.85),
     0 0 0 1px rgba(0, 0, 0, 0.4);
-  animation: bm-rise 260ms var(--ease) backwards;
+  transform-origin: bottom right;
+  animation: bm-pop var(--dur-spring) var(--spring) backwards;
 }
 
 .bmDocked {
@@ -3402,6 +3403,16 @@ button:focus-visible > .avatar {
   inset: 0;
   height: 100dvh;
   animation: bm-rise 260ms var(--ease) backwards;
+}
+
+@keyframes bm-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  35% {
+    opacity: 1;
+  }
 }
 
 @keyframes bm-rise {
@@ -4351,8 +4362,11 @@ button:focus-visible > .avatar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bmWindow,
-  .bmSheet,
+  .bmWindow:not([data-state="closed"]),
+  .bmSheet:not([data-state="closed"]) {
+    animation: bmFadeIn var(--dur-quick) var(--ease-out) both;
+  }
+
   .bmUser,
   .bmTurn,
   .bmPending,
@@ -4679,6 +4693,12 @@ button:focus-visible > .avatar {
 
 @keyframes fadeOut {
   to {
+    opacity: 0;
+  }
+}
+
+@keyframes bmFadeIn {
+  from {
     opacity: 0;
   }
 }
