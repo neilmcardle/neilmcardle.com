@@ -401,6 +401,30 @@
   gap: 24px;
 }
 
+.kitSource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.kitSource code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  color: var(--ink);
+  user-select: all;
+}
+
+.kitSource a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: rgb(255 255 255 / 0.3);
+  text-underline-offset: 4px;
+}
+
 .kitSpecs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

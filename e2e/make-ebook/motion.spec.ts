@@ -167,6 +167,38 @@ test.describe("editor motion", () => {
     );
   });
 
+  test("drawer sections fold without touching the page behind", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await openEditor(page);
+    await page.locator('[data-tour="mobile-menu"]').click();
+    const book = page.getByRole("button", { name: "Book details" });
+    await expect(book).toBeVisible();
+    await page.waitForTimeout(500);
+    const running = page.evaluate(
+      () =>
+        new Promise<string[]>((resolve) => {
+          const seen = new Set<string>();
+          const started = performance.now();
+          const look = () => {
+            for (const a of document.getAnimations()) {
+              const effect = a.effect as KeyframeEffect | null;
+              if (effect?.pseudoElement) seen.add(effect.pseudoElement);
+            }
+            if (performance.now() - started > 600) resolve([...seen]);
+            else setTimeout(look, 10);
+          };
+          look();
+        }),
+    );
+    await book.click();
+    const seen = await running;
+    expect(seen.some((p) => p.includes("me-sec-"))).toBe(true);
+    expect(seen.filter((p) => /me-(page|dock|controls)\)/.test(p))).toEqual([]);
+    await expect(book).toHaveAttribute("aria-expanded", "true");
+  });
+
   test("find and replace drops in and leaves before it unmounts", async ({
     page,
   }) => {

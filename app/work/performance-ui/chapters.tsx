@@ -27,7 +27,7 @@ export const PERFORMANCE_UI: Chapter[] = [
   {
     label: "Decision 2",
     title: "Two layers, and a line between them",
-    body: "Performance UI is the fast system. Looks UI sits on top and changes only the 33 decisions where the impression matters more. Every Performance UI rule is also tagged Foundation or Style, so on a page that already has a brand it fixes how the page works and leaves how it looks alone.",
+    body: "Performance UI is for sites where speed matters. Looks UI then sits on top of Performance UI and changes only the 33 decisions where how something looks matters more than the speed it costs. Those 33 decisions condense into 21 rules. Performance UI's rules are tagged Foundation or Style, so on a site that already has a brand it applies only the Foundation rules and leaves the site's style as it is, unless told otherwise.",
     instead:
       "one set of rules that erases a brand it was only meant to make faster.",
     visual: <BrandPair />,

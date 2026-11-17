@@ -2524,7 +2524,7 @@ html[data-keyboard="open"] body {
   overscroll-behavior: none;
 }
 
-html[data-surface-to] [data-vt="page"] {
+html[data-surface-to]:not([data-surface-to="section"]) [data-vt="page"] {
   view-transition-name: me-page;
 }
 
@@ -2534,11 +2534,11 @@ html[data-surface-to="device"] [data-vt="header"] {
   view-transition-name: me-header;
 }
 
-html[data-surface-to] [data-vt="dock"] {
+html[data-surface-to]:not([data-surface-to="section"]) [data-vt="dock"] {
   view-transition-name: me-dock;
 }
 
-html[data-surface-to] [data-vt="controls"] {
+html[data-surface-to]:not([data-surface-to="section"]) [data-vt="controls"] {
   view-transition-name: me-controls;
 }
 

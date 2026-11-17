@@ -25,7 +25,15 @@ export default function PerformanceUiCase({ home }: { home?: string }) {
       facts={[
         { label: "When", value: "2026" },
         { label: "Role", value: "Design and writing, solo" },
-        { label: "Price", value: "Free" },
+        {
+          label: "Source",
+          value: (
+            <a href="https://github.com/neilmcardle/skills" rel="noopener">
+              GitHub
+            </a>
+          ),
+        },
+        { label: "Licence", value: "MIT" },
       ]}
       brief={<Story chapters={PERFORMANCE_UI} />}
       frames={[]}

@@ -281,12 +281,39 @@
 }
 
 .shown .chipCard {
+  pointer-events: auto;
   opacity: 1;
   transform: translate(-50%, 0) rotate(-4deg) scale(1);
 }
 
 .right.shown .chipCard {
   transform: translate(-50%, 0) rotate(4deg) scale(1);
+}
+
+.chipOpen {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(13 13 12 / 0.82);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.chipOpen svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .chip:active {

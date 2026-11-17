@@ -1,4 +1,4 @@
-const BLOB = "https://ir0qcjbilbtejz9a.public.blob.vercel-storage.com/audio/";
+const BLOB = "https://pub-d3a3778411424ab6a9fd45ec805109ce.r2.dev/audio/";
 const FILES = ["bonsai-1.mp3", "bonsai-2.mp3", "bonsai-3.mp3"];
 const SKIP = [0.18, 0.22, 0.42];
 

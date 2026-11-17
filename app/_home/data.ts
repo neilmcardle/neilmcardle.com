@@ -9,6 +9,7 @@ export type Piece = {
   local?: boolean;
   live?: { label: string; href: string };
   kindHref?: string;
+  kindWhere?: string;
 };
 
 export const WORK: Piece[] = [
@@ -60,6 +61,8 @@ export const WORK: Piece[] = [
     line: "A design system written for agents.",
     kind: "Design system",
     href: "/work/performance-ui",
+    kindHref: "https://github.com/neilmcardle/skills",
+    kindWhere: "GitHub",
     image: "/home/peek/performance-ui.jpg",
     local: true,
   },

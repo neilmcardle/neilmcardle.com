@@ -97,6 +97,14 @@ export default function Chip({
       {children}
       <span className={styles.chipCard} aria-hidden="true">
         <Brand id={id} />
+        {shown ? (
+          <span className={styles.chipOpen}>
+            Open
+            <svg viewBox="0 0 12 12">
+              <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+            </svg>
+          </span>
+        ) : null}
       </span>
     </Link>
   );

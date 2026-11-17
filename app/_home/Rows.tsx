@@ -96,7 +96,7 @@ export default function Rows({
                   className={styles.kindLink}
                   href={piece.kindHref}
                   rel="noopener"
-                  aria-label={`${piece.title} on the App Store`}
+                  aria-label={`${piece.title} on ${piece.kindWhere ?? "the App Store"}`}
                 >
                   <span className={styles.rowKind}>{piece.kind}</span>
                   <svg viewBox="0 0 12 12" aria-hidden="true">
