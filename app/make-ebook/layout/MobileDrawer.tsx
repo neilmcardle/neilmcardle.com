@@ -117,6 +117,7 @@ export default function MobileDrawer() {
 
           <div className={studio.drawerBody}>
             <DrawerSection
+              name="library"
               icon={<SectionIcon d="M4 4v16M10 7v13M16 5v15M3 20h18" />}
               label="Library"
               count={libraryCount}
@@ -133,6 +134,7 @@ export default function MobileDrawer() {
             </DrawerSection>
 
             <DrawerSection
+              name="book"
               icon={
                 <SectionIcon d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3zM5 17a3 3 0 013-3h11M9 8h6" />
               }
@@ -144,6 +146,7 @@ export default function MobileDrawer() {
             </DrawerSection>
 
             <DrawerSection
+              name="chapters"
               icon={
                 <SectionIcon d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" />
               }

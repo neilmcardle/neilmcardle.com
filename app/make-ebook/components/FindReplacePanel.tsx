@@ -1,6 +1,8 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 import { ChapterMatch } from "../hooks/useFindReplace";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MENU_MS } from "../utils/motion";
 
 interface FindReplacePanelProps {
   isOpen: boolean;
@@ -33,6 +35,7 @@ export default function FindReplacePanel({
   onReplaceAll,
   onGoToMatch,
 }: FindReplacePanelProps) {
+  const presence = usePresence(isOpen, EXIT_MENU_MS);
   const searchRef = useRef<HTMLInputElement>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -71,15 +74,17 @@ export default function FindReplacePanel({
     );
   }
 
-  if (!isOpen) return null;
+  if (!presence.mounted) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/50"
+      data-state={presence.state}
+      className="me-scrim fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/50"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[var(--rule)]"
+        data-state={presence.state}
+        className="me-drop bg-white dark:bg-[var(--ink)] rounded-lg shadow-xl w-full max-w-lg mx-4 border border-gray-200 dark:border-[var(--rule)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-[var(--rule)]">

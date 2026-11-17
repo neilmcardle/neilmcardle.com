@@ -14,6 +14,8 @@ import { useBookMind } from "../../hooks/useBookMind";
 import { toast } from "sonner";
 import { useIsMac } from "../PlatformKey";
 import { Spinner } from "../Spinner";
+import { useExit } from "../../hooks/useExit";
+import { EXIT_MENU_MS } from "../../utils/motion";
 
 export interface ComposePaletteRequest {
   open: boolean;
@@ -160,9 +162,16 @@ export default function ComposePalette({
     return () => document.removeEventListener("keydown", handle);
   }, [request.open, onClose]);
 
+  const exit = useExit(
+    request.open && !!request.anchorRect,
+    request,
+    EXIT_MENU_MS,
+  );
+  const shown = exit.value;
+
   const layout = useMemo(() => {
-    if (!request.anchorRect) return { top: 0, left: 0, maxHeight: PALETTE_MAX };
-    const rect = request.anchorRect;
+    if (!shown.anchorRect) return { top: 0, left: 0, maxHeight: PALETTE_MAX };
+    const rect = shown.anchorRect;
     const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
     const vh = typeof window !== "undefined" ? window.innerHeight : 768;
 
@@ -186,7 +195,7 @@ export default function ComposePalette({
     }
     maxHeight = Math.max(maxHeight, minUsable);
     return { top: Math.max(VIEWPORT_MARGIN, top), left, maxHeight };
-  }, [request.anchorRect]);
+  }, [shown.anchorRect]);
 
   const handleSelectCommand = (cmd: ComposeCommand) => {
     setSelectedCommand(cmd);
@@ -251,7 +260,7 @@ export default function ComposePalette({
     }
   };
 
-  if (!request.open || !request.anchorRect) return null;
+  if (!exit.mounted || !shown.anchorRect) return null;
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -265,7 +274,8 @@ export default function ComposePalette({
         zIndex: 1000,
         maxHeight: layout.maxHeight,
       }}
-      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden flex flex-col"
+      data-state={exit.state}
+      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden me-float flex flex-col"
       role="dialog"
       aria-label="Compose with Book Mind"
     >

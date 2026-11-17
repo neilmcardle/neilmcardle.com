@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import EmptyStateHint from "../EmptyStateHint";
 import ChapterRow from "../ChapterRow";
 import ChapterSelectBar from "../ChapterSelectBar";
@@ -11,6 +11,7 @@ import ChapterRowActions from "./ChapterRowActions";
 import { useBook, useBookActions } from "../../providers/BookProvider";
 import { useEditor } from "../../providers/EditorProvider";
 import { shallowEqual } from "../../providers/store";
+import { useListFlip } from "../../hooks/useListFlip";
 
 interface ChaptersPanelProps {
   compact?: boolean;
@@ -89,6 +90,11 @@ export default function ChaptersPanel({
     onNavigate?.();
   };
   const selection = useChapterSelection(chapters.map((c) => c.id));
+  const listRef = useRef<HTMLDivElement>(null);
+  useListFlip(
+    listRef,
+    chapters.map((c) => c.id),
+  );
   const canSelect = chapters.length > 1;
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(
     null,
@@ -139,7 +145,7 @@ export default function ChaptersPanel({
         </div>
       </div>
 
-      <div className="space-y-2 px-2" data-testid="chapter-list">
+      <div ref={listRef} className="space-y-2 px-2" data-testid="chapter-list">
         {chapters.length === 0 ? (
           <EmptyStateHint
             compact
@@ -191,6 +197,7 @@ export default function ChaptersPanel({
               return (
                 <ChapterRow
                   key={ch.id}
+                  data-flip-id={ch.id}
                   data-testid="chapter-row"
                   numberLabel={numberLabel}
                   title={chapterTitle}

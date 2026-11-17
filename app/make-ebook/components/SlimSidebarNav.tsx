@@ -289,7 +289,10 @@ export default function SlimSidebarNav({
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[var(--ink)] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[var(--rule)]">
+    <aside
+      data-vt="rail"
+      className="hidden lg:flex flex-col w-16 bg-gray-50 dark:bg-[var(--ink)] h-screen items-center relative z-50 border-r border-gray-200 dark:border-[var(--rule)]"
+    >
       <div className="flex-shrink-0 pt-6 pb-6">
         <Tooltip text="makeEBook">
           <button

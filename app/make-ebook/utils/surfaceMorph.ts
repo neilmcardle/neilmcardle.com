@@ -33,6 +33,14 @@ function previewReady(ms: number): Promise<void> {
   });
 }
 
+let running = false;
+let waiting: Array<() => void> = [];
+
+export function afterMorph(run: () => void) {
+  if (running) waiting.push(run);
+  else run();
+}
+
 export function morph(
   kind: string,
   apply: () => void,
@@ -40,10 +48,11 @@ export function morph(
   after?: () => Promise<unknown>,
 ) {
   const doc = document as TransitionDocument;
-  if (!doc.startViewTransition) {
+  if (!doc.startViewTransition || running) {
     apply();
     return;
   }
+  running = true;
   const root = document.documentElement;
   if (!reducedMotion()) root.dataset.surfaceTo = kind;
   const transition = doc.startViewTransition(async () => {
@@ -55,6 +64,10 @@ export function morph(
   transition.finished
     .catch(() => {})
     .finally(() => {
+      running = false;
+      const queued = waiting;
+      waiting = [];
+      queued.forEach((run) => run());
       if (root.dataset.surfaceTo === kind) delete root.dataset.surfaceTo;
     });
 }

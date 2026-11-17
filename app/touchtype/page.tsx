@@ -2,6 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import BackLink from "@/components/BackLink";
+import {
+  eventStore,
+  shallowEqualRecord,
+  useBrowserStore,
+} from "@/lib/hooks/browserStore";
 import s from "./touchtype.module.css";
 import { accuracy, freshDrill, pressKey, speed, type Drill } from "./drill";
 
@@ -327,11 +332,42 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+const STORE_EVENT = "tt-lab-store-change";
+
 function writeValue(key: string, value: string) {
   try {
     window.localStorage.setItem(key, value);
   } catch {}
+  window.dispatchEvent(new Event(STORE_EVENT));
 }
+
+const EMPTY_BEST: Best = {};
+
+const layoutStore = eventStore<Layout | null>({
+  events: [STORE_EVENT],
+  read: () => {
+    try {
+      const l = window.localStorage.getItem(LAYOUT_KEY);
+      return l === "mac" || l === "win" ? l : "mac";
+    } catch {
+      return "mac";
+    }
+  },
+  server: null,
+});
+
+const bestStore = eventStore<Best | null>({
+  events: [STORE_EVENT],
+  read: () => readJson<Best>(BEST_KEY, EMPTY_BEST),
+  server: null,
+  equals: shallowEqualRecord,
+});
+
+const soundStore = eventStore<boolean | null>({
+  events: [STORE_EVENT],
+  read: () => readJson<boolean>(SOUND_KEY, false),
+  server: null,
+});
 
 function formatTime(ms: number) {
   const total = Math.floor(ms / 1000);
@@ -345,7 +381,7 @@ function cx(...names: (string | false | undefined)[]) {
 }
 
 export default function TouchTypePage() {
-  const [layout, setLayout] = useState<Layout>("mac");
+  const layout = useBrowserStore(layoutStore) ?? "mac";
   const [lessonIdx, setLessonIdx] = useState(0);
   const [drill, setDrill] = useState<Drill>(freshDrill);
   const drillRef = useRef<Drill>(freshDrill);
@@ -363,25 +399,15 @@ export default function TouchTypePage() {
   const [pressed, setPressed] = useState<{ key: string; ok: boolean } | null>(
     null,
   );
-  const [best, setBest] = useState<Best>({});
+  const best = useBrowserStore(bestStore) ?? EMPTY_BEST;
   const [cleared, setCleared] = useState<Best | null>(null);
-  const [sound, setSound] = useState(false);
+  const sound = useBrowserStore(soundStore) ?? false;
   const [noticeOpen, setNoticeOpen] = useState(true);
 
   const practiceRef = useRef<HTMLElement | null>(null);
   const audioRef = useRef<AudioContext | null>(null);
   const lastSoundRef = useRef(0);
   const pressTimer = useRef<number | null>(null);
-
-  useEffect(() => {
-    let l: string | null = null;
-    try {
-      l = window.localStorage.getItem(LAYOUT_KEY);
-    } catch {}
-    if (l === "mac" || l === "win") setLayout(l);
-    setBest(readJson<Best>(BEST_KEY, {}));
-    setSound(readJson<boolean>(SOUND_KEY, false));
-  }, []);
 
   useEffect(() => {
     if (drillStart === null) return;
@@ -537,21 +563,21 @@ export default function TouchTypePage() {
       flashKey(SHIFTED[expectedNow] ?? expectedNow.toLowerCase(), true);
       const finished = after.result;
       if (outcome !== "finished" || !finished) return;
-      setBest((prev) => {
-        const old = prev[lessonIdx];
-        const keep = old && old.wpm >= finished.wpm && old.acc >= finished.acc;
-        const merged = keep
-          ? prev
-          : {
-              ...prev,
-              [lessonIdx]: {
-                wpm: Math.max(finished.wpm, old?.wpm ?? 0),
-                acc: Math.max(finished.acc, old?.acc ?? 0),
-              },
-            };
-        writeValue(BEST_KEY, JSON.stringify(merged));
-        return merged;
-      });
+      const prev = bestStore.getSnapshot() ?? EMPTY_BEST;
+      const old = prev[lessonIdx];
+      const keep = old && old.wpm >= finished.wpm && old.acc >= finished.acc;
+      if (!keep) {
+        writeValue(
+          BEST_KEY,
+          JSON.stringify({
+            ...prev,
+            [lessonIdx]: {
+              wpm: Math.max(finished.wpm, old?.wpm ?? 0),
+              acc: Math.max(finished.acc, old?.acc ?? 0),
+            },
+          }),
+        );
+      }
     },
     [playTone, flashKey, lesson, lessonIdx],
   );
@@ -587,28 +613,22 @@ export default function TouchTypePage() {
   const nextLesson = lessonIdx + 1 < LESSONS.length ? lessonIdx + 1 : null;
 
   const chooseLayout = (l: Layout) => {
-    setLayout(l);
     writeValue(LAYOUT_KEY, l);
     focusPractice(false);
   };
 
   const toggleSound = () => {
-    setSound((v) => {
-      writeValue(SOUND_KEY, JSON.stringify(!v));
-      return !v;
-    });
+    writeValue(SOUND_KEY, JSON.stringify(!sound));
     focusPractice(false);
   };
 
   const clearProgress = () => {
     setCleared(best);
-    setBest({});
     writeValue(BEST_KEY, "{}");
   };
 
   const undoClear = () => {
     if (!cleared) return;
-    setBest(cleared);
     writeValue(BEST_KEY, JSON.stringify(cleared));
     setCleared(null);
   };

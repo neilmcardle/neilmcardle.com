@@ -5,6 +5,7 @@ import CollapsibleSection from "../CollapsibleSection";
 import styles from "../../styles/studio.module.css";
 
 interface DrawerSectionProps {
+  name?: string;
   icon: React.ReactNode;
   label: string;
   count?: number;
@@ -15,6 +16,7 @@ interface DrawerSectionProps {
 }
 
 export default function DrawerSection({
+  name,
   icon,
   label,
   count,
@@ -24,7 +26,7 @@ export default function DrawerSection({
   children,
 }: DrawerSectionProps) {
   return (
-    <section className={styles.drawerSection}>
+    <section className={styles.drawerSection} data-vt-section={name}>
       <button
         type="button"
         onClick={onToggle}

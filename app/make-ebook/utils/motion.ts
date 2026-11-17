@@ -10,6 +10,7 @@ export function scrollMotion(): ScrollBehavior {
   return reducedMotion() ? "auto" : "smooth";
 }
 
+export const EXIT_QUICK_MS = 80;
 export const EXIT_MENU_MS = 96;
 export const EXIT_MODAL_MS = 128;
 

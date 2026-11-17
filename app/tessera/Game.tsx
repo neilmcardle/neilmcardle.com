@@ -366,6 +366,15 @@ export default function TesseraGame({
         : "p2"
     : null;
 
+  const [scoredGame, setScoredGame] = useState(false);
+  if (gameOver !== scoredGame) {
+    setScoredGame(gameOver);
+    if (gameOver && (winner === "p1" || winner === "p2")) {
+      const scored: Player = winner;
+      setWins((w) => ({ ...w, [scored]: w[scored] + 1 }));
+    }
+  }
+
   const triByEdge = useMemo(() => {
     const m = new Map();
     triangles.forEach((t) =>
@@ -498,10 +507,6 @@ export default function TesseraGame({
     if (winner === "tie") {
       playTurnSound();
       return;
-    }
-    if (winner === "p1" || winner === "p2") {
-      const scored: Player = winner;
-      setWins((w) => ({ ...w, [scored]: w[scored] + 1 }));
     }
     playCheerSound();
   }, [gameOver, winner]);

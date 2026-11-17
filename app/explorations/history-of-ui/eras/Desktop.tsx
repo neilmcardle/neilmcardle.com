@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Fit, useScale } from "../lib";
 import s from "./desktop.module.css";
 
@@ -176,7 +176,8 @@ function Screen() {
   >(null);
   const lastTap = useRef<{ id: string; t: number }>({ id: "", t: 0 });
   const openedAt = useRef(0);
-  const folders = useRef(0);
+  const [zoomSeq, setZoomSeq] = useState(0);
+  const [folderSeq, setFolderSeq] = useState(0);
 
   const pt = (e: { clientX: number; clientY: number }) => {
     const r = root.current!.getBoundingClientRect();
@@ -210,7 +211,8 @@ function Screen() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
     if (from && !reduce) {
-      const key = Date.now();
+      const key = zoomSeq + 1;
+      setZoomSeq(key);
       setZooms((z) => [
         ...z,
         { key, from, to: { x: spec.x, y: spec.y, w: spec.w, h: spec.h } },
@@ -233,7 +235,7 @@ function Screen() {
     e.stopPropagation();
     setMenu(null);
     setSelected(item.id);
-    const now = performance.now();
+    const now = e.timeStamp;
     const isDouble =
       lastTap.current.id === item.id && now - lastTap.current.t < 450;
     lastTap.current = { id: item.id, t: now };
@@ -359,6 +361,23 @@ function Screen() {
   const selectedItem = [...items, ...DISK].find((i) => i.id === selected);
   const top = wins[wins.length - 1];
 
+  const newFolder = useCallback(() => {
+    const n = folderSeq + 1;
+    setFolderSeq(n);
+    setItems((is) => [
+      ...is,
+      {
+        id: `folder-${n}`,
+        label: n === 1 ? "Empty Folder" : `Empty Folder ${n}`,
+        kind: "folder",
+        x: 470 - ((n - 1) % 4) * 80,
+        y: 300 - Math.floor((n - 1) / 4) * 70,
+        opens: "folder",
+        trashable: true,
+      },
+    ]);
+  }, [folderSeq]);
+
   const MENUS: { id: string; label: string; items: MenuItem[] }[] = [
     {
       id: "sys",
@@ -369,25 +388,7 @@ function Screen() {
       id: "file",
       label: "File",
       items: [
-        {
-          label: "New Folder",
-          run: () => {
-            folders.current++;
-            const n = folders.current;
-            setItems((is) => [
-              ...is,
-              {
-                id: `folder-${n}`,
-                label: n === 1 ? "Empty Folder" : `Empty Folder ${n}`,
-                kind: "folder",
-                x: 470 - ((n - 1) % 4) * 80,
-                y: 300 - Math.floor((n - 1) / 4) * 70,
-                opens: "folder",
-                trashable: true,
-              },
-            ]);
-          },
-        },
+        { label: "New Folder", run: newFolder },
         {
           label: "Open",
           disabled: !selectedItem?.opens,

@@ -68,7 +68,7 @@ export function useLessonSteps({
   useEffect(() => {
     if (state.celebrating === null) return;
     const step = state.celebrating;
-    play("stepPass");
+    play("stepDone");
     const t = window.setTimeout(
       () => dispatch({ type: "celebrated", step }),
       CELEBRATE_MS,

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import type { Company } from "./rows";
 import type { StartBand } from "./stories";
 import styles from "./companies.module.css";
@@ -84,6 +85,8 @@ function fromUrl(search: string): Filters {
   };
 }
 
+const FILTERS_EVENT = "companies-filters-change";
+
 function toUrl(f: Filters) {
   const p = new URLSearchParams();
   if (f.q) p.set("q", f.q);
@@ -131,9 +134,23 @@ function Dots({ band }: { band: StartBand }) {
   );
 }
 
+const filtersStore = eventStore<Filters | null>({
+  events: ["popstate", FILTERS_EVENT],
+  read: () => fromUrl(window.location.search),
+  server: null,
+  equals: (a, b) => !!a && !!b && toUrl(a) === toUrl(b),
+});
+
 export default function Companies({ companies }: { companies: Company[] }) {
-  const [f, setF] = useState<Filters>(EMPTY);
-  const ready = useRef(false);
+  const f = useBrowserStore(filtersStore) ?? EMPTY;
+
+  const apply = (next: Filters) => {
+    const url = `${window.location.pathname}${toUrl(next)}`;
+    if (url !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", url);
+    }
+    window.dispatchEvent(new Event(FILTERS_EVENT));
+  };
 
   const sectors = useMemo(
     () =>
@@ -146,23 +163,6 @@ export default function Companies({ companies }: { companies: Company[] }) {
     () => [...new Set(companies.map((c) => c.country))].sort(),
     [companies],
   );
-
-  useEffect(() => {
-    setF(fromUrl(window.location.search));
-    const back = () => setF(fromUrl(window.location.search));
-    window.addEventListener("popstate", back);
-    return () => window.removeEventListener("popstate", back);
-  }, []);
-
-  useEffect(() => {
-    if (!ready.current) {
-      ready.current = true;
-      return;
-    }
-    const next = `${window.location.pathname}${toUrl(f)}`;
-    if (next !== `${window.location.pathname}${window.location.search}`)
-      window.history.replaceState(null, "", next);
-  }, [f]);
 
   const rows = useMemo(() => {
     const q = f.q.trim().toLowerCase();
@@ -193,15 +193,14 @@ export default function Companies({ companies }: { companies: Company[] }) {
   }, [companies, f]);
 
   const total = rows.reduce((s, c) => s + c.marketCapBn, 0);
-  const set = (patch: Partial<Filters>) =>
-    setF((old) => ({ ...old, ...patch }));
+  const set = (patch: Partial<Filters>) => apply({ ...f, ...patch });
   const toggle = (band: StartBand) =>
-    setF((old) => ({
-      ...old,
-      bands: old.bands.includes(band)
-        ? old.bands.filter((b) => b !== band)
-        : [...old.bands, band].sort(),
-    }));
+    apply({
+      ...f,
+      bands: f.bands.includes(band)
+        ? f.bands.filter((b) => b !== band)
+        : [...f.bands, band].sort(),
+    });
   const dirty = toUrl(f) !== "";
 
   return (
@@ -294,7 +293,7 @@ export default function Companies({ companies }: { companies: Company[] }) {
               <button
                 type="button"
                 className={styles.action}
-                onClick={() => setF(EMPTY)}
+                onClick={() => apply(EMPTY)}
               >
                 Reset
               </button>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 
 const AGENT_ID = "agent_3801kmmjqtf7fr1ahe9meb2vc1eq";
 const SCRIPT_SRC = "https://unpkg.com/@elevenlabs/convai-widget-embed";
@@ -27,15 +28,17 @@ const HIDDEN_ROUTES = [
 
 const HIDDEN_HOSTS = ["makeebook.ink", "www.makeebook.ink"];
 
+const hostHiddenStore = eventStore<boolean>({
+  events: [],
+  read: () => HIDDEN_HOSTS.includes(window.location.hostname),
+  server: false,
+});
+
 export default function NeilAgent() {
   const pathname = usePathname();
 
   const agentHidden = !AGENT_ENABLED;
-  const [hostHidden, setHostHidden] = useState(false);
-
-  useEffect(() => {
-    setHostHidden(HIDDEN_HOSTS.includes(window.location.hostname));
-  }, []);
+  const hostHidden = useBrowserStore(hostHiddenStore);
 
   const shouldShow =
     !agentHidden &&

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./fps-meter.module.css";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 
 const SLOW_MS = 25;
 
@@ -10,14 +11,16 @@ function wanted() {
   return new URLSearchParams(window.location.search).get("fps") !== "0";
 }
 
+const enabledStore = eventStore<boolean>({
+  events: [],
+  read: wanted,
+  server: false,
+});
+
 export default function FpsMeter() {
-  const [on, setOn] = useState(false);
+  const on = useBrowserStore(enabledStore);
   const [stats, setStats] = useState({ fps: 0, worst: 0, slow: 0 });
   const slowTotal = useRef(0);
-
-  useEffect(() => {
-    setOn(wanted());
-  }, []);
 
   useEffect(() => {
     if (!on) return;

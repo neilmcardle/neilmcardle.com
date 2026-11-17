@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ePub, { Book, Rendition } from "epubjs";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../utils/motion";
 
 interface EPUBReaderModalProps {
   isOpen: boolean;
@@ -106,10 +108,14 @@ export default function EPUBReaderModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, isReady]);
 
-  if (!isOpen) return null;
+  const presence = usePresence(isOpen, EXIT_MODAL_MS);
+  if (!presence.mounted) return null;
 
   return (
-    <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm flex items-center justify-center me-fade-in">
+    <div
+      data-state={presence.state}
+      className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm flex items-center justify-center me-scrim"
+    >
       <div className="absolute top-0 left-0 right-0 h-16 bg-[color:color-mix(in_srgb,var(--paper)_95%,transparent)] dark:bg-[color:color-mix(in_srgb,var(--ink)_90%,transparent)] backdrop-blur-sm border-b border-[var(--clay)] dark:border-[var(--rule)] flex items-center justify-between px-6 z-10">
         <h2 className="text-lg font-semibold text-[var(--ink)] dark:text-white">
           {bookTitle || "EPUB Preview"}

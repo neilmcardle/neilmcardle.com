@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { keyedEventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import Link from "next/link";
 import { scrollContainer } from "@/lib/spark/scrollContainer";
 import { SparkMark } from "./SparkMark";
@@ -33,21 +34,25 @@ export function LessonShell({
   next,
 }: LessonShellProps) {
   const [active, setActive] = useState(0);
-  const [furthest, setFurthest] = useState(0);
+  const [reached, setReached] = useState(0);
   const nodes = useRef<Array<HTMLElement | null>>([]);
   const spineRef = useRef<HTMLElement | null>(null);
   const dots = useRef<Array<HTMLElement | null>>([]);
   const [spine, setSpine] = useState({ top: 0, track: 0, fill: 0 });
   const storageKey = `spark_progress_m${moduleNumber}`;
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
-    if (saved) {
-      const parsed = parseInt(saved, 10);
-      if (!Number.isNaN(parsed))
-        setFurthest(Math.min(parsed, sections.length - 1));
-    }
-  }, [storageKey, sections.length]);
+  const saved = useBrowserStore(
+    keyedEventStore<number | null>(storageKey, {
+      events: [],
+      read: () => {
+        const raw = window.localStorage.getItem(storageKey);
+        if (!raw) return 0;
+        const parsed = parseInt(raw, 10);
+        return Number.isNaN(parsed) ? 0 : parsed;
+      },
+      server: null,
+    }),
+  );
+  const furthest = Math.max(reached, Math.min(saved ?? 0, sections.length - 1));
 
   useEffect(() => {
     const elements = nodes.current.filter(Boolean) as HTMLElement[];
@@ -66,7 +71,7 @@ export function LessonShell({
       });
 
       setActive(candidate);
-      setFurthest((prev) => (candidate > prev ? candidate : prev));
+      setReached((prev) => (candidate > prev ? candidate : prev));
     };
 
     const onScroll = () => {

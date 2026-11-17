@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "@/lib/hooks/browserStore";
 import type { ElementType, WfElement } from "./wireframe-canvas";
 import { renderElement } from "@/app/doodlewire/components/wireframe-element";
 import {
@@ -141,25 +142,18 @@ export function LearnMyStyle({
   const [savedThisStep, setSavedThisStep] = useState(false);
   const [resetState, setResetState] = useState<"idle" | "confirming">("idle");
   const [storedCount, setStoredCount] = useState(0);
-  const [isNarrow, setIsNarrow] = useState(false);
+  const isNarrow = useMediaQuery("(max-width: 640px)", false);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 640px)");
-    setIsNarrow(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
       setStepIdx(0);
       setSavedThisStep(false);
       setResetState("idle");
       setStoredCount(loadTemplates().length);
     }
-  }, [open]);
+  }
 
   function handleResetClick() {
     if (resetState === "idle") {

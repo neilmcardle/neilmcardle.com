@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { scrollContainer } from "@/lib/spark/scrollContainer";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 
 interface Note {
   id: string;
@@ -15,6 +16,24 @@ interface Note {
 }
 
 const STORAGE_KEY = "spark_annotations";
+const NOTES_EVENT = "spark-annotations-change";
+const EMPTY_NOTES: Note[] = [];
+
+const notesStore = eventStore<Note[] | null>({
+  events: [NOTES_EVENT],
+  read: () => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (!saved) return [];
+    try {
+      const parsed: unknown = JSON.parse(saved);
+      return Array.isArray(parsed) ? (parsed as Note[]) : [];
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+  },
+  server: null,
+});
 const SKIP = new Set([
   "HTML",
   "BODY",
@@ -77,7 +96,7 @@ function selectorFor(el: Element): string {
 
 export function AnnotationLayer() {
   const [active, setActive] = useState(false);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const notes = useBrowserStore(notesStore) ?? EMPTY_NOTES;
   const [hover, setHover] = useState<DOMRect | null>(null);
   const [hoverLabel, setHoverLabel] = useState("");
   const [target, setTarget] = useState<{ el: Element; rect: DOMRect } | null>(
@@ -90,20 +109,9 @@ export function AnnotationLayer() {
   >([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    try {
-      const parsed: unknown = JSON.parse(saved);
-      if (Array.isArray(parsed)) setNotes(parsed as Note[]);
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
-
   const persist = useCallback((next: Note[]) => {
-    setNotes(next);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event(NOTES_EVENT));
   }, []);
 
   useEffect(() => {
@@ -123,11 +131,15 @@ export function AnnotationLayer() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const hoverOff = !active || !!target;
+  const [hoverWasOff, setHoverWasOff] = useState(hoverOff);
+  if (hoverOff !== hoverWasOff) {
+    setHoverWasOff(hoverOff);
+    if (hoverOff) setHover(null);
+  }
+
   useEffect(() => {
-    if (!active || target) {
-      setHover(null);
-      return;
-    }
+    if (hoverOff) return;
 
     const onMove = (event: MouseEvent) => {
       const el = document.elementFromPoint(event.clientX, event.clientY);
@@ -155,7 +167,7 @@ export function AnnotationLayer() {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("click", onClick, true);
     };
-  }, [active, target]);
+  }, [hoverOff]);
 
   useEffect(() => {
     if (target) inputRef.current?.focus();
@@ -163,11 +175,6 @@ export function AnnotationLayer() {
 
   useEffect(() => {
     const here = notes.filter((n) => n.path === window.location.pathname);
-    if (here.length === 0) {
-      setPins([]);
-      return;
-    }
-
     let frame = 0;
 
     const place = () => {
@@ -192,7 +199,7 @@ export function AnnotationLayer() {
       frame = window.requestAnimationFrame(place);
     };
 
-    place();
+    frame = window.requestAnimationFrame(place);
     const container = scrollContainer(
       document.body.firstElementChild as HTMLElement,
     );

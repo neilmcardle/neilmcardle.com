@@ -1,17 +1,30 @@
-'use client'
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 type Props = {
-  show: boolean
-  message?: string
-  onDismiss?: () => void
-}
+  show: boolean;
+  message?: string;
+  onDismiss?: () => void;
+};
 
-const PARTICLE_COLORS = ['#F59E0B', '#22C55E', '#3B82F6', '#A855F7', '#EC4899', '#EF4444']
+const PARTICLE_COLORS = [
+  "#F59E0B",
+  "#22C55E",
+  "#3B82F6",
+  "#A855F7",
+  "#EC4899",
+  "#EF4444",
+];
 
-export function CelebrationAnimation({ show, message = 'Nice work!', onDismiss }: Props) {
+const PARTICLE_SPREAD = [18, 37, 4, 29, 11, 40, 23, 7, 33, 15, 26, 2, 38, 20];
+
+export function CelebrationAnimation({
+  show,
+  message = "Nice work!",
+  onDismiss,
+}: Props) {
   return (
     <AnimatePresence>
       {show && (
@@ -29,30 +42,46 @@ export function CelebrationAnimation({ show, message = 'Nice work!', onDismiss }
             initial={{ scale: 0.7, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 18 }}
+            transition={{ type: "spring", stiffness: 220, damping: 18 }}
           >
             {Array.from({ length: 14 }).map((_, i) => {
-              const angle = (i / 14) * Math.PI * 2
-              const distance = 110 + Math.random() * 40
-              const x = Math.cos(angle) * distance
-              const y = Math.sin(angle) * distance
+              const angle = (i / 14) * Math.PI * 2;
+              const distance = 110 + PARTICLE_SPREAD[i];
+              const x = Math.cos(angle) * distance;
+              const y = Math.sin(angle) * distance;
               return (
                 <motion.span
                   key={i}
                   className="absolute w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: PARTICLE_COLORS[i % PARTICLE_COLORS.length] }}
+                  style={{
+                    backgroundColor:
+                      PARTICLE_COLORS[i % PARTICLE_COLORS.length],
+                  }}
                   initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
                   animate={{ x, y, opacity: [0, 1, 0], scale: [0, 1, 0.6] }}
-                  transition={{ duration: 1.2, ease: 'easeOut', delay: i * 0.02 }}
+                  transition={{
+                    duration: 1.2,
+                    ease: "easeOut",
+                    delay: i * 0.02,
+                  }}
                 />
-              )
+              );
             })}
-            <Sparkles className="text-ka-year2" size={48} strokeWidth={2.5} aria-hidden="true" />
-            <p className="font-ka-display text-2xl font-bold text-slate-900">{message}</p>
-            <p className="font-ka-body text-sm text-slate-600">Tap anywhere to keep exploring.</p>
+            <Sparkles
+              className="text-ka-year2"
+              size={48}
+              strokeWidth={2.5}
+              aria-hidden="true"
+            />
+            <p className="font-ka-display text-2xl font-bold text-slate-900">
+              {message}
+            </p>
+            <p className="font-ka-body text-sm text-slate-600">
+              Tap anywhere to keep exploring.
+            </p>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

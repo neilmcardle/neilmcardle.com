@@ -4,6 +4,7 @@ import React from "react";
 import EditorContextMenu, {
   type ContextMenuGroup,
 } from "../components/EditorContextMenu";
+import type { PresenceState } from "../hooks/usePresence";
 
 export type ContextTarget = {
   x: number;
@@ -233,10 +234,12 @@ export function ChapterContextMenu({
   target,
   handlers,
   onClose,
+  state,
 }: {
   target: ContextTarget;
   handlers: ContextHandlers;
   onClose: () => void;
+  state?: PresenceState;
 }) {
   return (
     <EditorContextMenu
@@ -244,6 +247,7 @@ export function ChapterContextMenu({
       y={target.y}
       groups={contextGroups(target, handlers)}
       onClose={onClose}
+      state={state}
     />
   );
 }

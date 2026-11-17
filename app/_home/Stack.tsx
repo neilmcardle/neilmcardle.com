@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useMediaQuery } from "@/lib/hooks/browserStore";
 import { media } from "@/lib/media";
 import Brand from "./Brand";
 import { STACK } from "./data";
@@ -63,12 +64,19 @@ const resist = (value: number) => {
 };
 
 export default function Stack({ base = "" }: { base?: string }) {
-  const [ready, setReady] = useState(false);
-  const [arriving, setArriving] = useState(true);
+  const [timedReady, setTimedReady] = useState(false);
+  const [timedArriving, setTimedArriving] = useState(true);
+  const calm = useMediaQuery("(prefers-reduced-motion: reduce)", false);
+  const manual = useMediaQuery("(hover: none)", false);
+  const finePointer = useMediaQuery(
+    "(hover: hover) and (pointer: fine)",
+    false,
+  );
+  const films = !calm && finePointer;
+  const ready = calm || timedReady;
+  const arriving = !calm && timedArriving;
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const [films, setFilms] = useState(false);
-  const [manual, setManual] = useState(false);
   const [playing, setPlaying] = useState<string | null>(null);
   const touch = useRef(false);
   const self = useRef<HTMLDivElement>(null);
@@ -113,8 +121,9 @@ export default function Stack({ base = "" }: { base?: string }) {
   const run = () => {
     const m = motion.current;
     if (m.frame) return;
-    m.last = performance.now();
+    m.last = 0;
     const tick = (now: number) => {
+      if (!m.last) m.last = now;
       const dt = Math.min(0.032, (now - m.last) / 1000);
       m.last = now;
       const settled = [
@@ -188,20 +197,13 @@ export default function Stack({ base = "" }: { base?: string }) {
   }, []);
 
   useEffect(() => {
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const coarse = window.matchMedia("(hover: none)").matches;
     motion.current.calm = calm;
-    setManual(coarse);
-    setFilms(
-      !calm && window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+    if (calm) return;
+    const id = window.setTimeout(() => setTimedReady(true), 80);
+    const done = window.setTimeout(
+      () => setTimedArriving(false),
+      80 + ARRIVAL_END,
     );
-    if (calm) {
-      setReady(true);
-      setArriving(false);
-      return;
-    }
-    const id = window.setTimeout(() => setReady(true), 80);
-    const done = window.setTimeout(() => setArriving(false), 80 + ARRIVAL_END);
     const m = motion.current;
     return () => {
       window.clearTimeout(id);
@@ -209,7 +211,7 @@ export default function Stack({ base = "" }: { base?: string }) {
       cancelAnimationFrame(m.frame);
       m.frame = 0;
     };
-  }, []);
+  }, [calm]);
 
   useEffect(() => {
     if (!manual || !ready) return;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useBrowserStore } from "@/lib/hooks/browserStore";
 import {
   useEffect,
   useRef,
@@ -208,14 +209,20 @@ const DOCK = [
   },
 ];
 
-function useTime() {
-  const [t, setT] = useState<Date | null>(null);
-  useEffect(() => {
-    setT(new Date());
-    const id = window.setInterval(() => setT(new Date()), 15000);
+const CLOCK_MS = 15000;
+
+const clockStore = {
+  subscribe(onChange: () => void) {
+    const id = window.setInterval(onChange, CLOCK_MS);
     return () => window.clearInterval(id);
-  }, []);
-  return t;
+  },
+  getSnapshot: () => Math.floor(Date.now() / CLOCK_MS),
+  getServerSnapshot: () => 0,
+};
+
+function useTime() {
+  const bucket = useBrowserStore(clockStore);
+  return bucket ? new Date(bucket * CLOCK_MS) : null;
 }
 
 function Icon({

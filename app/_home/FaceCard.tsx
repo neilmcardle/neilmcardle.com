@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { NSettings } from "@/app/explorations/_lab/settings";
 import { MARK } from "@/app/_signature/NavMark";
 import { createSample } from "@/lib/coverly/sfx";
+import { useMediaQuery } from "@/lib/hooks/browserStore";
 import { media } from "@/lib/media";
 import styles from "./home.module.css";
 
@@ -78,13 +79,11 @@ export default function FaceCard() {
   const [near, setNear] = useState(false);
   const [live, setLive] = useState(false);
   const [shown, setShown] = useState(false);
-  const [calm, setCalm] = useState(false);
+  const calm = useMediaQuery("(prefers-reduced-motion: reduce)", true);
 
   useEffect(() => {
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setCalm(still);
     const el = card.current;
-    if (still || !el) return;
+    if (calm || !el) return;
     const watch = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
@@ -97,7 +96,7 @@ export default function FaceCard() {
     );
     watch.observe(el);
     return () => watch.disconnect();
-  }, []);
+  }, [calm]);
 
   const start = (audible: boolean) => {
     if (calm || live) return;

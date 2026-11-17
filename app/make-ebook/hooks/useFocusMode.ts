@@ -1,6 +1,8 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import { keys, readLocal, writeLocal } from "../storage/keys";
+import { afterMorph, morph } from "../utils/surfaceMorph";
 
 export type AmbientSound =
   | "none"
@@ -32,49 +34,71 @@ const DEFAULTS: FocusSettings = {
   ambientVolume: 0.3,
 };
 
-export function useFocusMode() {
-  const [active, setActive] = useState(false);
-  const [settings, setSettings] = useState<FocusSettings>(DEFAULTS);
-
-  useEffect(() => {
+const storedSettingsStore = eventStore<Partial<FocusSettings> | null>({
+  events: [],
+  read: () => {
     try {
       const stored = readLocal(keys.focusSettings());
-      if (stored) setSettings((prev) => ({ ...prev, ...JSON.parse(stored) }));
-    } catch {}
-  }, []);
+      return stored ? (JSON.parse(stored) as Partial<FocusSettings>) : {};
+    } catch {
+      return {};
+    }
+  },
+  server: null,
+});
+
+export function useFocusMode() {
+  const [active, setActive] = useState(false);
+  const stored = useBrowserStore(storedSettingsStore);
+  const [edited, setEdited] = useState<FocusSettings | null>(null);
+
+  const settings = useMemo<FocusSettings>(
+    () => edited ?? { ...DEFAULTS, ...(stored ?? {}) },
+    [edited, stored],
+  );
 
   useEffect(() => {
     writeLocal(keys.focusSettings(), JSON.stringify(settings));
   }, [settings]);
 
-  function setSetting<K extends keyof FocusSettings>(
-    key: K,
-    value: FocusSettings[K],
-  ) {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  }
+  const setSettings = useCallback(
+    (next: FocusSettings | ((prev: FocusSettings) => FocusSettings)) => {
+      setEdited((prev) => {
+        const base = prev ?? { ...DEFAULTS, ...(stored ?? {}) };
+        return typeof next === "function" ? next(base) : next;
+      });
+    },
+    [stored],
+  );
+
+  const setSetting = useCallback(
+    <K extends keyof FocusSettings>(key: K, value: FocusSettings[K]) => {
+      setSettings((prev) => ({ ...prev, [key]: value }));
+    },
+    [setSettings],
+  );
 
   const exitFocusMode = useCallback(() => {
-    setActive(false);
+    morph("focus", () => setActive(false));
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});
     }
   }, []);
 
   const toggleFocusMode = useCallback(() => {
-    setActive((prev) => !prev);
+    morph("focus", () => setActive((prev) => !prev));
   }, []);
 
   useEffect(() => {
-    if (active && settings.fullScreen) {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-    } else {
-      if (document.fullscreenElement) {
+    afterMorph(() => {
+      if (active && settings.fullScreen) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } else if (document.fullscreenElement) {
         document.exitFullscreen().catch(() => {});
       }
-    }
+    });
   }, [active, settings.fullScreen]);
 
   useEffect(() => {
@@ -86,8 +110,7 @@ export function useFocusMode() {
     document.addEventListener("fullscreenchange", handleFsChange);
     return () =>
       document.removeEventListener("fullscreenchange", handleFsChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.fullScreen]);
+  }, [settings.fullScreen, setSetting]);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

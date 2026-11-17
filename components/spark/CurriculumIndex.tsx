@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
+import { keyedEventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import Link from "next/link";
 import { PHASES, type Phase } from "@/lib/spark/curriculum";
 import { SparkMark } from "./SparkMark";
@@ -26,58 +27,61 @@ interface Progress {
 
 const EMPTY: Progress = { furthest: 0, complete: false };
 
-export function CurriculumIndex({ modules }: CurriculumIndexProps) {
-  const [progress, setProgress] = useState<Record<number, Progress>>({});
-  const [loaded, setLoaded] = useState(false);
+function readProgress(modules: CurriculumEntry[]): Record<number, Progress> {
+  const next: Record<number, Progress> = {};
+  modules.forEach((mod) => {
+    const furthest = parseInt(
+      window.localStorage.getItem(`spark_progress_m${mod.module}`) ?? "0",
+      10,
+    );
+    next[mod.module] = {
+      furthest: Number.isNaN(furthest) ? 0 : furthest,
+      complete:
+        window.localStorage.getItem(`spark_module_${mod.module}_complete`) ===
+        "true",
+    };
+  });
+  return next;
+}
 
-  useEffect(() => {
-    const next: Record<number, Progress> = {};
-    modules.forEach((mod) => {
-      const furthest = parseInt(
-        window.localStorage.getItem(`spark_progress_m${mod.module}`) ?? "0",
-        10,
-      );
-      next[mod.module] = {
-        furthest: Number.isNaN(furthest) ? 0 : furthest,
-        complete:
-          window.localStorage.getItem(`spark_module_${mod.module}_complete`) ===
-          "true",
-      };
-    });
-    setProgress(next);
-    setLoaded(true);
-  }, [modules]);
+export function CurriculumIndex({ modules }: CurriculumIndexProps) {
+  const progress = useBrowserStore(
+    keyedEventStore<Record<number, Progress> | null>(
+      `spark_index_${modules.map((m) => m.module).join("_")}`,
+      { events: [], read: () => readProgress(modules), server: null },
+    ),
+  );
 
   const completedCount = useMemo(
-    () => modules.filter((m) => progress[m.module]?.complete).length,
+    () => modules.filter((m) => progress?.[m.module]?.complete).length,
     [modules, progress],
   );
 
   const started = useMemo(
     () =>
-      loaded &&
+      !!progress &&
       modules.some(
         (m) =>
-          progress[m.module]?.complete ||
-          (progress[m.module]?.furthest ?? 0) > 0,
+          progress?.[m.module]?.complete ||
+          (progress?.[m.module]?.furthest ?? 0) > 0,
       ),
-    [loaded, modules, progress],
+    [modules, progress],
   );
 
   const resume = useMemo(() => {
     const inFlight = modules.find(
       (m) =>
-        !progress[m.module]?.complete &&
-        (progress[m.module]?.furthest ?? 0) > 0,
+        !progress?.[m.module]?.complete &&
+        (progress?.[m.module]?.furthest ?? 0) > 0,
     );
     if (inFlight) return inFlight;
-    return modules.find((m) => !progress[m.module]?.complete) ?? modules[0];
+    return modules.find((m) => !progress?.[m.module]?.complete) ?? modules[0];
   }, [modules, progress]);
 
   const minutesLeft = useMemo(
     () =>
       modules
-        .filter((m) => !progress[m.module]?.complete)
+        .filter((m) => !progress?.[m.module]?.complete)
         .reduce((total, m) => total + m.minutes, 0),
     [modules, progress],
   );
@@ -95,7 +99,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
     modules.length > 0
       ? Math.round((completedCount / modules.length) * 100)
       : 0;
-  const resumeProgress = resume ? (progress[resume.module] ?? EMPTY) : EMPTY;
+  const resumeProgress = resume ? (progress?.[resume.module] ?? EMPTY) : EMPTY;
 
   return (
     <div className="spark-page min-h-screen bg-[var(--spark-pad)] text-[var(--spark-text)]">
@@ -179,7 +183,7 @@ export function CurriculumIndex({ modules }: CurriculumIndexProps) {
               key={phase.id}
               phase={phase}
               modules={group}
-              progress={progress}
+              progress={progress ?? {}}
               started={started}
             />
           ))}
@@ -209,7 +213,7 @@ function PhaseGroup({
   progress: Record<number, Progress>;
   started: boolean;
 }) {
-  const done = modules.filter((m) => progress[m.module]?.complete).length;
+  const done = modules.filter((m) => progress?.[m.module]?.complete).length;
   const index = PHASES.indexOf(phase);
 
   return (

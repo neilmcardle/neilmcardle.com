@@ -143,11 +143,14 @@ export function ElementCell({
     return () => document.removeEventListener("pointerdown", onDocDown);
   }, [openMenu]);
 
+  const [menuWasOpen, setMenuWasOpen] = useState(openMenu);
+  if (openMenu !== menuWasOpen) {
+    setMenuWasOpen(openMenu);
+    if (!openMenu) setMenuFixed(null);
+  }
+
   useEffect(() => {
-    if (!openMenu) {
-      setMenuFixed(null);
-      return;
-    }
+    if (!openMenu) return;
     function compute() {
       const wrap = wrapperRef.current;
       if (!wrap) return;

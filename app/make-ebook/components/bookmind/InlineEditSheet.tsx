@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import type { PresenceState } from "../../hooks/usePresence";
 
 interface InlineEditSheetProps {
+  state?: PresenceState;
   selectedText: string;
   instruction: string;
   onInstructionChange: (value: string) => void;
@@ -22,6 +24,7 @@ interface InlineEditSheetProps {
 }
 
 export default function InlineEditSheet({
+  state = "open",
   selectedText,
   instruction,
   onInstructionChange,
@@ -46,6 +49,7 @@ export default function InlineEditSheet({
     <div
       role="dialog"
       aria-label="Rewrite with Book Mind"
+      data-state={state}
       className="me-rise-in fixed left-3 right-3 z-[1000] flex flex-col p-1.5 rounded-[12px] bg-[var(--ink-deep)] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
       style={{
         bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",

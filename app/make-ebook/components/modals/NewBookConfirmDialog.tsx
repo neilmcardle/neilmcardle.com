@@ -4,6 +4,8 @@ import { displayTitle } from "../../utils/bookLibrary";
 import { useBook } from "../../providers/BookProvider";
 import { useEditor, useEditorActions } from "../../providers/EditorProvider";
 import { shallowEqual } from "../../providers/store";
+import { usePresence } from "../../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../../utils/motion";
 
 export default function NewBookConfirmDialog() {
   const open = useEditor((s) => s.newBookConfirmOpen);
@@ -12,15 +14,20 @@ export default function NewBookConfirmDialog() {
     shallowEqual,
   );
   const actions = useEditorActions();
-  if (!open) return null;
+  const presence = usePresence(open, EXIT_MODAL_MS);
+  if (!presence.mounted) return null;
   return (
     <div
-      className="fixed inset-0 z-[130] bg-black/50 flex items-center justify-center p-4"
+      data-state={presence.state}
+      className="me-scrim fixed inset-0 z-[130] bg-black/50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="new-book-title"
     >
-      <div className="bg-[var(--ink-panel)] border border-[var(--rule)] rounded-2xl shadow-2xl p-6 max-w-md w-full">
+      <div
+        data-state={presence.state}
+        className="me-modal bg-[var(--ink-panel)] border border-[var(--rule)] rounded-2xl shadow-2xl p-6 max-w-md w-full"
+      >
         <h2
           id="new-book-title"
           className="text-[17px] font-semibold text-[var(--paper)] mb-2"

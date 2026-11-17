@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
+import { useListFlip } from "../hooks/useListFlip";
 import styles from "../styles/studio.module.css";
 import { scrollMotion } from "../utils/motion";
 
@@ -35,6 +36,34 @@ export function ChapterIndex({
 }: ChapterIndexProps) {
   const listRef = useRef<HTMLOListElement>(null);
   const mountedRef = useRef(false);
+  const markerRef = useRef<HTMLLIElement>(null);
+  useListFlip(
+    listRef,
+    chapters.map((c) => c.id),
+  );
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    const marker = markerRef.current;
+    if (!list || !marker) return;
+    const place = () => {
+      const item = list
+        .querySelector<HTMLElement>('[aria-current="true"]')
+        ?.closest<HTMLElement>("li");
+      if (!item || !item.offsetHeight) return;
+      marker.style.height = `${Math.max(0, item.offsetHeight - 16)}px`;
+      marker.style.transform = `translateY(${item.offsetTop + 8}px)`;
+      if (!marker.dataset.ready) {
+        requestAnimationFrame(() => {
+          marker.dataset.ready = "1";
+        });
+      }
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [selectedChapter, chapters]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -60,6 +89,7 @@ export function ChapterIndex({
 
   return (
     <nav
+      data-vt="index"
       aria-label="Chapters"
       className={styles.chapterIndex}
       onKeyDown={(e) => {
@@ -73,11 +103,12 @@ export function ChapterIndex({
       }}
     >
       <ol ref={listRef} className={styles.indexList}>
+        <li ref={markerRef} className={styles.indexMarker} aria-hidden="true" />
         {chapters.map((ch, i) => {
           const current = i === selectedChapter;
           const label = labelFor(chapters, i);
           return (
-            <li key={ch.id}>
+            <li key={ch.id} data-flip-id={ch.id}>
               <button
                 type="button"
                 className={`${styles.indexItem} ${current ? styles.indexItemCurrent : ""}`}

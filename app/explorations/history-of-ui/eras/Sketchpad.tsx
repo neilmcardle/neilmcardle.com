@@ -167,8 +167,10 @@ export default function Sketchpad() {
   >(null);
   const view = useRef({ k: 1, ox: 0, oy: 0, dpr: 1 });
 
-  modeRef.current = mode;
-  pickedRef.current = picked;
+  useEffect(() => {
+    modeRef.current = mode;
+    pickedRef.current = picked;
+  }, [mode, picked]);
 
   useEffect(() => {
     const c = canvas.current;

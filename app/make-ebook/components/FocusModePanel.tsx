@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { FocusSettings, AmbientSound } from "../hooks/useFocusMode";
 import styles from "../styles/studio.module.css";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MENU_MS } from "../utils/motion";
 
 interface Props {
   settings: FocusSettings;
@@ -94,6 +96,8 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
     onChangeSetting("ambientSound", value);
   };
 
+  const panel = usePresence(open, EXIT_MENU_MS);
+
   return (
     <div className={styles.focusDock}>
       <button
@@ -118,9 +122,10 @@ export function FocusModePanel({ settings, onChangeSetting, onExit }: Props) {
         {open ? "Done" : "Focus"}
       </button>
 
-      {open && (
+      {panel.mounted && (
         <div
           className={styles.focusPanel}
+          data-state={panel.state}
           role="dialog"
           aria-label="Focus settings"
         >

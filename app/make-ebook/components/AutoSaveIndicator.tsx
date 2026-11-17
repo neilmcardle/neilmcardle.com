@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../styles/studio.module.css";
 
 interface AutoSaveIndicatorProps {
@@ -12,6 +12,8 @@ interface AutoSaveIndicatorProps {
   compact?: boolean;
   hasCloudSync?: boolean;
 }
+
+const SAVING_DELAY_MS = 400;
 
 function formatLastSaved(date: Date) {
   const diffSecs = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -31,6 +33,17 @@ export function AutoSaveIndicator({
   compact = false,
   hasCloudSync = false,
 }: AutoSaveIndicatorProps) {
+  const busy = isSaving || isDirty;
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    if (!busy) return;
+    const timer = window.setTimeout(() => setSlow(true), SAVING_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+      setSlow(false);
+    };
+  }, [busy]);
+
   let dot = styles.savedDot;
   let label: string;
   let title: string;
@@ -39,7 +52,7 @@ export function AutoSaveIndicator({
     dot = `${styles.savedDot} ${styles.dirtyDot}`;
     label = "Not saved, retrying";
     title = "The last save failed. It will try again shortly.";
-  } else if (isSaving || isDirty) {
+  } else if (busy && slow) {
     dot = `${styles.savedDot} ${styles.savingDot}`;
     label = "Saving…";
     title = "Saving";

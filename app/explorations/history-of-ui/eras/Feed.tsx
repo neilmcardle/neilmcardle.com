@@ -132,7 +132,9 @@ export default function Feed() {
   const drag = useRef<{ y: number } | null>(null);
   const pullRef = useRef(0);
 
-  pullRef.current = pull;
+  useEffect(() => {
+    pullRef.current = pull;
+  }, [pull]);
 
   useEffect(() => {
     if (!active) return;
@@ -185,7 +187,9 @@ export default function Feed() {
   };
 
   const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
+  useEffect(() => {
+    refreshRef.current = refresh;
+  });
 
   useEffect(() => {
     const el = scroller.current;

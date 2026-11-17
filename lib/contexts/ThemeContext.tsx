@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 
 type Theme = "light" | "dark";
 
@@ -16,20 +16,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const NOOP = () => {};
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
-    setMounted(true);
     document.documentElement.classList.add("dark");
     try {
       localStorage.removeItem("theme");
     } catch {}
     return () => document.documentElement.classList.remove("dark");
   }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider

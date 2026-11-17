@@ -1,19 +1,26 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+function detectMac(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const uaData = (
+    navigator as Navigator & { userAgentData?: { platform?: string } }
+  ).userAgentData;
+  const platform = uaData?.platform || navigator.platform || "";
+  const ua = navigator.userAgent || "";
+  return /mac/i.test(platform) || /mac/i.test(ua);
+}
+
+const macStore = eventStore({
+  events: [],
+  read: detectMac,
+  server: false,
+});
 
 export function useIsMac(): boolean {
-  const [isMac, setIsMac] = useState(true);
-  useEffect(() => {
-    if (typeof navigator === "undefined") return;
-    const uaData = (
-      navigator as Navigator & { userAgentData?: { platform?: string } }
-    ).userAgentData;
-    const platform = uaData?.platform || navigator.platform || "";
-    const ua = navigator.userAgent || "";
-    setIsMac(/mac/i.test(platform) || /mac/i.test(ua));
-  }, []);
-  return isMac;
+  return useBrowserStore(macStore);
 }
 
 export function ModKey({ keyName }: { keyName: string }) {

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Script from "next/script";
 
 import CookieConsent from "./CookieConsent";
@@ -9,19 +8,16 @@ import {
   getStoredAdsConsent,
   type AdsConsent,
 } from "@/lib/consent";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+const consentStore = eventStore<AdsConsent | null>({
+  events: [CONSENT_EVENT],
+  read: getStoredAdsConsent,
+  server: null,
+});
 
 export default function AdsTracking() {
-  const [consent, setConsent] = useState<AdsConsent | null>(null);
-
-  useEffect(() => {
-    setConsent(getStoredAdsConsent());
-    const onChange = (event: Event) => {
-      const next = (event as CustomEvent<AdsConsent>).detail;
-      setConsent(next === "granted" || next === "denied" ? next : null);
-    };
-    window.addEventListener(CONSENT_EVENT, onChange);
-    return () => window.removeEventListener(CONSENT_EVENT, onChange);
-  }, []);
+  const consent = useBrowserStore(consentStore);
 
   return (
     <>

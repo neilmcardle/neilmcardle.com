@@ -2,7 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useActive } from "../lib";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import s from "./voice.module.css";
+
+const speechStore = eventStore<boolean>({
+  events: [],
+  read: () => {
+    const w = window as unknown as {
+      SpeechRecognition?: unknown;
+      webkitSpeechRecognition?: unknown;
+    };
+    return !!(w.SpeechRecognition || w.webkitSpeechRecognition);
+  },
+  server: false,
+});
 
 type Phase = "idle" | "listening" | "thinking" | "speaking";
 type Turn = { you: string; said: string; ok: boolean };
@@ -183,29 +196,31 @@ export default function Voice() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [text, setText] = useState("");
   const [speak, setSpeak] = useState(true);
-  const [canListen, setCanListen] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const rec = useRef<Recognition | null>(null);
   const sorry = useRef(0);
   const input = useRef<HTMLInputElement>(null);
   const speakRef = useRef(speak);
-  speakRef.current = speak;
-
   useEffect(() => {
-    const w = window as unknown as {
-      SpeechRecognition?: new () => Recognition;
-      webkitSpeechRecognition?: new () => Recognition;
-    };
-    setCanListen(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
-  }, []);
+    speakRef.current = speak;
+  });
+
+  const canListen = useBrowserStore(speechStore);
+
+  const [wasActive, setWasActive] = useState(active);
+  if (active !== wasActive) {
+    setWasActive(active);
+    if (!active) {
+      setPlaying(false);
+      setPhase("idle");
+    }
+  }
 
   useEffect(() => {
     if (active) return;
     music.stop();
-    setPlaying(false);
     rec.current?.abort();
     if (typeof window !== "undefined") window.speechSynthesis?.cancel();
-    setPhase("idle");
   }, [active, music]);
 
   const reply = (said: string, ok: boolean, you: string) => {

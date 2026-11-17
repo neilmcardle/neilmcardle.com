@@ -233,7 +233,9 @@ function Intro({ onDone }: { onDone: () => void }) {
   const [pct, setPct] = useState(0);
   const [stage, setStage] = useState<"load" | "show">("load");
   const done = useRef(onDone);
-  done.current = onDone;
+  useEffect(() => {
+    done.current = onDone;
+  });
 
   useEffect(() => {
     if (stage !== "load") return;
@@ -311,11 +313,15 @@ export default function Ajax() {
   const lastTap = useRef(0);
   const dirty = useRef(true);
 
-  view.current = { center, z, size };
-
   useEffect(() => {
+    view.current = { center, z, size };
+  }, [center, z, size]);
+
+  const [wasReduced, setWasReduced] = useState(reduced);
+  if (reduced !== wasReduced) {
+    setWasReduced(reduced);
     if (reduced) setIntro(false);
-  }, [reduced]);
+  }
 
   useEffect(() => {
     const el = area.current;

@@ -2,25 +2,29 @@
 import React from "react";
 import { useEditor } from "../../providers/EditorProvider";
 import { shallowEqual } from "../../providers/store";
+import { useExit } from "../../hooks/useExit";
+import { EXIT_QUICK_MS } from "../../utils/motion";
 
 export default function CmdkHint() {
   const { rect, inlineOpen } = useEditor(
     (s) => ({ rect: s.cmdkHintRect, inlineOpen: s.inlineEditRequest.open }),
     shallowEqual,
   );
-  if (
-    !rect ||
-    inlineOpen ||
-    typeof navigator === "undefined" ||
-    /Mobi|Android|iPad|iPhone/i.test(navigator.userAgent)
-  )
-    return null;
+  const open =
+    !!rect &&
+    !inlineOpen &&
+    typeof navigator !== "undefined" &&
+    !/Mobi|Android|iPad|iPhone/i.test(navigator.userAgent);
+  const exit = useExit(open, rect, EXIT_QUICK_MS);
+  const shown = exit.value;
+  if (!exit.mounted || !shown) return null;
   return (
     <div
+      data-state={exit.state}
       style={{
         position: "fixed",
-        top: rect.top,
-        left: rect.left,
+        top: shown.top,
+        left: shown.left,
         zIndex: 900,
         pointerEvents: "none",
       }}

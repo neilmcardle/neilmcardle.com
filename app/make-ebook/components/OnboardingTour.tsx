@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { EASE_OUT, reducedMotion } from "../utils/motion";
 import type { OnboardingStep } from "../hooks/useOnboarding";
 import styles from "../styles/studio.module.css";
 
@@ -136,6 +143,8 @@ export default function OnboardingTour({
   const cardRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const targetRef = useRef<HTMLElement | null>(null);
+  const spotRef = useRef<HTMLDivElement>(null);
+  const lastSpot = useRef<Box | null>(null);
   const [placed, setPlaced] = useState<{
     step: number;
     layout: Layout;
@@ -196,6 +205,32 @@ export default function OnboardingTour({
     if (layout) nextRef.current?.focus({ preventScroll: true });
   }, [layout, currentStep]);
 
+  const spot = layout?.spot ?? null;
+  useLayoutEffect(() => {
+    const el = spotRef.current;
+    const from = lastSpot.current;
+    lastSpot.current = spot;
+    if (!el || !spot || !from || reducedMotion()) return;
+    if (
+      from.top === spot.top &&
+      from.left === spot.left &&
+      from.width === spot.width &&
+      from.height === spot.height
+    )
+      return;
+    const sx = from.width / Math.max(1, spot.width);
+    const sy = from.height / Math.max(1, spot.height);
+    el.animate(
+      [
+        {
+          transform: `translate(${from.left - spot.left}px, ${from.top - spot.top}px) scale(${sx}, ${sy})`,
+        },
+        { transform: "none" },
+      ],
+      { duration: 320, easing: EASE_OUT },
+    );
+  }, [spot]);
+
   if (!isTourActive || !stepData) return null;
 
   const first = currentStep === 0;
@@ -210,6 +245,7 @@ export default function OnboardingTour({
     <>
       <div className={styles.tourCatch} onClick={onSkip} aria-hidden="true" />
       <div
+        ref={spotRef}
         className={`${styles.tourSpot} ${shown ? styles.tourShown : ""}`}
         data-tour-spot
         style={

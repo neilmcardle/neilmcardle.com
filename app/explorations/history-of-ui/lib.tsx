@@ -10,6 +10,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
+import { useMediaQuery } from "@/lib/hooks/browserStore";
 
 export const ActiveContext = createContext(false);
 export const useActive = () => useContext(ActiveContext);
@@ -72,15 +73,7 @@ export function Fit({
 }
 
 export function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const on = () => setReduced(mq.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
-  return reduced;
+  return useMediaQuery("(prefers-reduced-motion: reduce)", false);
 }
 
 export function hash(x: number, y: number, seed = 0) {

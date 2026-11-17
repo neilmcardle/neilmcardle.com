@@ -30,7 +30,7 @@ export default function EditorShell() {
       <TrialBanner />
 
       <div
-        className={`${studio.editorRoot} bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]`}
+        className={`${studio.editorRoot} me-boot bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]`}
       >
         <NewBookConfirmDialog />
 
@@ -43,7 +43,7 @@ export default function EditorShell() {
         <MobileDrawer />
 
         <div
-          className={`flex flex-col lg:flex-row h-[100dvh] overflow-hidden transition-[padding] duration-300 ${docked ? "lg:pr-[520px]" : ""}`}
+          className={`flex flex-col lg:flex-row h-[100dvh] overflow-hidden ${docked ? "lg:pr-[520px]" : ""}`}
         >
           <DesktopNav />
 

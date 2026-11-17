@@ -102,7 +102,7 @@ export default function EditorHeader({
         hideChrome ? "focus-hide-chrome" : ""
       }`}
     >
-      <div className={styles.toolbarLeft}>
+      <div className={styles.toolbarLeft} data-vt="head-left">
         <Segmented
           label="View"
           options={VIEW_OPTIONS}
@@ -124,7 +124,7 @@ export default function EditorHeader({
         />
       </div>
 
-      <div className={styles.toolbarRight}>
+      <div className={styles.toolbarRight} data-vt="head-right">
         <span data-tour="auto-save">
           <AutoSaveIndicator
             isDirty={isDirty}

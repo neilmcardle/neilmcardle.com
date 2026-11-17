@@ -6,13 +6,22 @@ import {
   useState,
   type SetStateAction,
 } from "react";
-import { morphSurface } from "../../utils/surfaceMorph";
+import { morph, morphSurface } from "../../utils/surfaceMorph";
 import { keys, readLocal, writeLocal } from "../../storage/keys";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 import type { SidebarView } from "../types";
 
 export function useEditorUi() {
-  const [sidebarView, setSidebarView] = useState<SidebarView>(null);
+  const [sidebarView, setSidebarViewNow] = useState<SidebarView>(null);
+  const viewRef = useRef<SidebarView>(null);
+  const setSidebarView = useCallback((next: SetStateAction<SidebarView>) => {
+    const from = viewRef.current;
+    const to = typeof next === "function" ? next(from) : next;
+    if (to === from) return;
+    viewRef.current = to;
+    const kind = !from ? "panel-open" : !to ? "panel-close" : "panel-switch";
+    morph(kind, () => setSidebarViewNow(to));
+  }, []);
   const [surfaceMode, setSurfaceModeNow] = useState<"edit" | "preview">("edit");
   const surfaceRef = useRef<"edit" | "preview">("edit");
   const setSurfaceMode = useCallback(
@@ -26,7 +35,10 @@ export function useEditorUi() {
     [],
   );
   const [bookMindOpen, setBookMindOpen] = useState(false);
-  const [bookMindDocked, setBookMindDocked] = useState(false);
+  const [bookMindDocked, setBookMindDockedNow] = useState(false);
+  const setBookMindDocked = useCallback((next: SetStateAction<boolean>) => {
+    morph("dock", () => setBookMindDockedNow(next));
+  }, []);
   const [bookMindBusy, setBookMindBusy] = useState(false);
   const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
 
@@ -50,24 +62,26 @@ export function useEditorUi() {
   const [sidebarBookDetailsExpanded, setSidebarBookDetailsExpanded] =
     useState(false);
 
-  const expandMobileSection = (section: "library" | "book" | "chapters") => {
-    setSidebarLibraryExpanded(
-      section === "library" ? !sidebarLibraryExpanded : false,
-    );
-    setSidebarBookDetailsExpanded(
-      section === "book" ? !sidebarBookDetailsExpanded : false,
-    );
-    setSidebarChaptersExpanded(
-      section === "chapters" ? !sidebarChaptersExpanded : false,
-    );
-  };
+  const expandMobileSection = (section: "library" | "book" | "chapters") =>
+    morph("section", () => {
+      setSidebarLibraryExpanded(
+        section === "library" ? !sidebarLibraryExpanded : false,
+      );
+      setSidebarBookDetailsExpanded(
+        section === "book" ? !sidebarBookDetailsExpanded : false,
+      );
+      setSidebarChaptersExpanded(
+        section === "chapters" ? !sidebarChaptersExpanded : false,
+      );
+    });
 
-  useEffect(() => {
-    if (!sidebarView) return;
+  const [lastSidebarView, setLastSidebarView] = useState(sidebarView);
+  if (sidebarView !== lastSidebarView) {
+    setLastSidebarView(sidebarView);
     if (sidebarView === "library") setSidebarLibraryExpanded(true);
     if (sidebarView === "book") setSidebarBookDetailsExpanded(true);
     if (sidebarView === "chapters") setSidebarChaptersExpanded(true);
-  }, [sidebarView]);
+  }
 
   return {
     state: {

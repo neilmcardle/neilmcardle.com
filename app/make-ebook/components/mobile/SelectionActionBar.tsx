@@ -7,6 +7,8 @@ import {
   type EditorSelection,
 } from "../../editor/registry";
 import { domRangeAt } from "../../editor/dom";
+import { useExit } from "../../hooks/useExit";
+import { EXIT_MENU_MS } from "../../utils/motion";
 
 interface SelectionActionBarProps {
   onRewrite: (selectedText: string, range: Range, rect: DOMRect) => void;
@@ -46,13 +48,16 @@ export default function SelectionActionBar({
     return subscribeSelection(read);
   }, []);
 
-  if (!selection) return null;
+  const exit = useExit(selection !== null, selection, EXIT_MENU_MS);
+  const shown = exit.value;
+  if (!exit.mounted || !shown) return null;
 
   const act = (fn: SelectionActionBarProps["onRewrite"]) => () =>
-    fn(selection.text, selection.range, selection.rect);
+    fn(shown.text, shown.range, shown.rect);
 
   return (
     <div
+      data-state={exit.state}
       className="me-rise-in fixed left-3 right-3 z-[110] flex items-center gap-1 p-1.5 rounded-[12px] bg-[var(--ink-deep)] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.45)]"
       style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 92px)" }}
     >

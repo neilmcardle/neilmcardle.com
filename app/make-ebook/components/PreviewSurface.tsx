@@ -189,9 +189,12 @@ export default function PreviewSurface({
     measure();
   }, [view, measure]);
 
-  useEffect(() => {
+  const pageResetKey = `${selectedChapter}|${deviceId}|${mode}|${srcDoc}`;
+  const [lastResetKey, setLastResetKey] = useState(pageResetKey);
+  if (pageResetKey !== lastResetKey) {
+    setLastResetKey(pageResetKey);
     setPage(0);
-  }, [selectedChapter, deviceId, mode, srcDoc]);
+  }
 
   useEffect(() => {
     const body = scroller();

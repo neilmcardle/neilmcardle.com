@@ -329,27 +329,29 @@ function List({ items }: { items: string[] }) {
 function Answer({ turn, onSettled }: { turn: Turn; onSettled: () => void }) {
   const reduced = usePrefersReducedMotion();
   const words = turn.reply.split(" ");
-  const [n, setN] = useState(0);
-  const [built, setBuilt] = useState(false);
+  const [typed, setTyped] = useState(0);
+  const [assembled, setAssembled] = useState(false);
+  const n = reduced ? words.length : typed;
+  const built = reduced || assembled;
   const settled = useRef(onSettled);
-  settled.current = onSettled;
+  useEffect(() => {
+    settled.current = onSettled;
+  });
 
   useEffect(() => {
     if (reduced) {
-      setN(words.length);
-      setBuilt(true);
       settled.current();
       return;
     }
     let i = 0;
     const id = window.setInterval(() => {
       i++;
-      setN(i);
+      setTyped(i);
       settled.current();
       if (i >= words.length) {
         window.clearInterval(id);
         window.setTimeout(() => {
-          setBuilt(true);
+          setAssembled(true);
           settled.current();
         }, 650);
       }

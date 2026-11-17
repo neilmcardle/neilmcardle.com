@@ -15,6 +15,8 @@ import { toast } from "sonner";
 import { useIsMac } from "../PlatformKey";
 import InlineEditSheet from "./InlineEditSheet";
 import { Spinner } from "../Spinner";
+import { useExit } from "../../hooks/useExit";
+import { EXIT_MENU_MS } from "../../utils/motion";
 
 export interface InlineEditRequest {
   open: boolean;
@@ -92,9 +94,16 @@ export default function InlineEditPopover({
     }
   }, [request.open]);
 
+  const exit = useExit(
+    request.open && !!request.anchorRect,
+    request,
+    EXIT_MENU_MS,
+  );
+  const shown = exit.value;
+
   const layout = useMemo(() => {
-    if (!request.anchorRect) return { top: 0, left: 0, maxHeight: 500 };
-    const rect = request.anchorRect;
+    if (!shown.anchorRect) return { top: 0, left: 0, maxHeight: 500 };
+    const rect = shown.anchorRect;
     const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
     const vh = typeof window !== "undefined" ? window.innerHeight : 768;
 
@@ -119,7 +128,7 @@ export default function InlineEditPopover({
 
     maxHeight = Math.max(maxHeight, minUsable);
     return { top: Math.max(VIEWPORT_MARGIN, top), left, maxHeight };
-  }, [request.anchorRect]);
+  }, [shown.anchorRect]);
 
   useEffect(() => {
     if (!request.open) return;
@@ -242,13 +251,14 @@ export default function InlineEditPopover({
     }
   };
 
-  if (!request.open || !request.anchorRect) return null;
+  if (!exit.mounted || !shown.anchorRect) return null;
   if (typeof document === "undefined") return null;
 
   if (isMobile) {
     return createPortal(
       <InlineEditSheet
-        selectedText={request.selectedText}
+        state={exit.state}
+        selectedText={shown.selectedText}
         instruction={instruction}
         onInstructionChange={setInstruction}
         onSubmit={() => handleSubmit()}
@@ -282,7 +292,8 @@ export default function InlineEditPopover({
         display: "flex",
         flexDirection: "column",
       }}
-      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden"
+      data-state={exit.state}
+      className="bg-white dark:bg-[var(--ink)] border border-gray-200 dark:border-[var(--rule)] rounded-xl shadow-2xl overflow-hidden me-float"
       role="dialog"
       aria-label="Edit selection with Book Mind"
     >
@@ -292,9 +303,9 @@ export default function InlineEditPopover({
         </p>
         <p className="text-xs text-gray-500 dark:text-[var(--clay-muted)] italic truncate">
           &ldquo;
-          {request.selectedText.length > 80
-            ? request.selectedText.slice(0, 80) + "…"
-            : request.selectedText}
+          {shown.selectedText.length > 80
+            ? shown.selectedText.slice(0, 80) + "…"
+            : shown.selectedText}
           &rdquo;
         </p>
       </div>
@@ -382,7 +393,7 @@ export default function InlineEditPopover({
                 <p className="text-xs text-gray-400 dark:text-[var(--clay-muted)] leading-relaxed line-through decoration-gray-300 dark:decoration-[var(--clay-muted)]">
                   {request.selectedText.length > 300
                     ? request.selectedText.slice(0, 300) + "…"
-                    : request.selectedText}
+                    : shown.selectedText}
                 </p>
               </div>
 

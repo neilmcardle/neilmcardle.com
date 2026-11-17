@@ -14,7 +14,9 @@ import {
   clearFreeQuestionUsed,
   hasUsedFreeQuestion,
   markFreeQuestionUsed,
+  FREE_QUESTION_EVENT,
 } from "../../utils/freeQuestion";
+import { keyedEventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 import styles from "../../styles/studio.module.css";
 import { bookMindGate } from "../../state/bookMindGate";
 
@@ -61,8 +63,12 @@ export default function BookMindChat({
   const [menuOpen, setMenuOpen] = useState(false);
   const [slashIndex, setSlashIndex] = useState(0);
   const [reading, setReading] = useState<string | null>(null);
-  const [freeQuestionUsed, setFreeQuestionUsed] = useState(() =>
-    hasUsedFreeQuestion(userId),
+  const freeQuestionUsed = useBrowserStore(
+    keyedEventStore<boolean>(`mb-free-question-${userId ?? "anon"}`, {
+      events: [FREE_QUESTION_EVENT],
+      read: () => hasUsedFreeQuestion(userId),
+      server: false,
+    }),
   );
 
   const threadRef = useRef<HTMLDivElement>(null);
@@ -79,17 +85,11 @@ export default function BookMindChat({
       : "";
 
   useEffect(() => {
-    setFreeQuestionUsed(hasUsedFreeQuestion(userId));
-  }, [userId]);
-
-  useEffect(() => {
     if (!freeQuestionMode || !mind.error) return;
     if (mind.errorCode === "free_question_spent") {
       markFreeQuestionUsed(userId);
-      setFreeQuestionUsed(true);
     } else {
       clearFreeQuestionUsed(userId);
-      setFreeQuestionUsed(false);
     }
   }, [mind.error, mind.errorCode, freeQuestionMode, userId]);
 
@@ -132,7 +132,6 @@ export default function BookMindChat({
     if (selection) setDismissedSelection(selectedText ?? null);
     if (freeQuestionMode) {
       markFreeQuestionUsed(userId);
-      setFreeQuestionUsed(true);
     }
   };
 

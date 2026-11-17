@@ -55,7 +55,6 @@ export default function CollapsibleSidebar() {
     isResizing.current = true;
     startX.current = e.clientX;
     startWidth.current = width;
-    if (sidebarRef.current) sidebarRef.current.style.transition = "none";
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
   };
@@ -107,7 +106,6 @@ export default function CollapsibleSidebar() {
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
       if (sidebarRef.current) {
-        sidebarRef.current.style.transition = "";
         const final = Math.min(
           Math.max(
             Math.round(
@@ -134,8 +132,9 @@ export default function CollapsibleSidebar() {
   return (
     <aside
       ref={sidebarRef}
-      className={`hidden lg:block h-full z-40 transition-all duration-300 overflow-hidden relative ${
-        isPanelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+      data-vt={isPanelOpen ? "panel" : undefined}
+      className={`hidden lg:block h-full z-40 overflow-hidden relative ${
+        isPanelOpen ? "" : "invisible pointer-events-none"
       }`}
       style={{ width: isPanelOpen ? width : 0 }}
     >

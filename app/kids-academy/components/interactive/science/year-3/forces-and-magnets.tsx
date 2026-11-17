@@ -1261,22 +1261,22 @@ function PredictScene({
     ? "attract"
     : "repel";
 
-  const [animMagnetB, setAnimMagnetB] = useState<Magnet>(bMagnet);
-  useEffect(() => {
-    if (!revealed) {
-      setAnimMagnetB(bMagnet);
-      return;
-    }
-    if (correctAnswer === "attract") {
-      const t = setTimeout(() => {
-        setAnimMagnetB({ ...bMagnet, x: aMagnet.x + MAGNET_W });
-      }, 200);
-      return () => clearTimeout(t);
-    }
+  const [settledMagnetB, setSettledMagnetB] = useState<Magnet | null>(null);
+  const animMagnetB = revealed ? (settledMagnetB ?? bMagnet) : bMagnet;
 
-    const t = setTimeout(() => {
-      setAnimMagnetB({ ...bMagnet, x: bMagnet.x + 80 });
-    }, 200);
+  const [magnetWasRevealed, setMagnetWasRevealed] = useState(revealed);
+  if (revealed !== magnetWasRevealed) {
+    setMagnetWasRevealed(revealed);
+    if (!revealed) setSettledMagnetB(null);
+  }
+
+  useEffect(() => {
+    if (!revealed) return;
+    const target =
+      correctAnswer === "attract"
+        ? { ...bMagnet, x: aMagnet.x + MAGNET_W }
+        : { ...bMagnet, x: bMagnet.x + 80 };
+    const t = setTimeout(() => setSettledMagnetB(target), 200);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealed]);

@@ -5,6 +5,7 @@ import ChapterRow from "../ChapterRow";
 import ChapterSelectBar from "../ChapterSelectBar";
 import { useChapterSelection } from "../../hooks/useChapterSelection";
 import styles from "../../styles/studio.module.css";
+import { usePresence } from "../../hooks/usePresence";
 
 interface SheetChapter {
   id: string;
@@ -65,13 +66,14 @@ export default function ChaptersSheet({
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose, stop]);
 
+  const presence = usePresence(open, 320);
   const completed = chapters.filter((c) => c.completed).length;
   const labels = numberLabels(chapters);
 
   return (
     <div
       className="fixed inset-0 z-[120]"
-      style={{ visibility: open ? "visible" : "hidden" }}
+      style={{ visibility: presence.mounted ? "visible" : "hidden" }}
       role="dialog"
       aria-modal="true"
       aria-label="Chapters"
@@ -80,13 +82,13 @@ export default function ChaptersSheet({
         aria-label="Close chapters"
         tabIndex={open ? 0 : -1}
         onClick={onClose}
-        className={`absolute inset-0 w-full bg-black/55 transition-opacity duration-300 ${
+        className={`absolute inset-0 w-full bg-black/55 transition-opacity duration-[var(--dur-modal)] ${
           open ? "opacity-100" : "opacity-0"
         }`}
       />
 
       <div
-        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-[var(--ink-panel)] border-t border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.4)] transition-transform duration-300 motion-reduce:transition-none ${
+        className={`absolute left-0 right-0 bottom-0 max-h-[80vh] flex flex-col rounded-t-[20px] bg-[var(--ink-panel)] border-t border-[var(--rule)] shadow-[0_-12px_32px_rgba(0,0,0,0.4)] transition-transform duration-[var(--dur-modal)] ${
           open ? "translate-y-0" : "translate-y-full"
         }`}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

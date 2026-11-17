@@ -10,6 +10,7 @@ import {
 } from "@/lib/billing/plan";
 import { track } from "@vercel/analytics";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useIsClient } from "@/lib/hooks/browserStore";
 import { Sparkles, Cloud, BookOpen, Clock, Check } from "lucide-react";
 import { Modal, ModalHeader, ModalBody } from "./Modal";
 import { checkout, initialCheckout } from "../state/checkout";
@@ -34,7 +35,7 @@ export default function UpgradeModal({
   const error = flow.status === "failed" ? flow.error : null;
   const setSelectedPlan = (plan: "monthly" | "lifetime") =>
     dispatch({ type: "choose", plan });
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const shown = usePresence(isOpen, EXIT_MODAL_MS).mounted;
 
   const [wasOpen, setWasOpen] = useState(isOpen);
@@ -49,11 +50,6 @@ export default function UpgradeModal({
     };
     window.addEventListener("pageshow", onPageShow);
     return () => window.removeEventListener("pageshow", onPageShow);
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
   }, []);
 
   useEffect(() => {

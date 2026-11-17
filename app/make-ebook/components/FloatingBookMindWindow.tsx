@@ -9,6 +9,8 @@ import { loadBookById } from "../utils/bookLibrary";
 import { addRule, getMemory, removeRule } from "../utils/bookmindMemory";
 import styles from "../styles/studio.module.css";
 import { keys, readLocal, writeLocal } from "../storage/keys";
+import { usePresence } from "../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../utils/motion";
 
 interface FloatingBookMindWindowProps {
   mind: ReturnType<typeof useBookMind>;
@@ -299,7 +301,9 @@ export default function FloatingBookMindWindow({
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, listOpen]);
 
-  if (!isOpen) return null;
+  const presence = usePresence(isOpen, EXIT_MODAL_MS);
+
+  if (!presence.mounted) return null;
 
   const toggleExpanded = () => {
     setExpanded((prev) => {
@@ -328,7 +332,13 @@ export default function FloatingBookMindWindow({
       : styles.bmWindow;
 
   return (
-    <section className={frame} aria-label="Book Mind" role="dialog">
+    <section
+      className={frame}
+      data-state={presence.state}
+      data-vt={sheet ? undefined : "mind"}
+      aria-label="Book Mind"
+      role="dialog"
+    >
       <header className={styles.bmBar}>
         <BarButton
           label={listOpen ? "Hide chats" : "Chats"}

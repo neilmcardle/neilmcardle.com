@@ -27,7 +27,7 @@ export function ToolRunner({ topic, childProfile }: Props) {
     topic: topic.id,
   });
   const showCelebration = showsCelebration(party, topic.id);
-  const startedAt = useRef<number>(Date.now());
+  const startedAt = useRef<number>(0);
   const alreadyDone = useRef(false);
 
   const Tool = getTool(topic.id);

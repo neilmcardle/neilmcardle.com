@@ -2528,7 +2528,9 @@ html[data-surface-to] [data-vt="page"] {
   view-transition-name: me-page;
 }
 
-html[data-surface-to] [data-vt="header"] {
+html[data-surface-to="edit"] [data-vt="header"],
+html[data-surface-to="preview"] [data-vt="header"],
+html[data-surface-to="device"] [data-vt="header"] {
   view-transition-name: me-header;
 }
 
@@ -2540,19 +2542,70 @@ html[data-surface-to] [data-vt="controls"] {
   view-transition-name: me-controls;
 }
 
+html[data-surface-to^="panel"] [data-vt="head-left"],
+html[data-surface-to="focus"] [data-vt="head-left"],
+html[data-surface-to="dock"] [data-vt="head-left"] {
+  view-transition-name: me-head-left;
+}
+
+html[data-surface-to^="panel"] [data-vt="head-right"],
+html[data-surface-to="focus"] [data-vt="head-right"],
+html[data-surface-to="dock"] [data-vt="head-right"] {
+  view-transition-name: me-head-right;
+}
+
+html[data-surface-to^="panel"] [data-vt="index"],
+html[data-surface-to="focus"] [data-vt="index"],
+html[data-surface-to="dock"] [data-vt="index"] {
+  view-transition-name: me-index;
+}
+
+html[data-surface-to] [data-vt="panel"] {
+  view-transition-name: me-panel;
+}
+
+html[data-surface-to="focus"] [data-vt="rail"] {
+  view-transition-name: me-rail;
+}
+
+html[data-surface-to="dock"] [data-vt="mind"] {
+  view-transition-name: me-mind;
+}
+
+html[data-surface-to="section"] [data-vt-section="library"] {
+  view-transition-name: me-sec-library;
+}
+
+html[data-surface-to="section"] [data-vt-section="book"] {
+  view-transition-name: me-sec-book;
+}
+
+html[data-surface-to="section"] [data-vt-section="chapters"] {
+  view-transition-name: me-sec-chapters;
+}
+
 html[data-surface-to]::view-transition-old(root),
 html[data-surface-to]::view-transition-new(root) {
   animation-duration: var(--dur-quick);
   animation-timing-function: var(--ease-out);
 }
 
-html[data-surface-to]::view-transition-group(me-page) {
+html[data-surface-to]::view-transition-group(*) {
   animation-duration: var(--dur-travel);
   animation-timing-function: var(--ease-out);
 }
 
-html[data-surface-to]::view-transition-old(me-page),
-html[data-surface-to]::view-transition-new(me-page) {
+html[data-surface-to="panel-close"]::view-transition-group(*),
+html[data-surface-to="section"]::view-transition-group(*) {
+  animation-duration: var(--dur-modal);
+}
+
+html[data-surface-to="edit"]::view-transition-old(me-page),
+html[data-surface-to="edit"]::view-transition-new(me-page),
+html[data-surface-to="preview"]::view-transition-old(me-page),
+html[data-surface-to="preview"]::view-transition-new(me-page),
+html[data-surface-to="device"]::view-transition-old(me-page),
+html[data-surface-to="device"]::view-transition-new(me-page) {
   height: 100%;
   object-fit: cover;
   object-position: top center;
@@ -2566,13 +2619,29 @@ html[data-surface-to]::view-transition-new(me-page) {
   animation: me-fade-in var(--dur-menu) var(--ease-out) both;
 }
 
+html[data-surface-to^="panel"]::view-transition-old(me-page),
+html[data-surface-to="dock"]::view-transition-old(me-page) {
+  display: none;
+}
+
+html[data-surface-to^="panel"]::view-transition-new(me-page),
+html[data-surface-to="dock"]::view-transition-new(me-page) {
+  animation: none;
+}
+
 html[data-surface-to]::view-transition-old(me-header),
-html[data-surface-to]::view-transition-old(me-dock) {
+html[data-surface-to]::view-transition-old(me-dock),
+html[data-surface-to]::view-transition-old(me-head-left),
+html[data-surface-to]::view-transition-old(me-head-right),
+html[data-surface-to]::view-transition-old(me-index) {
   display: none;
 }
 
 html[data-surface-to]::view-transition-new(me-header),
-html[data-surface-to]::view-transition-new(me-dock) {
+html[data-surface-to]::view-transition-new(me-dock),
+html[data-surface-to]::view-transition-new(me-head-left),
+html[data-surface-to]::view-transition-new(me-head-right),
+html[data-surface-to]::view-transition-new(me-index) {
   animation: none;
 }
 
@@ -2581,12 +2650,55 @@ html[data-surface-to]::view-transition-group(me-dock) {
   animation: none;
 }
 
-html[data-surface-to]::view-transition-new(me-controls) {
+html[data-surface-to="edit"]::view-transition-new(me-controls),
+html[data-surface-to="preview"]::view-transition-new(me-controls) {
   animation: me-controls-in var(--dur-menu) var(--ease-out) 200ms both;
 }
 
-html[data-surface-to]::view-transition-old(me-controls) {
+html[data-surface-to="edit"]::view-transition-old(me-controls),
+html[data-surface-to="preview"]::view-transition-old(me-controls) {
   animation: me-fade-out var(--dur-exit-menu) var(--ease-out) both;
+}
+
+html[data-surface-to="device"]::view-transition-old(me-controls) {
+  display: none;
+}
+
+html[data-surface-to="device"]::view-transition-new(me-controls),
+html[data-surface-to="device"]::view-transition-group(me-controls) {
+  animation: none;
+}
+
+html[data-surface-to]::view-transition-new(me-panel):only-child,
+html[data-surface-to]::view-transition-new(me-rail):only-child {
+  animation: me-reveal-in var(--dur-travel) var(--ease-out) both;
+}
+
+html[data-surface-to]::view-transition-old(me-panel):only-child,
+html[data-surface-to]::view-transition-old(me-rail):only-child {
+  animation: me-reveal-out var(--dur-modal) var(--ease-out) both;
+}
+
+html[data-surface-to="panel-switch"]::view-transition-old(me-panel) {
+  animation: me-fade-out var(--dur-exit-menu) var(--ease-out) both;
+}
+
+html[data-surface-to="panel-switch"]::view-transition-new(me-panel) {
+  animation: me-controls-in var(--dur-menu) var(--ease-out) 60ms both;
+}
+
+html[data-surface-to="dock"]::view-transition-old(me-mind),
+html[data-surface-to="dock"]::view-transition-new(me-mind) {
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+html[data-surface-to="section"]::view-transition-old(*),
+html[data-surface-to="section"]::view-transition-new(*) {
+  height: 100%;
+  object-fit: none;
+  object-position: top left;
 }
 
 @keyframes me-controls-in {
@@ -2594,4 +2706,114 @@ html[data-surface-to]::view-transition-old(me-controls) {
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+@keyframes me-reveal-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes me-reveal-out {
+  to {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translateX(-24px);
+  }
+}
+
+.me-rise-in[data-state="closed"] {
+  animation: me-rise-out var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.me-fade-in[data-state="closed"] {
+  animation: me-fade-out var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.me-float {
+  transform-origin: var(--me-origin, top left);
+  animation: me-pop-in var(--dur-quick) var(--ease-out) both;
+}
+
+.me-float[data-state="closed"] {
+  animation: me-pop-out var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.me-drop {
+  animation: me-drop-in var(--dur-quick) var(--ease-out) both;
+}
+
+.me-drop[data-state="closed"] {
+  animation: me-drop-out var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.me-spring {
+  animation: me-spring-in var(--dur-spring) var(--spring) both;
+}
+
+.me-spring[data-state="closed"] {
+  animation: me-rise-out var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes me-rise-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+
+@keyframes me-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes me-drop-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes me-spring-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="fade"] .me-float,
+  html[data-motion="fade"] .me-drop,
+  html[data-motion="fade"] .me-spring {
+    animation-name: me-fade-in !important;
+    animation-duration: var(--dur-quick) !important;
+    animation-timing-function: var(--ease-out) !important;
+  }
+
+  html[data-motion="fade"] .me-float[data-state="closed"],
+  html[data-motion="fade"] .me-drop[data-state="closed"],
+  html[data-motion="fade"] .me-spring[data-state="closed"],
+  html[data-motion="fade"] .me-rise-in[data-state="closed"] {
+    animation-name: me-fade-out !important;
+  }
+}
+
+[data-sonner-toast] {
+  transition-timing-function: var(--ease-out) !important;
+}
+
+.me-boot {
+  animation: me-fade-in var(--dur-menu) var(--ease-out) both;
 }

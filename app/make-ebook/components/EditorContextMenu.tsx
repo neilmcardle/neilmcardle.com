@@ -2,6 +2,7 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import type { PresenceState } from "../hooks/usePresence";
 
 export interface ContextMenuAction {
   id: string;
@@ -22,6 +23,7 @@ interface EditorContextMenuProps {
   y: number;
   groups: ContextMenuGroup[];
   onClose: () => void;
+  state?: PresenceState;
 }
 
 const MENU_WIDTH = 236;
@@ -32,6 +34,7 @@ export default function EditorContextMenu({
   y,
   groups,
   onClose,
+  state = "open",
 }: EditorContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ top: y, left: x });
@@ -81,6 +84,7 @@ export default function EditorContextMenu({
     <div
       ref={ref}
       role="menu"
+      data-state={state}
       className="me-rise-in fixed z-[300] p-1.5 rounded-[10px] bg-[var(--ink-panel)] border border-white/10 shadow-[0_12px_32px_rgba(0,0,0,0.32)]"
       style={{ top: pos.top, left: pos.left, width: MENU_WIDTH }}
       onContextMenu={(e) => e.preventDefault()}

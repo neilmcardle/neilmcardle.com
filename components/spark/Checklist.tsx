@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
+import {
+  keyedEventStore,
+  shallowEqualRecord,
+  useBrowserStore,
+} from "@/lib/hooks/browserStore";
+
+const CHECKLIST_EVENT = "spark-checklist-change";
 
 export interface ChecklistItem {
   text: string;
@@ -38,13 +45,14 @@ function read(storageKey: string): Ticks {
 
 export function Checklist({ moduleNumber, items }: ChecklistProps) {
   const storageKey = `spark_checklist_m${moduleNumber}`;
-  const [ticks, setTicks] = useState<Ticks>({});
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setTicks(read(storageKey));
-    setHydrated(true);
-  }, [storageKey]);
+  const ticks = useBrowserStore(
+    keyedEventStore<Ticks | null>(storageKey, {
+      events: [CHECKLIST_EVENT],
+      read: () => read(storageKey),
+      server: null,
+      equals: shallowEqualRecord,
+    }),
+  );
 
   const toggle = useCallback(
     (key: string) => {
@@ -54,18 +62,15 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
 
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(next));
-      } catch {
-        // Private browsing or a full quota. The tick still applies for this
-        // session, and there is nothing useful to tell the reader.
-      }
-      setTicks(next);
+      } catch {}
+      window.dispatchEvent(new Event(CHECKLIST_EVENT));
     },
     [storageKey],
   );
 
   const keys = items.map((item) => itemKey(item.text));
-  const done = hydrated ? keys.filter((key) => ticks[key]).length : 0;
-  const complete = hydrated && done === items.length && items.length > 0;
+  const done = ticks ? keys.filter((key) => ticks[key]).length : 0;
+  const complete = !!ticks && done === items.length && items.length > 0;
 
   return (
     <div className="my-7">
@@ -92,7 +97,7 @@ export function Checklist({ moduleNumber, items }: ChecklistProps) {
       >
         {items.map((item, i) => {
           const key = keys[i];
-          const checked = Boolean(ticks[key]);
+          const checked = Boolean(ticks?.[key]);
 
           return (
             <li key={key + i}>

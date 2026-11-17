@@ -2,6 +2,8 @@
 import React from "react";
 import { useBook, useBookActions } from "../../providers/BookProvider";
 import { shallowEqual } from "../../providers/store";
+import { usePresence } from "../../hooks/usePresence";
+import { EXIT_MODAL_MS } from "../../utils/motion";
 
 export default function ImportDialog() {
   const { open, importing, importError, inputRef } = useBook(
@@ -14,10 +16,17 @@ export default function ImportDialog() {
     shallowEqual,
   );
   const actions = useBookActions();
-  if (!open) return null;
+  const presence = usePresence(open, EXIT_MODAL_MS);
+  if (!presence.mounted) return null;
   return (
-    <div className="fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl p-6 max-w-md w-full">
+    <div
+      data-state={presence.state}
+      className="me-scrim fixed inset-0 z-[130] bg-black/20 flex items-center justify-center p-4"
+    >
+      <div
+        data-state={presence.state}
+        className="me-modal bg-white dark:bg-[var(--ink)] rounded-xl shadow-2xl p-6 max-w-md w-full"
+      >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-[var(--paper)]">
             Import Document

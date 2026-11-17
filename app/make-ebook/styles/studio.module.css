@@ -293,7 +293,9 @@
   height: 6px;
   border-radius: 999px;
   background: var(--success);
-  transition: opacity 200ms var(--ease);
+  transition:
+    opacity var(--dur-quick) var(--ease-out),
+    background-color var(--dur-quick) var(--ease-out);
 }
 
 .savingDot {
@@ -2813,6 +2815,25 @@
   margin: 0;
 }
 
+.indexList {
+  position: relative;
+}
+
+.indexList .indexMarker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 16px;
+  border-radius: 1px;
+  background: var(--paper);
+  pointer-events: none;
+}
+
+.indexList .indexMarker[data-ready] {
+  transition: transform var(--dur-menu) var(--ease-out);
+}
+
 .indexItem {
   position: relative;
   display: flex;
@@ -2826,23 +2847,6 @@
   text-align: left;
   cursor: pointer;
   transition: background-color 160ms var(--ease);
-}
-
-.indexItem::before {
-  content: "";
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 0;
-  width: 2px;
-  border-radius: 1px;
-  background: var(--paper);
-  opacity: 0;
-  transition: opacity 160ms var(--ease);
-}
-
-.indexItemCurrent::before {
-  opacity: 1;
 }
 
 .indexItem:focus-visible {
@@ -4487,12 +4491,8 @@ button:focus-visible > .avatar {
     0 0 0 9999px rgba(8, 8, 7, 0.6);
   pointer-events: none;
   opacity: 0;
-  transition:
-    top 320ms var(--ease),
-    left 320ms var(--ease),
-    width 320ms var(--ease),
-    height 320ms var(--ease),
-    opacity 200ms var(--ease);
+  transform-origin: top left;
+  transition: opacity 200ms var(--ease);
 }
 
 .tourCard {
@@ -4641,5 +4641,44 @@ button:focus-visible > .avatar {
   .chapterIn {
     animation-name: chapterFade;
     animation-duration: var(--dur-quick);
+  }
+}
+
+.bmWindow[data-state="closed"],
+.bmSheet[data-state="closed"] {
+  animation: bmOut var(--dur-exit-modal) var(--ease-out) both;
+  pointer-events: none;
+}
+
+.focusPanel[data-state="closed"] {
+  animation: focusOut var(--dur-exit-menu) var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes bmOut {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+}
+
+@keyframes focusOut {
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bmWindow[data-state="closed"],
+  .bmSheet[data-state="closed"],
+  .focusPanel[data-state="closed"] {
+    animation-name: fadeOut;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
   }
 }

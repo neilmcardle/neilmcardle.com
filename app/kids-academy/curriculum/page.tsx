@@ -1,20 +1,27 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { listAll } from '@/app/kids-academy/lib/curriculum'
-import { getAllProgress, type ProgressMap } from '@/app/kids-academy/lib/progress'
-import { ToolCard } from '@/app/kids-academy/components/ui/tool-card'
-import { YearGroupBadge } from '@/app/kids-academy/components/ui/year-group-badge'
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { listAll } from "@/app/kids-academy/lib/curriculum";
+import {
+  getAllProgress,
+  type ProgressMap,
+} from "@/app/kids-academy/lib/progress";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
+
+const EMPTY_PROGRESS: ProgressMap = {};
+
+const progressStore = eventStore<ProgressMap>({
+  events: [],
+  read: getAllProgress,
+  server: EMPTY_PROGRESS,
+});
+import { ToolCard } from "@/app/kids-academy/components/ui/tool-card";
+import { YearGroupBadge } from "@/app/kids-academy/components/ui/year-group-badge";
 
 export default function CurriculumMap() {
-  const years = listAll()
-  const [progress, setProgress] = useState<ProgressMap>({})
-
-  useEffect(() => {
-    setProgress(getAllProgress())
-  }, [])
+  const years = listAll();
+  const progress = useBrowserStore(progressStore);
 
   return (
     <main className="min-h-screen flex flex-col">
@@ -47,7 +54,9 @@ export default function CurriculumMap() {
               <div className="flex items-center gap-3 mb-5">
                 <YearGroupBadge year={year.yearGroup} />
                 <h2 className="font-ka-display text-xl font-bold text-slate-800">
-                  {year.topics.length === 0 ? 'Topics coming soon' : `${year.topics.length} topic${year.topics.length === 1 ? '' : 's'}`}
+                  {year.topics.length === 0
+                    ? "Topics coming soon"
+                    : `${year.topics.length} topic${year.topics.length === 1 ? "" : "s"}`}
                 </h2>
               </div>
 
@@ -74,5 +83,5 @@ export default function CurriculumMap() {
         </div>
       </section>
     </main>
-  )
+  );
 }

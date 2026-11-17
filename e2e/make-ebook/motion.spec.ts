@@ -1,7 +1,10 @@
 import { expect, test, type Locator } from "@playwright/test";
 import {
+  addChapterButton,
+  chapterRows,
   editor,
   openEditor,
+  openPanel,
   prepareContext,
   startExport,
   typeInEditor,
@@ -127,5 +130,125 @@ test.describe("editor motion", () => {
         ).marker,
     );
     expect(marker).toBe("same page");
+  });
+
+  test("the side panel slides in while the page glides across", async ({
+    page,
+  }) => {
+    await openEditor(page);
+    await page.waitForTimeout(500);
+    const running = page.evaluate(
+      () =>
+        new Promise<string[]>((resolve) => {
+          const seen = new Set<string>();
+          const started = performance.now();
+          const look = () => {
+            for (const a of document.getAnimations()) {
+              const effect = a.effect as KeyframeEffect | null;
+              if (effect?.pseudoElement) seen.add(effect.pseudoElement);
+            }
+            if (performance.now() - started > 600) resolve([...seen]);
+            else setTimeout(look, 10);
+          };
+          look();
+        }),
+    );
+    await page
+      .getByRole("complementary")
+      .getByRole("navigation")
+      .getByRole("button", { name: "Chapters", exact: true })
+      .click();
+    const seen = await running;
+    expect(seen).toContain("::view-transition-new(me-panel)");
+    expect(seen).toContain("::view-transition-group(me-page)");
+    await expect(page.locator("html")).not.toHaveAttribute(
+      "data-surface-to",
+      /.*/,
+    );
+  });
+
+  test("find and replace drops in and leaves before it unmounts", async ({
+    page,
+  }) => {
+    await openEditor(page);
+    await typeInEditor(page, "The keeper counted every ship.");
+    await page.keyboard.press("ControlOrMeta+h");
+    const find = page.getByPlaceholder("Find...");
+    await expect(find).toBeVisible();
+    const panel = page.locator(".me-drop");
+    expect(await animationOf(panel)).toBe("me-drop-in");
+    await page.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(panel).toHaveAttribute("data-state", "closed");
+    expect(await animationOf(panel)).toBe("me-drop-out");
+    await expect(find).toHaveCount(0);
+  });
+
+  test("Book Mind closes with an exit instead of vanishing", async ({
+    page,
+    context,
+  }) => {
+    await prepareContext(context, "pro");
+    await openEditor(page);
+    await page.getByRole("button", { name: "Book Mind", exact: true }).click();
+    const bookMind = page.getByRole("dialog", { name: "Book Mind" });
+    await expect(bookMind).toBeVisible();
+    await bookMind.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(bookMind).toHaveAttribute("data-state", "closed");
+    expect(await animationOf(bookMind)).toMatch(/bmOut/);
+    await expect(bookMind).toHaveCount(0);
+  });
+
+  test("new chapters glide in and the index marker travels", async ({
+    page,
+  }) => {
+    await openEditor(page);
+    await openPanel(page, "Chapters");
+    const watch = () =>
+      page.evaluate(
+        () =>
+          new Promise<number>((resolve) => {
+            let moved = 0;
+            const started = performance.now();
+            const look = () => {
+              for (const a of document.getAnimations()) {
+                const target = (a.effect as KeyframeEffect | null)?.target;
+                if (target instanceof HTMLElement && target.dataset.flipId)
+                  moved++;
+              }
+              if (performance.now() - started > 400) resolve(moved);
+              else setTimeout(look, 10);
+            };
+            look();
+          }),
+      );
+    for (let i = 0; i < 2; i++) {
+      const glide = watch();
+      await addChapterButton(page).click();
+      await page
+        .getByRole("button", { name: "Custom Chapter", exact: true })
+        .click();
+      if (i === 1) expect(await glide).toBeGreaterThan(0);
+      else await glide;
+    }
+    await expect(chapterRows(page)).toHaveCount(3);
+    await page
+      .getByRole("complementary")
+      .getByRole("navigation")
+      .getByRole("button", { name: "Chapters", exact: true })
+      .click();
+    await expect(page.locator('nav[aria-label="Chapters"]')).toBeVisible();
+    const marker = page.locator('nav[aria-label="Chapters"] li[aria-hidden]');
+    const before = await marker.evaluate((el) => el.style.transform);
+    await page
+      .locator('nav[aria-label="Chapters"]')
+      .getByRole("button")
+      .first()
+      .click();
+    await expect
+      .poll(() => marker.evaluate((el) => el.style.transform))
+      .not.toBe(before);
+    expect(
+      await marker.evaluate((el) => getComputedStyle(el).transitionProperty),
+    ).toBe("transform");
   });
 });

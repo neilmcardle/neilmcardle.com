@@ -47,6 +47,8 @@ import {
   type ChapterEditorProps,
 } from "./chapterEditorParts";
 import { domRangeAt, useEditorView } from "./useEditorView";
+import { useExit } from "../hooks/useExit";
+import { EXIT_QUICK_MS } from "../utils/motion";
 
 const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
   function ChapterEditor(
@@ -82,6 +84,7 @@ const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
     const [endnoteAt, setEndnoteAt] = useState<number | null>(null);
     const [images, setImages] = useState<{ src: string; pos: number }[]>([]);
     const [contextMenu, setContextMenu] = useState<ContextTarget | null>(null);
+    const menu = useExit(contextMenu !== null, contextMenu, EXIT_QUICK_MS);
     const [toast, setToast] = useState<string | null>(null);
     const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -454,9 +457,10 @@ const ChapterEditor = forwardRef<EditorHandle | null, ChapterEditorProps>(
           />
         )}
 
-        {contextMenu && (
+        {menu.mounted && menu.value && (
           <ChapterContextMenu
-            target={contextMenu}
+            target={menu.value}
+            state={menu.state}
             handlers={{
               modKey,
               onInlineEditRequest,

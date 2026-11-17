@@ -3,9 +3,22 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { setAdsConsent, getStoredAdsConsent } from "@/lib/consent";
+import {
+  setAdsConsent,
+  getStoredAdsConsent,
+  CONSENT_EVENT,
+} from "@/lib/consent";
+import { eventStore, useBrowserStore } from "@/lib/hooks/browserStore";
 
 const REOPEN_EVENT = "mb-cookie-consent-reopen";
+
+type AnswerState = "unknown" | "answered" | "unanswered";
+
+const answerStore = eventStore<AnswerState>({
+  events: [CONSENT_EVENT],
+  read: () => (getStoredAdsConsent() === null ? "unanswered" : "answered"),
+  server: "unknown",
+});
 
 export function openCookieConsent(): void {
   if (typeof window === "undefined") return;
@@ -13,26 +26,26 @@ export function openCookieConsent(): void {
 }
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState<boolean | null>(null);
+  const answer = useBrowserStore(answerStore);
+  const [reopened, setReopened] = useState(false);
 
   useEffect(() => {
-    setVisible(getStoredAdsConsent() === null);
-
-    const reopen = () => setVisible(true);
+    const reopen = () => setReopened(true);
     window.addEventListener(REOPEN_EVENT, reopen);
     return () => window.removeEventListener(REOPEN_EVENT, reopen);
   }, []);
 
-  if (visible !== true) return null;
+  const visible = reopened || answer === "unanswered";
+  if (!visible) return null;
 
   const handleAccept = () => {
     setAdsConsent("granted");
-    setVisible(false);
+    setReopened(false);
   };
 
   const handleReject = () => {
     setAdsConsent("denied");
-    setVisible(false);
+    setReopened(false);
   };
 
   return (

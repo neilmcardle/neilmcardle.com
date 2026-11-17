@@ -8,12 +8,7 @@ const LAYOUT =
   /\b(all|width|height|min-width|max-width|min-height|max-height|top|left|right|bottom|inset|margin[a-z-]*|padding[a-z-]*|flex-basis|grid-template[a-z-]*)\b/;
 
 const KNOWN: Record<string, string> = {
-  "components/CollapsibleSection.tsx | transition-[height,opacity]":
-    "phase 3, drawer sections",
-  "components/CollapsibleSidebar.tsx | transition-all": "phase 3, side panel",
-  "layout/EditorShell.tsx | transition-[padding]": "phase 3, Book Mind dock",
   "styles/studio.module.css | width 1400ms": "phase 6, landing demo",
-  "styles/studio.module.css | top 320ms": "phase 4, tour spotlight",
 };
 
 function files(dir: string): string[] {
