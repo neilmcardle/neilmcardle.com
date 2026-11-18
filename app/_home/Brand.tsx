@@ -61,7 +61,7 @@ export default function Brand({ id }: { id: string }) {
     return (
       <span className={`${styles.face} ${styles.mobbin}`}>
         <img src="/logos/mobbin.svg" alt="" className={styles.mbLogo} />
-        <span className={styles.sub}>Contractor, in the evenings</span>
+        <span className={styles.sub}>In the evenings</span>
       </span>
     );
   return null;

@@ -39,7 +39,7 @@ export default async function CoverlyCase({ home }: { home?: string }) {
           <div className={coverly.introWall} aria-hidden="true">
             <CoverMarquee
               covers={covers
-                .slice(0, 48)
+                .slice(0, 20)
                 .map((c) => ({ src: c.src, title: c.title }))}
             />
           </div>

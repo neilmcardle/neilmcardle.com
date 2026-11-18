@@ -82,6 +82,6 @@ export const DOODLEWIRE: Chapter[] = [
   },
   {
     label: "What I led",
-    body: "I designed and built DoodleWire, then rebuilt it for version 2.0, cutting the tools, modes and code export that 1.1 had gathered until the app was a third of its size.",
+    body: "I designed and built DoodleWire. For version 2.0 I rebuilt it around one loop, draw, snap and share, and cut the tools, modes and code export that 1.1 had gathered. The app shrank to a third of its size.",
   },
 ];
