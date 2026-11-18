@@ -5,10 +5,10 @@ import { share } from "../../shared-metadata";
 const description = "Brand and product design for coverly.";
 
 export const metadata: Metadata = {
-  title: "coverly · Neil McArdle",
+  title: "Coverly · Neil McArdle",
   description,
   ...share({
-    title: "coverly · Neil McArdle",
+    title: "Coverly · Neil McArdle",
     description,
     path: "/work/coverly",
   }),

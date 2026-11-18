@@ -21,12 +21,12 @@ export default function AvisCase({ home }: { home?: string }) {
         </section>
       }
       title="3-Step Checkout"
-      overview="At Avis Budget Group I redesigned the booking flow, taking it from five steps to three: make a reservation, pick your vehicle, then review and checkout. I designed the review and checkout page, now live on avis.com. It increased step conversion in testing."
+      overview="At Avis Budget Group I redesigned the booking flow, taking it from five steps to three: make a reservation, pick your vehicle, then review and checkout. I designed the review and checkout page, now live on avis.com. In A/B tests, more people moved on from each step to the next."
       facts={[
         { label: "When", value: "2026" },
         { label: "Company", value: "Avis Budget Group" },
         { label: "Role", value: "Product design, checkout" },
-        { label: "Result", value: "Increased step conversion" },
+        { label: "Result", value: "Better step progression in A/B tests" },
         {
           label: "Live",
           value: (

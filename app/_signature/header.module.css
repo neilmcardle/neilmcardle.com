@@ -49,7 +49,7 @@
 
 .role {
   color: var(--muted);
-  font-size: 15px;
+  font-size: calc(15px * var(--type-scale, 1));
   font-weight: 400;
 }
 
@@ -117,7 +117,7 @@
 .nav {
   display: flex;
   gap: 4px;
-  font-size: 15px;
+  font-size: calc(15px * var(--type-scale, 1));
   color: var(--muted);
 }
 

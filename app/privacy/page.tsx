@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Shell from "@/app/_signature/Shell";
 import Header from "@/app/_signature/Header";
-import Finale from "@/app/_signature/Finale";
+import SignOff from "@/app/_signature/SignOff";
 import Policy from "./Policy";
 import kit from "./kit.module.css";
 import styles from "./privacy.module.css";
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
           <Policy />
         </article>
       </main>
-      <Finale />
+      <SignOff />
     </Shell>
   );
 }

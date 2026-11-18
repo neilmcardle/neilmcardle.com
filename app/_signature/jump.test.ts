@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COLLECTION, PLAY, WORK, WRITING } from "../_home/data";
+import { APPS, COLLECTION, PLAY, STORIES, WORK, WRITING } from "../_home/data";
 import {
   ENTRIES,
   initialJump,
@@ -16,12 +16,24 @@ const run = (events: JumpEvent[], from: JumpState = initialJump) =>
 const opened = (query = "") =>
   run([{ type: "open" }, { type: "query", value: query }]);
 
-const PIECES = [...WORK, ...WRITING, ...PLAY, ...COLLECTION];
+const PIECES = [
+  ...WORK,
+  ...APPS,
+  ...WRITING,
+  ...STORIES,
+  ...PLAY,
+  ...COLLECTION,
+];
 
 describe("jump registry", () => {
   it("carries every piece of work and nothing else", () => {
     expect(ENTRIES.length).toBe(
-      WORK.length + WRITING.length + PLAY.length + COLLECTION.length,
+      WORK.length +
+        APPS.length +
+        WRITING.length +
+        STORIES.length +
+        PLAY.length +
+        COLLECTION.length,
     );
   });
 

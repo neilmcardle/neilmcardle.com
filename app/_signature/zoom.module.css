@@ -105,7 +105,7 @@
   border-radius: 999px;
   background: var(--frame);
   color: var(--muted);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
   font-variant-numeric: tabular-nums;
   translate: -50% 0;
 }

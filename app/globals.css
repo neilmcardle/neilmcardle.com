@@ -2818,3 +2818,13 @@ html[data-surface-to="section"]::view-transition-new(*) {
 .me-boot {
   animation: me-fade-in var(--dur-menu) var(--ease-out) both;
 }
+
+:root {
+  --type-scale: 1;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --type-scale: 0.9;
+  }
+}

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
+import Story from "../Story";
+import { DOODLEWIRE } from "./chapters";
 
 export default function DoodleWireCase({ home }: { home?: string }) {
   return (
@@ -32,21 +34,9 @@ export default function DoodleWireCase({ home }: { home?: string }) {
           ),
         },
       ]}
-      overview="DoodleWire is a phone sketchpad for interface ideas. Draw a screen with your finger, and the ink snaps into a clean low-fidelity wireframe on an 8pt grid. Share it as an image, as a spec for AI tools or as a single HTML file."
+      overview="I designed and built DoodleWire, a phone sketchpad for interface ideas. Draw a screen with your finger, and the ink snaps into a clean low-fidelity wireframe on an 8pt grid. Share it as an image, as a spec for AI tools or as a single HTML file."
+      brief={<Story chapters={DOODLEWIRE} />}
       frames={[
-        {
-          kind: "pair",
-          items: [
-            {
-              src: "/work/doodlewire/flat-edit.jpg",
-              alt: "DoodleWire on iPhone, editing an image placeholder",
-            },
-            {
-              src: "/work/doodlewire/flat-grid.jpg",
-              alt: "DoodleWire on iPhone, a sign-in wireframe snapped to the layout grid",
-            },
-          ],
-        },
         {
           kind: "pair",
           items: [

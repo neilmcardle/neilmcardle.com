@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Shell from "@/app/_signature/Shell";
 import Header from "@/app/_signature/Header";
-import Finale from "@/app/_signature/Finale";
+import SignOff from "@/app/_signature/SignOff";
 import bar from "@/app/_signature/case.module.css";
 import { Markdown, slug, type Sizes } from "./markdown";
 import Contents from "./Contents";
@@ -78,7 +78,7 @@ export default function Article({
           </p>
         </article>
       </main>
-      <Finale signOff />
+      <SignOff />
     </Shell>
   );
 }

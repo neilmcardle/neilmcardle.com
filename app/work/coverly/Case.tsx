@@ -6,6 +6,8 @@ import { Mark } from "../../coverly/landing-demos";
 import coverly from "../../coverly/landing.module.css";
 import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
+import Story from "../Story";
+import { COVERLY } from "./chapters";
 import SimilarRow from "./SimilarRow";
 
 export default async function CoverlyCase({ home }: { home?: string }) {
@@ -52,23 +54,14 @@ export default async function CoverlyCase({ home }: { home?: string }) {
         { label: "When", value: "2026" },
         { label: "Live", value: <Link href="/coverly">Open coverly</Link> },
       ]}
-      overview="Coverly is a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting. The brand borrows from the print viewing booth, where proofs are judged under neutral grey and even light, and lets the covers carry all the colour."
+      overview="I designed and built Coverly, a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting."
+      brief={<Story chapters={COVERLY} />}
       frames={[
         {
           kind: "film",
           src: media("/home/coverly-promo.mp4"),
           poster: "/home/coverly-promo.jpg",
           label: "coverly product film",
-        },
-        {
-          kind: "full",
-          src: "/work/coverly/browse-filtered.jpg",
-          alt: "coverly's browse grid filtered to domestic thrillers with red covers, narrowing 3,079 covers to 267",
-        },
-        {
-          kind: "full",
-          src: "/work/coverly/cover-detail.jpg",
-          alt: "A cover opened in coverly, showing its sub-genre, art style, typography, people, layout and tone tags, its five colours and a row of similar covers",
         },
         {
           kind: "pair",

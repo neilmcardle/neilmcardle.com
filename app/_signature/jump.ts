@@ -1,4 +1,12 @@
-import { COLLECTION, PLAY, WORK, WRITING, type Piece } from "../_home/data";
+import {
+  APPS,
+  COLLECTION,
+  PLAY,
+  STORIES,
+  WORK,
+  WRITING,
+  type Piece,
+} from "../_home/data";
 
 export type JumpEntry = {
   id: string;
@@ -34,8 +42,8 @@ const asEntry =
   });
 
 export const ENTRIES: JumpEntry[] = [
-  ...WORK.map(asEntry("Work")),
-  ...WRITING.map(asEntry("Writing")),
+  ...[...WORK, ...APPS].map(asEntry("Work")),
+  ...[...WRITING, ...STORIES].map(asEntry("Writing")),
   ...[...PLAY, ...COLLECTION].map(asEntry("Playground")),
 ];
 

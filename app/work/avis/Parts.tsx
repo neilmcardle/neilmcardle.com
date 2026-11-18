@@ -9,18 +9,29 @@ const BEFORE = [
   { name: "Review & Book" },
 ];
 
-const AFTER = ["Make a reservation", "Pick your vehicle", "Review & Checkout"];
+const AFTER = ["Make a reservation", "Pick your vehicle"];
+
+const INTO = [
+  { name: "Protections", moved: true },
+  { name: "Add-ons", moved: true },
+  { name: "Payment" },
+];
 
 export function StepsDiagram() {
   return (
     <div className={styles.plate}>
-      <div className={styles.flow}>
-        <p className={styles.flowName}>Before</p>
-        <ol className={`${styles.steps} ${styles.five}`}>
+      <div className={styles.chart}>
+        <p className={`${styles.flowName} ${styles.before}`}>
+          Before <span>5 steps</span>
+        </p>
+        <ol
+          className={`${styles.row} ${styles.rowBefore}`}
+          aria-label="Before, five steps"
+        >
           {BEFORE.map((step, i) => (
             <li
               key={step.name}
-              className={styles.step}
+              className={styles.node}
               data-moved={step.moved || undefined}
             >
               <span className={styles.num}>{i + 1}</span>
@@ -28,29 +39,42 @@ export function StepsDiagram() {
             </li>
           ))}
         </ol>
-      </div>
-      <div className={styles.flow}>
-        <p className={styles.flowName}>After</p>
-        <ol className={`${styles.steps} ${styles.three}`}>
+        {BEFORE.map((step) => (
+          <span
+            key={step.name}
+            className={styles.link}
+            data-moved={step.moved || undefined}
+            aria-hidden="true"
+          />
+        ))}
+        <p className={`${styles.flowName} ${styles.after}`}>
+          After <span>3 steps</span>
+        </p>
+        <ol
+          className={`${styles.row} ${styles.rowAfter}`}
+          aria-label="After, three steps"
+        >
           {AFTER.map((name, i) => (
-            <li key={name} className={styles.step}>
+            <li key={name} className={styles.node}>
               <span className={styles.num}>{i + 1}</span>
-              <span className={styles.stepBody}>
-                {name}
-                {i === 2 ? (
-                  <span className={styles.inside}>
-                    <span className={styles.chip} data-moved>
-                      Protections
-                    </span>
-                    <span className={styles.chip} data-moved>
-                      Add-ons
-                    </span>
-                    <span className={styles.chip}>Payment</span>
-                  </span>
-                ) : null}
-              </span>
+              {name}
             </li>
           ))}
+          <li className={`${styles.node} ${styles.merged}`}>
+            <span className={styles.mergedHead}>
+              <span className={styles.num}>3</span>
+              Review & Checkout
+            </span>
+            {INTO.map((part) => (
+              <span
+                key={part.name}
+                className={styles.into}
+                data-moved={part.moved || undefined}
+              >
+                {part.name}
+              </span>
+            ))}
+          </li>
         </ol>
       </div>
     </div>

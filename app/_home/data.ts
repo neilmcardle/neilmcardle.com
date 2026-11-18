@@ -3,7 +3,6 @@ export type Piece = {
   title: string;
   line?: string;
   kind: string;
-  verb: string;
   href: string;
   image?: string;
   film?: string;
@@ -15,11 +14,20 @@ export type Piece = {
 
 export const WORK: Piece[] = [
   {
+    id: "avis",
+    title: "Avis checkout",
+    line: "Five steps to three, live on avis.com.",
+    kind: "Booking flow",
+    href: "/work/avis",
+    image: "/home/leads/avis-card.jpg",
+    film: "/home/avis.mp4",
+    local: true,
+  },
+  {
     id: "makeebook",
-    title: "makeebook",
+    title: "Makeebook",
     line: "A peaceful place for authors to write.",
     kind: "Product",
-    verb: "Read the case study",
     href: "/work/makeebook",
     live: { label: "makeebook.ink", href: "https://makeebook.ink" },
     image: "/home/leads/makeebook.jpg",
@@ -28,10 +36,9 @@ export const WORK: Piece[] = [
   },
   {
     id: "coverly",
-    title: "coverly",
+    title: "Coverly",
     line: "Inspiration for your next book cover.",
     kind: "Product",
-    verb: "Read the case study",
     href: "/work/coverly",
     live: { label: "Open coverly", href: "/coverly" },
     image: "/home/leads/coverly-books.jpg",
@@ -39,38 +46,38 @@ export const WORK: Piece[] = [
     local: true,
   },
   {
+    id: "performance-ui",
+    title: "Performance UI",
+    line: "A design system written for agents.",
+    kind: "Agent skills",
+    href: "/work/performance-ui",
+    kindHref: "https://github.com/neilmcardle/skills",
+    kindWhere: "GitHub",
+    image: "/home/peek/performance-ui.jpg",
+    local: true,
+  },
+];
+
+export const APPS: Piece[] = [
+  {
     id: "doodlewire",
     title: "DoodleWire",
     line: "Wireframe from your phone.",
     kind: "iOS app",
-    verb: "Read the case study",
     href: "/work/doodlewire",
     kindHref: "https://apps.apple.com/us/app/doodlewire/id6771274835",
     image: "/home/leads/doodlewire.jpg",
     local: true,
   },
   {
-    id: "avis",
-    title: "Avis checkout",
-    line: "Five steps to three, live on avis.com.",
-    kind: "Case study",
-    verb: "Read the case study",
-    href: "/work/avis",
-    image: "/home/leads/avis-card.jpg",
-    film: "/home/avis.mp4",
-    local: true,
-  },
-  {
-    id: "performance-ui",
-    title: "Performance UI",
-    line: "A design system written for agents.",
-    kind: "Design system",
-    verb: "Read the case study",
-    href: "/work/performance-ui",
-    kindHref: "https://github.com/neilmcardle/skills",
-    kindWhere: "GitHub",
-    image: "/home/peek/performance-ui.jpg",
-    local: true,
+    id: "tessera",
+    title: "Tessera",
+    line: "A triangle game for two.",
+    kind: "iOS app",
+    href: "/tessera",
+    kindHref:
+      "https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982",
+    image: "/home/peek/tessera.jpg",
   },
 ];
 
@@ -82,7 +89,6 @@ export const WRITING: Piece[] = [
     title: "A History of Design Tools",
     line: "Sixty years, from Sketchpad to the prompt.",
     kind: "Article",
-    verb: "Read it",
     href: "/writing/history-of-design-tools",
     image: "/writing/history-of-design-tools/sketchpad-1963.png",
     local: true,
@@ -92,50 +98,47 @@ export const WRITING: Piece[] = [
     title: "What designers are saying",
     line: "A year of design talk, counted and read.",
     kind: "Article",
-    verb: "Read it",
     href: "/writing/what-designers-are-saying",
     image: "/writing/what-designers-are-saying/chart-term-shifts.svg",
     local: true,
   },
 ];
 
-export const STACK = [
-  "coverly",
-  "doodlewire",
-  "makeebook",
-  "avis",
-  "performance-ui",
-]
-  .map((id) => WORK.find((piece) => piece.id === id))
-  .filter((piece): piece is Piece => Boolean(piece));
-
-export const PLAY: Piece[] = [
-  {
-    id: "tessera",
-    title: "Tessera",
-    line: "A triangle game for two.",
-    kind: "iOS app",
-    verb: "Play a game",
-    href: "/tessera",
-    kindHref:
-      "https://apps.apple.com/us/app/tessera-the-triangle-game/id6774786982",
-    image: "/home/peek/tessera.jpg",
-  },
+export const STORIES: Piece[] = [
   {
     id: "ui",
     title: "A Brief History of UI",
     line: "Sixty years of interfaces.",
     kind: "Historactive",
-    verb: "Scroll the years",
     href: "/explorations/history-of-ui",
     image: "/home/peek/history-of-ui-rain.jpg",
+  },
+];
+
+export const STACK = [
+  "coverly",
+  "doodlewire",
+  "avis",
+  "makeebook",
+  "performance-ui",
+]
+  .map((id) => [...WORK, ...APPS].find((piece) => piece.id === id))
+  .filter((piece): piece is Piece => Boolean(piece));
+
+export const PLAY: Piece[] = [
+  {
+    id: "self-healing-checkout",
+    title: "Self-healing checkout",
+    line: "A console that spots a broken checkout and ships the fix.",
+    kind: "Concept",
+    href: "/explorations/self-healing-checkout",
+    image: "/home/peek/self-healing-checkout.jpg",
   },
   {
     id: "world",
     title: "A History of the World",
     line: "300,000 years on a globe.",
     kind: "Historactive",
-    verb: "Spin the globe",
     href: "/explorations/history-of-the-world",
     image: "/home/peek/history-of-the-world.jpg",
   },
@@ -144,7 +147,6 @@ export const PLAY: Piece[] = [
     title: "N Particles",
     line: "My N, drawn in particles.",
     kind: "Exploration",
-    verb: "Scatter the N",
     href: "/explorations/n-particles",
     image: "/home/peek/n-particles.jpg",
   },
@@ -153,7 +155,6 @@ export const PLAY: Piece[] = [
     title: "Puddle High II",
     line: "An old wellie, launched like a sneaker.",
     kind: "Affectionate Parody",
-    verb: "Take it apart",
     href: "/explorations/puddle-high",
     image: "/home/peek/puddle-high.jpg",
   },
@@ -174,7 +175,6 @@ export const COLLECTION: Piece[] = [
     title: "Plink Pond",
     line: "Skim stones across a pixel pond.",
     kind: "Souvenir",
-    verb: "Skim a stone",
     href: "/explorations/plink-pond",
     image: "/home/peek/plink-pond.jpg",
   },
@@ -183,7 +183,6 @@ export const COLLECTION: Piece[] = [
     title: "Record player",
     line: "A suitcase record player you can open and play.",
     kind: "Souvenir",
-    verb: "Play a record",
     href: "/explorations/record-player",
     image: "/home/peek/record-player.jpg",
   },
@@ -192,7 +191,6 @@ export const COLLECTION: Piece[] = [
     title: "Illustrator CS6 book",
     line: "The book I taught myself Illustrator with.",
     kind: "Memory",
-    verb: "Leaf through it",
     href: "/explorations/cs6-book",
     image: "/home/peek/cs6-book.jpg",
   },

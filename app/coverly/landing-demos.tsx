@@ -838,9 +838,20 @@ export function HueRibbon({
   );
   const active = hover === null ? null : stripes[hover];
   const left = hover === null ? 0 : ((hover + 0.5) / stripes.length) * 100;
+  const pick = (event: React.PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const at = (event.clientX - box.left) / box.width;
+    const i = Math.floor(at * stripes.length);
+    if (i >= 0 && i < stripes.length) setHover(i);
+  };
 
   return (
-    <div className={styles.ribbonWrap} onPointerLeave={() => setHover(null)}>
+    <div
+      className={styles.ribbonWrap}
+      onPointerLeave={(event) => {
+        if (event.pointerType === "mouse") setHover(null);
+      }}
+    >
       <h2
         className={`${styles.sectionTitle} ${styles.ribbonHead} ${styles.display}`}
       >
@@ -859,6 +870,8 @@ export function HueRibbon({
       </div>
       <div
         className={styles.ribbon}
+        onPointerDown={pick}
+        onPointerMove={pick}
         role="img"
         aria-label={`Covers from the catalogue, ordered by hue, ${count} covers in total`}
       >
@@ -867,7 +880,6 @@ export function HueRibbon({
             key={s.cover.id}
             className={`${styles.stripe} ${hover === i ? styles.stripeUp : ""}`}
             style={{ background: s.cover.colors[0] }}
-            onPointerEnter={() => setHover(i)}
           />
         ))}
       </div>

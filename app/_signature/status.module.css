@@ -30,14 +30,14 @@
 
 .code {
   margin: 0 0 clamp(16px, 2vw, 24px) -0.04em;
-  font-size: clamp(120px, 24vw, 300px);
+  font-size: calc(clamp(120px, 24vw, 300px) * var(--type-scale, 1));
   line-height: 0.8;
 }
 
 .line {
   max-width: 22ch;
   margin: 0;
-  font-size: clamp(26px, 3vw, 36px);
+  font-size: calc(clamp(26px, 3vw, 36px) * var(--type-scale, 1));
   line-height: 1.15;
   letter-spacing: -0.025em;
   font-weight: 500;

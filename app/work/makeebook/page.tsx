@@ -6,10 +6,10 @@ const description =
   "Designing Book Mind, the writing assistant in makeebook that only speaks when asked.";
 
 export const metadata: Metadata = {
-  title: "makeebook · Neil McArdle",
+  title: "Makeebook · Neil McArdle",
   description,
   ...share({
-    title: "makeebook · Neil McArdle",
+    title: "Makeebook · Neil McArdle",
     description,
     path: "/work/makeebook",
   }),

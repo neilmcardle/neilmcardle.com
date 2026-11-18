@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Shell from "./_signature/Shell";
 import NavMark from "./_signature/NavMark";
@@ -9,18 +10,9 @@ import Rows from "./_home/Rows";
 import Rail from "./_home/Rail";
 import TopNav from "./_home/TopNav";
 import FaceCard from "./_home/FaceCard";
-import LiveToy from "./_home/LiveToy";
-import CoinCard from "./_home/CoinCard";
 import Contact from "./_home/Contact";
 import Chip from "./_home/Chip";
-import {
-  COLLECTION,
-  PLAY,
-  TOYS,
-  WORK,
-  WRITING,
-  WRITING_PUBLIC,
-} from "./_home/data";
+import { APPS, STORIES, WORK, WRITING, WRITING_PUBLIC } from "./_home/data";
 import { SITE_DESCRIPTION, SITE_TITLE, share } from "./shared-metadata";
 import styles from "./_home/home.module.css";
 
@@ -56,37 +48,32 @@ export default function Homepage() {
                 <span>, a product designer and builder based in London.</span>
               </h1>
               <p>
-                I design products and build them myself, from the first sketch
-                to the code that ships. Right now that&rsquo;s{" "}
-                <Chip id="makeebook" href="/work/makeebook">
-                  makeebook
-                </Chip>
-                , a quiet place to write books, and{" "}
-                <Chip right id="coverly" href="/work/coverly">
-                  coverly
-                </Chip>
-                , a search of over 3,000 book covers.
-              </p>
-              <p>
-                Before that I took the{" "}
+                At ABG I took the{" "}
                 <Chip id="avis" href="/work/avis">
                   Avis
                 </Chip>{" "}
-                checkout from five steps to three. It&rsquo;s live on avis.com.
-              </p>
-              <p>
-                I also work with{" "}
+                checkout from five steps to three, live on avis.com, and
+                I&rsquo;m also a contractor for{" "}
                 <Chip right id="mobbin" href="https://mobbin.com">
                   Mobbin
                 </Chip>
-                , the library of real app screens designers use for reference.
+                .
+              </p>
+              <p>
+                I design products and build them myself, from the first sketch
+                to the code that ships. Right now that&rsquo;s{" "}
+                <Chip id="makeebook" href="/work/makeebook">
+                  Makeebook
+                </Chip>
+                , a quiet place to write books, and{" "}
+                <Chip right id="coverly" href="/work/coverly">
+                  Coverly
+                </Chip>
+                , a search of over 3,000 book covers.
               </p>
               {WRITING_PUBLIC ? (
                 <p>
-                  What I want to design next is the tools themselves. I trained
-                  as a painter, then took a degree in social psychology, so I
-                  care about both the brush and the person holding it. This year
-                  I&rsquo;ve been researching{" "}
+                  This year I&rsquo;ve been researching{" "}
                   <Link
                     className={styles.inlineLink}
                     href="/writing/history-of-design-tools"
@@ -100,7 +87,9 @@ export default function Homepage() {
                   >
                     what designers say they&rsquo;re becoming
                   </Link>
-                  .
+                  . What I want to design next is the tools themselves. I
+                  trained as a painter, then took a degree in social psychology,
+                  so I care about both the brush and the person holding it.
                 </p>
               ) : null}
             </section>
@@ -108,12 +97,16 @@ export default function Homepage() {
             <section id="work" className={styles.section}>
               <h2 className={styles.label}>Work</h2>
               <Rows pieces={WORK} />
+              <h3 className={styles.subLabel}>Apps</h3>
+              <Rows pieces={APPS} />
             </section>
 
             {WRITING_PUBLIC ? (
               <section id="writing" className={styles.section}>
                 <h2 className={styles.label}>Writing</h2>
                 <Rows pieces={WRITING} />
+                <h3 className={styles.subLabel}>Storytelling</h3>
+                <Rows pieces={STORIES} />
               </section>
             ) : null}
 
@@ -132,44 +125,32 @@ export default function Homepage() {
                       loading="lazy"
                       decoding="async"
                     />
+                    <span className={styles.quoteProduct}>Bedside Books</span>
                   </span>
                   <span className={styles.quoteBody}>
+                    <span className={styles.quoteHead}>
+                      <Image
+                        className={styles.quoteAvatar}
+                        src="/home/moments/tommy-geoco.jpg"
+                        alt=""
+                        width={80}
+                        height={80}
+                      />
+                      <span className={styles.quoteWho}>
+                        <span className={styles.quoteName}>Tommy Geoco</span>
+                        <span className={styles.quoteRole}>
+                          Design influencer
+                        </span>
+                      </span>
+                    </span>
                     <span className={styles.quoteText}>
                       &ldquo;This is magical dude.&rdquo;
                     </span>
-                    <span className={styles.quoteWho}>
-                      <span>Tommy Geoco</span> @designertom on X
-                    </span>
-                    <span className={styles.quoteOn}>
-                      On <span>Bedside Books</span>, where a parent and child
-                      make a picture book together.
-                    </span>
-                  </span>
-                </a>
-                <a
-                  className={styles.quoteCard}
-                  href="https://x.com/BetterNeil/status/2103252962009284632"
-                >
-                  <span className={styles.quoteArt}>
-                    <img
-                      src="/home/dive-radio-jit.jpg"
-                      alt="SpeakUI demoed live on Dive Radio, with Neil, Ridd and Tommy Geoco on camera"
-                      width={1280}
-                      height={720}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </span>
-                  <span className={styles.quoteBody}>
-                    <span className={styles.quoteText}>
-                      &ldquo;Thank you for sharing!!&rdquo;
-                    </span>
-                    <span className={styles.quoteWho}>
-                      <span>Ridd</span> @ridd_design, co-host
-                    </span>
-                    <span className={styles.quoteOn}>
-                      On <span>SpeakUI</span>, my voice-driven UI editor, shown
-                      on Dive Radio.
+                    <span className={styles.quotePost}>
+                      View the post on X
+                      <svg viewBox="0 0 12 12" aria-hidden="true">
+                        <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                      </svg>
                     </span>
                   </span>
                 </a>
@@ -177,10 +158,14 @@ export default function Homepage() {
                   className={styles.quoteCard}
                   href="https://x.com/evilrabbit_/status/2120660975368196127"
                 >
-                  <span className={styles.quoteArt}>
+                  <span
+                    className={styles.quoteArt}
+                    style={{ background: "#c1bdb2" }}
+                  >
                     <img
+                      style={{ objectFit: "contain" }}
                       src="/home/moments/puddle-high.jpg"
-                      alt="Puddle High II in its exploded view: a wellie drawn in white lines, split into collar, strap, shaft, foot, sole and heel, each with a label"
+                      alt="A worn green wellie standing over the words Puddle High II"
                       width={1280}
                       height={720}
                       loading="lazy"
@@ -188,18 +173,29 @@ export default function Homepage() {
                     />
                   </span>
                   <span className={styles.quoteBody}>
-                    <span
-                      className={styles.quoteText}
-                      style={{ whiteSpace: "normal", textWrap: "balance" }}
-                    >
+                    <span className={styles.quoteHead}>
+                      <Image
+                        className={`${styles.quoteAvatar} ${styles.quoteAvatarInset}`}
+                        src="/home/moments/evil-rabbit.jpg"
+                        alt=""
+                        width={80}
+                        height={80}
+                      />
+                      <span className={styles.quoteWho}>
+                        <span className={styles.quoteName}>Evil Rabbit</span>
+                        <span className={styles.quoteRole}>
+                          Founding designer at Vercel
+                        </span>
+                      </span>
+                    </span>
+                    <span className={styles.quoteText}>
                       &ldquo;it looks fire! 🔥 love the exploded view&rdquo;
                     </span>
-                    <span className={styles.quoteWho}>
-                      <span>Evil Rabbit</span> @evilrabbit_ on X
-                    </span>
-                    <span className={styles.quoteOn}>
-                      On <span>Puddle High II</span>, an old wellie launched
-                      like a sneaker.
+                    <span className={styles.quotePost}>
+                      View the post on X
+                      <svg viewBox="0 0 12 12" aria-hidden="true">
+                        <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                      </svg>
                     </span>
                   </span>
                 </a>
@@ -223,28 +219,12 @@ export default function Homepage() {
                     <span>Particles</span> Hover or tap
                   </figcaption>
                 </figure>
-                <figure className={styles.coinFigure}>
-                  <CoinCard />
-                  <figcaption>
-                    <span>Coin</span> Drag and spin
-                  </figcaption>
-                </figure>
-                {TOYS.map((toy) => (
-                  <figure key={toy.embed}>
-                    <LiveToy
-                      title={toy.title}
-                      embed={toy.embed}
-                      image={toy.image}
-                    />
-                    <figcaption>
-                      <span>{toy.title}</span> {toy.verb}
-                    </figcaption>
-                  </figure>
-                ))}
               </div>
-              <div className={styles.playRows}>
-                <Rows pieces={[...PLAY, ...COLLECTION]} />
-              </div>
+              <p className={styles.more}>
+                <Link href="/playground">
+                  Everything else in the playground
+                </Link>
+              </p>
             </section>
 
             <section id="contact" className={styles.section}>

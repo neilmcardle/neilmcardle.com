@@ -12,16 +12,16 @@ export const AVIS: Chapter[] = [
   },
   {
     label: "Decision 1",
-    title: "Fold protection and add-ons into checkout",
-    body: "Protection and add-ons moved onto the review and checkout page, so booking takes three steps: make a reservation, pick your vehicle, review and checkout.",
+    title: "I folded protection and add-ons into checkout",
+    body: "I moved protection and add-ons onto the review and checkout page, so booking takes three steps: make a reservation, pick your vehicle, review and checkout.",
     instead:
       "a page of their own. There are only a few protection products, so a whole step for them was friction people didn't need.",
     visual: <PagesFlow />,
   },
   {
     label: "Decision 2",
-    title: "Make the bundle a recommendation",
-    body: "The Essential bundle leads as a single card, marked most popular, with what it covers, its daily price and the saving. Choosing it shows a clear confirmation.",
+    title: "I made the bundle a recommendation",
+    body: "I led with the Essential bundle as a single card, marked most popular, with what it covers, its daily price and the saving. Choosing it shows a clear confirmation.",
     instead:
       "a plain choice between No protection and one bundle, which hid the cover some people wanted.",
     visual: (
@@ -32,15 +32,15 @@ export const AVIS: Chapter[] = [
   },
   {
     label: "Decision 3",
-    title: "Fold extra cover away",
-    body: "The individual protection items sit in one closed row under the bundle until someone wants them.",
+    title: "I folded extra cover away",
+    body: "I put the individual protection items in one closed row under the bundle until someone wants them.",
     instead: "showing every item open.",
     visual: <CoverageParts only={[{ name: "more-protection", span: 4 }]} />,
   },
   {
     label: "The parts",
     title: "Protections and add-ons",
-    body: "On the new checkout, protections and add-ons had to sit alongside the booking form. Each became a small component with its own states.",
+    body: "On the new checkout, protections and add-ons had to sit alongside the booking form, so I designed each as a small component with its own states.",
     visual: (
       <CoverageParts
         only={[
@@ -57,7 +57,7 @@ export const AVIS: Chapter[] = [
   },
   {
     label: "The result",
-    body: "A/B tests against the existing checkout, with conversion as the main measure. The three-step version increased step conversion, and a second round refined how protection is presented.",
+    body: "We A/B tested the three-step version against the five-step checkout, measuring step progression: how many people move from each step to the next. It improved, and a second round refined how protection is presented.",
     visual: (
       <video
         className={styles.film}

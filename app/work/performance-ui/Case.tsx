@@ -27,7 +27,7 @@ export default function PerformanceUiCase({ home }: { home?: string }) {
           </div>
         </section>
       }
-      overview="The rules a coding agent loads before it builds any interface: colours, sizes, motion and page budgets for fast pages, each with its reason. Looks UI, the layer this site uses, sits on top."
+      overview="I wrote the rules a coding agent loads before it builds any interface: colours, sizes, motion and page budgets for fast pages, each with its reason. Looks UI, the layer this site uses, sits on top."
       facts={[
         { label: "When", value: "2026" },
         { label: "Role", value: "Design and writing, solo" },

@@ -17,9 +17,8 @@ export default function Rows({
   const list = useRef<HTMLUListElement>(null);
   const [src, setSrc] = useState<string>();
   const [on, setOn] = useState(false);
-  const [verb, setVerb] = useState<string>();
 
-  const show = (row: HTMLElement, image?: string, action?: string) => {
+  const show = (row: HTMLElement, image?: string) => {
     const img = peek.current;
     const box = list.current?.getBoundingClientRect();
     if (
@@ -42,7 +41,6 @@ export default function Rows({
     );
     img.style.translate = `${Math.round(x)}px ${Math.round(y)}px`;
     setSrc(image);
-    setVerb(action);
     setOn(true);
   };
 
@@ -55,13 +53,32 @@ export default function Rows({
       >
         {pieces.map((piece) => {
           const href = piece.local ? `${base}${piece.href}` : piece.href;
+          const study = piece.href.startsWith("/work/");
+          const outs = [
+            ...(piece.live
+              ? [
+                  {
+                    href: piece.live.href,
+                    label: piece.live.label.replace(/^Open /, ""),
+                    aria: `Open the live ${piece.title}`,
+                  },
+                ]
+              : []),
+            ...(piece.kindHref
+              ? [
+                  {
+                    href: piece.kindHref,
+                    label: piece.kindWhere ?? "App Store",
+                    aria: `${piece.title} on ${piece.kindWhere ?? "the App Store"}`,
+                  },
+                ]
+              : []),
+          ];
           return (
             <li
               key={piece.id}
               className={styles.rowItem}
-              onPointerEnter={(e) =>
-                show(e.currentTarget, piece.image, piece.verb)
-              }
+              onPointerEnter={(e) => show(e.currentTarget, piece.image)}
             >
               <Link
                 className={styles.row}
@@ -70,53 +87,44 @@ export default function Rows({
               >
                 <span className={styles.rowTitle}>{piece.title}</span>
                 <span className={styles.rowLine}>{piece.line}</span>
+                <span className={styles.rowKind}>{piece.kind}</span>
               </Link>
-              {piece.live && (
-                <a
-                  className={styles.live}
-                  href={piece.live.href}
-                  aria-label={`${piece.live.label}, the live ${piece.title}`}
-                  {...(piece.live.href.startsWith("http")
-                    ? { rel: "noopener" }
-                    : {})}
-                >
-                  {piece.live.label}
-                  <svg viewBox="0 0 12 12" aria-hidden="true">
-                    <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
-                  </svg>
-                </a>
-              )}
-              <Link
-                className={styles.rowRest}
-                href={href}
-                tabIndex={-1}
-                aria-hidden="true"
-              >
-                {!piece.kindHref && (
-                  <span className={styles.rowKind}>{piece.kind}</span>
-                )}
-              </Link>
-              {piece.kindHref && (
-                <a
-                  className={styles.kindLink}
-                  href={piece.kindHref}
-                  rel="noopener"
-                  aria-label={`${piece.title} on ${piece.kindWhere ?? "the App Store"}`}
-                  onPointerEnter={() =>
-                    setVerb(
-                      piece.kindWhere === "GitHub"
-                        ? "View on GitHub"
-                        : "Open in the App Store",
-                    )
-                  }
-                  onPointerLeave={() => setVerb(piece.verb)}
-                >
-                  <span className={styles.rowKind}>{piece.kind}</span>
-                  <svg viewBox="0 0 12 12" aria-hidden="true">
-                    <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
-                  </svg>
-                </a>
-              )}
+              {study || outs.length ? (
+                <p className={styles.rowLinks}>
+                  {study ? (
+                    <Link
+                      className={styles.live}
+                      href={href}
+                      aria-label={`${piece.title} case study`}
+                    >
+                      Case study
+                      <svg
+                        className={styles.rowArrow}
+                        viewBox="0 0 12 12"
+                        aria-hidden="true"
+                      >
+                        <path d="M2.5 6h7M6.5 3l3 3-3 3" />
+                      </svg>
+                    </Link>
+                  ) : null}
+                  {outs.map((out) => (
+                    <a
+                      key={out.href}
+                      className={styles.live}
+                      href={out.href}
+                      aria-label={out.aria}
+                      {...(out.href.startsWith("http")
+                        ? { rel: "noopener" }
+                        : {})}
+                    >
+                      {out.label}
+                      <svg viewBox="0 0 12 12" aria-hidden="true">
+                        <path d="M3.5 8.5l5-5M4.5 3.5h4v4" />
+                      </svg>
+                    </a>
+                  ))}
+                </p>
+              ) : null}
             </li>
           );
         })}
@@ -127,7 +135,6 @@ export default function Rows({
         aria-hidden="true"
       >
         {src ? <Image src={src} alt="" fill sizes="280px" /> : null}
-        {verb ? <span className={styles.chipOpen}>{verb}</span> : null}
       </span>
     </>
   );

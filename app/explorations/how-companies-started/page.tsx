@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import Shell from "../../_signature/Shell";
 import Header from "../../_signature/Header";
-import Finale from "../../_signature/Finale";
+import SignOff from "../../_signature/SignOff";
 import shell from "../../_signature/signature.module.css";
 import { share } from "../../shared-metadata";
 import Companies from "./Companies";
@@ -95,7 +95,7 @@ export default function Page() {
           </p>
         </div>
       </main>
-      <Finale signOff />
+      <SignOff />
     </Shell>
   );
 }

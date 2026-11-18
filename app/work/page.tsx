@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import Shell from "../_signature/Shell";
 import Header from "../_signature/Header";
-import Finale from "../_signature/Finale";
+import SignOff from "../_signature/SignOff";
 import { share } from "../shared-metadata";
 import { SECTIONS } from "./everything";
 import styles from "./everything.module.css";
@@ -53,7 +53,7 @@ export default function WorkPage() {
           </section>
         ))}
       </main>
-      <Finale copyEmail />
+      <SignOff />
     </Shell>
   );
 }

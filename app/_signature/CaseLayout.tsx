@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Fact, Frame } from "@/app/work/CaseStudy";
 import Shell from "./Shell";
 import Header from "./Header";
-import Finale from "./Finale";
+import SignOff from "./SignOff";
 import ScrollHint from "./ScrollHint";
 import Zoom from "./Zoom";
 import shell from "./signature.module.css";
@@ -134,7 +134,7 @@ export default function CaseLayout({
           </div>
         </div>
       </main>
-      <Finale signOff />
+      <SignOff />
       <Zoom />
     </Shell>
   );

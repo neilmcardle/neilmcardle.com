@@ -9,13 +9,13 @@
   --edge-hover:
     0 0 0 1px rgb(255 255 255 / 0.11), 0 1px 2px -1px rgb(0 0 0 / 0.5),
     0 2px 4px 0 rgb(0 0 0 / 0.4);
-  --col: 600px;
+  --col: calc(600px * var(--type-scale, 1));
   --ease: cubic-bezier(0.2, 0.8, 0, 1);
   --ease-in: cubic-bezier(0.55, 0, 1, 0.45);
   width: min(var(--col), 100% - 32px);
   margin: 0 auto;
   padding-bottom: 48px;
-  font-size: 16px;
+  font-size: calc(16px * var(--type-scale, 1));
   line-height: 1.6;
   color: var(--muted);
 }
@@ -43,7 +43,7 @@
   display: flex;
   margin-left: auto;
   margin-right: -10px;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
 }
 
 .topNav a {
@@ -134,7 +134,7 @@
 .caption {
   min-height: 24px;
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
   text-align: center;
 }
 
@@ -169,7 +169,7 @@
 
 .name {
   margin: 0;
-  font-size: 16px;
+  font-size: calc(16px * var(--type-scale, 1));
   font-weight: 500;
   line-height: 1.5;
   color: var(--ink);
@@ -301,7 +301,7 @@
   border-radius: 999px;
   background: rgb(13 13 12 / 0.82);
   color: var(--ink);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
   font-weight: 500;
   line-height: 1.2;
 }
@@ -367,9 +367,16 @@
   scroll-margin-top: 48px;
 }
 
+.subLabel {
+  margin: 112px 0 12px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .label {
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
   font-weight: 400;
   color: var(--muted);
 }
@@ -381,36 +388,50 @@
 }
 
 .rowItem {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
   transition: opacity 0.2s var(--ease);
 }
 
-.rowItem .row {
-  flex: 0 1 auto;
-  min-width: 0;
+.rowItem:has(.rowLinks) + .rowItem {
+  margin-top: 24px;
 }
 
-.rowRest {
+.rowLinks {
   display: flex;
-  flex: 1 0 auto;
-  justify-content: flex-end;
-  padding: 9px 0;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin: -2px 0 0;
 }
 
-a.kindLink {
+.live {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: 4px;
   min-height: 44px;
   margin: -12px 0;
-  color: var(--muted);
-  transition: color 0.2s var(--ease);
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
+  white-space: nowrap;
 }
 
-.kindLink svg {
+a.live {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: transparent;
+  transition:
+    color 0.2s var(--ease),
+    text-decoration-color 0.2s var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.live:hover {
+    color: var(--ink);
+    text-decoration-color: currentColor;
+  }
+}
+
+.live .rowArrow {
   width: 10px;
   height: 10px;
   fill: none;
@@ -421,37 +442,11 @@ a.kindLink {
   transition: translate 0.2s var(--ease);
 }
 
-a.kindLink:focus-visible {
-  color: var(--ink);
-  outline: 2px solid var(--ink);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
 @media (hover: hover) and (pointer: fine) {
-  a.kindLink:hover {
-    color: var(--ink);
+  .rowItem:hover .live .rowArrow,
+  a.live:hover .rowArrow {
+    translate: 2px 0;
   }
-
-  a.kindLink:hover svg {
-    translate: 1px -1px;
-  }
-}
-
-.live {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  margin: -12px 0;
-  font-size: 13px;
-  white-space: nowrap;
-}
-
-a.live {
-  color: var(--muted);
-  transition: color 0.2s var(--ease);
 }
 
 .live svg {
@@ -490,7 +485,7 @@ a.live:focus-visible {
 
 .row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: baseline;
   gap: 12px;
   padding: 9px 0;
@@ -505,7 +500,7 @@ a.live:focus-visible {
 
 .rowLine {
   overflow: hidden;
-  font-size: 15px;
+  font-size: calc(15px * var(--type-scale, 1));
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -581,10 +576,16 @@ a.live:focus-visible {
 .quoteArt {
   position: relative;
   display: block;
+  align-self: stretch;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
   border-radius: 10px;
   background: #2a2520;
+}
+
+.quoteArt::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%;
 }
 
 .quoteArt img {
@@ -601,12 +602,53 @@ a.live:focus-visible {
   gap: 6px;
 }
 
-.quoteText {
-  margin-bottom: -2px;
-  font-size: 24px;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+.quoteHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.quoteAvatar {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.quoteAvatarInset {
+  box-sizing: border-box;
+  padding: 6px;
+  background: #000;
+  object-fit: contain;
+}
+
+.quoteWho {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.quoteName {
+  font-size: calc(28px * var(--type-scale, 1));
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--ink);
   white-space: nowrap;
+}
+
+.quoteRole {
+  font-size: calc(14px * var(--type-scale, 1));
+  line-height: 1.4;
+}
+
+.quoteText {
+  margin-top: 12px;
+  font-size: calc(17px * var(--type-scale, 1));
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
   color: var(--ink);
 }
 
@@ -615,19 +657,49 @@ a.live:focus-visible {
   gap: 12px;
 }
 
-.quoteWho,
-.quoteOn {
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.quoteWho span,
-.quoteOn span {
+.quoteProduct {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(13 13 12 / 0.82);
   color: var(--ink);
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
+  font-weight: 500;
 }
 
-.quoteOn {
-  margin-top: 8px;
+.quotePost {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: transparent;
+  transition:
+    color 0.2s var(--ease),
+    text-decoration-color 0.2s var(--ease);
+}
+
+.quotePost svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .quoteCard:hover .quotePost {
+    color: var(--ink);
+    text-decoration-color: currentColor;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -645,6 +717,33 @@ a.live:focus-visible {
   margin-top: 32px;
 }
 
+.more {
+  margin: 24px 0 0;
+  font-size: calc(15px * var(--type-scale, 1));
+}
+
+.more a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--underline, #48463f);
+  transition: text-decoration-color 0.2s var(--ease);
+}
+
+@media (hover: hover) {
+  .more a:hover {
+    text-decoration-color: var(--ink);
+  }
+}
+
+.pageTitle {
+  margin: 64px 0 0;
+  color: var(--ink);
+  font-size: calc(24px * var(--type-scale, 1));
+  font-weight: 500;
+}
+
 .shelf {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -658,7 +757,7 @@ a.live:focus-visible {
 
 .shelf figcaption {
   margin-top: 10px;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
 }
 
 .shelf figcaption span {
@@ -872,9 +971,14 @@ a.live:focus-visible {
   translate: -50% -50%;
 }
 
+.signOff {
+  --ease: cubic-bezier(0.2, 0.8, 0, 1);
+  padding-bottom: 48px;
+}
+
 .tell {
   margin: 0;
-  font-size: 24px;
+  font-size: calc(24px * var(--type-scale, 1));
   line-height: 1.25;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -885,7 +989,7 @@ a.live:focus-visible {
   flex-wrap: wrap;
   gap: 4px 20px;
   margin: 12px 0 0;
-  font-size: 15px;
+  font-size: calc(15px * var(--type-scale, 1));
 }
 
 .links a,
@@ -917,7 +1021,7 @@ a.live:focus-visible {
   margin-top: 96px;
   padding-top: 16px;
   border-top: 1px solid rgb(255 255 255 / 0.08);
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
 }
 
 .signName {
@@ -977,7 +1081,7 @@ a.live:focus-visible {
   z-index: 10;
   display: none;
   flex-direction: column;
-  font-size: 13px;
+  font-size: max(12px, calc(13px * var(--type-scale, 1)));
 }
 
 .rail a {
@@ -1041,32 +1145,14 @@ a.live:focus-visible {
     white-space: normal;
   }
 
-  .rowItem {
-    flex-wrap: wrap;
-    column-gap: 16px;
-    row-gap: 0;
-  }
-
-  .rowItem .row {
-    flex-basis: 100%;
-    padding-bottom: 0;
-  }
-
-  .rowItem .rowRest {
-    flex: 0 0 auto;
-  }
-
-  .rowItem .rowRest:empty {
-    display: none;
-  }
-
-  .rowItem a.kindLink {
-    margin: -3px 0 -6px;
-  }
-
   .row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+  }
+
+  .rowLine {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .rowTitle {
@@ -1078,12 +1164,6 @@ a.live:focus-visible {
   .quoteCard {
     grid-template-columns: 1fr;
     padding: 12px 12px 20px;
-  }
-}
-
-@media (min-width: 561px) and (max-width: 640px) {
-  .quoteText {
-    font-size: calc(4.4vw - 4.5px);
   }
 }
 

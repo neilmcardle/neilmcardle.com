@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { share } from "@/app/shared-metadata";
 import Shell from "@/app/_signature/Shell";
 import Header from "@/app/_signature/Header";
-import Finale from "@/app/_signature/Finale";
+import SignOff from "@/app/_signature/SignOff";
 import kit from "./kit.module.css";
 import styles from "./readably.module.css";
 
@@ -247,7 +247,7 @@ export default function ReadablyPage() {
           </section>
         </article>
       </main>
-      <Finale signOff />
+      <SignOff />
     </Shell>
   );
 }

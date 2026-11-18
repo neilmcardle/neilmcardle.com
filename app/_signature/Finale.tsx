@@ -407,9 +407,9 @@ export default function Finale({
               <img className={styles.cap} src={`${ART}/button.svg`} alt="" />
               <span className={styles.cast} aria-hidden="true" />
               <span className={styles.capLabel} aria-hidden="true">
+                <small>Engine</small>
                 <b>Start</b>
-                <small>your</small>
-                <b>Project</b>
+                <small>Stop</small>
               </span>
             </button>
             <button
