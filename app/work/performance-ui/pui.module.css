@@ -56,6 +56,46 @@
   color: #a3a3a3;
 }
 
+.heroInstall {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.heroInstall code {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
+  color: #fafafa;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  user-select: all;
+}
+
+.heroInstall a {
+  color: #a3a3a3;
+  text-decoration: underline;
+  text-decoration-color: rgb(255 255 255 / 0.3);
+  text-underline-offset: 4px;
+  transition: color 160ms var(--ease-out, ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .heroInstall a:hover {
+    color: #fafafa;
+  }
+}
+
+.heroInstall a:focus-visible {
+  outline: 2px solid #fafafa;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 340px));
@@ -401,30 +441,6 @@
   gap: 24px;
 }
 
-.kitSource {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 16px;
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.kitSource code {
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 13px;
-  color: var(--ink);
-  user-select: all;
-}
-
-.kitSource a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: rgb(255 255 255 / 0.3);
-  text-underline-offset: 4px;
-}
-
 .kitSpecs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -492,4 +508,19 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+@media (max-width: 560px) {
+  .hero.hero.hero {
+    height: auto;
+  }
+
+  .heroInner {
+    gap: 16px;
+  }
+
+  .heroInstall code {
+    padding: 8px 16px;
+    border-radius: 12px;
+  }
 }

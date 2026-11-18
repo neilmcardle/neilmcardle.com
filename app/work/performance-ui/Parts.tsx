@@ -159,12 +159,6 @@ export function Kit() {
         <figcaption>Never allowed</figcaption>
         <Banned />
       </figure>
-      <p className={styles.kitSource}>
-        <code>npx skills@latest add neilmcardle/skills</code>
-        <a href="https://github.com/neilmcardle/skills" rel="noopener">
-          Source on GitHub
-        </a>
-      </p>
     </div>
   );
 }

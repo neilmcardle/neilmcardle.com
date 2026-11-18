@@ -18,6 +18,12 @@ export default function PerformanceUiCase({ home }: { home?: string }) {
             <PuiMark className={pui.heroMark} />
             <p className={pui.heroName}>Performance UI</p>
             <p className={pui.heroLine}>A design system written for agents</p>
+            <p className={pui.heroInstall}>
+              <code>npx skills@latest add neilmcardle/skills</code>
+              <a href="https://github.com/neilmcardle/skills" rel="noopener">
+                Source on GitHub
+              </a>
+            </p>
           </div>
         </section>
       }
