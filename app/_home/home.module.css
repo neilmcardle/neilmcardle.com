@@ -1038,11 +1038,35 @@ a.live:focus-visible {
   }
 
   .rowLine {
+    white-space: normal;
+  }
+
+  .rowItem {
+    flex-wrap: wrap;
+    column-gap: 16px;
+    row-gap: 0;
+  }
+
+  .rowItem .row {
+    flex-basis: 100%;
+    padding-bottom: 0;
+  }
+
+  .rowItem .rowRest {
+    flex: 0 0 auto;
+  }
+
+  .rowItem .rowRest:empty {
     display: none;
+  }
+
+  .rowItem a.kindLink {
+    margin: -3px 0 -6px;
   }
 
   .row {
     grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
   }
 
   .rowTitle {

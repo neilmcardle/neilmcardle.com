@@ -61,6 +61,16 @@ export default async function CoverlyCase({ home }: { home?: string }) {
           label: "coverly product film",
         },
         {
+          kind: "full",
+          src: "/work/coverly/browse-filtered.jpg",
+          alt: "coverly's browse grid filtered to domestic thrillers with red covers, narrowing 3,079 covers to 267",
+        },
+        {
+          kind: "full",
+          src: "/work/coverly/cover-detail.jpg",
+          alt: "A cover opened in coverly, showing its sub-genre, art style, typography, people, layout and tone tags, its five colours and a row of similar covers",
+        },
+        {
           kind: "pair",
           items: [
             {

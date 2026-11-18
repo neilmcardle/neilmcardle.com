@@ -114,6 +114,32 @@ export default function JumpBar() {
   }, [state.open]);
 
   useEffect(() => {
+    const button = trigger.current;
+    if (!button) return;
+    const narrow = window.matchMedia("(max-width: 700px)");
+    let last = window.scrollY;
+    let turn = last;
+    const update = () => {
+      if (document.body.style.position === "fixed") return;
+      const y = window.scrollY;
+      const end =
+        y + window.innerHeight >= document.documentElement.scrollHeight - 48;
+      if (y > last) turn = y;
+      const up = turn - y > 24;
+      last = y;
+      const away = narrow.matches && !end && (y < window.innerHeight || !up);
+      button.toggleAttribute("data-away", away);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    narrow.addEventListener("change", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      narrow.removeEventListener("change", update);
+    };
+  }, []);
+
+  useEffect(() => {
     row.current?.scrollIntoView({ block: "nearest" });
   }, [state.index, state.query]);
 
