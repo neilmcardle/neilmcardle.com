@@ -330,3 +330,19 @@
     outline-offset: -2px;
   }
 }
+
+.counts {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 4px 14px 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.count {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

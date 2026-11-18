@@ -94,6 +94,7 @@ export function PagesFlow() {
             {page.name}
           </span>
           <Image
+            data-zoom=""
             className={styles.pageImage}
             src={page.src}
             alt={page.alt}

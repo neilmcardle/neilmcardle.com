@@ -65,6 +65,7 @@ export const MAKEEBOOK: Chapter[] = [
       "a full panel or a separate page. Book Mind is a writing assistant built on an existing model, not a model of its own, so presenting it as simple help when you need it is more honest.",
     visual: (
       <Image
+        data-zoom=""
         className={styles.film}
         src="/work/makeebook/editor.jpg"
         alt="The makeebook editor with a chapter open and Book Mind answering a question about the ending"

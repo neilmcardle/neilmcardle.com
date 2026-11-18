@@ -27,8 +27,8 @@ const tune = BONSAI.interaction;
 
 const inCard = document.documentElement.classList.contains("card");
 const CARD_LEAVES = {
-  leaf: ["#f7c9d3", "#eca2b2", "#b4687a"],
-  accent: "#fde0e6",
+  leaf: ["#7d9c48", "#55743a", "#33502a"],
+  accent: "#a3bf66",
   moss: "#6b4f39",
 };
 const tree = growBonsai(

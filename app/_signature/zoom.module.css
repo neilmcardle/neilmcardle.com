@@ -1,0 +1,163 @@
+.zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overscroll-behavior: contain;
+  touch-action: none;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.94;
+}
+
+.viewer {
+  position: fixed;
+  transform-origin: 0 0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: zoom-out;
+  will-change: transform;
+}
+
+.viewer img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.viewer img.sharp {
+  opacity: 0;
+  transition: opacity 160ms var(--ease);
+}
+
+.viewer img.ready {
+  opacity: 1;
+}
+
+.arriving {
+  animation: arrive 240ms var(--ease) both;
+}
+
+.leaving {
+  pointer-events: none;
+  animation: leave 160ms var(--ease-in) both;
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes leave {
+  to {
+    opacity: 0;
+  }
+}
+
+.close,
+.nav {
+  position: fixed;
+  transition: opacity 160ms var(--ease);
+  animation: appear 240ms 160ms var(--ease) both;
+}
+
+.closing .close,
+.closing .nav {
+  opacity: 0;
+  transition-duration: 96ms;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+.close {
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--frame);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.nav {
+  bottom: 12px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--frame);
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  translate: -50% 0;
+}
+
+.nav span {
+  min-width: 56px;
+  text-align: center;
+}
+
+.nav button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.close:focus-visible,
+.nav button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .close:hover,
+  .nav button:hover {
+    background: var(--frame-hover);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .viewer {
+    animation: appear 160ms var(--ease) both;
+  }
+
+  .arriving,
+  .leaving {
+    animation-name: appear;
+  }
+
+  .leaving {
+    animation-name: leave;
+  }
+
+  .closing .scrim,
+  .closing .viewer {
+    opacity: 0;
+    transition: opacity 160ms var(--ease);
+  }
+}

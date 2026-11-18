@@ -12,7 +12,14 @@ import {
   useSyncExternalStore,
 } from "react";
 import styles from "./jump.module.css";
-import { ENTRIES, initialJump, jump, matchEntries, selected } from "./jump";
+import {
+  ENTRIES,
+  countSections,
+  initialJump,
+  jump,
+  matchEntries,
+  selected,
+} from "./jump";
 
 const NOTHING = "Nothing matches that.";
 const option = (id: string) => `jump-opt-${id}`;
@@ -221,6 +228,16 @@ export default function JumpBar() {
                 </svg>
               </button>
             </div>
+
+            {matches.length > 0 ? (
+              <p className={styles.counts} aria-hidden="true">
+                {countSections(matches).map(({ section, count }) => (
+                  <span key={section}>
+                    {section} <span className={styles.count}>{count}</span>
+                  </span>
+                ))}
+              </p>
+            ) : null}
 
             <ul
               className={styles.list}

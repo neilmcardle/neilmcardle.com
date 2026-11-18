@@ -6,6 +6,7 @@ export function Pair() {
     <div className={styles.pair}>
       <figure>
         <Image
+          data-zoom=""
           src="/work/performance-ui/without.jpg"
           alt="The demo booking page built without Performance UI: a navy header, an orange search button, a date strip of from prices and train fares shown before the booking fee"
           width={520}
@@ -25,6 +26,7 @@ export function Pair() {
       </figure>
       <figure>
         <Image
+          data-zoom=""
           src="/work/performance-ui/with.jpg"
           alt="The same page built with Performance UI: a plain header, a large heading saying every price includes the booking fee, a white search form, and trains listed with their total price"
           width={520}
@@ -168,6 +170,7 @@ export function BrandPair() {
     <div className={styles.pair}>
       <figure>
         <Image
+          data-zoom=""
           src="/work/performance-ui/brand-full.jpg"
           alt="The Quillmore page with every Performance UI rule applied: monochrome, Inter only, the red brand gone"
           width={520}
@@ -187,6 +190,7 @@ export function BrandPair() {
       </figure>
       <figure>
         <Image
+          data-zoom=""
           src="/work/performance-ui/brand-kept.jpg"
           alt="The same page with Foundation rules only: the cream page, serif heading and red brand kept, with spacing, tap sizes and type scale fixed"
           width={520}
@@ -232,6 +236,7 @@ export function Picker() {
   return (
     <figure className={styles.shot}>
       <Image
+        data-zoom=""
         src="/work/performance-ui/picker-v3.jpg"
         alt="The UI Taste picker: a list of areas on the left, and a decision about the page background with a live demo, options and what other sources use"
         width={1280}
@@ -330,6 +335,7 @@ export function Trio() {
       {TRIO.map(([file, name, line]) => (
         <figure key={file}>
           <Image
+            data-zoom=""
             src={`/work/performance-ui/q-${file.replace("launch-", "")}${file === "launch-looks" ? "-2" : ""}.jpg`}
             alt={`The Quillmore launch page built with ${name.toLowerCase()}: ${line}`}
             width={520}

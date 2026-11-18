@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import type { Piece } from "./data";
@@ -12,12 +13,13 @@ export default function Rows({
   pieces: Piece[];
   base?: string;
 }) {
-  const peek = useRef<HTMLImageElement>(null);
+  const peek = useRef<HTMLSpanElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const [src, setSrc] = useState<string>();
   const [on, setOn] = useState(false);
+  const [verb, setVerb] = useState<string>();
 
-  const show = (row: HTMLElement, image?: string) => {
+  const show = (row: HTMLElement, image?: string, action?: string) => {
     const img = peek.current;
     const box = list.current?.getBoundingClientRect();
     if (
@@ -40,6 +42,7 @@ export default function Rows({
     );
     img.style.translate = `${Math.round(x)}px ${Math.round(y)}px`;
     setSrc(image);
+    setVerb(action);
     setOn(true);
   };
 
@@ -56,7 +59,9 @@ export default function Rows({
             <li
               key={piece.id}
               className={styles.rowItem}
-              onPointerEnter={(e) => show(e.currentTarget, piece.image)}
+              onPointerEnter={(e) =>
+                show(e.currentTarget, piece.image, piece.verb)
+              }
             >
               <Link
                 className={styles.row}
@@ -97,6 +102,14 @@ export default function Rows({
                   href={piece.kindHref}
                   rel="noopener"
                   aria-label={`${piece.title} on ${piece.kindWhere ?? "the App Store"}`}
+                  onPointerEnter={() =>
+                    setVerb(
+                      piece.kindWhere === "GitHub"
+                        ? "View on GitHub"
+                        : "Open in the App Store",
+                    )
+                  }
+                  onPointerLeave={() => setVerb(piece.verb)}
                 >
                   <span className={styles.rowKind}>{piece.kind}</span>
                   <svg viewBox="0 0 12 12" aria-hidden="true">
@@ -108,13 +121,14 @@ export default function Rows({
           );
         })}
       </ul>
-      <img
+      <span
         ref={peek}
         className={`${styles.peek} ${on ? styles.on : ""}`}
-        src={src}
-        alt=""
         aria-hidden="true"
-      />
+      >
+        {src ? <Image src={src} alt="" fill sizes="280px" /> : null}
+        {verb ? <span className={styles.chipOpen}>{verb}</span> : null}
+      </span>
     </>
   );
 }

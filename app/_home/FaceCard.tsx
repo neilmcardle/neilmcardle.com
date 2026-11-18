@@ -7,6 +7,7 @@ import { MARK } from "@/app/_signature/NavMark";
 import { createSample } from "@/lib/coverly/sfx";
 import { useMediaQuery } from "@/lib/hooks/browserStore";
 import { media } from "@/lib/media";
+import { particleFall } from "@/lib/synth";
 import styles from "./home.module.css";
 
 const NParticles = dynamic(() => import("@/app/explorations/_lab/NParticles"), {
@@ -45,7 +46,7 @@ const always = () => true;
 const rise = createSample(media("/audio/particle-high.mp3"), always, {
   live: true,
 });
-const fall = createSample(media("/audio/particle-1.mp3"), always, {
+const fall = createSample(particleFall, always, {
   live: true,
 });
 let lastSound = 0;
@@ -54,7 +55,7 @@ const SOUND = {
   volume: 0.16,
   faceFrom: 0.9,
   faceWait: 0.08,
-  nFrom: 0.3,
+  nFrom: 0,
   nWait: 0.99,
 };
 

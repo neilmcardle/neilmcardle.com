@@ -539,7 +539,7 @@ a.live:focus-visible {
   z-index: 30;
   width: 280px;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: 10px;
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 0.08),
@@ -556,6 +556,13 @@ a.live:focus-visible {
 .peek.on {
   opacity: 1;
   scale: 1;
+}
+
+.peek img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .quoteCard {

@@ -6,6 +6,7 @@ import Shell from "./Shell";
 import Header from "./Header";
 import Finale from "./Finale";
 import ScrollHint from "./ScrollHint";
+import Zoom from "./Zoom";
 import shell from "./signature.module.css";
 import styles from "./case.module.css";
 
@@ -73,6 +74,7 @@ export default function CaseLayout({
                   {frame.items.map((item) => (
                     <div key={item.src} className={styles.card}>
                       <Image
+                        data-zoom=""
                         className={styles.frame}
                         src={item.src}
                         alt={item.alt}
@@ -110,6 +112,7 @@ export default function CaseLayout({
             return (
               <div key={frame.src} className={styles.card}>
                 <Image
+                  data-zoom=""
                   className={styles.frame}
                   src={frame.src}
                   alt={frame.alt}
@@ -132,6 +135,7 @@ export default function CaseLayout({
         </div>
       </main>
       <Finale signOff />
+      <Zoom />
     </Shell>
   );
 }

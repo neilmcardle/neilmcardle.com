@@ -28,7 +28,7 @@ function audioContext() {
 }
 
 export function createSample(
-  src: string,
+  src: string | ((ctx: BaseAudioContext) => AudioBuffer),
   enabled: () => boolean = isSoundOn,
   {
     gap = 0,
@@ -44,9 +44,13 @@ export function createSample(
   const ensure = () => {
     const ctx = audioContext();
     if (!ctx) return null;
-    loading ??= fetch(src)
-      .then((r) => r.arrayBuffer())
-      .then((raw) => ctx.decodeAudioData(raw))
+    loading ??= (
+      typeof src === "string"
+        ? fetch(src)
+            .then((r) => r.arrayBuffer())
+            .then((raw) => ctx.decodeAudioData(raw))
+        : Promise.resolve().then(() => src(ctx))
+    )
       .then((decoded) => {
         buffer = decoded;
       })
