@@ -57,11 +57,13 @@
   display: grid;
   place-items: start center;
   padding: min(12vh, 96px) var(--gutter) var(--gutter);
+  overscroll-behavior: contain;
 }
 
 .scrim {
   position: absolute;
   inset: 0;
+  touch-action: none;
   background: var(--bg);
   opacity: 0.92;
   animation: fade 160ms var(--ease) both;
@@ -141,8 +143,11 @@
 }
 
 .list {
+  display: grid;
+  align-content: start;
+  gap: 4px;
   margin: 0;
-  padding: 0;
+  padding: 4px 0 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -154,9 +159,9 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 6px;
+  gap: 16px;
+  min-height: 64px;
+  padding: 8px;
   border-radius: 14px;
   -webkit-tap-highlight-color: transparent;
   transition: background-color 160ms var(--ease);
@@ -164,7 +169,6 @@
 
 .row[aria-selected="true"] {
   background: var(--frame-hover);
-  box-shadow: inset 2px 0 0 0 var(--ink);
 }
 
 .thumb {

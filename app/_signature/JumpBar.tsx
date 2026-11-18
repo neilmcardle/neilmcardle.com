@@ -70,15 +70,24 @@ export default function JumpBar() {
   useEffect(() => {
     if (!state.open) return;
     const body = document.body;
-    const overflow = body.style.overflow;
-    const padding = body.style.paddingRight;
+    const y = window.scrollY;
+    const saved = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+      paddingRight: body.style.paddingRight,
+    };
     const bar = window.innerWidth - document.documentElement.clientWidth;
+    body.style.position = "fixed";
+    body.style.top = `-${y}px`;
+    body.style.width = "100%";
     body.style.overflow = "hidden";
     if (bar > 0) body.style.paddingRight = `${bar}px`;
-    field.current?.focus();
+    field.current?.focus({ preventScroll: true });
     return () => {
-      body.style.overflow = overflow;
-      body.style.paddingRight = padding;
+      Object.assign(body.style, saved);
+      window.scrollTo({ top: y, behavior: "instant" });
     };
   }, [state.open]);
 

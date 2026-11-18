@@ -2516,7 +2516,8 @@ html[data-keyboard="open"] [data-mobile-editor] {
   padding: 0;
 }
 
-html[data-keyboard="open"] [data-chapter-eyebrow] {
+html[data-keyboard="open"] [data-chapter-eyebrow],
+html[data-keyboard="open"] [data-starters] {
   display: none;
 }
 

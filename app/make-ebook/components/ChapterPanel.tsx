@@ -127,7 +127,7 @@ export default function ChapterPanel({
         />
 
         {starters && (
-          <div className={styles.starters}>
+          <div className={styles.starters} data-starters>
             <span className={styles.startersLabel}>Or get started with</span>
             <div className={styles.starterRow}>
               <button
