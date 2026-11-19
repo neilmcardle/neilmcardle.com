@@ -3,13 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import Shell from "./_signature/Shell";
 import NavMark from "./_signature/NavMark";
-import Finale from "./_signature/Finale";
 import ToTop from "./_signature/ToTop";
-import Stack from "./_home/Stack";
+import StudioHero from "./_studio/StudioHero";
+import hero from "./_studio/hero.module.css";
 import Rows from "./_home/Rows";
 import Rail from "./_home/Rail";
 import TopNav from "./_home/TopNav";
-import FaceCard from "./_home/FaceCard";
 import Contact from "./_home/Contact";
 import Chip from "./_home/Chip";
 import { APPS, STORIES, WORK, WRITING, WRITING_PUBLIC } from "./_home/data";
@@ -32,7 +31,7 @@ export default function Homepage() {
       <Rail />
       <div className={styles.clip}>
         <div className={styles.page}>
-          <header className={styles.top}>
+          <header className={`${styles.top} ${hero.top}`}>
             <Link href="/" aria-label="Neil McArdle">
               <NavMark />
             </Link>
@@ -40,7 +39,7 @@ export default function Homepage() {
           </header>
 
           <main id="main">
-            <Stack />
+            <StudioHero className={hero.hero} />
 
             <section id="about" className={styles.about}>
               <h1 className={styles.name}>
@@ -204,26 +203,8 @@ export default function Homepage() {
 
             <section id="play" className={styles.section}>
               <h2 className={styles.label}>Playground</h2>
-              <div className={styles.shelf}>
-                <figure>
-                  <div className={styles.ignitionCard}>
-                    <Finale card />
-                  </div>
-                  <figcaption>
-                    <span>Ignition</span> Lift and press
-                  </figcaption>
-                </figure>
-                <figure>
-                  <FaceCard />
-                  <figcaption>
-                    <span>Particles</span> Hover or tap
-                  </figcaption>
-                </figure>
-              </div>
               <p className={styles.more}>
-                <Link href="/playground">
-                  Everything else in the playground
-                </Link>
+                <Link href="/playground">Open the playground</Link>
               </p>
             </section>
 

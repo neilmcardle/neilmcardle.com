@@ -7,7 +7,7 @@ const contentSecurityPolicy = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com",
   "media-src 'self' blob: https://*.elevenlabs.io https://pub-d3a3778411424ab6a9fd45ec805109ce.r2.dev",
-  "connect-src 'self' blob: https://pub-d3a3778411424ab6a9fd45ec805109ce.r2.dev https://lbwlsmxfmkjhugrdwtqn.supabase.co https://hhsiuvalashrqtpluxan.supabase.co https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.uk https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
+  "connect-src 'self' blob: data: https://pub-d3a3778411424ab6a9fd45ec805109ce.r2.dev https://lbwlsmxfmkjhugrdwtqn.supabase.co https://hhsiuvalashrqtpluxan.supabase.co https://api.elevenlabs.io https://api.us.elevenlabs.io wss://api.elevenlabs.io wss://api.us.elevenlabs.io https://fonts.googleapis.com https://fonts.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://www.google.com https://www.google.co.uk https://googleads.g.doubleclick.net https://stats.g.doubleclick.net",
   "worker-src 'self' blob:",
   "frame-src 'self' https://embed.ask.jig.com",
   "frame-ancestors 'self'",

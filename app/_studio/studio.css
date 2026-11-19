@@ -1,0 +1,319 @@
+.sh,
+.sh-down {
+  --ui-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --bg: #0d0d0c;
+  --surface: rgba(22, 21, 20, 0.94);
+  --ink: #ecebe7;
+  --muted: #8f8c86;
+  --line: #252422;
+  --ui: var(--font-inter), "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+.sh-speech,
+.sh-card-title,
+.sh-card-text {
+  text-wrap: pretty;
+}
+
+.sh-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sh {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2560 / 1448;
+  max-height: 100svh;
+  overflow: hidden;
+  background: #0c0a09;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .sh {
+    aspect-ratio: auto;
+    height: 72svh;
+  }
+}
+
+.sh-stage,
+.sh-poster,
+.sh-spots {
+  position: absolute;
+  inset: 0;
+}
+.sh-stage canvas {
+  display: block;
+}
+.sh-spots {
+  pointer-events: none;
+}
+
+.sh-poster {
+  transition: opacity 0.4s var(--ui-ease);
+}
+.sh-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 54% 60%;
+  display: block;
+}
+.sh-poster.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sh-spot {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.sh-spot:focus-visible {
+  outline: 2px solid var(--lamp, #f2b84b);
+  outline-offset: 3px;
+}
+
+.sh-speech {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: min(320px, 70vw);
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 15px/1.45 var(--ui);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s var(--ui-ease);
+}
+.sh-speech.on {
+  opacity: 1;
+  animation: sh-rise 0.24s var(--ui-ease);
+}
+@keyframes sh-rise {
+  from {
+    margin-top: 4px;
+  }
+}
+
+.sh-card {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: min(360px, calc(100% - 32px));
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  animation: sh-card 0.36s var(--ui-ease) both;
+}
+@keyframes sh-card {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+.sh-card-title {
+  margin: 0 0 4px;
+  padding-right: 16px;
+  font: 600 17px/1.3 var(--ui);
+  letter-spacing: -0.01em;
+}
+.sh-card-text {
+  margin: 0 0 14px;
+  font: 14px/1.5 var(--ui);
+  color: var(--muted);
+}
+.sh-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sh a.sh-go {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  text-decoration: none;
+  font: 500 14px/1.2 var(--ui);
+  transition: opacity 0.16s var(--ui-ease);
+}
+.sh a.sh-go:hover {
+  opacity: 0.88;
+}
+.sh a.sh-go-quiet {
+  background: none;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.sh-card-actions {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+.sh-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  line-height: 1;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: #161514;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    color 0.16s var(--ui-ease),
+    border-color 0.16s var(--ui-ease);
+}
+.sh-close:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+
+.sh-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  margin: 0;
+  color: var(--muted);
+  font: 13px/1.3 var(--ui);
+  pointer-events: none;
+}
+
+.sh-hint-touch {
+  display: none;
+}
+
+.sh a.sh-down {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font: 13px/1.2 var(--ui);
+  text-decoration: none;
+  transition: background 0.16s var(--ui-ease);
+}
+.sh-down:hover {
+  background: #1e1d1b;
+}
+.sh-down svg {
+  animation: sh-nudge 2.4s var(--ui-ease) infinite;
+}
+@keyframes sh-nudge {
+  0%,
+  60%,
+  100% {
+    translate: 0 0;
+  }
+  30% {
+    translate: 0 3px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sh-card {
+    bottom: 56px;
+    left: 12px;
+    width: calc(100% - 24px);
+  }
+  .sh-hint {
+    display: none;
+  }
+  .sh-hint-touch {
+    display: block;
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 12px;
+    margin: 0;
+    text-align: center;
+    color: var(--ink);
+    font: 13px/1.3 var(--ui);
+    pointer-events: none;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-speech.on,
+  .sh-card,
+  .sh-down svg {
+    animation: none;
+  }
+  .sh-poster {
+    transition: none;
+  }
+}
+
+.sh-anchor {
+  position: absolute;
+  bottom: 0;
+}
+
+.sh-sound {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 0.16s var(--ui-ease),
+    border-color 0.16s var(--ui-ease);
+}
+.sh-sound:hover {
+  color: var(--ink);
+  border-color: var(--muted);
+}
+.sh-sound[aria-pressed="true"] {
+  color: var(--ink);
+}
+.sh-sound:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

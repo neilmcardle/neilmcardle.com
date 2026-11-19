@@ -1,0 +1,44 @@
+{
+  "format": {
+    "cell": {
+      "width": 480,
+      "height": 800
+    },
+    "foot": {
+      "x": 240,
+      "y": 780
+    },
+    "directions": ["right", "left", "towards", "away"],
+    "leftIsMirrorOfRight": true
+  },
+  "characters": {
+    "neil": {
+      "name": "Neil",
+      "current": "live",
+      "versions": {
+        "live": {
+          "status": "current",
+          "figureHeight": 730,
+          "fps": 12,
+          "actions": {
+            "idle": {
+              "frames": 1,
+              "right": "characters/neil-side.webp",
+              "towards": "characters/neil-front.webp",
+              "away": "characters/neil-back.webp"
+            },
+            "walk": {
+              "frames": 16,
+              "right": "characters/neil-walk-right.webp",
+              "stride": 370,
+              "towards": "characters/neil-walk-towards.webp",
+              "away": "characters/neil-walk-away.webp",
+              "verticalStride": 260
+            }
+          },
+          "speed": 260
+        }
+      }
+    }
+  }
+}

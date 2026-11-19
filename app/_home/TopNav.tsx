@@ -3,10 +3,10 @@
 import { WRITING_PUBLIC } from "./data";
 import styles from "./home.module.css";
 
-const ITEMS = [
+const ITEMS: { id: string; label: string; href?: string }[] = [
   { id: "work", label: "Work" },
   ...(WRITING_PUBLIC ? [{ id: "writing", label: "Writing" }] : []),
-  { id: "play", label: "Playground" },
+  { id: "play", label: "Playground", href: "/playground" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -16,8 +16,9 @@ export default function TopNav() {
       {ITEMS.map((item) => (
         <a
           key={item.id}
-          href={`#${item.id}`}
+          href={item.href ?? `#${item.id}`}
           onClick={(event) => {
+            if (item.href) return;
             const target = document.getElementById(item.id);
             if (!target) return;
             event.preventDefault();
