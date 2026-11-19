@@ -30,7 +30,8 @@
     visibility 0s;
 }
 
-.trigger[data-away] {
+.trigger[data-away],
+:global(html[data-studio="on"]) .trigger {
   opacity: 0;
   translate: 0 12px;
   visibility: hidden;

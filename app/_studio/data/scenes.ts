@@ -139,15 +139,6 @@ export const SCENES: Record<SceneId, SceneDef> = {
         look: "The street outside, and the lamp you passed on the way in.",
       },
       {
-        id: "door",
-        name: "Door to the street",
-        outline: "door",
-        inert: true,
-        walkTo: { x: 2200, y: 1150 },
-        face: "away",
-        look: "The way back out. A bolt, a latch, and a basket of post nobody has opened.",
-      },
-      {
         id: "laptop",
         name: "Laptop",
         outline: "laptop",
@@ -166,20 +157,14 @@ export const SCENES: Record<SceneId, SceneDef> = {
       {
         id: "coat",
         name: "Grey coat",
-        outline: null,
-        area: [
-          [2362, 250],
-          [2530, 250],
-          [2530, 790],
-          [2350, 790],
-        ],
+        outline: "coat",
         walkTo: { x: 2420, y: 1150 },
         face: "away",
         look: "A grey coat on the hook by the door.",
       },
       {
         id: "post",
-        name: "Basket of post",
+        name: "Letters",
         outline: "post",
         walkTo: { x: 2210, y: 1150 },
         face: "away",

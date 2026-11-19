@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HotspotDef } from "./data/scenes";
@@ -7,6 +8,11 @@ import type { Target, World } from "./engine/world";
 import { STUDIO_OBJECTS, type StudioObject } from "./objects";
 import { Rain } from "./rain";
 import "./studio.css";
+
+const OutlineEditor =
+  process.env.NODE_ENV === "development"
+    ? dynamic(() => import("./OutlineEditor"), { ssr: false })
+    : null;
 
 const BY_ID = new Map(STUDIO_OBJECTS.map((o) => [o.id, o]));
 const START = { x: 1930, y: 1240 };
@@ -48,6 +54,8 @@ export default function StudioHero({ className }: { className?: string }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<World | null>(null);
   const speechRef = useRef<HTMLParagraphElement>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const foundTimer = useRef<number | null>(null);
   const lineTimer = useRef<number | null>(null);
   const cardTimer = useRef<number | null>(null);
   const [ready, setReady] = useState(false);
@@ -55,6 +63,14 @@ export default function StudioHero({ className }: { className?: string }) {
   const [line, setLine] = useState<string | null>(null);
   const [card, setCard] = useState<StudioObject | null>(null);
   const [spots, setSpots] = useState<Spot[]>([]);
+  const [moved, setMoved] = useState(false);
+  const [found, setFound] = useState<string | null>(null);
+  const [hover, setHover] = useState<string | null>(null);
+  const [hostWidth, setHostWidth] = useState(0);
+  const [liveWorld, setLiveWorld] = useState<World | null>(null);
+  const [editing, setEditing] = useState(false);
+  const foundRef = useRef<string | null>(null);
+  const hoverRef = useRef<string | null>(null);
   const rainRef = useRef<Rain | null>(null);
   const [sound, setSound] = useState<"idle" | "on" | "off">(() => {
     try {
@@ -78,6 +94,20 @@ export default function StudioHero({ className }: { className?: string }) {
     );
   }, []);
 
+  const find = useCallback((id: string | null, linger: boolean) => {
+    if (foundTimer.current) window.clearTimeout(foundTimer.current);
+    foundTimer.current = null;
+    setFound(id);
+    foundRef.current = id;
+    worldRef.current?.highlight(hoverRef.current ?? id);
+    if (id && linger)
+      foundTimer.current = window.setTimeout(() => {
+        setFound(null);
+        foundRef.current = null;
+        worldRef.current?.highlight(hoverRef.current);
+      }, 3200);
+  }, []);
+
   const activate = useCallback(
     (hotspot: HotspotDef, walk: boolean) => {
       const world = worldRef.current;
@@ -92,22 +122,34 @@ export default function StudioHero({ className }: { className?: string }) {
         if (object?.work)
           cardTimer.current = window.setTimeout(() => setCard(object), 650);
       };
-      if (walk) world.walkTo(hotspot.walkTo, speak);
-      else speak();
+      if (walk) {
+        setMoved(true);
+        world.walkTo(hotspot.walkTo, speak);
+      } else speak();
     },
     [say],
   );
 
   const onPrimary = useCallback(
-    (target: Target | null, point: { x: number; y: number }) => {
+    (
+      target: Target | null,
+      point: { x: number; y: number },
+      touch: boolean,
+    ) => {
       const world = worldRef.current;
       if (!world) return;
-      if (target?.kind === "hotspot") return activate(target.hotspot, true);
+      if (target?.kind === "hotspot") {
+        const object = BY_ID.get(target.hotspot.id);
+        find(touch && object ? object.id : null, !object?.work);
+        return activate(target.hotspot, true);
+      }
+      find(null, false);
       setCard(null);
+      setMoved(true);
       world.setOverlay("drawer", false);
       world.walkTo(point);
     },
-    [activate],
+    [activate, find],
   );
 
   const onLook = useCallback(
@@ -119,10 +161,29 @@ export default function StudioHero({ className }: { className?: string }) {
     [say],
   );
 
-  const handlers = useRef({ onPrimary, onLook });
+  const onHover = useCallback((target: Target | null | undefined) => {
+    const id =
+      target?.kind === "hotspot" && BY_ID.has(target.hotspot.id)
+        ? target.hotspot.id
+        : null;
+    if (id === hoverRef.current) return;
+    if (document.documentElement.dataset.outlines) return;
+    hoverRef.current = id;
+    setHover(id);
+    worldRef.current?.highlight(id ?? foundRef.current);
+  }, []);
+
+  const handlers = useRef({ onPrimary, onLook, onHover });
   useEffect(() => {
-    handlers.current = { onPrimary, onLook };
-  }, [onPrimary, onLook]);
+    handlers.current = { onPrimary, onLook, onHover };
+  }, [onPrimary, onLook, onHover]);
+
+  useEffect(() => {
+    if (!OutlineEditor) return;
+    const on = new URLSearchParams(window.location.search).has("outlines");
+    const id = window.setTimeout(() => setEditing(on), 0);
+    return () => window.clearTimeout(id);
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -186,12 +247,14 @@ export default function StudioHero({ className }: { className?: string }) {
       try {
         const { World } = await import("./engine/world");
         if (cancelled) return;
-        let lastCamera = 0;
+        let lastCamera = "";
+        let nearLeft = false;
         const w: World = new World(
           host,
           {
-            onHover: () => undefined,
-            onPrimary: (t, p) => handlers.current.onPrimary(t, p),
+            onHover: (_label, _screen, target) =>
+              handlers.current.onHover(target),
+            onPrimary: (t, p, touch) => handlers.current.onPrimary(t, p, touch),
             onLook: (t) => handlers.current.onLook(t),
             onReady: async () => {
               await w.setScene(
@@ -201,17 +264,41 @@ export default function StudioHero({ className }: { className?: string }) {
               );
               if (cancelled) return;
               setSpots(w.hotspotBoxes());
+              setHostWidth(host.clientWidth);
+              setLiveWorld(w);
               setReady(true);
             },
             onFrame: () => {
-              if (w.cameraX !== lastCamera) {
-                lastCamera = w.cameraX;
+              if (w.cameraKey !== lastCamera) {
+                lastCamera = w.cameraKey;
                 setSpots(w.hotspotBoxes());
               }
               const el = speechRef.current;
               const head = w.headOf("neil");
               if (!el || !head) return;
               const box = host.getBoundingClientRect();
+              const about = document.getElementById("about");
+              if (about) {
+                const edge =
+                  about.getBoundingClientRect().right - box.left + 320;
+                const goal = w.destinationOf("neil");
+                const near = head.x < edge || (goal ? goal.x < edge : false);
+                if (near !== nearLeft) {
+                  nearLeft = near;
+                  if (near)
+                    document.documentElement.dataset.studioNear = "left";
+                  else delete document.documentElement.dataset.studioNear;
+                }
+              }
+              const tag = tagRef.current;
+              if (tag) {
+                const tx = Math.min(
+                  box.width - tag.offsetWidth - 12,
+                  Math.max(12, head.x - tag.offsetWidth / 2),
+                );
+                const ty = Math.max(12, head.y - tag.offsetHeight - 6);
+                tag.style.transform = `translate(${Math.round(tx)}px, ${Math.round(ty)}px)`;
+              }
               const x = Math.min(
                 box.width - el.offsetWidth - 12,
                 Math.max(12, head.x - el.offsetWidth / 2),
@@ -228,7 +315,10 @@ export default function StudioHero({ className }: { className?: string }) {
         world = w;
         worldRef.current = w;
         await w.init();
-        const onResize = () => setSpots(w.hotspotBoxes());
+        const onResize = () => {
+          setSpots(w.hotspotBoxes());
+          setHostWidth(host.clientWidth);
+        };
         window.addEventListener("resize", onResize);
         cleanup = () => window.removeEventListener("resize", onResize);
       } catch {
@@ -240,6 +330,9 @@ export default function StudioHero({ className }: { className?: string }) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setCard(null);
+        setFound(null);
+        foundRef.current = null;
+        worldRef.current?.highlight(hoverRef.current);
         worldRef.current?.setOverlay("drawer", false);
       }
     };
@@ -251,12 +344,14 @@ export default function StudioHero({ className }: { className?: string }) {
       window.removeEventListener("keydown", onKey);
       world?.destroy();
       worldRef.current = null;
+      delete document.documentElement.dataset.studioNear;
     };
   }, []);
 
   const interactive = spots.filter(({ hotspot }) => BY_ID.has(hotspot.id));
 
   const closeCard = () => {
+    find(null, false);
     setCard(null);
     worldRef.current?.setOverlay("drawer", false);
   };
@@ -312,6 +407,51 @@ export default function StudioHero({ className }: { className?: string }) {
           );
         })}
       </div>
+
+      {ready && (
+        <div
+          className={`sh-tag ${moved ? "gone" : ""}`}
+          ref={tagRef}
+          aria-hidden
+        >
+          <svg viewBox="18 18 27 27" width="11" height="11">
+            <path d="M45 45L32 31.2985V18H45V45Z" />
+            <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" />
+          </svg>
+          <span>Neil McArdle</span>
+        </div>
+      )}
+
+      {(() => {
+        const shown = hover ?? found;
+        const spot = shown
+          ? spots.find(({ hotspot }) => hotspot.id === shown)
+          : null;
+        const object = shown ? BY_ID.get(shown) : null;
+        if (!spot || !object) return null;
+        const x = Math.min(
+          hostWidth - 16,
+          Math.max(16, spot.left + spot.width / 2),
+        );
+        const above = spot.top > 48;
+        return (
+          <p
+            key={`found-${shown}`}
+            className={`sh-found ${above ? "" : "below"}`}
+            style={{
+              left: x,
+              top: above ? spot.top - 10 : spot.top + spot.height + 10,
+            }}
+            aria-hidden
+          >
+            {object.name}
+          </p>
+        );
+      })()}
+
+      {OutlineEditor && editing && ready ? (
+        <OutlineEditor world={liveWorld} tick={spots} />
+      ) : null}
 
       <p
         className={`sh-speech ${line ? "on" : ""}`}
@@ -415,11 +555,6 @@ export default function StudioHero({ className }: { className?: string }) {
         </button>
       )}
       {!ready && !failed && <p className="sh-hint">Opening the studio…</p>}
-      {ready && (
-        <p className="sh-hint-touch">
-          Tap anything. Swipe sideways to look around.
-        </p>
-      )}
       <span id="work" className="sh-anchor" />
     </section>
   );

@@ -104,8 +104,12 @@ export type Target =
 export type CastMember = { id: string; pos: Point; facing: Facing };
 
 export type WorldEvents = {
-  onHover: (label: string | null, screen: Point | null) => void;
-  onPrimary: (target: Target | null, point: Point) => void;
+  onHover: (
+    label: string | null,
+    screen: Point | null,
+    target?: Target | null,
+  ) => void;
+  onPrimary: (target: Target | null, point: Point, touch: boolean) => void;
   onLook: (target: Target | null) => void;
   onReady: () => void;
   onFrame?: () => void;
@@ -141,6 +145,10 @@ export class World {
   private overlays = new Map<string, { sprite: Sprite; y: number }>();
   private occluderSpans: { y: number; x0: number; x1: number }[] = [];
   private debugLayer = new Graphics();
+  private highlightLayer = new Graphics();
+  private highlighted: string | null = null;
+  private whole = false;
+  private highlightBase = 0;
   private scene: SceneDef = SCENES.studio;
   private walkable: Polygon = [];
   private hotspotShapes: { hotspot: HotspotDef; polys: Polygon[] }[] = [];
@@ -186,6 +194,10 @@ export class World {
     return Math.round(this.stage.x);
   }
 
+  get cameraKey() {
+    return `${Math.round(this.stage.x)},${Math.round(this.stage.y)},${this.stage.scale.x.toFixed(4)}`;
+  }
+
   hotspotBoxes() {
     return this.hotspotShapes
       .filter(({ polys }) => polys.length)
@@ -212,6 +224,22 @@ export class World {
       x: actor.pos.x,
       y: actor.pos.y - currentVersion(actor.id).figureHeight * scale * 1.05,
     });
+  }
+
+  destinationOf(id: string): Point | null {
+    const path = this.actors.get(id)?.path;
+    return path && path.length ? this.toHost(path[path.length - 1]) : null;
+  }
+
+  showWhole(on: boolean) {
+    this.whole = on;
+    this.fit();
+  }
+
+  setOutline(key: string, polys: Point[][]) {
+    for (const shape of this.hotspotShapes)
+      if (shape.hotspot.outline === key) shape.polys = polys;
+    if (this.highlighted) this.drawHighlight();
   }
 
   isWalking(id: string) {
@@ -339,6 +367,7 @@ export class World {
       artUrl(this.scene.image),
     );
     this.actorsLayer.removeChildren();
+    this.actorsLayer.addChild(this.highlightLayer);
     for (const o of this.occluders) o.destroy({ children: true });
     this.occluders = [];
     this.overlays.clear();
@@ -351,7 +380,7 @@ export class World {
       )[id]?.overlays ?? [];
     for (const o of extra) {
       const sprite = new Sprite(await Assets.load<Texture>(artUrl(o.src)));
-      sprite.position.set(o.x, o.y - 10);
+      sprite.position.set(o.x, o.y);
       sprite.alpha = 0;
       sprite.zIndex = 1126;
       this.actorsLayer.addChild(sprite);
@@ -462,12 +491,57 @@ export class World {
     if (!o) return;
     const from = o.sprite.alpha;
     const to = open ? 1 : 0;
-    void this.tween(open ? 260 : 180, (t) => {
-      const e = 1 - Math.pow(1 - t, 3);
-      const a = from + (to - from) * e;
-      o.sprite.alpha = a;
-      o.sprite.y = o.y - 10 * (1 - a);
+    o.sprite.y = o.y;
+    void this.tween(open ? 120 : 100, (t) => {
+      o.sprite.alpha = from + (to - from) * t;
     });
+  }
+
+  highlight(id: string | null) {
+    this.highlighted = id;
+    this.drawHighlight();
+    const layer = this.highlightLayer;
+    if (!id) {
+      layer.alpha = 0;
+      return;
+    }
+    void this.tween(200, (t) => {
+      if (this.highlighted === id) layer.alpha = 1 - Math.pow(1 - t, 3);
+    });
+  }
+
+  private orderHighlight() {
+    const y = this.player?.pos.y ?? 0;
+    this.highlightLayer.zIndex =
+      this.player && y > this.highlightBase ? y - 0.01 : 1e6;
+  }
+
+  private drawHighlight() {
+    const g = this.highlightLayer;
+    g.clear();
+    const shape = this.hotspotShapes.find(
+      ({ hotspot }) => hotspot.id === this.highlighted,
+    );
+    if (!shape) return;
+    this.highlightBase = Math.max(...shape.polys.flat().map((p) => p.y), 0);
+    this.orderHighlight();
+    const px = 1 / (this.stage.scale.x || 1);
+    for (const poly of shape.polys) {
+      const flat = poly.flatMap((p) => [p.x, p.y]);
+      g.poly(flat).fill({ color: 0xf2b84b, alpha: 0.12 });
+      g.poly(flat).stroke({
+        width: 8 * px,
+        color: 0xf2b84b,
+        alpha: 0.22,
+        join: "round",
+      });
+      g.poly(flat).stroke({
+        width: 2 * px,
+        color: 0xffd98a,
+        alpha: 0.95,
+        join: "round",
+      });
+    }
   }
 
   hold(colour: number | null) {
@@ -623,6 +697,7 @@ export class World {
           : 0;
       actor.root.position.set(actor.pos.x, actor.pos.y);
       actor.root.zIndex = actor.pos.y;
+      if (this.highlighted && actor === this.player) this.orderHighlight();
       actor.breath += dt * 1.6;
       actor.settle = Math.max(0, actor.settle - dt * 5);
       actor.body.y = bob + actor.lift;
@@ -680,15 +755,17 @@ export class World {
   private fit() {
     const w = this.app.screen.width;
     const h = this.app.screen.height;
-    const cover = this.options.cover
-      ? {
-          ...this.options.cover,
-          focusX: this.focusX || this.options.cover.focusX,
-        }
-      : undefined;
+    const cover =
+      this.options.cover && !this.whole
+        ? {
+            ...this.options.cover,
+            focusX: this.focusX || this.options.cover.focusX,
+          }
+        : undefined;
     const scale = cover
       ? Math.max(w / this.scene.width, h / this.scene.height)
-      : Math.min(w / this.scene.width, h / this.scene.height);
+      : Math.min(w / this.scene.width, h / this.scene.height) *
+        (this.whole ? 0.9 : 1);
     this.stage.scale.set(scale);
     if (cover) {
       const sw = this.scene.width * scale;
@@ -702,6 +779,7 @@ export class World {
         (h - this.scene.height * scale) / 2,
       );
     }
+    if (this.highlighted) this.drawHighlight();
   }
 
   toWorld(clientX: number, clientY: number): Point {
@@ -793,6 +871,7 @@ export class World {
       this.events.onHover(
         this.labelFor(target),
         target ? { x: e.clientX, y: e.clientY } : null,
+        target,
       );
     });
     canvas.addEventListener("pointerleave", () =>
@@ -858,7 +937,7 @@ export class World {
       if (e.pointerType === "touch" && this.pressFired) return;
       const p = this.toWorld(e.clientX, e.clientY);
       if (!inside(p)) return;
-      this.events.onPrimary(this.targetAt(p), p);
+      this.events.onPrimary(this.targetAt(p), p, e.pointerType === "touch");
     });
     canvas.addEventListener("pointercancel", () => {
       this.drag = null;

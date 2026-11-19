@@ -16,12 +16,12 @@ export const STUDIO_OBJECTS: StudioObject[] = [
   {
     id: "press",
     name: "Proof press",
-    line: "Every book I make still goes through this press first. Then I built software so nobody else has to.",
+    line: "Every cover gets proofed on this before it's signed off. Coverly is where I look at three thousand others first.",
     work: {
-      title: "makeEbook",
+      title: "Coverly",
       summary:
-        "Write a book and get an ebook that opens properly on any reader.",
-      href: `${SITE}/work/makeebook`,
+        "Over 3,000 thriller covers, tagged so designers can find their comps.",
+      href: `${SITE}/work/coverly`,
     },
   },
   {
@@ -41,7 +41,8 @@ export const STUDIO_OBJECTS: StudioObject[] = [
     line: "Four petals, one booth. It had to read at the size of a thumbnail.",
     work: {
       title: "Coverly",
-      summary: "Test a book cover the way readers will actually see it.",
+      summary:
+        "Over 3,000 thriller covers, tagged so designers can find their comps.",
       href: `${SITE}/work/coverly`,
     },
   },
@@ -88,7 +89,7 @@ export const STUDIO_OBJECTS: StudioObject[] = [
   },
   {
     id: "post",
-    name: "Basket of post",
+    name: "Letters",
     line: "Letters I haven't opened yet. Yours could be one of them.",
     work: {
       title: "Tell me more.",
