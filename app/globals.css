@@ -2828,3 +2828,10 @@ html[data-surface-to="section"]::view-transition-new(*) {
     --type-scale: 0.9;
   }
 }
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+}

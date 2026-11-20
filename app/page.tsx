@@ -5,6 +5,7 @@ import Shell from "./_signature/Shell";
 import NavMark from "./_signature/NavMark";
 import ToTop from "./_signature/ToTop";
 import StudioHero from "./_studio/StudioHero";
+import ProfileCard from "./_studio/ProfileCard";
 import hero from "./_studio/hero.module.css";
 import Rows from "./_home/Rows";
 import Rail from "./_home/Rail";
@@ -39,75 +40,59 @@ export default function Homepage() {
           </header>
 
           <main id="main">
-            <div className={hero.stage}>
-              <StudioHero className={hero.hero} />
+            <StudioHero className={hero.hero} profile={<ProfileCard />} />
 
-              <section id="about" className={`${styles.about} ${hero.card}`}>
-                <h1 className={styles.name}>
-                  <span className={hero.im}>I&rsquo;m</span>{" "}
-                  <span className={hero.title}>
-                    <Image
-                      className={hero.face}
-                      src="/home/face-small.png"
-                      alt=""
-                      width={78}
-                      height={144}
-                    />
-                    <b className={hero.big}>Neil McArdle</b>
-                  </span>
-                  <span className={hero.rest}>
-                    <span className={hero.cardOnly}>I&rsquo;m Neil</span>, a
-                    product designer and builder based in London.
-                  </span>
-                </h1>
+            <section id="about" className={styles.about}>
+              <h1 className={styles.name}>
+                <span>I&rsquo;m</span> Neil McArdle
+                <span>, a product designer and builder based in London.</span>
+              </h1>
+              <p>
+                At ABG I took the{" "}
+                <Chip id="avis" href="/work/avis">
+                  Avis
+                </Chip>{" "}
+                checkout from five steps to three, live on avis.com, and
+                I&rsquo;m also a contractor for{" "}
+                <Chip right id="mobbin" href="https://mobbin.com">
+                  Mobbin
+                </Chip>
+                .
+              </p>
+              <p>
+                I design products and build them myself, from the first sketch
+                to the code that ships. Right now that&rsquo;s{" "}
+                <Chip id="makeebook" href="/work/makeebook">
+                  Makeebook
+                </Chip>
+                , a quiet place to write books, and{" "}
+                <Chip right id="coverly" href="/work/coverly">
+                  Coverly
+                </Chip>
+                , a search of over 3,000 book covers.
+              </p>
+              {WRITING_PUBLIC ? (
                 <p>
-                  At ABG I took the{" "}
-                  <Chip id="avis" href="/work/avis">
-                    Avis
-                  </Chip>{" "}
-                  checkout from five steps to three, live on avis.com, and
-                  I&rsquo;m also a contractor for{" "}
-                  <Chip right id="mobbin" href="https://mobbin.com">
-                    Mobbin
-                  </Chip>
-                  .
+                  This year I&rsquo;ve been researching{" "}
+                  <Link
+                    className={styles.inlineLink}
+                    href="/writing/history-of-design-tools"
+                  >
+                    where design tools came from
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    className={styles.inlineLink}
+                    href="/writing/what-designers-are-saying"
+                  >
+                    what designers say they&rsquo;re becoming
+                  </Link>
+                  . What I want to design next is the tools themselves. I
+                  trained as a painter, then took a degree in social psychology,
+                  so I care about both the brush and the person holding it.
                 </p>
-                <p>
-                  I design products and build them myself, from the first sketch
-                  to the code that ships. Right now that&rsquo;s{" "}
-                  <Chip id="makeebook" href="/work/makeebook">
-                    Makeebook
-                  </Chip>
-                  , a quiet place to write books, and{" "}
-                  <Chip right id="coverly" href="/work/coverly">
-                    Coverly
-                  </Chip>
-                  , a search of over 3,000 book covers.
-                </p>
-                {WRITING_PUBLIC ? (
-                  <p>
-                    This year I&rsquo;ve been researching{" "}
-                    <Link
-                      className={styles.inlineLink}
-                      href="/writing/history-of-design-tools"
-                    >
-                      where design tools came from
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                      className={styles.inlineLink}
-                      href="/writing/what-designers-are-saying"
-                    >
-                      what designers say they&rsquo;re becoming
-                    </Link>
-                    . What I want to design next is the tools themselves. I
-                    trained as a painter, then took a degree in social
-                    psychology, so I care about both the brush and the person
-                    holding it.
-                  </p>
-                ) : null}
-              </section>
-            </div>
+              ) : null}
+            </section>
 
             <section id="work" className={styles.section}>
               <h2 className={styles.label}>Work</h2>

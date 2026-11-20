@@ -12,7 +12,7 @@ const pop = createSample("/kids-alphabet/sounds/bubble-pop.mp3", () => true, {
   live: true,
 });
 
-function Mark({ id }: { id: string }) {
+export function Mark({ id }: { id: string }) {
   if (id === "makeebook")
     return (
       <span className={`${styles.mark} ${styles.markMakeebook}`}>

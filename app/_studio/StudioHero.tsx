@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -49,7 +50,13 @@ function whenIdle(fn: () => void) {
   return () => window.clearTimeout(id);
 }
 
-export default function StudioHero({ className }: { className?: string }) {
+export default function StudioHero({
+  className,
+  profile,
+}: {
+  className?: string;
+  profile?: React.ReactNode;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const worldRef = useRef<World | null>(null);
@@ -277,7 +284,7 @@ export default function StudioHero({ className }: { className?: string }) {
               const head = w.headOf("neil");
               if (!el || !head) return;
               const box = host.getBoundingClientRect();
-              const about = document.getElementById("about");
+              const about = document.getElementById("profile");
               if (about) {
                 const edge =
                   about.getBoundingClientRect().right - box.left + 320;
@@ -366,6 +373,7 @@ export default function StudioHero({ className }: { className?: string }) {
       }}
     >
       <div className="sh-stage" ref={hostRef} />
+      {profile}
       <div className={`sh-poster ${ready ? "gone" : ""}`} aria-hidden>
         <Image
           src="/hero-studio/poster-2560.webp"

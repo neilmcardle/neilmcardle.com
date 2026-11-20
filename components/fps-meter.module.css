@@ -60,3 +60,9 @@
   outline: 2px solid #ecebe7;
   outline-offset: 2px;
 }
+
+@media print {
+  .meter {
+    display: none;
+  }
+}
