@@ -12,7 +12,7 @@ SELECT
   now() as created_at,
   now() as updated_at
 FROM auth.users
-WHERE email IN ('neil@neilmcardle.com', 'neilmcardlemail@gmail.com')
+WHERE email IN ('neil@neilmcardle.com', 'free-test-account@example.com')
 ON CONFLICT (id) DO NOTHING;
 
 -- Step 2: Update neil@neilmcardle.com to Pro (grandfathered)
@@ -31,5 +31,5 @@ SELECT
   is_grandfathered,
   subscription_status
 FROM public.users
-WHERE email IN ('neil@neilmcardle.com', 'neilmcardlemail@gmail.com')
+WHERE email IN ('neil@neilmcardle.com', 'free-test-account@example.com')
 ORDER BY email;

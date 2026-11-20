@@ -391,7 +391,16 @@ export default function StudioHero({
     >
       <div className="sh-stage" ref={hostRef} />
       {profile}
-      <div className={`sh-poster ${ready ? "gone" : ""}`} aria-hidden>
+      <div
+        className={`sh-poster ${ready ? "gone" : ""}`}
+        aria-hidden
+        style={
+          {
+            "--fx": START.x,
+            "--fy": FOCUS.focusY,
+          } as React.CSSProperties
+        }
+      >
         <Image
           src="/hero-studio/poster-2560.webp"
           alt=""

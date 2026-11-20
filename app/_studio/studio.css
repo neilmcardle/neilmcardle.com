@@ -60,13 +60,24 @@
 }
 
 .sh-poster {
+  container-type: size;
   transition: opacity 0.4s var(--ui-ease);
 }
 .sh-poster img {
+  --s: max(calc(100cqw / 2560), calc(100cqh / 1448));
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 54% 60%;
+  object-position: clamp(
+      calc(100cqw - 2560 * var(--s)),
+      calc(50cqw - var(--fx) * var(--s)),
+      0px
+    )
+    clamp(
+      calc(100cqh - 1448 * var(--s)),
+      calc(50cqh - var(--fy) * var(--s)),
+      0px
+    );
   display: block;
 }
 .sh-poster.gone {
