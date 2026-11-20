@@ -4,6 +4,7 @@ import CaseStudy from "../CaseStudy";
 import Story from "../Story";
 import { PERFORMANCE_UI } from "./chapters";
 import pui from "./pui.module.css";
+import { CASES } from "../cases";
 
 export default function PerformanceUiCase({ home }: { home?: string }) {
   return (
@@ -27,9 +28,9 @@ export default function PerformanceUiCase({ home }: { home?: string }) {
           </div>
         </section>
       }
-      overview="I wrote the rules a coding agent loads before it builds any interface: colours, sizes, motion and page budgets for fast pages, each with its reason. Looks UI, the layer this site uses, sits on top."
+      overview={CASES["performance-ui"].overview}
       facts={[
-        { label: "When", value: "2026" },
+        { label: "When", value: CASES["performance-ui"].when },
         { label: "Role", value: "Design and writing, solo" },
         {
           label: "Source",

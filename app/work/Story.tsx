@@ -9,6 +9,7 @@ export type Chapter = {
   body: ReactNode;
   instead?: ReactNode;
   visual?: ReactNode;
+  prompt?: { text: string; date?: string; reply?: string };
 };
 
 export default function Story({ chapters }: { chapters: Chapter[] }) {

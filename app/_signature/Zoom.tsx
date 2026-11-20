@@ -17,9 +17,15 @@ const GROW = 1.2;
 
 type Box = { left: number; top: number; width: number; height: number };
 
+let scope: string | undefined;
+
+function root(): ParentNode {
+  return (scope && document.querySelector(scope)) || document;
+}
+
 function shots() {
   return Array.from(
-    document.querySelectorAll<HTMLImageElement>("img[data-zoomable]"),
+    root().querySelectorAll<HTMLImageElement>("img[data-zoomable]"),
   );
 }
 
@@ -42,16 +48,29 @@ function fit(img: HTMLImageElement): Box {
   };
 }
 
-function from(target: Box, source: DOMRect) {
-  const sx = source.width / target.width;
-  const sy = source.height / target.height;
-  const dx = source.left - target.left;
-  const dy = source.top - target.top;
-  return `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+function turnOf(img: HTMLElement) {
+  let node: HTMLElement | null = img;
+  for (let i = 0; node && i < 4; i++, node = node.parentElement) {
+    const turn = parseFloat(getComputedStyle(node).rotate);
+    if (turn) return turn;
+  }
+  return 0;
+}
+
+function from(target: Box, img: HTMLImageElement) {
+  const rect = img.getBoundingClientRect();
+  const turn = turnOf(img);
+  const width = turn ? img.offsetWidth : rect.width;
+  const height = turn ? img.offsetHeight : rect.height;
+  const dx = rect.left + rect.width / 2 - (target.left + target.width / 2);
+  const dy = rect.top + rect.height / 2 - (target.top + target.height / 2);
+  const hw = target.width / 2;
+  const hh = target.height / 2;
+  return `translate(${dx + hw}px, ${dy + hh}px) rotate(${turn}deg) scale(${width / target.width}, ${height / target.height}) translate(${-hw}px, ${-hh}px)`;
 }
 
 function mark() {
-  for (const img of document.querySelectorAll<HTMLImageElement>(
+  for (const img of root().querySelectorAll<HTMLImageElement>(
     "img[data-zoom]",
   )) {
     const shown = img.getBoundingClientRect();
@@ -118,7 +137,7 @@ type View = {
   previous: number | null;
 };
 
-export default function Zoom() {
+export default function Zoom({ within }: { within?: string } = {}) {
   const [view, setView] = useState<View | null>(null);
   const [closing, setClosing] = useState(false);
   const [sharp, setSharp] = useState<string | null>(null);
@@ -131,6 +150,7 @@ export default function Zoom() {
   const opening = useRef(false);
 
   useEffect(() => {
+    scope = within;
     calm.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -141,7 +161,7 @@ export default function Zoom() {
     };
     update();
     const loads = new AbortController();
-    for (const img of document.querySelectorAll("img[data-zoom]"))
+    for (const img of root().querySelectorAll("img[data-zoom]"))
       img.addEventListener("load", update, { signal: loads.signal });
     window.addEventListener("resize", update);
 
@@ -174,7 +194,7 @@ export default function Zoom() {
       document.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, []);
+  }, [within]);
 
   const current = view ? view.list[view.index] : null;
   const box = current ? fit(current) : null;
@@ -201,7 +221,7 @@ export default function Zoom() {
     opening.current = false;
     if (calm.current) return;
     node.style.transition = "none";
-    node.style.transform = from(box, current.getBoundingClientRect());
+    node.style.transform = from(box, current);
     back.style.transition = "none";
     back.style.opacity = "0";
     node.getBoundingClientRect();
@@ -237,7 +257,7 @@ export default function Zoom() {
       return;
     }
     node.style.transition = `transform ${CLOSE}ms var(--ease)`;
-    node.style.transform = from(fit(source), source.getBoundingClientRect());
+    node.style.transform = from(fit(source), source);
     back.style.transition = `opacity ${CLOSE}ms var(--ease)`;
     back.style.opacity = "0";
     setTimeout(done, CLOSE);

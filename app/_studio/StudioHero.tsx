@@ -91,6 +91,7 @@ export default function StudioHero({
   });
   const [inView, setInView] = useState(true);
   const [hidden, setHidden] = useState(false);
+  const [away, setAway] = useState(false);
 
   const say = useCallback((text: string) => {
     setLine(text);
@@ -224,8 +225,24 @@ export default function StudioHero({
   }, []);
 
   useEffect(() => {
-    rainRef.current?.set(sound === "on" && inView && !hidden);
-  }, [sound, inView, hidden]);
+    rainRef.current?.set(sound === "on" && inView && !hidden && !away);
+  }, [sound, inView, hidden, away]);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const watch = new MutationObserver(() =>
+      setAway("projectFull" in html.dataset),
+    );
+    watch.observe(html, {
+      attributes: true,
+      attributeFilter: ["data-project-full"],
+    });
+    return () => watch.disconnect();
+  }, []);
+
+  useEffect(() => {
+    liveWorld?.pause(away || hidden || !inView);
+  }, [liveWorld, away, hidden, inView]);
 
   const wake = () => {
     if (sound !== "idle") return;

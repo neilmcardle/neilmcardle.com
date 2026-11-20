@@ -242,6 +242,12 @@ export class World {
     if (this.highlighted) this.drawHighlight();
   }
 
+  pause(on: boolean) {
+    if (!this.ready || this.destroyed) return;
+    if (on) this.app.ticker.stop();
+    else this.app.ticker.start();
+  }
+
   isWalking(id: string) {
     return (this.actors.get(id)?.path.length ?? 0) > 0;
   }

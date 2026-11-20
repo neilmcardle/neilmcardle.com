@@ -3,6 +3,7 @@ import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 import Story from "../Story";
 import { AVIS } from "./chapters";
+import { CASES } from "../cases";
 
 export default function AvisCase({ home }: { home?: string }) {
   return (
@@ -21,9 +22,9 @@ export default function AvisCase({ home }: { home?: string }) {
         </section>
       }
       title="3-Step Checkout"
-      overview="At Avis Budget Group I redesigned the booking flow, taking it from five steps to three: make a reservation, pick your vehicle, then review and checkout. I designed the review and checkout page, now live on avis.com. In A/B tests, more people moved on from each step to the next."
+      overview={CASES["avis"].overview}
       facts={[
-        { label: "When", value: "2026" },
+        { label: "When", value: CASES["avis"].when },
         { label: "Company", value: "Avis Budget Group" },
         { label: "Role", value: "Product design, checkout" },
         { label: "Result", value: "Better step progression in A/B tests" },

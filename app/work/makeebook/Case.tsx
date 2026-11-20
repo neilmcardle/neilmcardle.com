@@ -4,6 +4,7 @@ import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 import Story from "../Story";
 import { MAKEEBOOK } from "./chapters";
+import { CASES } from "../cases";
 
 export default function MakeebookCase({ home }: { home?: string }) {
   return (
@@ -26,7 +27,7 @@ export default function MakeebookCase({ home }: { home?: string }) {
         </section>
       }
       facts={[
-        { label: "When", value: "2024 to now" },
+        { label: "When", value: CASES["makeebook"].when },
         {
           label: "Live",
           value: (
@@ -36,7 +37,7 @@ export default function MakeebookCase({ home }: { home?: string }) {
           ),
         },
       ]}
-      overview="I designed and built makeebook, an eBook editor for writers. Chapters are written and revised in a quiet, private workspace, then exported as EPUB, PDF and DOCX for Kindle, Apple Books and Kobo. Book Mind reads the whole manuscript and answers questions about it, only when the writer asks."
+      overview={CASES["makeebook"].overview}
       brief={<Story chapters={MAKEEBOOK} />}
       frames={[]}
     />

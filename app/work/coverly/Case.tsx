@@ -9,6 +9,7 @@ import CaseStudy from "../CaseStudy";
 import Story from "../Story";
 import { COVERLY } from "./chapters";
 import SimilarRow from "./SimilarRow";
+import { CASES } from "../cases";
 
 export default async function CoverlyCase({ home }: { home?: string }) {
   const { covers } = await fetchLandingCovers();
@@ -51,10 +52,10 @@ export default async function CoverlyCase({ home }: { home?: string }) {
         </section>
       }
       facts={[
-        { label: "When", value: "2026" },
+        { label: "When", value: CASES["coverly"].when },
         { label: "Live", value: <Link href="/coverly">Open coverly</Link> },
       ]}
-      overview="I designed and built Coverly, a library of over 3,000 thriller covers, tagged by sub-genre, type, colour and tone, so designers can find their comps before the cover meeting."
+      overview={CASES["coverly"].overview}
       brief={<Story chapters={COVERLY} />}
       frames={[
         {

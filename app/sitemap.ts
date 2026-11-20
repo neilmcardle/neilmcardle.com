@@ -63,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       "performance-ui",
       "doodlewire",
       "podium",
+      "studio",
     ].map((slug) => ({
       url: `${base}/work/${slug}`,
       lastModified: now,

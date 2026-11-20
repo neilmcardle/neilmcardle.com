@@ -3,6 +3,7 @@ import styles from "../case.module.css";
 import CaseStudy from "../CaseStudy";
 import Story from "../Story";
 import { DOODLEWIRE } from "./chapters";
+import { CASES } from "../cases";
 
 export default function DoodleWireCase({ home }: { home?: string }) {
   return (
@@ -21,7 +22,7 @@ export default function DoodleWireCase({ home }: { home?: string }) {
         </section>
       }
       facts={[
-        { label: "When", value: "2026" },
+        { label: "When", value: CASES["doodlewire"].when },
         {
           label: "Live",
           value: (
@@ -34,7 +35,7 @@ export default function DoodleWireCase({ home }: { home?: string }) {
           ),
         },
       ]}
-      overview="I designed and built DoodleWire, a phone sketchpad for interface ideas. Draw a screen with your finger, and the ink snaps into a clean low-fidelity wireframe on an 8pt grid. Share it as an image, as a spec for AI tools or as a single HTML file."
+      overview={CASES["doodlewire"].overview}
       brief={<Story chapters={DOODLEWIRE} />}
       frames={[
         {

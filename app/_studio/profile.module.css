@@ -67,6 +67,7 @@
 
 .body {
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 22px 20px 20px;
   container-type: inline-size;
   scrollbar-width: thin;
@@ -99,7 +100,8 @@
     0 4px 16px rgb(0 0 0 / 0.35);
 }
 
-.actions a {
+.actions > a,
+.actions > button {
   position: relative;
   display: grid;
   place-items: center;
@@ -109,7 +111,7 @@
   transition: opacity 0.16s ease;
 }
 
-.actions a + a::before {
+.actions > * + *::before {
   content: "";
   position: absolute;
   left: 0;
@@ -120,7 +122,8 @@
   background: rgb(255 255 255 / 0.12);
 }
 
-.actions a:hover {
+.actions > a:hover,
+.actions > button:hover {
   opacity: 0.7;
 }
 
@@ -130,8 +133,21 @@
   font-weight: 500;
 }
 
-.card a.round {
+.card .round {
   width: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.copied {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 .section {
@@ -166,8 +182,15 @@
   color: #ecebe7;
   font-size: calc(14px * var(--type-scale, 1));
   text-decoration: underline;
-  text-decoration-color: #48463f;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.16s ease;
+}
+
+.card a.more:hover,
+.card a.more:focus-visible {
+  text-decoration-color: currentColor;
 }
 
 .label {
@@ -310,4 +333,81 @@
   width: 96px;
   height: 60px;
   border-radius: 8px;
+}
+
+.headTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: calc(17px * var(--type-scale, 1));
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headButton {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin: -4px -8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #ecebe7;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.headButton svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.headButton:focus-visible {
+  outline: 2px solid #ecebe7;
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .headButton:hover {
+    background: rgb(255 255 255 / 0.08);
+  }
+}
+
+.head:has(.headButton) {
+  gap: 16px;
+  padding-left: 20px;
+}
+
+.waiting {
+  height: 240px;
+}
+
+.actions > .joined::before {
+  display: none;
+}
+
+.card .joined {
+  width: 32px;
+  margin-left: -8px;
+}
+
+.card .joined {
+  color: #8f8c86;
+}
+
+.card .joined:hover,
+.card .joined:focus-visible,
+.card .joined[aria-label="Email address copied"] {
+  color: #ecebe7;
+  opacity: 1;
 }
