@@ -11,6 +11,7 @@ import CoinCard from "../_home/CoinCard";
 import { COLLECTION, PLAY, TOYS } from "../_home/data";
 import { share } from "../shared-metadata";
 import styles from "../_home/home.module.css";
+import head from "../_signature/header.module.css";
 
 const DESCRIPTION =
   "Games, histories, small toys and souvenirs, made alongside the work.";
@@ -42,9 +43,17 @@ export default function Playground() {
 
           <main id="main">
             <h1 className={styles.pageTitle}>Playground</h1>
-            <p className={styles.more}>
-              {DESCRIPTION} <Link href="/#work">Back to the work</Link>
-            </p>
+            <p className={styles.more}>{DESCRIPTION}</p>
+            <Link
+              href="/#work"
+              className={`${head.brand} ${head.back}`}
+              style={{ marginTop: 12, color: "#ecebe7" }}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M10 3L5 8l5 5" />
+              </svg>
+              Back to the work
+            </Link>
 
             <section
               className={styles.section}

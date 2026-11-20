@@ -29,7 +29,7 @@ export const EXPERIENCE: Role[] = [
     company: "The Banner of Truth",
     title: "Digital product specialist",
     when: "’19 – ’21",
-    note: "I worked across design, engineering and marketing in a small team, building ebooks in HTML, CSS and JavaScript and designing book covers and interfaces.",
+    note: "I worked on a small publishing team, building ebooks in HTML, CSS and JavaScript and designing book covers.",
   },
   {
     id: "neil",

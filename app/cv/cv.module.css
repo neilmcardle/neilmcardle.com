@@ -8,6 +8,7 @@
 .sheet {
   max-width: 600px;
   margin: 0 auto;
+  container-type: inline-size;
 }
 
 .head {
@@ -28,11 +29,11 @@
   letter-spacing: -0.01em;
 }
 
-.face {
-  width: auto;
-  height: 28px;
-  filter: invert(1);
-  mix-blend-mode: multiply;
+.mark {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex: none;
 }
 
 .tools {
@@ -62,15 +63,28 @@
 
 .say {
   margin: 28px 0 0;
-  font-size: 30px;
+  font-size: min(30px, 4.3cqi);
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  text-wrap: pretty;
+  white-space: nowrap;
 }
 
 .keep {
-  white-space: nowrap;
+  display: block;
+}
+
+@container (max-width: 480px) {
+  .say {
+    font-size: 24px;
+    white-space: normal;
+    text-wrap: balance;
+  }
+
+  .keep {
+    display: inline;
+    white-space: nowrap;
+  }
 }
 
 .contact {
@@ -178,10 +192,6 @@
 @media (max-width: 520px) {
   .page a.back {
     display: none;
-  }
-
-  .say {
-    font-size: 26px;
   }
 }
 

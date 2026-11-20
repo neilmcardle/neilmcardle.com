@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { STORIES, WRITING } from "../_home/data";
 import { CV_PDF, EDUCATION, EXPERIENCE, PROJECTS } from "../_home/experience";
@@ -52,13 +51,14 @@ export default function CvPage() {
       <main className={styles.sheet}>
         <header className={styles.head}>
           <span className={styles.who}>
-            <Image
-              src="/home/face-small.png"
-              alt=""
-              width={78}
-              height={144}
-              className={styles.face}
-            />
+            <svg
+              viewBox="18 18 27 27"
+              className={styles.mark}
+              aria-hidden="true"
+            >
+              <path d="M45 45L32 31.2985V18H45V45Z" />
+              <path d="M18 18L32 31.6343L32 45L18 45L18 18Z" />
+            </svg>
             Neil McArdle
           </span>
           <span className={styles.tools}>
