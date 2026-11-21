@@ -562,6 +562,40 @@ const ALLOWED = new Set([
   "symbol",
 ]);
 
+const ALLOWED_ATTRS = new Set([
+  "d",
+  "cx",
+  "cy",
+  "r",
+  "rx",
+  "ry",
+  "x",
+  "y",
+  "x1",
+  "x2",
+  "y1",
+  "y2",
+  "points",
+  "width",
+  "height",
+  "transform",
+  "fill",
+  "fill-rule",
+  "clip-rule",
+  "stroke",
+  "stroke-width",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-miterlimit",
+  "stroke-dasharray",
+  "stroke-dashoffset",
+  "opacity",
+  "fill-opacity",
+  "stroke-opacity",
+  "id",
+  "class",
+]);
+
 function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   if (typeof window === "undefined") return null;
   const doc = new DOMParser().parseFromString(raw, "image/svg+xml");
@@ -569,7 +603,14 @@ function sanitiseSVG(raw: string): { viewBox: string; inner: string } | null {
   const svg = doc.querySelector("svg");
   if (!svg) return null;
   svg.querySelectorAll("*").forEach((el) => {
-    if (!ALLOWED.has(el.tagName.toLowerCase())) el.remove();
+    if (!ALLOWED.has(el.tagName.toLowerCase())) {
+      el.remove();
+      return;
+    }
+    for (const attr of Array.from(el.attributes)) {
+      if (!ALLOWED_ATTRS.has(attr.name.toLowerCase()))
+        el.removeAttribute(attr.name);
+    }
   });
   return {
     viewBox: svg.getAttribute("viewBox") ?? "0 0 24 24",

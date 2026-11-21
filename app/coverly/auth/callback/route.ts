@@ -2,9 +2,21 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createCoverlyUserClient } from "@/lib/coverly/supabase/server";
 
+function safeNextPath(value: string | null): string {
+  if (
+    !value ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.startsWith("/\\")
+  ) {
+    return "/coverly";
+  }
+  return value;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const next = url.searchParams.get("next") ?? "/coverly";
+  const next = safeNextPath(url.searchParams.get("next"));
   const supabase = await createCoverlyUserClient();
   if (!supabase) return NextResponse.redirect(new URL("/coverly", url.origin));
 
