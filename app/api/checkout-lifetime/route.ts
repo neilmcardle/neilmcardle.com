@@ -5,9 +5,13 @@ import Stripe from "stripe";
 import { createServerClient } from "@supabase/ssr";
 import { CookieOptions } from "@supabase/ssr";
 import { getUserById, updateUser } from "@/lib/db/users";
+import { checkOrigin } from "@/lib/auth/checkOrigin";
 import { hasProSubscription } from "@/lib/billing/proStatus";
 
 export async function POST(req: NextRequest) {
+  const originError = checkOrigin(req);
+  if (originError) return originError;
+
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
@@ -139,7 +143,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || "Failed to create checkout session" },
+      { error: "Failed to create checkout session" },
       { status: 500 },
     );
   }

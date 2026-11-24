@@ -122,7 +122,7 @@ export default function MakeEbookLayout({
     <>
       <script
         dangerouslySetInnerHTML={{
-          __html: `document.documentElement.classList.add("dark")`,
+          __html: `document.documentElement.classList.add("dark");try{if(sessionStorage.getItem("makeebook:intro-seen"))document.documentElement.dataset.introSeen="1"}catch(e){}`,
         }}
       />
       <script

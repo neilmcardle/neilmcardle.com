@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   const supabase = createSupabaseClient(req, response);
 
   try {
-    const { id, email, username } = await req.json();
+    const { id, username } = await req.json();
 
     const auth = await verifyAuth(supabase, id);
     if (!auth.authenticated) {
@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const email = auth.user!.email;
     if (!id || !email) {
       return NextResponse.json(
         { error: "Missing required fields" },

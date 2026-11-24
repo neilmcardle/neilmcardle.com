@@ -2,37 +2,20 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { db } from "@/lib/db";
 import { sparkWaitlist } from "@/lib/db/schema";
+import { clientIp, hit } from "@/lib/rateLimit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const RATE_LIMIT_MAX = 5;
-const ipBuckets = new Map<string, { count: number; resetAt: number }>();
-
-function getClientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) {
-    const first = fwd.split(",")[0]?.trim();
-    if (first) return first;
-  }
-  return req.headers.get("x-real-ip") || "unknown";
-}
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipBuckets.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    ipBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (entry.count >= RATE_LIMIT_MAX) return false;
-  entry.count++;
-  return true;
-}
+const PER_IP_PER_MINUTE = 5;
+const SIGNUPS_PER_DAY = 200;
 
 export async function POST(request: Request) {
-  const ip = getClientIp(request);
-  if (!checkRateLimit(ip)) {
+  const perIp = await hit(
+    `spark-waitlist:${clientIp(request)}`,
+    PER_IP_PER_MINUTE,
+    60 * 1000,
+  );
+  if (!perIp.allowed) {
     return NextResponse.json(
       { error: "Too many requests. Try again in a minute." },
       { status: 429 },
@@ -59,11 +42,26 @@ export async function POST(request: Request) {
   const source =
     typeof body.source === "string" ? body.source.slice(0, 64) : null;
 
+  const daily = await hit(
+    "spark-waitlist:day",
+    SIGNUPS_PER_DAY,
+    24 * 60 * 60 * 1000,
+  );
+  if (!daily.allowed) {
+    return NextResponse.json(
+      { error: "Sign-ups are paused for today. Try again tomorrow." },
+      { status: 429 },
+    );
+  }
+
+  let added = false;
   try {
-    await db
+    const rows = await db
       .insert(sparkWaitlist)
       .values({ email, source })
-      .onConflictDoNothing();
+      .onConflictDoNothing()
+      .returning({ id: sparkWaitlist.id });
+    added = rows.length > 0;
   } catch (err) {
     console.error("[spark/waitlist] insert failed", err);
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
@@ -71,7 +69,7 @@ export async function POST(request: Request) {
 
   const apiKey = process.env.RESEND_API_KEY;
   const fromAddress = process.env.SPARK_WAITLIST_FROM;
-  if (apiKey && fromAddress) {
+  if (added && apiKey && fromAddress) {
     try {
       const resend = new Resend(apiKey);
       await resend.emails.send({

@@ -93,7 +93,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
   }, [searchParams, router, expectUpgrade]);
 
-  const prevUserRef = useRef(user);
+  const prevUserRef = useRef<Auth["user"]>(null);
   useEffect(() => {
     if (prevUserRef.current && !user) dispatchPhase({ type: "signedOut" });
     if (!prevUserRef.current && user) dispatchPhase({ type: "signedIn" });

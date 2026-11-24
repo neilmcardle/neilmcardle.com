@@ -14,6 +14,9 @@ interface BriefRequest {
   genre?: string;
 }
 
+const MAX_CHAPTERS = 400;
+const MAX_MANUSCRIPT_CHARS = 600_000;
+
 const encoder = new TextEncoder();
 
 function ndjsonLine(obj: unknown): Uint8Array {
@@ -49,6 +52,18 @@ export async function POST(req: NextRequest) {
   }
 
   const text = (value: unknown) => (typeof value === "string" ? value : "");
+  const size = body.chapters.reduce(
+    (sum, ch) => sum + text(ch?.title).length + text(ch?.content).length,
+    0,
+  );
+  if (body.chapters.length > MAX_CHAPTERS || size > MAX_MANUSCRIPT_CHARS) {
+    await refundIfAllowanceUsed();
+    return NextResponse.json(
+      { error: "This book is too long to brief in one go" },
+      { status: 413 },
+    );
+  }
+
   const manuscriptBlock = body.chapters
     .map((ch, i) => {
       const type = text(ch?.type).toUpperCase() || "CHAPTER";

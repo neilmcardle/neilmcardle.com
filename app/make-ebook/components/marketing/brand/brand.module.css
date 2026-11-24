@@ -130,6 +130,10 @@
   background: var(--ink-deep);
 }
 
+:global(html[data-intro-seen="1"]) .intro {
+  display: none;
+}
+
 .introRain {
   position: absolute;
   inset: 0;

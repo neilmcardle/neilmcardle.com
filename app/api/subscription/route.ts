@@ -97,7 +97,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching subscription data:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch subscription data" },
+      { error: "Failed to fetch subscription data" },
       { status: 500 },
     );
   }

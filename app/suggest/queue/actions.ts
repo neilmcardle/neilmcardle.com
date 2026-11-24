@@ -13,6 +13,7 @@ import {
   ownerToken,
   passwordMatches,
 } from "@/lib/suggest/owner";
+import { hit } from "@/lib/rateLimit";
 
 const QUEUE = "/suggest/queue";
 const REPO = "neilmcardle/neilmcardle.com";
@@ -20,18 +21,7 @@ const WORKFLOW = "suggest-build.yml";
 
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
-const attempts = new Map<string, { count: number; resetAt: number }>();
-
-function allowAttempt(ip: string): boolean {
-  const now = Date.now();
-  const entry = attempts.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    attempts.set(ip, { count: 1, resetAt: now + ATTEMPT_WINDOW_MS });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= MAX_ATTEMPTS;
-}
+const MAX_ATTEMPTS_PER_DAY = 30;
 
 export async function unlock(formData: FormData) {
   const list = await headers();
@@ -39,7 +29,11 @@ export async function unlock(formData: FormData) {
     list.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     list.get("x-real-ip") ||
     "unknown";
-  if (!allowAttempt(ip)) {
+  const [perIp, daily] = await Promise.all([
+    hit(`suggest-unlock:${ip}`, MAX_ATTEMPTS, ATTEMPT_WINDOW_MS),
+    hit("suggest-unlock:day", MAX_ATTEMPTS_PER_DAY, 24 * 60 * 60 * 1000),
+  ]);
+  if (!perIp.allowed || !daily.allowed) {
     redirect(`${QUEUE}?error=wait`);
   }
   const submitted = formData.get("password");
@@ -51,7 +45,6 @@ export async function unlock(formData: FormData) {
   ) {
     redirect(`${QUEUE}?error=1`);
   }
-  attempts.delete(ip);
   (await cookies()).set(OWNER_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

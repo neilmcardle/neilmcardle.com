@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { PRO_LIFETIME_TERMS, PRO_RENEWAL_TERMS } from "@/lib/billing/plan";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState, useSyncExternalStore } from "react";
 import { track } from "@vercel/analytics";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -272,6 +272,36 @@ function SmallCard({
   );
 }
 
+const INTRO_SEEN = "makeebook:intro-seen";
+let landingsMounted = 0;
+
+function noSubscribe() {
+  return () => {};
+}
+
+function introSeen() {
+  return document.documentElement.dataset.introSeen === "1";
+}
+
+function useIntroOncePerTab() {
+  const seen = useSyncExternalStore(noSubscribe, introSeen, () => false);
+  useEffect(() => {
+    landingsMounted++;
+    try {
+      sessionStorage.setItem(INTRO_SEEN, "1");
+    } catch {}
+    return () => {
+      landingsMounted--;
+      queueMicrotask(() => {
+        if (landingsMounted === 0) {
+          document.documentElement.dataset.introSeen = "1";
+        }
+      });
+    };
+  }, []);
+  return !seen;
+}
+
 export function BrandIntro() {
   return (
     <section id="intro" className={styles.intro}>
@@ -358,9 +388,10 @@ export default function BrandLanding({
   onStartWriting,
   hideNav = false,
 }: BrandLandingProps) {
+  const showIntro = useIntroOncePerTab();
   return (
     <div className={styles.page}>
-      <BrandIntro />
+      {showIntro && <BrandIntro />}
 
       {!hideNav && <BrandNav onStartWriting={onStartWriting} onLanding />}
 
