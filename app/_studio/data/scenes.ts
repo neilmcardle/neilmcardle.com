@@ -69,8 +69,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       [1104, 1.0],
       [1432, 1.16],
     ],
-    ambient: [214, 186, 160],
-    lights: [{ x: 1300, y: 1000, radius: 1100, color: [255, 206, 150] }],
+    ambient: [168, 172, 184],
+    lights: [{ x: 1300, y: 1000, radius: 1000, color: [232, 200, 164] }],
     hotspots: [
       {
         id: "easel",
@@ -105,6 +105,14 @@ export const SCENES: Record<SceneId, SceneDef> = {
         look: "A print of the DoodleWire mark, pegged up to dry.",
       },
       {
+        id: "books",
+        name: "Books",
+        outline: "books",
+        walkTo: { x: 900, y: 1130 },
+        face: "away",
+        look: "A row of old books on the high shelf.",
+      },
+      {
         id: "press",
         name: "Proof press",
         outline: "press",
@@ -133,7 +141,6 @@ export const SCENES: Record<SceneId, SceneDef> = {
         id: "window",
         name: "Window",
         outline: "window",
-        inert: true,
         walkTo: { x: 1560, y: 1140 },
         face: "away",
         look: "The street outside, and the lamp you passed on the way in.",

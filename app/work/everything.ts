@@ -1,7 +1,7 @@
 import { COVERS } from "../_signature/data/covers";
 
 export type Entry = { name: string; line: string; href?: string };
-export type Section = { title: string; entries: Entry[] };
+export type Section = { id?: string; title: string; entries: Entry[] };
 
 export const SECTIONS: Section[] = [
   {
@@ -139,6 +139,7 @@ export const SECTIONS: Section[] = [
     ],
   },
   {
+    id: "book-covers",
     title: "Book covers for The Banner of Truth",
     entries: COVERS.map((cover) => ({
       name: cover.title,

@@ -34,7 +34,11 @@ export default function WorkPage() {
           rest of what I have designed and built.
         </p>
         {SECTIONS.map((section) => (
-          <section key={section.title} className={styles.section}>
+          <section
+            key={section.title}
+            id={section.id}
+            className={styles.section}
+          >
             <h2 className={styles.label}>{section.title}</h2>
             <ul className={styles.list}>
               {section.entries.map((entry) => (

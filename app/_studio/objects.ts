@@ -98,6 +98,24 @@ export const STUDIO_OBJECTS: StudioObject[] = [
     },
   },
   {
+    id: "books",
+    name: "Books",
+    line: "The covers on that shelf are mine. I illustrated The Child's Story Bible as well.",
+    work: {
+      title: "Book covers",
+      summary:
+        "Covers for The Banner of Truth, and the illustration for The Child's Story Bible.",
+      href: `${SITE}/work#book-covers`,
+      links: [{ label: "See the covers", href: `${SITE}/work#book-covers` }],
+    },
+  },
+  {
+    id: "window",
+    name: "Window",
+    line: "Pluviophile. Someone who loves the rain. I didn't take this studio for the view.",
+    work: null,
+  },
+  {
     id: "coat",
     name: "Grey coat",
     line: "I'll put my coat on and go explore outside once I've built the village.",

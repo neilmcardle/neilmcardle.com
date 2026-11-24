@@ -31,6 +31,7 @@ import {
 export const ART_BASE = "/hero-studio";
 
 const WALK_SPEED = 420;
+const SHADOW_RINGS = 6;
 const LONG_PRESS_MS = 480;
 
 type CharacterId = keyof typeof catalogue.characters;
@@ -712,11 +713,14 @@ export class World {
       actor.body.rotation = actor.lean * flip;
       this.drawHeld(actor, scale, flip);
       actor.body.tint = this.lightAt(actor.pos);
-      const width = (actor.body.texture.width ? 150 : 0) * scale;
-      actor.shadow
-        .clear()
-        .ellipse(0, 0, width, width * 0.2)
-        .fill({ color: 0x120c08, alpha: 0.38 });
+      const width = (actor.body.texture.width ? 78 : 0) * scale;
+      const shadow = actor.shadow.clear();
+      for (let ring = 0; ring < SHADOW_RINGS; ring++) {
+        const r = width * (1.5 - ring / SHADOW_RINGS);
+        shadow
+          .ellipse(0, 0, r, r * 0.22)
+          .fill({ color: 0x0b0a0c, alpha: 0.075 });
+      }
     }
     if (this.options.cover && this.player) {
       const target = this.following ? this.player.pos.x : this.focusX;
