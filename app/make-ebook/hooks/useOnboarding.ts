@@ -103,7 +103,7 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
   const [isTourActive, setIsTourActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const storedComplete = useBrowserStore(
-    keyedEventStore<boolean | null>(`mb-onboarding-${STORAGE_KEY}`, {
+    keyedEventStore<boolean | null>(`mb-onboarding-${STORAGE_KEY.key}`, {
       events: [ONBOARDING_EVENT],
       read: () => readLocal(STORAGE_KEY) === "true",
       server: null,
@@ -138,9 +138,11 @@ export function useOnboarding(options: UseOnboardingOptions = {}) {
     setSteps(currentSteps);
     setCurrentStep(0);
     setIsTourActive(true);
+    writeLocal(STORAGE_KEY, "true");
+    window.dispatchEvent(new Event(ONBOARDING_EVENT));
 
     setTimeout(() => runStepCallback(0, currentSteps), 50);
-  }, [getSteps, runStepCallback]);
+  }, [getSteps, runStepCallback, STORAGE_KEY]);
 
   const nextStep = useCallback(() => {
     setCurrentStep((prev) => {
