@@ -30,8 +30,12 @@ export function useEditorUi() {
   );
   const [bookMindOpen, setBookMindOpen] = useState(false);
   const [bookMindDocked, setBookMindDockedNow] = useState(false);
+  const dockedRef = useRef(false);
   const setBookMindDocked = useCallback((next: SetStateAction<boolean>) => {
-    morph("dock", () => setBookMindDockedNow(next));
+    const to = typeof next === "function" ? next(dockedRef.current) : next;
+    if (to === dockedRef.current) return;
+    dockedRef.current = to;
+    morph("dock", () => setBookMindDockedNow(to));
   }, []);
   const [bookMindBusy, setBookMindBusy] = useState(false);
   const [epubBlob, setEpubBlob] = useState<Blob | null>(null);
