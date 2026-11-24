@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TrialBanner from "../components/TrialBanner";
 import NewBookConfirmDialog from "../components/modals/NewBookConfirmDialog";
 import ImportDialog from "../components/modals/ImportDialog";
@@ -14,7 +14,18 @@ import {
   MobileBookMindSheet,
 } from "./EditorOverlays";
 
+const EDITOR_OPENED = "makeebook:editor-opened";
+
+function firstOpenInTab() {
+  try {
+    return !sessionStorage.getItem(EDITOR_OPENED);
+  } catch {
+    return false;
+  }
+}
+
 export default function EditorShell() {
+  const [firstOpen, setFirstOpen] = useState(firstOpenInTab);
   const docked = useEditor((s) => s.bookMindDocked);
   const monoAccent = useEditor((s) => s.monoAccent);
   const accentSet = useRef(false);
@@ -43,6 +54,14 @@ export default function EditorShell() {
   );
 
   useEffect(() => {
+    try {
+      sessionStorage.setItem(EDITOR_OPENED, "1");
+    } catch {}
+    const timer = window.setTimeout(() => setFirstOpen(false), 1200);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     const root = document.documentElement;
     root.dataset.motion = "fade";
     return () => {
@@ -55,6 +74,7 @@ export default function EditorShell() {
       <TrialBanner />
 
       <div
+        data-first-open={firstOpen || undefined}
         className={`${studio.editorRoot} me-boot bg-white dark:bg-[var(--ink)] text-[var(--ink)] dark:text-[var(--paper)]`}
       >
         <NewBookConfirmDialog />
@@ -68,6 +88,7 @@ export default function EditorShell() {
         <MobileDrawer />
 
         <div
+          data-editor-frame
           className={`flex flex-col lg:flex-row h-[100dvh] overflow-hidden ${docked ? "lg:pr-[520px]" : ""}`}
         >
           <DesktopNav />

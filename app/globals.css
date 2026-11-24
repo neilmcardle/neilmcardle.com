@@ -2819,6 +2819,48 @@ html[data-surface-to="section"]::view-transition-new(*) {
   animation: me-fade-in var(--dur-menu) var(--ease-out) both;
 }
 
+@keyframes me-open-nav {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes me-open-surface {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.me-boot[data-first-open] {
+  animation: me-fade-in 420ms var(--ease-out) both;
+}
+
+.me-boot[data-first-open] [data-editor-frame] > :not(main) {
+  animation: me-open-nav 560ms var(--ease-out) 80ms both;
+}
+
+.me-boot[data-first-open] [data-editor-frame] > main {
+  transform-origin: 50% 0;
+  animation: me-open-surface 720ms var(--ease-out) 160ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .me-boot[data-first-open] [data-editor-frame] > :not(main),
+  .me-boot[data-first-open] [data-editor-frame] > main {
+    animation: me-fade-in 240ms var(--ease-out) both;
+  }
+}
+
 :root {
   --type-scale: 1;
 }

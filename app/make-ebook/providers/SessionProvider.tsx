@@ -72,7 +72,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [phase, dispatchPhase] = useReducer(appPhase, initialAppPhase);
+  const [phase, dispatchPhase] = useReducer(
+    appPhase,
+    user,
+    (signedIn): AppPhase =>
+      signedIn ? { kind: "booting", landing: false } : initialAppPhase,
+  );
 
   useEffect(() => {
     if (!user?.id || typeof window === "undefined") return;
